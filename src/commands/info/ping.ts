@@ -6,6 +6,9 @@ import ConfigJson from '../../../config.json'
 export const command: Command = {
     name: 'ping',
     aliases: [],
+    category: 'info',
+    description: 'Shows the latency for Bento Bot, the Discord API and the bot\'s database in PostgreSQL',
+    usage: 'ping',
     run: async(client, message, args) => {
         const msg = await message.channel.send('🏓 Pinging...');
 
