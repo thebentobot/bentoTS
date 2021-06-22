@@ -1,0 +1,22 @@
+{
+  "name": "bentots",
+  "version": "1.0.0",
+  "description": "yes",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node-dev --respawn --transpile-only --poll ./src/index.ts"
+  },
+  "keywords": [],
+  "author": "banner4422",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.4"
+  },
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "pg": "^8.6.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.6.2"
+  }
+}
