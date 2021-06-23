@@ -9,7 +9,7 @@ export const command: Command = {
     category: 'info',
     description: 'Shows the latency for Bento Bot, the Discord API and the bot\'s database in PostgreSQL',
     usage: 'ping',
-    run: async(client, message, args) => {
+    run: async (client, message, args) => {
         const msg = await message.channel.send('🏓 Pinging...');
 
         let dbTimeStart = new Date().getTime();
@@ -32,6 +32,6 @@ export const command: Command = {
             .setDescription(`Bot Latency is **${Math.floor(msg.createdTimestamp - message.createdTimestamp)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL connection was not established, error: ${error}`);
 
             message.channel.send(embed);
-    }
+        }
     }
 }
