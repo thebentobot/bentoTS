@@ -16,9 +16,9 @@ export const event: Event = {
             nsfw: false,
             leaderboard: true,
             media: true
-        }
+        };
 
-        const newGuild = await DbGuild.create(attr)
-        console.log('New guild were added to the database. It is called: ' + newGuild.guildName + ', ID: ' + newGuild.guildID)
+        const newGuild = await DbGuild.create(attr);
+        console.log('New guild were added to the database. It is called: ' + newGuild.guildName + ', ID: ' + newGuild.guildID);
     }
 }
