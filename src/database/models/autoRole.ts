@@ -2,29 +2,27 @@ import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
 
-export interface byeAttributes {
+export interface autoRoleAttributes {
   guildID: number;
-  message?: string;
-  channel?: number;
+  roleID: number;
 }
 
-export type byePk = "guildID";
-export type byeId = bye[byePk];
-export type byeCreationAttributes = Optional<byeAttributes, byePk>;
+export type autoRolePk = "guildID";
+export type autoRoleId = autoRole[autoRolePk];
+export type autoRoleCreationAttributes = Optional<autoRoleAttributes, autoRolePk>;
 
-export class bye extends Model<byeAttributes, byeCreationAttributes> implements byeAttributes {
+export class autoRole extends Model<autoRoleAttributes, autoRoleCreationAttributes> implements autoRoleAttributes {
   guildID!: number;
-  message?: string;
-  channel?: number;
+  roleID!: number;
 
-  // bye belongsTo guild via guildID
+  // autoRole belongsTo guild via guildID
   guild!: guild;
   getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
   setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
   createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
 
-  static initModel(sequelize: Sequelize.Sequelize): typeof bye {
-    bye.init({
+  static initModel(sequelize: Sequelize.Sequelize): typeof autoRole {
+    autoRole.init({
     guildID: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -34,36 +32,32 @@ export class bye extends Model<byeAttributes, byeCreationAttributes> implements 
         key: 'guildID'
       }
     },
-    message: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    channel: {
+    roleID: {
       type: DataTypes.BIGINT,
-      allowNull: true
+      allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'bye',
+    tableName: 'autoRole',
     schema: 'public',
     timestamps: false,
     indexes: [
       {
-        name: "bye_guildid_uindex",
+        name: "autorole_pk",
         unique: true,
         fields: [
           { name: "guildID" },
         ]
       },
       {
-        name: "bye_pk",
+        name: "autorole_roleid_uindex",
         unique: true,
         fields: [
-          { name: "guildID" },
+          { name: "roleID" },
         ]
       },
     ]
   });
-  return bye;
+  return autoRole;
   }
 }

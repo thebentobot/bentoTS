@@ -2,29 +2,27 @@ import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
 
-export interface byeAttributes {
+export interface muteRoleAttributes {
   guildID: number;
-  message?: string;
-  channel?: number;
+  roleID: number;
 }
 
-export type byePk = "guildID";
-export type byeId = bye[byePk];
-export type byeCreationAttributes = Optional<byeAttributes, byePk>;
+export type muteRolePk = "guildID";
+export type muteRoleId = muteRole[muteRolePk];
+export type muteRoleCreationAttributes = Optional<muteRoleAttributes, muteRolePk>;
 
-export class bye extends Model<byeAttributes, byeCreationAttributes> implements byeAttributes {
+export class muteRole extends Model<muteRoleAttributes, muteRoleCreationAttributes> implements muteRoleAttributes {
   guildID!: number;
-  message?: string;
-  channel?: number;
+  roleID!: number;
 
-  // bye belongsTo guild via guildID
+  // muteRole belongsTo guild via guildID
   guild!: guild;
   getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
   setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
   createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
 
-  static initModel(sequelize: Sequelize.Sequelize): typeof bye {
-    bye.init({
+  static initModel(sequelize: Sequelize.Sequelize): typeof muteRole {
+    muteRole.init({
     guildID: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -34,36 +32,39 @@ export class bye extends Model<byeAttributes, byeCreationAttributes> implements 
         key: 'guildID'
       }
     },
-    message: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    channel: {
+    roleID: {
       type: DataTypes.BIGINT,
-      allowNull: true
+      allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'bye',
+    tableName: 'muteRole',
     schema: 'public',
     timestamps: false,
     indexes: [
       {
-        name: "bye_guildid_uindex",
+        name: "muterole_guildid_uindex",
         unique: true,
         fields: [
           { name: "guildID" },
         ]
       },
       {
-        name: "bye_pk",
+        name: "muterole_pk",
         unique: true,
         fields: [
           { name: "guildID" },
         ]
       },
+      {
+        name: "muterole_role_uindex",
+        unique: true,
+        fields: [
+          { name: "roleID" },
+        ]
+      },
     ]
   });
-  return bye;
+  return muteRole;
   }
 }

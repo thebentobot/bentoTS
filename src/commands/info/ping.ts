@@ -8,7 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Shows the latency for Bento Bot, the Discord API and the bot\'s database in PostgreSQL',
     usage: 'ping',
-    run: async (client, message, args) => {
+    run: async (client, message, args): Promise<any> => {
         const msg = await message.channel.send('🏓 Pinging...');
 
         let dbTimeStart = new Date().getTime();

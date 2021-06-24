@@ -40,7 +40,7 @@ class ExtendedClient extends Client {
                 }
 
                 if(command?.aliases.length !== 0) {
-                    command.aliases.forEach((alias) => {
+                    command.aliases.forEach((alias: string) => {
                         this.aliases.set(alias, command);
                     });
                 }

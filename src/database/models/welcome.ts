@@ -4,8 +4,8 @@ import type { guild, guildId } from './guild';
 
 export interface welcomeAttributes {
   guildID: number;
-  message: string;
-  channel: number;
+  message?: string;
+  channel?: number;
 }
 
 export type welcomePk = "guildID";
@@ -14,8 +14,8 @@ export type welcomeCreationAttributes = Optional<welcomeAttributes, welcomePk>;
 
 export class welcome extends Model<welcomeAttributes, welcomeCreationAttributes> implements welcomeAttributes {
   guildID!: number;
-  message!: string;
-  channel!: number;
+  message?: string;
+  channel?: number;
 
   // welcome belongsTo guild via guildID
   guild!: guild;
@@ -36,11 +36,11 @@ export class welcome extends Model<welcomeAttributes, welcomeCreationAttributes>
     },
     message: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     channel: {
       type: DataTypes.BIGINT,
-      allowNull: false
+      allowNull: true
     }
   }, {
     sequelize,

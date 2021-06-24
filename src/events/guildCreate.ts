@@ -6,7 +6,7 @@ import { Guild } from "discord.js"
 
 export const event: Event = {
     name: 'guildCreate',
-    run: async (client, guild: Guild) => {
+    run: async (client, guild: Guild): Promise<any> => {
         initModels(database);
 
         const attr: guildCreationAttributes = {
