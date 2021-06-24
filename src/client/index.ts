@@ -1,10 +1,11 @@
 import { Client, Collection } from 'discord.js';
-const { Sequelize } = require('sequelize');
+import database from '../database/database';
 import path from 'path';
-const ascii = require('ascii-table');
 import { readdirSync } from 'fs';
 import { Command, Event, Config } from '../interfaces';
-import ConfigJson from '../../config.json'
+import ConfigJson from '../../config.json';
+
+const ascii = require('ascii-table');
 
 class ExtendedClient extends Client {
     public commands: Collection<string, Command> = new Collection();
@@ -14,9 +15,8 @@ class ExtendedClient extends Client {
 
     public async init() {
         this.login(this.config.token);
-        const db = new Sequelize(this.config.postgreSQL)
         try {
-            await db.authenticate();
+            await database.authenticate();
             console.log('Connection to the database has been established successfully.');
           } catch (error) {
             console.error('Unable to connect to the database:', error);

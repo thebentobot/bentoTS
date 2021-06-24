@@ -1,0 +1,1 @@
+Shout out to https://github.com/sequelize/sequelize-auto for making the models

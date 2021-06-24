@@ -10,16 +10,22 @@
   "author": "banner4422",
   "license": "GPL-3.0",
   "devDependencies": {
+    "@types/node": "^15.12.4",
+    "@types/validator": "^13.1.4",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4"
   },
   "dependencies": {
-    "@types/node": "^15.12.4",
-    "@types/validator": "^13.1.4",
+    "@types/node-fetch": "^2.5.10",
     "ascii-table": "^0.0.9",
     "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "moment": "^2.29.1",
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.6.2"
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.6.2",
+    "sequelize-auto": "^0.8.3",
+    "tiktok-scraper": "^1.4.32"
   }
 }
