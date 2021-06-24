@@ -39,7 +39,7 @@ export const command: Command = {
 
             if (welcomeData === null) {
                 const attr: welcomeCreationAttributes = {
-                    guildID: parseInt(message.guild.id),
+                    guildID: BigInt(message.guild.id),
                     message: msg
                 }
                 const createwelcomeMessageData = await welcome.create(attr);
@@ -73,8 +73,8 @@ export const command: Command = {
             
             if (welcomeData === null) {
                 const attr: welcomeCreationAttributes = {
-                    guildID: parseInt(message.guild.id),
-                    channel: parseInt(channel)
+                    guildID: BigInt(message.guild.id),
+                    channel: BigInt(channel)
                 }
                 const createwelcomeChannelData = await welcome.create(attr);
 
@@ -85,7 +85,7 @@ export const command: Command = {
                 };
 
             } else {
-                await welcome.update({channel: parseInt(channel)}, {where: {guildID: message.guild.id}});
+                await welcome.update({channel: BigInt(channel)}, {where: {guildID: message.guild.id}});
 
                 if (welcomeData.message === null) {
                     return message.channel.send(`Your welcome channel was updated! It is now: <#${channel} You need to specify a message to be sent in the channel\nCreate a welcome message for when members join the server by the following command: ${guildData.prefix}welcome message <welcome message>`);

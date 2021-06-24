@@ -3,17 +3,19 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
 
 export interface autoRoleAttributes {
-  guildID: number;
-  roleID: number;
+  autoRoleID?: number;
+  guildID: bigint;
+  roleID: bigint;
 }
 
-export type autoRolePk = "guildID";
+export type autoRolePk = "autoRoleID";
 export type autoRoleId = autoRole[autoRolePk];
 export type autoRoleCreationAttributes = Optional<autoRoleAttributes, autoRolePk>;
 
 export class autoRole extends Model<autoRoleAttributes, autoRoleCreationAttributes> implements autoRoleAttributes {
-  guildID!: number;
-  roleID!: number;
+  autoRoleID?: number;
+  guildID!: bigint;
+  roleID!: bigint;
 
   // autoRole belongsTo guild via guildID
   guild!: guild;
@@ -23,10 +25,15 @@ export class autoRole extends Model<autoRoleAttributes, autoRoleCreationAttribut
 
   static initModel(sequelize: Sequelize.Sequelize): typeof autoRole {
     autoRole.init({
+    autoRoleID: {
+      autoIncrement: true,
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      primaryKey: true
+    },
     guildID: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      primaryKey: true,
       references: {
         model: 'guild',
         key: 'guildID'
@@ -43,17 +50,17 @@ export class autoRole extends Model<autoRoleAttributes, autoRoleCreationAttribut
     timestamps: false,
     indexes: [
       {
-        name: "autorole_pk",
+        name: "autorole_autoroleid_uindex",
         unique: true,
         fields: [
-          { name: "guildID" },
+          { name: "autoRoleID" },
         ]
       },
       {
-        name: "autorole_roleid_uindex",
+        name: "autorole_pk",
         unique: true,
         fields: [
-          { name: "roleID" },
+          { name: "autoRoleID" },
         ]
       },
     ]

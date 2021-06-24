@@ -3,8 +3,8 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
 
 export interface muteRoleAttributes {
-  guildID: number;
-  roleID: number;
+  guildID: bigint;
+  roleID: bigint;
 }
 
 export type muteRolePk = "guildID";
@@ -12,8 +12,8 @@ export type muteRoleId = muteRole[muteRolePk];
 export type muteRoleCreationAttributes = Optional<muteRoleAttributes, muteRolePk>;
 
 export class muteRole extends Model<muteRoleAttributes, muteRoleCreationAttributes> implements muteRoleAttributes {
-  guildID!: number;
-  roleID!: number;
+  guildID!: bigint;
+  roleID!: bigint;
 
   // muteRole belongsTo guild via guildID
   guild!: guild;

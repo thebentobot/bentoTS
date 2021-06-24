@@ -38,8 +38,8 @@ export const command: Command = {
             if (regExp.test(role) == true) return message.channel.send(`Your role id ${args[1]} was invalid.\nPlease use a valid role id.`);
             
             const attr: muteRoleCreationAttributes = {
-                guildID: parseInt(message.guild.id),
-                roleID: parseInt(role)
+                guildID: BigInt(message.guild.id),
+                roleID: BigInt(role)
             }
             await muteRole.create(attr);
             

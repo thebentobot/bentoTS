@@ -13,10 +13,9 @@ export const event: Event = {
             const messageLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
 
             const embed = new MessageEmbed()
-            .setAuthor(`${oldMessage.author.username} (userID: ${oldMessage.author.id})`, oldMessage.author.displayAvatarURL())
+            .setAuthor(`${oldMessage.author.username + '#' + oldMessage.author.discriminator} (userID: ${oldMessage.author.id})`, oldMessage.author.displayAvatarURL())
             .setColor('#FFF000')
-            .setTitle(`Message edited in <#${oldMessage.channel.id}>`)
-            .setDescription(`**Before:** ${oldMessage.content}\n**After:** ${newMessage.content}`)
+            .setDescription(`Message edited in <#${oldMessage.channel.id}>\n**Before:** ${oldMessage.content}\n**After:** ${newMessage.content}`)
             .setFooter('Edited at')
             .setTimestamp(oldMessage.createdAt)
 

@@ -5,11 +5,11 @@ import type { user, userId } from './user';
 
 export interface kickAttributes {
   kickCase?: number;
-  userID: number;
-  guildID: number;
+  userID: bigint;
+  guildID: bigint;
   date?: Date;
   note?: string;
-  actor: number;
+  actor: bigint;
 }
 
 export type kickPk = "kickCase";
@@ -18,11 +18,11 @@ export type kickCreationAttributes = Optional<kickAttributes, kickPk>;
 
 export class kick extends Model<kickAttributes, kickCreationAttributes> implements kickAttributes {
   kickCase?: number;
-  userID!: number;
-  guildID!: number;
+  userID!: bigint;
+  guildID!: bigint;
   date?: Date;
   note?: string;
-  actor!: number;
+  actor!: bigint;
 
   // kick belongsTo guild via guildID
   guild!: guild;

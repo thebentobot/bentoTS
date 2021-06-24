@@ -5,11 +5,11 @@ import type { user, userId } from './user';
 
 export interface banAttributes {
   banCase?: number;
-  userID: number;
-  guildID: number;
+  userID: bigint;
+  guildID: bigint;
   date?: Date;
   note?: string;
-  actor: number;
+  actor: bigint;
 }
 
 export type banPk = "banCase";
@@ -18,11 +18,11 @@ export type banCreationAttributes = Optional<banAttributes, banPk>;
 
 export class ban extends Model<banAttributes, banCreationAttributes> implements banAttributes {
   banCase?: number;
-  userID!: number;
-  guildID!: number;
+  userID!: bigint;
+  guildID!: bigint;
   date?: Date;
   note?: string;
-  actor!: number;
+  actor!: bigint;
 
   // ban belongsTo guild via guildID
   guild!: guild;

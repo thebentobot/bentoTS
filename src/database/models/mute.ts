@@ -5,12 +5,12 @@ import type { user, userId } from './user';
 
 export interface muteAttributes {
   muteCase?: number;
-  userID: number;
-  guildID: number;
+  userID: bigint;
+  guildID: bigint;
   date?: Date;
   duration?: number;
   note?: string;
-  actor: number;
+  actor: bigint;
 }
 
 export type mutePk = "muteCase";
@@ -19,12 +19,12 @@ export type muteCreationAttributes = Optional<muteAttributes, mutePk>;
 
 export class mute extends Model<muteAttributes, muteCreationAttributes> implements muteAttributes {
   muteCase?: number;
-  userID!: number;
-  guildID!: number;
+  userID!: bigint;
+  guildID!: bigint;
   date?: Date;
   duration?: number;
   note?: string;
-  actor!: number;
+  actor!: bigint;
 
   // mute belongsTo guild via guildID
   guild!: guild;

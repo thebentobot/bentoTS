@@ -39,8 +39,8 @@ export const command: Command = {
             if (regExp.test(role) == true) return message.channel.send(`Your role id ${args[1]} was invalid.\nPlease use a valid role id.`);
             console.log(role)
             const attr: autoRoleCreationAttributes = {
-                guildID: +message.guild.id,
-                roleID: +role
+                guildID: BigInt(message.guild.id),
+                roleID: BigInt(role)
             }
             console.log(attr)
             await autoRole.create(attr);

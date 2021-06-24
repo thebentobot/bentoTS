@@ -2,6 +2,7 @@ import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
 import database from '../../database/database';
 import { initModels, guild, messageLog, modLog, bye, welcome, autoRole, muteRole } from '../../database/models/init-models';
+import { trim } from '../../utils/trim';
 
 export const command: Command = {
     name: 'settings',
@@ -26,9 +27,8 @@ export const command: Command = {
 
         const modLogText = modLogData ? `<#${modLogData.channel}>`: 'Not configured';
         const msgLogText = messageLogData ? `<#${messageLogData.channel}>`: 'Not configured';
-        const byeDataText = byeData ? `Enabled`: 'Disabled';
-        const welcomeDataText = welcomeData ? `Enabled`: 'Disabled';
-        const autoRoleDataText = autoRoleData.length ? autoRoleData.forEach(role => `<@&${role.roleID}>, `) : 'Not configured';
+        const byeDataText = byeData ? `Enabled in <#${byeData.channel}>`: 'Disabled';
+        const welcomeDataText = welcomeData ? `Enabled in <#${welcomeData.channel}>`: 'Disabled';
         const muteRoleDataText = muteRoleData ? `<@&${muteRoleData.roleID}>`: 'Not configured';
 
         const Embed = new MessageEmbed()
@@ -42,12 +42,12 @@ export const command: Command = {
             {name: 'Tiktok', value: `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, inline: true},
             {name: 'Media', value: `${guildData.media ? 'Enabled' : 'Disabled'}`, inline: true},
             {name: 'leaderboard', value: `${guildData.leaderboard ? 'Enabled' : 'Disabled'}`, inline: true},
-            {name: 'Welcome Mesages', value: `${byeDataText}`, inline: true},
+            {name: 'Welcome Messages', value: `${byeDataText}`, inline: true},
             {name: 'Bye Messages', value: `${welcomeDataText}`, inline: true},
             {name: 'Mod log channel', value: `${modLogText}`, inline: true},
             {name: 'Message log channel', value: `${msgLogText}`, inline: true},
             {name: 'Mute role', value: `${muteRoleDataText}`, inline: true},
-            {name: 'Auto assigned role', value: `${autoRoleDataText}`, inline: true},
+            {name: autoRoleData.length > 1 ? 'Auto assigned roles' : 'Auto assigned role', value: autoRoleData ? trim(autoRoleData.map(r => `<@&${r.roleID}>`).join(' | '), 1024) : 'Not configured', inline: true},
         )
 
         return message.channel.send(Embed);

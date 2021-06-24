@@ -41,16 +41,14 @@ export const command: Command = {
             
             if (modLogData === null) {
                 const attr: modLogCreationAttributes = {
-                    guildID: parseInt(message.guild.id),
-                    channel: parseInt(channel)
+                    guildID: BigInt(message.guild.id),
+                    channel: BigInt(channel)
                 }
                 const createmodLogChannelData = await modLog.create(attr);
 
-                if (modLogData.channel === null) {
-                    return message.channel.send(`Your mod log channel was assigned! It is in <#${createmodLogChannelData.channel}> `);
-                }
+                return message.channel.send(`Your mod log channel was assigned! It is in <#${createmodLogChannelData.channel}> `);
             } else {
-                await modLog.update({channel: parseInt(channel)}, {where: {guildID: message.guild.id}});
+                await modLog.update({channel: BigInt(channel)}, {where: {guildID: message.guild.id}});
 
                 return message.channel.send(`Your mod log channel was updated! It is now <#${channel}>`);
             }

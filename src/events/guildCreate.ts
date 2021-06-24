@@ -10,7 +10,7 @@ export const event: Event = {
         initModels(database);
 
         const attr: guildCreationAttributes = {
-            guildID: parseInt(guild.id),
+            guildID: BigInt(guild.id),
             guildName: guild.name,
             prefix: ConfigJson.prefix,
             tiktok: true,

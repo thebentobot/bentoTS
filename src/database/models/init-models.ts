@@ -117,7 +117,7 @@ export function initModels(sequelize: Sequelize) {
   welcome.initModel(sequelize);
 
   autoRole.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
-  guild.hasOne(autoRole, { as: "autoRole", foreignKey: "guildID"});
+  guild.hasMany(autoRole, { as: "autoRoles", foreignKey: "guildID"});
   ban.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(ban, { as: "bans", foreignKey: "guildID"});
   bye.belongsTo(guild, { as: "guild", foreignKey: "guildID"});

@@ -3,7 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { user, userId } from './user';
 
 export interface bentoAttributes {
-  userID: number;
+  userID: bigint;
   bento: number;
   bentoDate?: Date;
 }
@@ -13,7 +13,7 @@ export type bentoId = bento[bentoPk];
 export type bentoCreationAttributes = Optional<bentoAttributes, bentoPk>;
 
 export class bento extends Model<bentoAttributes, bentoCreationAttributes> implements bentoAttributes {
-  userID!: number;
+  userID!: bigint;
   bento!: number;
   bentoDate?: Date;
 

@@ -39,7 +39,7 @@ export const command: Command = {
 
             if (byeData === null) {
                 const attr: byeCreationAttributes = {
-                    guildID: parseInt(message.guild.id),
+                    guildID: BigInt(message.guild.id),
                     message: msg
                 }
                 const createByeMessageData = await bye.create(attr);
@@ -73,8 +73,8 @@ export const command: Command = {
             
             if (byeData === null) {
                 const attr: byeCreationAttributes = {
-                    guildID: parseInt(message.guild.id),
-                    channel: parseInt(channel)
+                    guildID: BigInt(message.guild.id),
+                    channel: BigInt(channel)
                 }
                 const createByeChannelData = await bye.create(attr);
 
@@ -85,7 +85,7 @@ export const command: Command = {
                 };
 
             } else {
-                await bye.update({channel: parseInt(channel)}, {where: {guildID: message.guild.id}});
+                await bye.update({channel: BigInt(channel)}, {where: {guildID: message.guild.id}});
 
                 if (byeData.message === null) {
                     return message.channel.send(`Your bye channel was updated! It is now: <#${channel} You need to specify a message to be sent in the channel\nCreate a bye message for when members leave the server by the following command: ${guildData.prefix}bye message <bye message>`);
