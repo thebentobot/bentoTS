@@ -1,10 +1,11 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
 import { initModels, guild as DbGuild, welcome, warning, mute, tag, modLog, messageLog, kick, guildMember, bye, ban } from '../database/models/init-models';
+import { Guild} from "discord.js"
 
 export const event: Event = {
     name: 'guildDelete',
-    run: async (client, guild) => {
+    run: async (client, guild: Guild) => {
         initModels(database);
 
         await DbGuild.destroy({where: { guildID: guild.id }});

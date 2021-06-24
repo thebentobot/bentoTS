@@ -5,7 +5,7 @@ import { checkURL } from '../utils/checkURL';
 
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
-import { initModels, guild } from '../database/models/init-models';
+import { initModels, guild, tag } from '../database/models/init-models';
 import { tiktokEmbedding } from '../utils/tiktok';
 
 export const event: Event = {
@@ -16,7 +16,7 @@ export const event: Event = {
         initModels(database); //imports models into sequelize instance
 
         // finds prefix by guildID
-        const messageGuild = await guild.findOne({raw: true, where: {"guildID": message.guild.id}}); //raw: true returns only the dataValues
+        const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
 
         // we need to add global and server XP (remember 1 minute cooldown)
 
@@ -40,9 +40,19 @@ export const event: Event = {
 
         const cmd = args.shift().toLowerCase();
 
-        // down here we need to add the command implementation (don't implement a ''this command doesn't not exist'' unless people ask for it)
         if (!cmd) return;
         const command = client.commands.get(cmd) || client.aliases.get(cmd);
-        if (command) (command as Command).run(client, message, args);
+
+        // custom tags
+        if (command) {
+            (command as Command).run(client, message, args);
+        } else {
+            const customCommand = tag.findOne({raw: true, where: {guildID: message.guild.id, command: cmd}})
+            try {
+                return message.channel.send((await customCommand).content)
+            } catch {
+                return
+            }
+        }
     }
 }

@@ -2,14 +2,15 @@ import { Event } from "../interfaces";
 import database from '../database/database';
 import { initModels, guild as DbGuild, guildCreationAttributes } from '../database/models/init-models';
 import ConfigJson from '../../config.json';
+import { Guild } from "discord.js"
 
 export const event: Event = {
     name: 'guildCreate',
-    run: async (client, guild) => {
+    run: async (client, guild: Guild) => {
         initModels(database);
 
         const attr: guildCreationAttributes = {
-            guildID: guild.id,
+            guildID: parseInt(guild.id),
             guildName: guild.name,
             prefix: ConfigJson.prefix,
             tiktok: true,

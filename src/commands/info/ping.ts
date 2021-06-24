@@ -1,7 +1,6 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
-const { Sequelize } = require('sequelize');
-import ConfigJson from '../../../config.json'
+import database from '../../database/database';
 
 export const command: Command = {
     name: 'ping',
@@ -13,9 +12,8 @@ export const command: Command = {
         const msg = await message.channel.send('🏓 Pinging...');
 
         let dbTimeStart = new Date().getTime();
-        const db = new Sequelize(ConfigJson.postgreSQL);
         try {
-            await db.authenticate();
+            await database.authenticate();
             let dbTimeEnd = new Date().getTime();
             const dbTime = dbTimeEnd - dbTimeStart;
 
