@@ -5,8 +5,8 @@ import type { user, userId } from './user';
 
 export interface guildMemberAttributes {
   guildMemberID?: number;
-  userID: number;
-  guildID: number;
+  userID: bigint;
+  guildID: bigint;
   xp: number;
   level: number;
 }
@@ -17,8 +17,8 @@ export type guildMemberCreationAttributes = Optional<guildMemberAttributes, guil
 
 export class guildMember extends Model<guildMemberAttributes, guildMemberCreationAttributes> implements guildMemberAttributes {
   guildMemberID?: number;
-  userID!: number;
-  guildID!: number;
+  userID!: bigint;
+  guildID!: bigint;
   xp!: number;
   level!: number;
 

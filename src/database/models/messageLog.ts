@@ -3,8 +3,8 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
 
 export interface messageLogAttributes {
-  guildID: number;
-  channel: number;
+  guildID: bigint;
+  channel: bigint;
 }
 
 export type messageLogPk = "guildID";
@@ -12,8 +12,8 @@ export type messageLogId = messageLog[messageLogPk];
 export type messageLogCreationAttributes = Optional<messageLogAttributes, messageLogPk>;
 
 export class messageLog extends Model<messageLogAttributes, messageLogCreationAttributes> implements messageLogAttributes {
-  guildID!: number;
-  channel!: number;
+  guildID!: bigint;
+  channel!: bigint;
 
   // messageLog belongsTo guild via guildID
   guild!: guild;

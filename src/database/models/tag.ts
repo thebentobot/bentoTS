@@ -5,12 +5,12 @@ import type { user, userId } from './user';
 
 export interface tagAttributes {
   tagID?: number;
-  userID: number;
-  guildID: number;
+  userID: bigint;
+  guildID: bigint;
   date?: string;
   command: string;
   content: string;
-  count: number;
+  count: bigint;
 }
 
 export type tagPk = "tagID";
@@ -19,12 +19,12 @@ export type tagCreationAttributes = Optional<tagAttributes, tagPk>;
 
 export class tag extends Model<tagAttributes, tagCreationAttributes> implements tagAttributes {
   tagID?: number;
-  userID!: number;
-  guildID!: number;
+  userID!: bigint;
+  guildID!: bigint;
   date?: string;
   command!: string;
   content!: string;
-  count!: number;
+  count!: bigint;
 
   // tag belongsTo guild via guildID
   guild!: guild;

@@ -5,7 +5,7 @@ import { TextChannel, GuildChannel } from "discord.js"
 
 export const event: Event = {
     name: 'channelCreate',
-    run: async (client, channel: GuildChannel) => {
+    run: async (client, channel: GuildChannel): Promise<any> => {
         initModels(database);
 
         try {

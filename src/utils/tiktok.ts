@@ -2,9 +2,9 @@ import { MessageEmbed, MessageAttachment } from "discord.js";
 import moment from "moment";
 import fetch from "node-fetch";
 import { getVideoMeta } from "tiktok-scraper";
-import { markdownEscape } from "./markdownEscape";
+import { markdownEscape } from "./index";
 
-export async function tiktokEmbedding(URL: string) {
+export async function tiktokEmbedding(URL: string): Promise<any> {
     const query: RegExpMatchArray = URL.match(/\bhttps?:\/\/\S+/gi);
     const finalQuery: string = query.toString();
     const videoMeta = await getVideoMeta(finalQuery);

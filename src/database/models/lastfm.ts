@@ -3,7 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { user, userId } from './user';
 
 export interface lastfmAttributes {
-  userID: number;
+  userID: bigint;
   lastfm: string;
 }
 
@@ -12,7 +12,7 @@ export type lastfmId = lastfm[lastfmPk];
 export type lastfmCreationAttributes = Optional<lastfmAttributes, lastfmPk>;
 
 export class lastfm extends Model<lastfmAttributes, lastfmCreationAttributes> implements lastfmAttributes {
-  userID!: number;
+  userID!: bigint;
   lastfm!: string;
 
   // lastfm belongsTo user via userID

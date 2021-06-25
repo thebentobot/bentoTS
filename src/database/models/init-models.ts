@@ -1,4 +1,6 @@
 import type { Sequelize, Model } from "sequelize";
+import { autoRole } from "./autoRole";
+import type { autoRoleAttributes, autoRoleCreationAttributes } from "./autoRole";
 import { ban } from "./ban";
 import type { banAttributes, banCreationAttributes } from "./ban";
 import { bento } from "./bento";
@@ -21,6 +23,8 @@ import { modLog } from "./modLog";
 import type { modLogAttributes, modLogCreationAttributes } from "./modLog";
 import { mute } from "./mute";
 import type { muteAttributes, muteCreationAttributes } from "./mute";
+import { muteRole } from "./muteRole";
+import type { muteRoleAttributes, muteRoleCreationAttributes } from "./muteRole";
 import { tag } from "./tag";
 import type { tagAttributes, tagCreationAttributes } from "./tag";
 import { user } from "./user";
@@ -33,6 +37,7 @@ import { welcome } from "./welcome";
 import type { welcomeAttributes, welcomeCreationAttributes } from "./welcome";
 
 export {
+  autoRole,
   ban,
   bento,
   bye,
@@ -44,6 +49,7 @@ export {
   messageLog,
   modLog,
   mute,
+  muteRole,
   tag,
   user,
   warning,
@@ -52,6 +58,8 @@ export {
 };
 
 export type {
+  autoRoleAttributes,
+  autoRoleCreationAttributes,
   banAttributes,
   banCreationAttributes,
   bentoAttributes,
@@ -74,6 +82,8 @@ export type {
   modLogCreationAttributes,
   muteAttributes,
   muteCreationAttributes,
+  muteRoleAttributes,
+  muteRoleCreationAttributes,
   tagAttributes,
   tagCreationAttributes,
   userAttributes,
@@ -87,6 +97,7 @@ export type {
 };
 
 export function initModels(sequelize: Sequelize) {
+  autoRole.initModel(sequelize);
   ban.initModel(sequelize);
   bento.initModel(sequelize);
   bye.initModel(sequelize);
@@ -98,12 +109,15 @@ export function initModels(sequelize: Sequelize) {
   messageLog.initModel(sequelize);
   modLog.initModel(sequelize);
   mute.initModel(sequelize);
+  muteRole.initModel(sequelize);
   tag.initModel(sequelize);
   user.initModel(sequelize);
   warning.initModel(sequelize);
   weather.initModel(sequelize);
   welcome.initModel(sequelize);
 
+  autoRole.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasMany(autoRole, { as: "autoRoles", foreignKey: "guildID"});
   ban.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(ban, { as: "bans", foreignKey: "guildID"});
   bye.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
@@ -118,6 +132,8 @@ export function initModels(sequelize: Sequelize) {
   guild.hasOne(modLog, { as: "modLog", foreignKey: "guildID"});
   mute.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(mute, { as: "mutes", foreignKey: "guildID"});
+  muteRole.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasOne(muteRole, { as: "muteRole", foreignKey: "guildID"});
   tag.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(tag, { as: "tags", foreignKey: "guildID"});
   warning.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
@@ -154,6 +170,7 @@ export function initModels(sequelize: Sequelize) {
   user.hasOne(weather, { as: "weather", foreignKey: "userID"});
 
   return {
+    autoRole: autoRole,
     ban: ban,
     bento: bento,
     bye: bye,
@@ -165,6 +182,7 @@ export function initModels(sequelize: Sequelize) {
     messageLog: messageLog,
     modLog: modLog,
     mute: mute,
+    muteRole: muteRole,
     tag: tag,
     user: user,
     warning: warning,

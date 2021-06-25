@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize';
-import ConfigJson from '../../config.json';
+import * as dotenv from "dotenv";
+dotenv.config();
 
-const database = new Sequelize(ConfigJson.postgreSQL, {
+const database = new Sequelize(process.env.postgreSQL, {
     pool: {
         max: 5,
         min: 0,

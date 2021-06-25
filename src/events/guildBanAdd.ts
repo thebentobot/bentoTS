@@ -5,7 +5,7 @@ import { Guild, User } from "discord.js"
 
 export const event: Event = {
     name: 'guildBanAdd',
-    run: async (client, guild: Guild, user: User) => {
+    run: async (client, guild: Guild, user: User): Promise<any> => {
         initModels(database);
 
         // the ban command inserts the record into the ban table

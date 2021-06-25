@@ -3,9 +3,9 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
 
 export interface byeAttributes {
-  guildID: number;
-  message: string;
-  channel: number;
+  guildID: bigint;
+  message?: string;
+  channel?: bigint;
 }
 
 export type byePk = "guildID";
@@ -13,9 +13,9 @@ export type byeId = bye[byePk];
 export type byeCreationAttributes = Optional<byeAttributes, byePk>;
 
 export class bye extends Model<byeAttributes, byeCreationAttributes> implements byeAttributes {
-  guildID!: number;
-  message!: string;
-  channel!: number;
+  guildID!: bigint;
+  message?: string;
+  channel?: bigint;
 
   // bye belongsTo guild via guildID
   guild!: guild;
@@ -36,11 +36,11 @@ export class bye extends Model<byeAttributes, byeCreationAttributes> implements 
     },
     message: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     channel: {
       type: DataTypes.BIGINT,
-      allowNull: false
+      allowNull: true
     }
   }, {
     sequelize,

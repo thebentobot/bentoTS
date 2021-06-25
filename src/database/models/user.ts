@@ -12,7 +12,7 @@ import type { warning, warningId } from './warning';
 import type { weather, weatherCreationAttributes, weatherId } from './weather';
 
 export interface userAttributes {
-  userID: number;
+  userID: bigint;
   discriminator: string;
   xp: number;
   level: number;
@@ -24,7 +24,7 @@ export type userId = user[userPk];
 export type userCreationAttributes = Optional<userAttributes, userPk>;
 
 export class user extends Model<userAttributes, userCreationAttributes> implements userAttributes {
-  userID!: number;
+  userID!: bigint;
   discriminator!: string;
   xp!: number;
   level!: number;

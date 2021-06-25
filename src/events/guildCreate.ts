@@ -1,18 +1,19 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
 import { initModels, guild as DbGuild, guildCreationAttributes } from '../database/models/init-models';
-import ConfigJson from '../../config.json';
-import { Guild } from "discord.js"
+import * as dotenv from "dotenv";
+dotenv.config();
+import { Guild } from "discord.js";
 
 export const event: Event = {
     name: 'guildCreate',
-    run: async (client, guild: Guild) => {
+    run: async (client, guild: Guild): Promise<any> => {
         initModels(database);
 
         const attr: guildCreationAttributes = {
-            guildID: parseInt(guild.id),
+            guildID: BigInt(guild.id),
             guildName: guild.name,
-            prefix: ConfigJson.prefix,
+            prefix: process.env.prefix,
             tiktok: true,
             nsfw: false,
             leaderboard: true,

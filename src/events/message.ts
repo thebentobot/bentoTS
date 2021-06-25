@@ -1,16 +1,17 @@
 import { Event, Command } from '../interfaces';
 import { Message } from 'discord.js';
 import database from '../database/database';
-import { checkURL } from '../utils/checkURL';
 
+import { checkURL } from '../utils/checkURL';
+import { tiktokEmbedding } from '../utils/tiktok';
+import { addXpServer, addXpGlobal } from '../utils/xp'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
 import { initModels, guild, tag } from '../database/models/init-models';
-import { tiktokEmbedding } from '../utils/tiktok';
 
 export const event: Event = {
     name: 'message',
-    run: async (client, message: Message) => {
+    run: async (client, message: Message): Promise<any> => {
         if (message.author.bot) return;
         
         initModels(database); //imports models into sequelize instance
@@ -36,6 +37,11 @@ export const event: Event = {
             await message.channel.send(tiktok[1])
         }
 
+        if (messageGuild.leaderboard === true) {
+            await addXpServer(message.guild.id, message.author.id, 23).catch();
+            await addXpGlobal(message.author.id, 23).catch();
+        }
+
         if (!message.guild) return;
 
         const cmd = args.shift().toLowerCase();
@@ -47,9 +53,12 @@ export const event: Event = {
         if (command) {
             (command as Command).run(client, message, args);
         } else {
-            const customCommand = tag.findOne({raw: true, where: {guildID: message.guild.id, command: cmd}})
+            const customCommand = await tag.findOne({raw: true, where: {guildID: message.guild.id, command: cmd}})
+            if (customCommand) {
+                await tag.increment('count', {where: {command: cmd}})
+            }
             try {
-                return message.channel.send((await customCommand).content)
+                return message.channel.send(customCommand.content)
             } catch {
                 return
             }

@@ -3,7 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { user, userId } from './user';
 
 export interface weatherAttributes {
-  userID: number;
+  userID: bigint;
   city: string;
 }
 
@@ -12,7 +12,7 @@ export type weatherId = weather[weatherPk];
 export type weatherCreationAttributes = Optional<weatherAttributes, weatherPk>;
 
 export class weather extends Model<weatherAttributes, weatherCreationAttributes> implements weatherAttributes {
-  userID!: number;
+  userID!: bigint;
   city!: string;
 
   // weather belongsTo user via userID

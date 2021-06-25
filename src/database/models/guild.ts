@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { autoRole, autoRoleId } from './autoRole';
 import type { ban, banId } from './ban';
 import type { bye, byeCreationAttributes, byeId } from './bye';
 import type { guildMember, guildMemberId } from './guildMember';
@@ -7,12 +8,13 @@ import type { kick, kickId } from './kick';
 import type { messageLog, messageLogCreationAttributes, messageLogId } from './messageLog';
 import type { modLog, modLogCreationAttributes, modLogId } from './modLog';
 import type { mute, muteId } from './mute';
+import type { muteRole, muteRoleCreationAttributes, muteRoleId } from './muteRole';
 import type { tag, tagId } from './tag';
 import type { warning, warningId } from './warning';
 import type { welcome, welcomeCreationAttributes, welcomeId } from './welcome';
 
 export interface guildAttributes {
-  guildID: number;
+  guildID: bigint;
   guildName: string;
   prefix: string;
   tiktok: boolean;
@@ -26,7 +28,7 @@ export type guildId = guild[guildPk];
 export type guildCreationAttributes = Optional<guildAttributes, guildPk>;
 
 export class guild extends Model<guildAttributes, guildCreationAttributes> implements guildAttributes {
-  guildID!: number;
+  guildID!: bigint;
   guildName!: string;
   prefix!: string;
   tiktok!: boolean;
@@ -34,6 +36,18 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   leaderboard!: boolean;
   media!: boolean;
 
+  // guild hasMany autoRole via guildID
+  autoRoles!: autoRole[];
+  getAutoRoles!: Sequelize.HasManyGetAssociationsMixin<autoRole>;
+  setAutoRoles!: Sequelize.HasManySetAssociationsMixin<autoRole, autoRoleId>;
+  addAutoRole!: Sequelize.HasManyAddAssociationMixin<autoRole, autoRoleId>;
+  addAutoRoles!: Sequelize.HasManyAddAssociationsMixin<autoRole, autoRoleId>;
+  createAutoRole!: Sequelize.HasManyCreateAssociationMixin<autoRole>;
+  removeAutoRole!: Sequelize.HasManyRemoveAssociationMixin<autoRole, autoRoleId>;
+  removeAutoRoles!: Sequelize.HasManyRemoveAssociationsMixin<autoRole, autoRoleId>;
+  hasAutoRole!: Sequelize.HasManyHasAssociationMixin<autoRole, autoRoleId>;
+  hasAutoRoles!: Sequelize.HasManyHasAssociationsMixin<autoRole, autoRoleId>;
+  countAutoRoles!: Sequelize.HasManyCountAssociationsMixin;
   // guild hasMany ban via guildID
   bans!: ban[];
   getBans!: Sequelize.HasManyGetAssociationsMixin<ban>;
@@ -97,6 +111,11 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   hasMute!: Sequelize.HasManyHasAssociationMixin<mute, muteId>;
   hasMutes!: Sequelize.HasManyHasAssociationsMixin<mute, muteId>;
   countMutes!: Sequelize.HasManyCountAssociationsMixin;
+  // guild hasOne muteRole via guildID
+  muteRole!: muteRole;
+  getMuteRole!: Sequelize.HasOneGetAssociationMixin<muteRole>;
+  setMuteRole!: Sequelize.HasOneSetAssociationMixin<muteRole, muteRoleId>;
+  createMuteRole!: Sequelize.HasOneCreateAssociationMixin<muteRoleCreationAttributes>;
   // guild hasMany tag via guildID
   tags!: tag[];
   getTags!: Sequelize.HasManyGetAssociationsMixin<tag>;

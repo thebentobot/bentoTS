@@ -1,15 +1,15 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, guildMember, guildMemberCreationAttributes, user, userCreationAttributes, welcome, messageLog } from '../database/models/init-models';
+import { initModels, guildMember, guildMemberCreationAttributes, user, userCreationAttributes, welcome, autoRole } from '../database/models/init-models';
 import { GuildMember, TextChannel } from "discord.js"
 
 export const event: Event = {
     name: 'guildMemberAdd',
-    run: async (client, member: GuildMember) => {
+    run: async (client, member: GuildMember): Promise<any> => {
         initModels(database);
 
         const userAttr: userCreationAttributes = {
-            userID: parseInt(member.id),
+            userID: BigInt(member.id),
             discriminator: member.user.discriminator,
             xp: 0,
             level: 1,
@@ -19,8 +19,8 @@ export const event: Event = {
         await user.findOrCreate({where: { userID: member.id}, defaults: userAttr});
 
         const guildMemberAttr: guildMemberCreationAttributes = {
-            userID: parseInt(member.id),
-            guildID: parseInt(member.guild.id),
+            userID: BigInt(member.id),
+            guildID: BigInt(member.guild.id),
             xp: 0,
             level: 1
         }
@@ -45,6 +45,15 @@ export const event: Event = {
             channel.send(msgClean)
         } catch {
             return
+        }
+
+        const autoRoleData = await autoRole.findAll({where: {guildID: member.guild.id}})
+        if (autoRoleData) {
+            const iterator = autoRoleData.values();
+
+            for (const value of iterator) {
+                member.roles.add([`${value.roleID}`])
+            }
         }
     }
 }

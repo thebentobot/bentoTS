@@ -5,11 +5,11 @@ import type { user, userId } from './user';
 
 export interface warningAttributes {
   warningCase?: number;
-  userID: number;
-  guildID: number;
+  userID: bigint;
+  guildID: bigint;
   date?: Date;
   note?: string;
-  actor: number;
+  actor: bigint;
 }
 
 export type warningPk = "warningCase";
@@ -18,11 +18,11 @@ export type warningCreationAttributes = Optional<warningAttributes, warningPk>;
 
 export class warning extends Model<warningAttributes, warningCreationAttributes> implements warningAttributes {
   warningCase?: number;
-  userID!: number;
-  guildID!: number;
+  userID!: bigint;
+  guildID!: bigint;
   date?: Date;
   note?: string;
-  actor!: number;
+  actor!: bigint;
 
   // warning belongsTo guild via guildID
   guild!: guild;

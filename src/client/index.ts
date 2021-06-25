@@ -2,19 +2,20 @@ import { Client, Collection } from 'discord.js';
 import database from '../database/database';
 import path from 'path';
 import { readdirSync } from 'fs';
-import { Command, Event, Config } from '../interfaces';
-import ConfigJson from '../../config.json';
+import { Command, Event } from '../interfaces';
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const ascii = require('ascii-table');
 
 class ExtendedClient extends Client {
     public commands: Collection<string, Command> = new Collection();
     public event: Collection<string, Event> = new Collection();
-    public config: Config = ConfigJson;
     public aliases: Collection<string, Command> = new Collection();
+    public categories: Collection<string, Command> = new Collection();
 
     public async init() {
-        this.login(this.config.token);
+        this.login(process.env.token);
         try {
             await database.authenticate();
             console.log('Connection to the database has been established successfully.');
@@ -32,15 +33,18 @@ class ExtendedClient extends Client {
                 const { command } = require(`${commandPath}/${dir}/${file}`);
                 const pull = this.commands.set(command.name, command);
 
+                // categories
+                this.categories.set(command.category, command.category)
+
                 if (pull) {
                     table.addRow(file, '✅ Loaded!');
                 } else {
                     table.addRow(file, '❌ -> Command failed to load, please check your work again!');
-                continue;
+                    continue;
                 }
 
                 if(command?.aliases.length !== 0) {
-                    command.aliases.forEach((alias) => {
+                    command.aliases.forEach((alias: string) => {
                         this.aliases.set(alias, command);
                     });
                 }

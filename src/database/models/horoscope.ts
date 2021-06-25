@@ -3,7 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { user, userId } from './user';
 
 export interface horoscopeAttributes {
-  userID: number;
+  userID: bigint;
   horoscope: "Aries" | "Taurus" | "Gemini" | "Cancer" | "Leo" | "Virgo" | "Libra" | "Scorpio" | "Sagittarius" | "Capricorn" | "Aquarius" | "Pisces";
 }
 
@@ -12,7 +12,7 @@ export type horoscopeId = horoscope[horoscopePk];
 export type horoscopeCreationAttributes = Optional<horoscopeAttributes, horoscopePk>;
 
 export class horoscope extends Model<horoscopeAttributes, horoscopeCreationAttributes> implements horoscopeAttributes {
-  userID!: number;
+  userID!: bigint;
   horoscope!: "Aries" | "Taurus" | "Gemini" | "Cancer" | "Leo" | "Virgo" | "Libra" | "Scorpio" | "Sagittarius" | "Capricorn" | "Aquarius" | "Pisces";
 
   // horoscope belongsTo user via userID

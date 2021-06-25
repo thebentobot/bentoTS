@@ -5,7 +5,7 @@ import { TextChannel, GuildMember } from "discord.js";
 
 export const event: Event = {
     name: 'guildMemberUpdate',
-    run: async (client, oldMember: GuildMember, newMember: GuildMember) => {
+    run: async (client, oldMember: GuildMember, newMember: GuildMember): Promise<any> => {
         initModels(database);
 
         try {
