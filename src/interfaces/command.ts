@@ -12,4 +12,5 @@ export interface Command {
     description: string;
     usage: string;
     run: Run;
+    slice?(arg0: number);
 }

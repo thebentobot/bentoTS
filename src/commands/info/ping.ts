@@ -22,14 +22,14 @@ export const command: Command = {
             .setTitle('🏓 Pong!')
             .setDescription(`Bot Latency is **${Math.floor(msg.createdTimestamp - message.createdTimestamp)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL Latency is **${dbTime} ms**`);
 
-            message.channel.send(embed);
+            return message.channel.send(embed);
         } catch (error) {
             const embed = new MessageEmbed()
             .setColor('#ff8956')
             .setTitle('🏓 Pong!')
             .setDescription(`Bot Latency is **${Math.floor(msg.createdTimestamp - message.createdTimestamp)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL connection was not established, error: ${error}`);
 
-            message.channel.send(embed);
+            return message.channel.send(embed);
         }
     }
 }

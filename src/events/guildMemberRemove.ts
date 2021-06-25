@@ -3,7 +3,6 @@ import database from '../database/database';
 import { initModels, guildMember, user, bye, bento, horoscope, lastfm, weather } from '../database/models/init-models';
 import { GuildMember, TextChannel } from "discord.js"
 
-
 export const event: Event = {
     name: 'guildMemberRemove',
     run: async (client, member: GuildMember): Promise<any> => {
