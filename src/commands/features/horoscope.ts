@@ -61,8 +61,8 @@ export const command: Command = {
                 horoscope: horoscope[capitalize(sign)]
             }
             try {
-            await horoscope.create(horoAttr)
-            return message.channel.send(`${message.author.username} your horoscope \`${capitalize(sign)}\` was saved!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                await horoscope.create(horoAttr)
+                return message.channel.send(`${message.author.username} your horoscope \`${capitalize(sign)}\` was saved!\nYou can now use horoscope commands without signs, to see your horoscope.`)
             } catch {
                 return message.channel.send(`Database error, couldn't save your horoscope. I am sorry :-(`)
             }
@@ -96,7 +96,7 @@ export const command: Command = {
             aztroJs.getTodaysHoroscope(sign, function(res: any) {
                 const exampleEmbed = new MessageEmbed()
                     .setColor(stc(res.color))
-                    .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL() : message.author.avatarURL())
+                    .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
                     .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
                     .setDescription(res.description)
                     .setTimestamp()
@@ -140,7 +140,7 @@ export const command: Command = {
             aztroJs.getTomorrowsHoroscope(sign, function(res: any) {
                 const exampleEmbed = new MessageEmbed()
                     .setColor(stc(res.color))
-                    .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL() : message.author.avatarURL())
+                    .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
                     .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
                     .setDescription(res.description)
                     .setTimestamp()
@@ -184,7 +184,7 @@ export const command: Command = {
             aztroJs.getYesterdaysHoroscope(sign, function(res: any) {
                 const exampleEmbed = new MessageEmbed()
                     .setColor(stc(res.color))
-                    .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL() : message.author.avatarURL())
+                    .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
                     .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
                     .setDescription(res.description)
                     .setTimestamp()
