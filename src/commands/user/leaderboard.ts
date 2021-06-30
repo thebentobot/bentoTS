@@ -7,7 +7,7 @@ import { urlToColours } from '../../utils';
 export const command: Command = {
     name: 'leaderboard',
     aliases: ['ranking', 'rankings', 'lb'],
-    category: 'features',
+    category: 'user',
     description: 'Shows the XP/level leaderboard for a server, globally for the bot, or global/local Bentos 🍱',
     usage: 'leaderboard [<global/bento>] [global]',
     run: async (client, message, args): Promise<any> => {

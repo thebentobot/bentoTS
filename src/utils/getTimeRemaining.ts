@@ -1,8 +1,8 @@
 export function getTimeRemaining(endtime: any) {
-    const fk = {
-        fucking: `${new Date()}`
+    const timeConvert = {
+        theTime: `${new Date()}`
     }
-    const total = Date.parse(endtime) - Date.parse(fk.fucking);
+    const total = Date.parse(endtime) - Date.parse(timeConvert.theTime);
     const seconds = Math.floor( (total/1000) % 60 );
     const minutes = Math.floor( (total/1000/60) % 60 );
     const hours = Math.floor( (total/(1000*60*60)) % 24 );
