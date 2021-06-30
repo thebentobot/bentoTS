@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
-import { trim } from '../../utils/index';
+import { trim, urlToColours } from '../../utils/index';
 
 export const command: Command = {
     name: 'whois',
@@ -11,7 +11,7 @@ export const command: Command = {
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             const embed = new MessageEmbed()
-            .setColor('#ff8956')
+            .setColor(`${await urlToColours(message.author.avatarURL({ format: 'png'}))}`)
             .setTitle(`Profile for ${message.author.tag}`)
             .setThumbnail(message.author.avatarURL({ format: 'png', dynamic: true }))
             .setTimestamp()
@@ -31,8 +31,9 @@ export const command: Command = {
         let userID = args[0]
         const user = message.mentions.members.first() || await message.guild.members.fetch(userID)
         if (user) {
+            const colour = await urlToColours(user.user.avatarURL({ format: 'png'}))
             const embed = new MessageEmbed()
-            .setColor('#ff8956')
+            .setColor(`${await urlToColours(user.user.avatarURL({ format: 'png'}))}`)
             .setTitle(`Profile for ${user.user.username + '#' + user.user.discriminator}`)
             .setThumbnail(user.user.avatarURL({ format: 'png', dynamic: true }))
             .setTimestamp()

@@ -10,7 +10,7 @@ export interface tagAttributes {
   date?: string;
   command: string;
   content: string;
-  count: bigint;
+  count: number;
 }
 
 export type tagPk = "tagID";
@@ -24,7 +24,7 @@ export class tag extends Model<tagAttributes, tagCreationAttributes> implements 
   date?: string;
   command!: string;
   content!: string;
-  count!: bigint;
+  count!: number;
 
   // tag belongsTo guild via guildID
   guild!: guild;

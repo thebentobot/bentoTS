@@ -3,7 +3,7 @@ import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
 import { stripIndents } from 'common-tags';
-import { trim } from '../../utils/index'
+import { trim, urlToColours } from '../../utils/index'
 
 export const command: Command = {
     name: 'commands',
@@ -16,7 +16,7 @@ export const command: Command = {
         const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}});
     
         const embed = new MessageEmbed()
-        .setColor('#ff8956')
+        .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
         .setTitle('Command List')
         .setThumbnail(client.user.avatarURL())
         .setFooter('Created by Banner#1017')

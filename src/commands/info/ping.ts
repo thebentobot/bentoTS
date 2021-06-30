@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
 import database from '../../database/database';
+import { urlToColours } from '../../utils';
 
 export const command: Command = {
     name: 'ping',
@@ -18,14 +19,14 @@ export const command: Command = {
             const dbTime = dbTimeEnd - dbTimeStart;
 
             const embed = new MessageEmbed()
-            .setColor('#ff8956')
+            .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTitle('🏓 Pong!')
             .setDescription(`Bot Latency is **${Math.floor(msg.createdTimestamp - message.createdTimestamp)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL Latency is **${dbTime} ms**`);
 
             return message.channel.send(embed);
         } catch (error) {
             const embed = new MessageEmbed()
-            .setColor('#ff8956')
+            .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTitle('🏓 Pong!')
             .setDescription(`Bot Latency is **${Math.floor(msg.createdTimestamp - message.createdTimestamp)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL connection was not established, error: ${error}`);
 

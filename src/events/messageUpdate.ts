@@ -6,6 +6,7 @@ import { initModels, messageLog } from '../database/models/init-models';
 export const event: Event = {
     name: 'messageUpdate',
     run: async (client, oldMessage: Message, newMessage: Message): Promise<any> => {
+        if (oldMessage.author.bot) return;
         initModels(database);
 
         try {

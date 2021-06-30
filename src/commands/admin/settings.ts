@@ -3,6 +3,7 @@ import { MessageEmbed } from 'discord.js';
 import database from '../../database/database';
 import { initModels, guild, messageLog, modLog, bye, welcome, autoRole, muteRole } from '../../database/models/init-models';
 import { trim } from '../../utils/trim';
+import { urlToColours } from '../../utils';
 
 export const command: Command = {
     name: 'settings',
@@ -36,7 +37,7 @@ export const command: Command = {
         .setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}))
         .setTitle(`Server settings for ${message.guild.name}`)
         .setTimestamp()
-        .setColor('#ff8956')
+        .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)
         .addFields(
             {name: 'NSFW', value: `${guildData.nsfw ? 'Enabled' : 'Disabled'}`, inline: true},
             {name: 'Tiktok', value: `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, inline: true},
