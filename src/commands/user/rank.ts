@@ -1,8 +1,8 @@
 import { Command } from '../../interfaces';
-import { trim } from '../../utils';
+import { trim, urlToColours } from '../../utils';
 import database from '../../database/database';
-import { initModels, user, guildMember } from '../../database/models/init-models';
-import { Message, MessageEmbed } from 'discord.js';
+import { initModels } from '../../database/models/init-models';
+import { Message, MessageEmbed, GuildMember } from 'discord.js';
 import { QueryTypes } from 'sequelize';
 
 export const command: Command = {
@@ -18,9 +18,9 @@ export const command: Command = {
             return rankFunction (message, args[0])
         }
 
-        async function rankFunction (message: Message, user?: any) {
+        async function rankFunction (message: Message, user?: GuildMember | any) {
             initModels(database);
-            // kopier ala horoscope.ts logikken
+
             let userID: string;
             let guildID: string = message.guild.id;
 
@@ -39,7 +39,6 @@ export const command: Command = {
             return await message.channel.send(await theRank)
         }
 
-        // evt. funktion/er som calculater global og server rank (altså rank 3 ud af 20 e.g.)
         async function findRankByID (guildID: string, userID?: string, ) {
 
             interface Rankings {
@@ -96,7 +95,7 @@ export const command: Command = {
             }
 
             const embed = new MessageEmbed()
-            .setColor('#ff8956')
+            .setColor(`${await urlToColours(message.guild.members.cache.get(userID).user.displayAvatarURL({ format: 'png'}))}`)
             .setAuthor(message.guild.members.cache.get(userID).guild.name, message.guild.members.cache.get(userID).guild.iconURL({format: 'png', dynamic: true}) ? message.guild.members.cache.get(userID).guild.iconURL({format: 'png', dynamic: true}) : client.user.displayAvatarURL({ format: 'png', dynamic: true }))
             .setTitle(`Rankings for ${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}`)
             .setThumbnail(message.guild.members.cache.get(userID).user.displayAvatarURL({ format: 'png', dynamic: true }))

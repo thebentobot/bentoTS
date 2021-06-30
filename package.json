@@ -20,15 +20,18 @@
     "typescript": "^4.3.4"
   },
   "dependencies": {
-    "@types/node-fetch": "^2.5.10",
+    "@types/chroma-js": "^2.1.3",
+    "@types/get-image-colors": "^4.0.0",
     "ascii-table": "^0.0.9",
     "axios": "^0.21.1",
     "aztro-js": "^0.1.5",
+    "chroma-js": "^2.1.2",
     "common-tags": "^1.8.0",
     "country-emoji": "^1.5.6",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "g-i-s": "^2.1.6",
+    "get-image-colors": "^4.0.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
     "pg": "^8.6.0",
@@ -37,7 +40,6 @@
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.6.2",
     "sequelize-auto": "^0.8.3",
-    "string-to-color": "^2.2.2",
     "tiktok-scraper": "^1.4.32",
     "tz-lookup": "^6.1.25",
     "utf8": "^3.0.0"

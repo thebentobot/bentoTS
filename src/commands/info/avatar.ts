@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { Command } from '../../interfaces';
+import { urlToColours } from '../../utils';
 
 export const command: Command = {
     name: 'avatar',
@@ -10,7 +11,7 @@ export const command: Command = {
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             const embed = new MessageEmbed()
-                .setColor('#ff8956')
+                .setColor(`${await urlToColours(message.author.avatarURL({ format: 'png'}))}`)
                 .setTitle(`${message.author.tag}'s avatar`)
                 .setImage(message.author.avatarURL({ format: 'png', size: 1024, dynamic: true }))
                 .setTimestamp()
@@ -20,7 +21,7 @@ export const command: Command = {
         if (args[0] === 'server') {
             if (message.guild.iconURL() === null) return
             const embed = new MessageEmbed()
-                .setColor('#ff8956')
+                .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)
                 .setTitle(`${message.guild.name}'s avatar`)
                 .setImage(message.guild.iconURL({ format: 'png', size: 1024, dynamic: true }))
                 .setTimestamp()
@@ -30,7 +31,7 @@ export const command: Command = {
         if (args[0] === 'banner') {
             if (message.guild.bannerURL() === null) return
             const embed = new MessageEmbed()
-                .setColor('#ff8956')
+                .setColor(`${await urlToColours(message.guild.bannerURL({ format: 'png'}))}`)
                 .setTitle(`${message.guild.name}'s banner`)
                 .setImage(message.guild.bannerURL({ format: 'png', size: 1024 }))
                 .setTimestamp()
@@ -41,7 +42,7 @@ export const command: Command = {
         const user = message.mentions.members.first() || await message.guild.members.fetch(userID)
         if (user) {
             const embed = new MessageEmbed()
-                .setColor('#ff8956')
+                .setColor(`${await urlToColours(user.user.avatarURL({ format: 'png'}))}`)
                 .setTitle(`${user.user.username + '#' + user.user.discriminator}'s avatar`)
                 .setImage(user.user.avatarURL({ format: 'png', size: 1024, dynamic: true }))
                 .setTimestamp()

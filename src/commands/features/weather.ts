@@ -6,7 +6,7 @@ import moment from 'moment';
 import { tz } from 'moment-timezone';
 import { initModels, guild, weather, weatherCreationAttributes } from '../../database/models/init-models';
 import * as dotenv from "dotenv";
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed, GuildMember } from 'discord.js';
 import { capitalize } from '../../utils';
 import { flag } from 'country-emoji';
 import { codeToName } from 'country-emoji/dist/lib';
@@ -35,7 +35,7 @@ export const command: Command = {
             return weatherFunction (message)
         }
 
-        async function weatherFunction (message: Message, input?: any) {
+        async function weatherFunction (message: Message, input?: GuildMember | any) {
             initModels(database);
 
             let userID: string;

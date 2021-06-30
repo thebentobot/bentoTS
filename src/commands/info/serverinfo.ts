@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
-import { capitalize } from '../../utils/index';
+import { capitalize, urlToColours } from '../../utils/index';
 
 export const command: Command = {
     name: 'serverinfo',
@@ -11,6 +11,7 @@ export const command: Command = {
     run: async (client, message, args): Promise<any> => {
         const embed = new MessageEmbed()
         .setTitle(message.guild.name)
+        .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)
         .setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}))
         .setDescription('Here is some information I found for this server.')
         .addField('Server ID', message.guild.id)

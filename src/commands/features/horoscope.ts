@@ -1,10 +1,10 @@
 import { Command } from '../../interfaces';
 import { capitalize, horoSigns, horoSignsLow } from '../../utils';
 import database from '../../database/database';
-import { initModels, guild, horoscope, horoscopeCreationAttributes, horoscopeAttributes } from '../../database/models/init-models';
-import { Message, MessageEmbed } from 'discord.js';
+import { initModels, guild, horoscope, horoscopeCreationAttributes} from '../../database/models/init-models';
+import { Message, MessageEmbed, GuildMember } from 'discord.js';
 const aztroJs = require("aztro-js");
-import stc from 'string-to-color'
+import chroma from 'chroma-js'
 
 export const command: Command = {
     name: 'horoscope',
@@ -41,7 +41,7 @@ export const command: Command = {
             return horoToday(message, args[0]);
         }
 
-        async function horoSave (message: Message, input?: any) {
+        async function horoSave (message: Message, input?: GuildMember | any) {
             initModels(database);
 
             let userID: string;
@@ -95,7 +95,7 @@ export const command: Command = {
 
             aztroJs.getTodaysHoroscope(sign, function(res: any) {
                 const exampleEmbed = new MessageEmbed()
-                    .setColor(stc(res.color))
+                    .setColor(chroma(res.color).hex())
                     .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
                     .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
                     .setDescription(res.description)
@@ -112,7 +112,7 @@ export const command: Command = {
             });
         }
 
-        async function horoTomorrow (message: Message, input?: any) {
+        async function horoTomorrow (message: Message, input?: GuildMember | any) {
             initModels(database);
 
             let userID: string;
@@ -139,7 +139,7 @@ export const command: Command = {
 
             aztroJs.getTomorrowsHoroscope(sign, function(res: any) {
                 const exampleEmbed = new MessageEmbed()
-                    .setColor(stc(res.color))
+                    .setColor(chroma(res.color).hex())
                     .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
                     .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
                     .setDescription(res.description)
@@ -156,7 +156,7 @@ export const command: Command = {
             });
         }
 
-        async function horoYesterday (message: Message, input?: any) {
+        async function horoYesterday (message: Message, input?: GuildMember | any) {
             initModels(database);
 
             let userID: string;
@@ -183,7 +183,7 @@ export const command: Command = {
 
             aztroJs.getYesterdaysHoroscope(sign, function(res: any) {
                 const exampleEmbed = new MessageEmbed()
-                    .setColor(stc(res.color))
+                    .setColor(chroma(res.color).hex())
                     .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
                     .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
                     .setDescription(res.description)

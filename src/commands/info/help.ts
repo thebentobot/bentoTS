@@ -4,6 +4,7 @@ import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
 import { stringify } from 'querystring';
+import { urlToColours } from '../../utils';
 
 export const command: Command = {
     name: 'help',
@@ -24,7 +25,7 @@ export const command: Command = {
             const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}})
         
             const embed = new MessageEmbed()
-                .setColor('#ff8956')
+                .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
                 .setTitle('Help')
                 .setThumbnail(client.user.avatarURL())
                 .setDescription(`For a full list of commands, please type \`${guildDB.prefix}commands\` \nTo see more info about a specific command, please type \`${guildDB.prefix}help <command>\` without the \`<>\``)
@@ -46,7 +47,7 @@ export const command: Command = {
             let info = `No information found for command **${input.toLowerCase()}**`;
         
             if (!cmd) {
-                return message.channel.send(embed.setColor('#ff0000').setDescription(info));
+                return message.channel.send(embed.setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`).setDescription(info));
             }
         
             cmd.aliases = Array.prototype.slice.call(cmd.aliases)
@@ -59,7 +60,7 @@ export const command: Command = {
             }
             //if (cmd.usage2) info += `\n**Usage 2**: ${guildDB.prefix}${cmd.usage2}`;
         
-            return message.channel.send(embed.setColor('#ff8956').setDescription(info));
+            return message.channel.send(embed.setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`).setDescription(info));
         }
     }
 }
