@@ -6,6 +6,8 @@ import { Command, Event } from '../interfaces';
 import * as dotenv from "dotenv";
 dotenv.config();
 
+//hmm
+
 const ascii = require('ascii-table');
 
 class ExtendedClient extends Client {
