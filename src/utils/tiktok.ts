@@ -1,8 +1,7 @@
-import { MessageEmbed, MessageAttachment } from "discord.js";
+import { MessageEmbed, MessageAttachment, Util } from "discord.js";
 import moment from "moment";
 import fetch from "node-fetch";
 import { getVideoMeta } from "tiktok-scraper";
-import { markdownEscape } from "./index";
 
 export async function tiktokEmbedding(URL: string): Promise<any> {
     const query: RegExpMatchArray = URL.match(/\bhttps?:\/\/\S+/gi);
@@ -21,8 +20,8 @@ export async function tiktokEmbedding(URL: string): Promise<any> {
     const buffer = await response.buffer()
     try {
         const embed = new MessageEmbed()
-        .setTitle(`${markdownEscape(video.text)}`)
-        .setFooter(moment.unix(video.createTime).format("dddd, MMMM Do YYYY, h:mm A"))
+        .setTitle(`${Util.escapeMarkdown(video.text)}`)
+        .setFooter(moment.unix(video.createTime).format("dddd, MMMM Do YYYY, h:mm A z"))
         .setColor('#000000')
         .setAuthor(video.authorMeta.name, video.authorMeta.avatar, `https://www.tiktok.com/@${video.authorMeta.name}?`)
         let finalVideo = new MessageAttachment(buffer, 'video.mp4')
