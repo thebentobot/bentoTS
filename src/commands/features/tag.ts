@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import { trim, urlToColours } from '../../utils';
 import database from '../../database/database';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed, Util } from 'discord.js';
 import { initModels, guild, tag, tagCreationAttributes } from '../../database/models/init-models';
 import { Sequelize, QueryTypes } from 'sequelize';
 import moment from 'moment';
@@ -139,7 +139,7 @@ export const command: Command = {
                 userID: BigInt(message.author.id),
                 guildID: BigInt(message.guild.id),
                 command: tagName,
-                content: tagContent,
+                content: Util.escapeMarkdown(tagContent),
                 count: 0
             }
 
@@ -212,7 +212,7 @@ export const command: Command = {
                 return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
             }
 
-            await tag.update({content: tagContent}, {where: {guildID: tagData.guildID, userID: tagData.userID, command: tagData.command}})
+            await tag.update({content: Util.escapeMarkdown(tagContent)}, {where: {guildID: tagData.guildID, userID: tagData.userID, command: tagData.command}})
             return message.channel.send(`The tag \`${tagData.command}\` got updated!\nThe content is now: \`${tagContent}\``)
         }
 
@@ -309,6 +309,11 @@ export const command: Command = {
         async function renameTag (message: Message, oldTagName?: string, newTagName?: string) {
             oldTagName.toLowerCase()
             newTagName.toLowerCase()
+
+            if (regex.test(newTagName) === true) {
+                return message.channel.send(`You can't add special characters to your new tag name \`${newTagName}\``);
+            }
+
             initModels(database);
 
             const oldTagData = await tag.findOne({raw: true, where: {guildID: message.guild.id, command: oldTagName}})
