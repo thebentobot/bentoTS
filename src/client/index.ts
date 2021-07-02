@@ -6,12 +6,12 @@ import { Command, Event } from '../interfaces';
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const __dirname = path.resolve();
+//const __dirname = path.resolve();
 
 //hmm
 
-//const ascii = require('ascii-table');
-import * as ascii from 'ascii-table'
+const ascii = require('ascii-table');
+//import * as ascii from 'ascii-table'
 
 class ExtendedClient extends Client {
     public commands: Collection<string, Command> = new Collection();

@@ -6,4 +6,4 @@ COPY . .
 
 RUN npm i
 
-CMD ["node", "--experimental-modules ./src/index.ts"]
+CMD ["npm", "start"]
