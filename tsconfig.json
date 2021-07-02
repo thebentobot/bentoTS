@@ -1,18 +1,17 @@
 {
     "compilerOptions": {
-        "lib": ["ESNext"],
-      "module": "commonjs",
+        "lib": ["es2020"],
+      "module": "esnext",
       "moduleResolution": "node",
-      "target": "es6",
+      "target": "es2020",
       "outDir": "./dist",
-      "esModuleInterop": true,
-      "emitDeclarationOnly": true,
+      "rootDir": "./src",
+      "emitDeclarationOnly": false,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
       "allowSyntheticDefaultImports": true,
       "skipLibCheck": true,
       "skipDefaultLibCheck": true,
-      "declaration": true,
       "resolveJsonModule": true,
       "sourceMap": true
     },

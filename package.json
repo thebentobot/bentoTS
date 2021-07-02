@@ -2,11 +2,11 @@
   "name": "bentots",
   "version": "1.0.0",
   "description": "yes",
+  "main": "dist/index.js",
   "type": "module",
-  "main": "src/index.ts",
   "scripts": {
-    "start": "nodemon --exec ts-node src/index.ts",
-    "build": "tsc -b"
+    "start": "ts-node-dev --respawn --transpile-only --poll ./src/index.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "banner4422",

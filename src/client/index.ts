@@ -10,8 +10,8 @@ dotenv.config();
 
 //hmm
 
-const ascii = require('ascii-table');
-//import * as ascii from 'ascii-table'
+//const ascii = require('ascii-table');
+import * as ascii from 'ascii-table'
 
 class ExtendedClient extends Client {
     public commands: Collection<string, Command> = new Collection();
