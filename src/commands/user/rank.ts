@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Command } from '../../interfaces';
 import { trim, urlToColours } from '../../utils';
 import database from '../../database/database';

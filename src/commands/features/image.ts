@@ -1,7 +1,8 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
-const gis = require('g-i-s');
+//const gis = require('g-i-s');
+import * as gis from 'g-i-s'
 
 export const command: Command = {
     name: 'image',

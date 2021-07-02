@@ -3,7 +3,8 @@ import { capitalize, horoSigns, horoSignsLow, urlToColours } from '../../utils';
 import database from '../../database/database';
 import { initModels, guild, horoscope, horoscopeCreationAttributes} from '../../database/models/init-models';
 import { Message, MessageEmbed, GuildMember } from 'discord.js';
-const aztroJs = require("aztro-js");
+//const aztroJs = require("aztro-js");
+import * as aztroJs from 'aztro-js'
 import chroma from 'chroma-js'
 import { QueryTypes } from 'sequelize';
 

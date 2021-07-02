@@ -2,7 +2,10 @@ import { Sequelize } from 'sequelize';
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const database = new Sequelize(process.env.postgreSQL, {
+const database = new Sequelize(process.env.DBdatabase, process.env.DBusername, process.env.DBpassword, {
+    host: process.env.host,
+    port: 5432,
+    dialect: 'postgres',
     pool: {
         max: 5,
         min: 0,
