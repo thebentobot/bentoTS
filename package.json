@@ -2,6 +2,7 @@
   "name": "bentots",
   "version": "1.0.0",
   "description": "yes",
+  "type": "module",
   "main": "src/index.ts",
   "scripts": {
     "start": "ts-node-dev --respawn --transpile-only --poll ./src/index.ts"
