@@ -1,8 +1,8 @@
 import { Command } from '../../interfaces';
-import { trim, urlToColours } from '../../utils/index.js';
-import database from '../../database/database.js';
+import { trim, urlToColours } from '../../utils/index';
+import database from '../../database/database';
 import { Message, MessageEmbed, Util } from 'discord.js';
-import { initModels, guild, tag, tagCreationAttributes } from '../../database/models/init-models.js';
+import { initModels, guild, tag, tagCreationAttributes } from '../../database/models/init-models';
 import { Sequelize, QueryTypes } from 'sequelize';
 import moment from 'moment';
 

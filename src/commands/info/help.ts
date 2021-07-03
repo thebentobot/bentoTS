@@ -1,10 +1,10 @@
 import { Message, MessageEmbed } from 'discord.js';
-import ExtendedClient from '../../client/index.js';
+import ExtendedClient from '../../client/index';
 import { Command } from '../../interfaces';
-import database from '../../database/database.js';
-import { initModels, guild } from '../../database/models/init-models.js';
+import database from '../../database/database';
+import { initModels, guild } from '../../database/models/init-models';
 import { stringify } from 'querystring';
-import { urlToColours } from '../../utils/urlToColours.js';
+import { urlToColours } from '../../utils/urlToColours';
 
 export const command: Command = {
     name: 'help',

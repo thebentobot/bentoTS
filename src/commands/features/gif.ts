@@ -1,8 +1,8 @@
 import { Command } from '../../interfaces';
 import axios from 'axios'
 import utf8 from 'utf8'
-import database from '../../database/database.js';
-import { initModels, guild } from '../../database/models/init-models.js';
+import database from '../../database/database';
+import { initModels, guild } from '../../database/models/init-models';
 import * as dotenv from "dotenv";
 dotenv.config();
 

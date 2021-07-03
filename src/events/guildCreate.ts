@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
-import database from '../database/database.js';
-import { initModels, guild as DbGuild, guildCreationAttributes } from '../database/models/init-models.js';
+import database from '../database/database';
+import { initModels, guild as DbGuild, guildCreationAttributes } from '../database/models/init-models';
 import * as dotenv from "dotenv";
 dotenv.config();
 import { Guild } from "discord.js";

@@ -1,6 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
-import type { guild, guildId } from './guild.js';
+import type { guild, guildId } from './guild';
 
 export interface welcomeAttributes {
   guildID: bigint;

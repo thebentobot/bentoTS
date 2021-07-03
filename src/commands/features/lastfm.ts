@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, Util } from 'discord.js';
 import { Command } from '../../interfaces';
-import database from '../../database/database.js';
-import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models.js';
+import database from '../../database/database';
+import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models';
 import axios from 'axios';
 import * as dotenv from "dotenv";
 import SpotifyWebApi from 'spotify-web-api-node';
@@ -18,19 +18,20 @@ const lastfmAPI = axios.create({
 
 let spotifyCred = new SpotifyWebApi({
     clientId: process.env.spotifyClientID,
-    clientSecret: process.env.spotifyclientSecret
+    clientSecret: process.env.spotifyClientSecret,
+    redirectUri: 'http://localhost:3000/auth/spotify/success'
 })
 
-function newToken () {
-    spotifyCred.clientCredentialsGrant().then(
-        function(data) {
+async function newToken () {
+    await spotifyCred.clientCredentialsGrant().then(
+        async function(data) {
           console.log('The access token expires in ' + data.body['expires_in']);
           //console.log('The access token is ' + data.body['access_token']);
       
           // Save the access token so that it's used in future calls
-          spotifyCred.setAccessToken(data.body['access_token']);
+          await spotifyCred.setAccessToken(data.body['access_token']);
         },
-        function(err) {
+        async function(err) {
           console.log('Something went wrong when retrieving an access token', err);
         }
     );

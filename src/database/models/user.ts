@@ -1,15 +1,15 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
-import type { ban, banId } from './ban.js';
-import type { bento, bentoCreationAttributes, bentoId } from './bento.js';
-import type { guildMember, guildMemberId } from './guildMember.js';
-import type { horoscope, horoscopeCreationAttributes, horoscopeId } from './horoscope.js';
-import type { kick, kickId } from './kick.js';
-import type { lastfm, lastfmCreationAttributes, lastfmId } from './lastfm.js';
-import type { mute, muteId } from './mute.js';
-import type { tag, tagId } from './tag.js';
-import type { warning, warningId } from './warning.js';
-import type { weather, weatherCreationAttributes, weatherId } from './weather.js';
+import type { ban, banId } from './ban';
+import type { bento, bentoCreationAttributes, bentoId } from './bento';
+import type { guildMember, guildMemberId } from './guildMember';
+import type { horoscope, horoscopeCreationAttributes, horoscopeId } from './horoscope';
+import type { kick, kickId } from './kick';
+import type { lastfm, lastfmCreationAttributes, lastfmId } from './lastfm';
+import type { mute, muteId } from './mute';
+import type { tag, tagId } from './tag';
+import type { warning, warningId } from './warning';
+import type { weather, weatherCreationAttributes, weatherId } from './weather';
 
 export interface userAttributes {
   userID: bigint;

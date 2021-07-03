@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
-import { capitalize, urlToColours } from '../../utils/index.js';
+import { capitalize, urlToColours } from '../../utils/index';
 
 export const command: Command = {
     name: 'serverinfo',

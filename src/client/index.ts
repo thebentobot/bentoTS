@@ -1,5 +1,5 @@
 import { Client, Collection } from 'discord.js';
-import database from '../database/database.js';
+import database from '../database/database';
 import path from 'path';
 import { readdirSync } from 'fs';
 import { Command, Event } from '../interfaces';
@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
 
 dotenv.config();
 
-const __dirname = path.resolve();
+//const __dirname = path.resolve();
 
 //hmm
 
@@ -34,11 +34,11 @@ class ExtendedClient extends Client {
         }
 
         // commands
-        const commandPath = path.join(__dirname, 'dist', 'commands');
+        const commandPath = path.join(__dirname, '..', 'commands');
         console.log(commandPath)
         //const table = new ascii().setHeading('Command', 'Status');
         readdirSync(commandPath).forEach((dir) => {
-            const commands = readdirSync(`${commandPath}/${dir}`).filter((file) => file.endsWith('.js'));
+            const commands = readdirSync(`${commandPath}/${dir}`).filter((file) => file.endsWith('.ts'));
 
             for (const file of commands) {
                 const { command } = require(`${commandPath}/${dir}/${file}`);
@@ -64,7 +64,7 @@ class ExtendedClient extends Client {
         });
 
         // events
-        const eventPath = path.join(__dirname, 'dist', 'events');
+        const eventPath = path.join(__dirname,'..', 'events');
         readdirSync(eventPath).forEach(async (file) => {
             const { event } = await import(`${eventPath}/${file}`);
             this.event.set(event.name, event);

@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
-import database from '../database/database.js';
-import { initModels, modLog, user } from '../database/models/init-models.js';
+import database from '../database/database';
+import { initModels, modLog, user } from '../database/models/init-models';
 import { TextChannel, GuildMember } from "discord.js";
 
 export const event: Event = {
@@ -21,5 +21,5 @@ export const event: Event = {
 }
 
 /*
-Explanation for the specification and import of TextChannel can be found here: https://github.com/discordjs/discord.js/issues/3622
+Explanation for the specification and import of TextChannel can be found here: https://github.com/discordjs/discord/issues/3622
 */

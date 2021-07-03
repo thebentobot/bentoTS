@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
-import database from '../../database/database.js';
-import { initModels, guild } from '../../database/models/init-models.js';
+import database from '../../database/database';
+import { initModels, guild } from '../../database/models/init-models';
 
 export const command: Command = {
     name: 'nsfw',

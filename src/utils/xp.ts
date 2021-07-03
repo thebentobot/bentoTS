@@ -1,5 +1,5 @@
-import database from '../database/database.js';
-import { initModels, guildMember, user } from '../database/models/init-models.js';
+import database from '../database/database';
+import { initModels, guildMember, user } from '../database/models/init-models';
 
 const cooldown = new Set();
 

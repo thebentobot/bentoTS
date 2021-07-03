@@ -1,13 +1,13 @@
 import { Event, Command } from '../interfaces';
 import { Message } from 'discord.js';
-import database from '../database/database.js';
+import database from '../database/database';
 
-import { checkURL } from '../utils/checkURL.js';
-import { tiktokEmbedding } from '../utils/tiktok.js';
-import { addXpServer, addXpGlobal } from '../utils/xp.js'
+import { checkURL } from '../utils/checkURL';
+import { tiktokEmbedding } from '../utils/tiktok';
+import { addXpServer, addXpGlobal } from '../utils/xp'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
-import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember } from '../database/models/init-models.js';
+import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember } from '../database/models/init-models';
 
 export const event: Event = {
     name: 'message',

@@ -1,9 +1,9 @@
 import { Command } from '../../interfaces';
-import database from '../../database/database.js';
-import { initModels, bento, bentoCreationAttributes, guildMember } from '../../database/models/init-models.js';
+import database from '../../database/database';
+import { initModels, bento, bentoCreationAttributes, guildMember } from '../../database/models/init-models';
 import { Message } from 'discord.js';
 import moment from 'moment';
-import { getTimeRemaining } from '../../utils/getTimeRemaining.js';
+import { getTimeRemaining } from '../../utils/getTimeRemaining';
 
 export const command: Command = {
     name: 'bento',
