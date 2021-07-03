@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
-import database from '../database/database';
-import { initModels, user } from '../database/models/init-models';
+import database from '../database/database.js';
+import { initModels, user } from '../database/models/init-models.js';
 import { User } from "discord.js";
 
 export const event: Event = {

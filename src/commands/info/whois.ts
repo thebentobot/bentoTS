@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
-import { trim, urlToColours } from '../../utils/index';
+import { trim, urlToColours } from '../../utils/index.js';
 
 export const command: Command = {
     name: 'whois',

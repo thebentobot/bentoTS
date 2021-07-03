@@ -1,13 +1,13 @@
 import { Command } from '../../interfaces';
 import axios from 'axios';
-import database from '../../database/database';
+import database from '../../database/database.js';
 import tzlookup from 'tz-lookup';
 import moment from 'moment';
 import { tz } from 'moment-timezone';
-import { initModels, guild, weather, weatherCreationAttributes } from '../../database/models/init-models';
+import { initModels, guild, weather, weatherCreationAttributes } from '../../database/models/init-models.js';
 import * as dotenv from "dotenv";
 import { Message, MessageEmbed, GuildMember } from 'discord.js';
-import { capitalize } from '../../utils';
+import { capitalize } from '../../utils/capitalize.js';
 import { flag } from 'country-emoji';
 import { codeToName } from 'country-emoji/dist/lib';
 dotenv.config();

@@ -1,6 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
-import type { user, userId } from './user';
+import type { user, userId } from './user.js';
 
 export interface lastfmAttributes {
   userID: bigint;

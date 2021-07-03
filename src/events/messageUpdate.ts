@@ -1,7 +1,7 @@
 import { Event } from '../interfaces';
 import { Message, TextChannel, MessageEmbed } from 'discord.js';
-import database from '../database/database';
-import { initModels, messageLog } from '../database/models/init-models';
+import database from '../database/database.js';
+import { initModels, messageLog } from '../database/models/init-models.js';
 
 export const event: Event = {
     name: 'messageUpdate',

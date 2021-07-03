@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
-import database from '../database/database';
-import { initModels, modLog, messageLog, welcome, bye, guild } from '../database/models/init-models';
+import database from '../database/database.js';
+import { initModels, modLog, messageLog, welcome, bye, guild } from '../database/models/init-models.js';
 import { TextChannel, GuildChannel } from "discord.js"
 
 export const event: Event = {

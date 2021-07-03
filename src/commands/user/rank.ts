@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { Command } from '../../interfaces';
-import { trim, urlToColours } from '../../utils';
-import database from '../../database/database';
-import { initModels } from '../../database/models/init-models';
+import { trim, urlToColours } from '../../utils/index.js';
+import database from '../../database/database.js';
+import { initModels } from '../../database/models/init-models.js';
 import { Message, MessageEmbed, GuildMember } from 'discord.js';
 import { QueryTypes } from 'sequelize';
 

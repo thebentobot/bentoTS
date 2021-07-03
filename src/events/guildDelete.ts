@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
-import database from '../database/database';
-import { initModels, guild as DbGuild, welcome, tag, modLog, messageLog, guildMember, bye, muteRole, autoRole } from '../database/models/init-models';
+import database from '../database/database.js';
+import { initModels, guild as DbGuild, welcome, tag, modLog, messageLog, guildMember, bye, muteRole, autoRole } from '../database/models/init-models.js';
 import { Guild} from "discord.js"
 
 export const event: Event = {

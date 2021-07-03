@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
-import database from '../../database/database';
-import { initModels, guild } from '../../database/models/init-models';
+import database from '../../database/database.js';
+import { initModels, guild } from '../../database/models/init-models.js';
 //const gis = require('g-i-s');
 import * as gis from 'g-i-s'
 

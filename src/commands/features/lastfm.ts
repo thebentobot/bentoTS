@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, Util } from 'discord.js';
 import { Command } from '../../interfaces';
-import database from '../../database/database';
-import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models';
+import database from '../../database/database.js';
+import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models.js';
 import axios from 'axios';
 import * as dotenv from "dotenv";
 import SpotifyWebApi from 'spotify-web-api-node';

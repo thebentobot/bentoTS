@@ -1,13 +1,13 @@
 import { Command } from '../../interfaces';
-import database from '../../database/database';
-import { initModels, muteRole, muteRoleCreationAttributes, guild } from '../../database/models/init-models';
+import database from '../../database/database.js';
+import { initModels, muteRole, muteRoleCreationAttributes, guild } from '../../database/models/init-models.js';
 
 export const command: Command = {
     name: 'muterole',
     aliases: [],
     category: 'admin',
     description: 'Set an mute role that users get assigned when a mod mutes them',
-    usage: ' is the prefix\muterole <status>\muterole set <roleID>\muterole delete <roleID>',
+    usage: ' is the prefix\nmuterole <status>\nmuterole set <roleID>\nmuterole delete <roleID>',
     run: async (client, message, args): Promise<any> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

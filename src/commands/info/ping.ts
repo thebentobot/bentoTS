@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
-import database from '../../database/database';
-import { urlToColours } from '../../utils';
+import database from '../../database/database.js';
+import { urlToColours } from '../../utils/urlToColours.js';
 
 export const command: Command = {
     name: 'ping',

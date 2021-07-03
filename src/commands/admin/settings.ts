@@ -1,9 +1,9 @@
 import { Command } from '../../interfaces';
 import { MessageEmbed } from 'discord.js';
-import database from '../../database/database';
-import { initModels, guild, messageLog, modLog, bye, welcome, autoRole, muteRole } from '../../database/models/init-models';
-import { trim } from '../../utils/trim';
-import { urlToColours } from '../../utils';
+import database from '../../database/database.js';
+import { initModels, guild, messageLog, modLog, bye, welcome, autoRole, muteRole } from '../../database/models/init-models.js';
+import { trim } from '../../utils/trim.js';
+import { urlToColours } from '../../utils/urlToColours.js';
 
 export const command: Command = {
     name: 'settings',

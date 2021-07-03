@@ -1,8 +1,8 @@
 import { Command } from '../../interfaces';
-import database from '../../database/database';
+import database from '../../database/database.js';
 import { Message, MessageEmbed } from 'discord.js';
 import { QueryTypes } from 'sequelize';
-import { urlToColours } from '../../utils';
+import { urlToColours } from '../../utils/urlToColours.js';
 
 export const command: Command = {
     name: 'leaderboard',

@@ -1,7 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
-import type { guild, guildId } from './guild';
-import type { user, userId } from './user';
+import type { guild, guildId } from './guild.js';
+import type { user, userId } from './user.js';
 
 export interface warningAttributes {
   warningCase?: number;

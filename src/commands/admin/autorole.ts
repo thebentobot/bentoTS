@@ -1,7 +1,7 @@
 // remember to insert it's functionality in guildMemberAdd
 import { Command } from '../../interfaces';
-import database from '../../database/database';
-import { initModels, autoRole, autoRoleCreationAttributes, guild } from '../../database/models/init-models';
+import database from '../../database/database.js';
+import { initModels, autoRole, autoRoleCreationAttributes, guild } from '../../database/models/init-models.js';
 
 export const command: Command = {
     name: 'autorole',

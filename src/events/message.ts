@@ -1,13 +1,13 @@
 import { Event, Command } from '../interfaces';
 import { Message } from 'discord.js';
-import database from '../database/database';
+import database from '../database/database.js';
 
-import { checkURL } from '../utils/checkURL';
-import { tiktokEmbedding } from '../utils/tiktok';
-import { addXpServer, addXpGlobal } from '../utils/xp'
+import { checkURL } from '../utils/checkURL.js';
+import { tiktokEmbedding } from '../utils/tiktok.js';
+import { addXpServer, addXpGlobal } from '../utils/xp.js'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
-import { initModels, guild, tag, user, userCreationAttributes } from '../database/models/init-models';
+import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember } from '../database/models/init-models.js';
 
 export const event: Event = {
     name: 'message',
@@ -24,7 +24,15 @@ export const event: Event = {
             level: 1
         }
 
+        const guildMemberAttr: guildMemberCreationAttributes = {
+            userID: BigInt(message.author.id),
+            guildID: BigInt(message.guild.id),
+            xp: 0,
+            level: 1
+        }
+
         await user.findOrCreate({where: {userID: message.author.id}, defaults: userAttr})
+        await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
 
         // finds prefix by guildID
         const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues

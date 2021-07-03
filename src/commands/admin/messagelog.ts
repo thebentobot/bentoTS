@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
-import database from '../../database/database';
-import { initModels, messageLog, messageLogCreationAttributes, guild } from '../../database/models/init-models';
+import database from '../../database/database.js';
+import { initModels, messageLog, messageLogCreationAttributes, guild } from '../../database/models/init-models.js';
 
 export const command: Command = {
     name: 'messagelog',

@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { Command } from '../../interfaces';
-import { urlToColours } from '../../utils';
+import { urlToColours } from '../../utils/urlToColours.js';
 
 export const command: Command = {
     name: 'avatar',

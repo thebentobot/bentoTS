@@ -1,17 +1,22 @@
 import { Client, Collection } from 'discord.js';
-import database from '../database/database';
+import database from '../database/database.js';
 import path from 'path';
 import { readdirSync } from 'fs';
 import { Command, Event } from '../interfaces';
 import * as dotenv from "dotenv";
+/*
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+*/
+
 dotenv.config();
 
-//const __dirname = path.resolve();
+const __dirname = path.resolve();
 
 //hmm
 
 //const ascii = require('ascii-table');
-import * as ascii from 'ascii-table'
+//import * as ascii from 'ascii-table'
 
 class ExtendedClient extends Client {
     public commands: Collection<string, Command> = new Collection();
@@ -29,10 +34,11 @@ class ExtendedClient extends Client {
         }
 
         // commands
-        const commandPath = path.join(__dirname, '..', 'commands');
-        const table = new ascii().setHeading('Command', 'Status');
+        const commandPath = path.join(__dirname, 'dist', 'commands');
+        console.log(commandPath)
+        //const table = new ascii().setHeading('Command', 'Status');
         readdirSync(commandPath).forEach((dir) => {
-            const commands = readdirSync(`${commandPath}/${dir}`).filter((file) => file.endsWith('.ts'));
+            const commands = readdirSync(`${commandPath}/${dir}`).filter((file) => file.endsWith('.js'));
 
             for (const file of commands) {
                 const { command } = require(`${commandPath}/${dir}/${file}`);
@@ -42,9 +48,9 @@ class ExtendedClient extends Client {
                 this.categories.set(command.category, command.category)
 
                 if (pull) {
-                    table.addRow(file, '✅ Loaded!');
+                    console.log(file, '✅ Loaded!');
                 } else {
-                    table.addRow(file, '❌ -> Command failed to load, please check your work again!');
+                    console.log(file, '❌ -> Command failed to load, please check your work again!');
                     continue;
                 }
 
@@ -54,11 +60,11 @@ class ExtendedClient extends Client {
                     });
                 }
             }
-            console.log(table.toString());
+            //console.log(table.toString());
         });
 
         // events
-        const eventPath = path.join(__dirname, '..', 'events');
+        const eventPath = path.join(__dirname, 'dist', 'events');
         readdirSync(eventPath).forEach(async (file) => {
             const { event } = await import(`${eventPath}/${file}`);
             this.event.set(event.name, event);

@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "yes",
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
-    "start": "ts-node-dev --respawn --transpile-only --poll ./src/index.ts",
+    "start": "nodemon --watch './*/.ts' --exec 'ts-node' ./src/index.ts",
     "build": "tsc"
   },
   "keywords": [],
@@ -14,7 +13,7 @@
   "devDependencies": {
     "@types/common-tags": "^1.8.0",
     "@types/country-emoji": "^1.5.6",
-    "@types/node": "^15.12.4",
+    "@types/node": "^15.14.1",
     "@types/qs": "^6.9.6",
     "@types/tz-lookup": "^6.1.0",
     "@types/utf8": "^3.0.0",

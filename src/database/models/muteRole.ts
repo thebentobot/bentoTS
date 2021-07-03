@@ -1,6 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
-import type { guild, guildId } from './guild';
+import type { guild, guildId } from './guild.js';
 
 export interface muteRoleAttributes {
   guildID: bigint;

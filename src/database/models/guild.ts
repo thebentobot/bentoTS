@@ -1,17 +1,17 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
-import type { autoRole, autoRoleId } from './autoRole';
-import type { ban, banId } from './ban';
-import type { bye, byeCreationAttributes, byeId } from './bye';
-import type { guildMember, guildMemberId } from './guildMember';
-import type { kick, kickId } from './kick';
-import type { messageLog, messageLogCreationAttributes, messageLogId } from './messageLog';
-import type { modLog, modLogCreationAttributes, modLogId } from './modLog';
-import type { mute, muteId } from './mute';
-import type { muteRole, muteRoleCreationAttributes, muteRoleId } from './muteRole';
-import type { tag, tagId } from './tag';
-import type { warning, warningId } from './warning';
-import type { welcome, welcomeCreationAttributes, welcomeId } from './welcome';
+import type { autoRole, autoRoleId } from './autoRole.js';
+import type { ban, banId } from './ban.js';
+import type { bye, byeCreationAttributes, byeId } from './bye.js';
+import type { guildMember, guildMemberId } from './guildMember.js';
+import type { kick, kickId } from './kick.js';
+import type { messageLog, messageLogCreationAttributes, messageLogId } from './messageLog.js';
+import type { modLog, modLogCreationAttributes, modLogId } from './modLog.js';
+import type { mute, muteId } from './mute.js';
+import type { muteRole, muteRoleCreationAttributes, muteRoleId } from './muteRole.js';
+import type { tag, tagId } from './tag.js';
+import type { warning, warningId } from './warning.js';
+import type { welcome, welcomeCreationAttributes, welcomeId } from './welcome.js';
 
 export interface guildAttributes {
   guildID: bigint;

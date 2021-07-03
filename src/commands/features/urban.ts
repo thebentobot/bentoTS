@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import axios from 'axios'
 import { MessageEmbed } from 'discord.js';
-import { trim } from '../../utils';
+import { trim } from '../../utils/index.js';
 
 const urbanAPI = axios.create({
     baseURL: "https://api.urbandictionary.com/v0",
