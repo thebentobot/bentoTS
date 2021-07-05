@@ -10,7 +10,7 @@ export const command: Command = {
     aliases: ['bentobox', '🍱'],
     category: 'user',
     description: 'Give a Bento Box 🍱 to your friend every 24th hour :D.',
-    usage: 'praise [<user>]',
+    usage: 'bento [<user>]. If you just write the command, it shows when you can give a Bento Box 🍱 again.',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             return giveBento (message)
@@ -65,9 +65,12 @@ export const command: Command = {
                     return message.channel.send(`${(await message.guild.members.fetch(message.author.id)).nickname ? (await message.guild.members.fetch(message.author.id)).nickname : message.author.username}, you can give someone a Bento Box 🍱 again in ${getTimeRemaining(moment(bentoData[0].bentoDate).add(1, 'day')).hours} hours, ${getTimeRemaining(moment(bentoData[0].bentoDate).add(1, 'day')).minutes} minutes and ${getTimeRemaining(moment(bentoData[0].bentoDate).add(1, 'day')).seconds} seconds`);
                 } else {
 
+                    const newUserDate = moment(now).add(-1, 'day').toDate()
+
                     const bentoAttrTarget: bentoCreationAttributes = {
                         userID: BigInt(mentionedUser.id),
                         bento: 0,
+                        bentoDate: new Date(newUserDate)
                     }
 
                     await bento.update({bentoDate: now}, {where: {userID: bentoData[0].userID}})

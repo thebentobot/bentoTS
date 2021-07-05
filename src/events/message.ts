@@ -37,14 +37,6 @@ export const event: Event = {
         // finds prefix by guildID
         const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
 
-        // we need to add global and server XP (remember 1 minute cooldown)
-
-        const args = message.content
-        .slice(messageGuild.prefix.length)
-        .trim()
-        .split(/ +/g);
-
-        // tiktok feature
         if (message.content.includes('tiktok.com')) {
             if (messageGuild.tiktok == false) {
                 return
@@ -59,6 +51,15 @@ export const event: Event = {
             await addXpServer(message.guild.id, message.author.id, 23).catch();
             await addXpGlobal(message.author.id, 23).catch();
         }
+
+        const prefix = messageGuild.prefix
+
+        if (!message.content.startsWith(prefix)) return
+
+        const args = message.content
+        .slice(prefix.length)
+        .trim()
+        .split(/ +/g);
 
         if (!message.guild) return;
 
