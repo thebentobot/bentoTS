@@ -45,8 +45,8 @@ export const command: Command = {
     name: 'lastfm',
     aliases: ['fm', 'lf'],
     category: 'features',
-    description: 'lastfm feature',
-    usage: 'lastfm np [userid or mention]\nlastfm set <lastfm account name>',
+    description: 'last.fm feature. If you don\'t mention a user with an argument, it searches for your last.fm. If you only mention a user and no time period, it checks for overall.\nThe possible time period arguments: overall, 7day, 1month, 3month, 6month, 12month.',
+    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             return nowPlaying (message);

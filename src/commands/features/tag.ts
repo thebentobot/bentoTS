@@ -436,12 +436,8 @@ export const command: Command = {
                 }
             }
 
-            console.log(commands)
-            console.log(commandCount)
-
             let currentPage: number = 0;
             const embeds = await generateTagAuthorEmbed(commands, commandCount)
-            console.log(embeds)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${embeds.length}`, embeds[currentPage]);
             await queueEmbed.react('⬅️');
             await queueEmbed.react('➡️');

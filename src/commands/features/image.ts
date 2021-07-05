@@ -1,8 +1,8 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
-//const gis = require('g-i-s');
-import * as gis from 'g-i-s'
+const gis: any = require('g-i-s');
+//import * as gis from 'g-i-s'
 
 export const command: Command = {
     name: 'image',
@@ -30,7 +30,6 @@ export const command: Command = {
         gis(query, logResults);
 
         function logResults (error: Error, results: any) {
-            console.log(results)
             const index = Math.floor(Math.random() * results.length);
             if (error) {
                 console.log(error);

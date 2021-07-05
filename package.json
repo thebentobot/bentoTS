@@ -4,7 +4,7 @@
   "description": "yes",
   "main": "dist/index.js",
   "scripts": {
-    "start": "nodemon --watch './*/.ts' --exec 'ts-node' ./src/index.ts",
+    "start": "nodemon src/index.ts",
     "build": "tsc"
   },
   "keywords": [],
@@ -20,6 +20,7 @@
     "@types/validator": "^13.1.4",
     "nodemon": "^2.0.9",
     "ts-node": "^10.0.0",
+    "tslib": "^2.3.0",
     "typescript": "^4.3.4"
   },
   "dependencies": {

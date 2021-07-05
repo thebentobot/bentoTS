@@ -7,6 +7,6 @@ export const command: Command = {
     description: 'Shows list of roles on the server.',
     usage: 'roles',
     run: async (client, message, args): Promise<any> => {
-        return message.channel.send(message.guild.roles.cache.map(role => `${role}`).join(' | '), {disableMentions: "everyone"})
+        return message.channel.send(message.guild.roles.cache.map(role => `${role}`).join(' | '), {disableMentions: "everyone", split: {maxLength: 2000, char: '\n'}})
     }
 }
