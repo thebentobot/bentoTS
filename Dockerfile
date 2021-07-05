@@ -12,8 +12,5 @@ RUN npm install
 # Copy the app code
 COPY . .
 
-# Build the project
-RUN npm run build
-
 # Run the application
 CMD [ "npm", "start" ]
