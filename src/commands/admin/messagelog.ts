@@ -13,8 +13,6 @@ export const command: Command = {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
 
-        console.log('hello')
-
         initModels(database);
 
         const guildData = await guild.findOne({raw:true, where: {guildID: message.guild.id}});

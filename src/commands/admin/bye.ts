@@ -7,7 +7,7 @@ export const command: Command = {
     aliases: [],
     category: 'admin',
     description: 'Bye message settings, for when a member leaves.\nDisabled by default and only works by assigning <channel> and <content>.\n{user} or {usertag} - mention user\n{username} - mention username\n{discriminator} - mention the #0000 for the user\n{server} - mention server\n{memberCount} - the member count\n{space} - adds a new line\nUse reverse / (slash) in front of a channel e.g. for linking to a rules channel.',
-    usage: ' is the prefix\nbye <status>\nbye <channel> <channelID>\nbye <msg/message> <content>\nbye <delete>',
+    usage: ' is the prefix\nbye <status>\nbye <channel> <channelID>\nbye <message> <content>\nbye <delete>',
     run: async (client, message, args): Promise<any> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
@@ -24,14 +24,13 @@ export const command: Command = {
         if (args[0] == 'status') {
             try {
                 const byeData = await bye.findOne({raw: true, where: {guildID: message.guild.id}});
-                return message.channel.send(`
-            Bye messages is currently \`enabled\` on this server.\nThe Bye message on this server is currently: \`${byeData.message}\`.\nThe Bye message channel on this server is currently in <#${byeData.channel}>.`);
+                return message.channel.send(`Bye messages is currently \`enabled\` on this server.\nThe Bye message on this server is currently: \`${byeData.message}\`.\nThe Bye message channel on this server is currently in <#${byeData.channel}>.`);
             } catch {
                 return message.channel.send(`This server doesn't have a bye message for when people leave.\nUse \`${guildData.prefix}help bye\` to see how to setup a bye message for this server.`)
             }
         }
 
-        if (args[0] == 'msg' || args[0] == 'message') {
+        if (args[0] == 'message') {
             if (!args[1]) return message.channel.send('Please write a bye message');
             let msg = args.slice(1).join(" ");
             
@@ -65,9 +64,13 @@ export const command: Command = {
 
         if (args[0] == 'channel') {
             if (!args[1]) return message.channel.send('Please assign a channel id as the second argument');
-            let regExp = /[a-zA-Z]/g;
-            let channel = args[1]
-            if (regExp.test(channel) == true) return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`);
+            let channel: string;
+            try {
+                const channelID = message.mentions.channels.first() || await message.guild.channels.cache.get(args[1].match(/<#(\d+)>/)[1])
+                channel = channelID.id
+            } catch {
+                return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`);
+            }
             
             const byeData = await bye.findOne({raw: true, where: {guildID: message.guild.id}});
             
@@ -98,8 +101,12 @@ export const command: Command = {
         }
 
         if (args[0] == 'delete') {
-            await bye.destroy({where: { channel: message.guild.id}});
-            return message.channel.send(`Your bye configuration is now deleted in Bento's database and Bento will from now on not say bye to users who leave.\nPlease use ${guildData.prefix}bye to enable bye again.`);
+            try {
+                await bye.destroy({where: { channel: message.guild.id}});
+                return message.channel.send(`Your bye configuration is now deleted in Bento's database and Bento will from now on not say bye to users who leave.\nPlease use ${guildData.prefix}bye to enable bye again.`);
+            } catch {
+                return message.channel.send(`You don't have a bye message enabled.`)
+            }
         }
     }
 }

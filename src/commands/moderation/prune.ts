@@ -37,31 +37,45 @@ export const command: Command = {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(args[1]);
                 userID = theUser.id
             } catch {
-                return message.channel.send('Specify a valid user please.').then(m => m.delete({timeout: 5000}));
+                return message.channel.send('Specify a valid user please.')
             }
-            // function below deletes all messages for a user in every existing channel, though only the one where he's in the 100 last messages
-            client.guilds.cache.get(message.guild.id).channels.cache.forEach(ch => {
-                if (ch.type === 'text') {
+
+            if (args[2] === 'all') {
+                // function below deletes all messages for a user in every existing channel, though only the one where he's in the 100 last messages
+                client.guilds.cache.get(message.guild.id).channels.cache.forEach(ch => {
+                    if (ch.type === 'text') {
+                        const deleteMessages = []
+                        const channel: TextChannel = client.channels.cache.get(ch.id) as TextChannel
+                        channel.messages.fetch({limit: amount}).then(messages => {
+                            messages.filter(m => m.author.id === userID).forEach(msg => deleteMessages.push(msg))
+                        })
+                        channel.bulkDelete(deleteMessages)
+                    }
+                })
+                return message.channel.send(`The messages for ${(await message.guild.members.fetch(userID)).user.username}#${(await message.guild.members.fetch(userID)).user.discriminator} was deleted`)
+            }
+
+            if (args[2]) {
+                try {
+                    const channelID = message.mentions.channels.first() || await message.guild.channels.cache.get(args[2].match(/<#(\d+)>/)[1])
                     const deleteMessages = []
-                    const channel: TextChannel = client.channels.cache.get(ch.id) as TextChannel
+                    const channel: TextChannel = message.guild.channels.cache.get(channelID.id) as TextChannel
                     channel.messages.fetch({limit: amount}).then(messages => {
                         messages.filter(m => m.author.id === userID).forEach(msg => deleteMessages.push(msg))
                     })
                     channel.bulkDelete(deleteMessages)
+                    return message.channel.send(`The messages for ${(await message.guild.members.fetch(userID)).user.username}#${(await message.guild.members.fetch(userID)).user.discriminator} was deleted`)
+                } catch {
+                    return message.channel.send('Specify a valid channel please.')
                 }
-            })
-
-            // should we make it possible to specify where to delete? 
-            // so if no specification, then it's the same channel
-            // if the second argument is all, then the function above (that deletes for every channel)
-            // if the second argument is a channel id, then a function where it's in a specific channel
-
-            // function below deletes all messages for a user in the channel where it's casted
-            const pruneMessages = []
-            await message.channel.messages.fetch({ limit: amount }).then(messages => {
+            } else {
+                const pruneMessages = []
+                await message.channel.messages.fetch({ limit: amount }).then(messages => {
                 messages.filter(m => m.author.id === userID).forEach(msg => pruneMessages.push(msg))
                 currentchannel.bulkDelete(pruneMessages) // Bulk deletes all messages that have been fetched and are not older than 14 days (due to the Discord API)
             });
+            return message.channel.send(`The messages for ${(await message.guild.members.fetch(userID)).user.username}#${(await message.guild.members.fetch(userID)).user.discriminator} was deleted`)
+            }
         }
     }
 }
