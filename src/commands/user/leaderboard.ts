@@ -42,7 +42,8 @@ export const command: Command = {
             INNER JOIN "user" u on u."userID" = t."userID"
             WHERE t."guildID" = :guild
             GROUP BY t.level, t.xp, u.username, u.discriminator
-            ORDER BY t.level DESC, t.xp DESC`, {
+            ORDER BY t.level DESC, t.xp DESC
+            LIMIT 50;`, {
                 replacements: { guild: message.guild.id },
                 type: QueryTypes.SELECT
             });
@@ -87,7 +88,8 @@ export const command: Command = {
             SELECT row_number() over (ORDER BY t.level DESC, t.xp DESC) AS rank, t.level, t.xp, t.username, t.discriminator
             FROM "user" AS t
             GROUP BY t.level, t.xp, t.username, t.discriminator
-            ORDER BY t.level DESC, t.xp DESC`, {type: QueryTypes.SELECT});
+            ORDER BY t.level DESC, t.xp DESC
+            LIMIT 50;`, {type: QueryTypes.SELECT});
             let currentPage = 0;
             const embeds = generateGlobalLBembed(globalRank, message)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${(await embeds).length}`, (await embeds)[currentPage]);
@@ -130,7 +132,8 @@ export const command: Command = {
             FROM bento AS t
             INNER JOIN "user" u on u."userID" = t."userID"
             GROUP BY t.bento, u.username, u.discriminator
-            ORDER BY t.bento DESC;`, {type: QueryTypes.SELECT});
+            ORDER BY t.bento DESC
+            LIMIT 50;`, {type: QueryTypes.SELECT});
             let currentPage = 0;
             const embeds = generateGlobalBentoEmbed(bentoRank, message)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${(await embeds).length}`, (await embeds)[currentPage]);
@@ -175,7 +178,8 @@ export const command: Command = {
             INNER JOIN "guildMember" gM on u."userID" = gM."userID"
             WHERE gM."guildID" = :guild
             GROUP BY t.bento, u.username, u.discriminator
-            ORDER BY t.bento DESC;`, {
+            ORDER BY t.bento DESC
+            LIMIT 50;`, {
                 replacements: { guild: message.guild.id },
                 type: QueryTypes.SELECT
             });

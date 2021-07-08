@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import { getVideoMeta } from "tiktok-scraper";
 
 export async function tiktokEmbedding(URL: string): Promise<any> {
+    try {
     const query: RegExpMatchArray = URL.match(/\bhttps?:\/\/\S+/gi);
     const finalQuery: string = query.toString();
     const videoMeta = await getVideoMeta(finalQuery);
@@ -21,7 +22,8 @@ export async function tiktokEmbedding(URL: string): Promise<any> {
     try {
         const embed = new MessageEmbed()
         .setTitle(`${Util.escapeMarkdown(video.text)}`)
-        .setFooter(moment.unix(video.createTime).format("dddd, MMMM Do YYYY, h:mm A z"))
+        //.setFooter(moment.unix(video.createTime).format("dddd, MMMM Do YYYY, h:mm A z"))
+        .setTimestamp(moment.unix(video.createTime).toDate())
         .setColor('#000000')
         .setAuthor(video.authorMeta.name, video.authorMeta.avatar, `https://www.tiktok.com/@${video.authorMeta.name}?`)
         let finalVideo = new MessageAttachment(buffer, 'video.mp4')
@@ -29,4 +31,7 @@ export async function tiktokEmbedding(URL: string): Promise<any> {
     } catch {
         return;
     };
+    } catch {
+        return
+    }
 };

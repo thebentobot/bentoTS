@@ -6,6 +6,7 @@ import { initModels, messageLog } from '../database/models/init-models';
 export const event: Event = {
     name: 'messageDelete',
     run: async (client, message: Message): Promise<any> => {
+        if (message.author.bot) return;
         initModels(database);
 
         try {

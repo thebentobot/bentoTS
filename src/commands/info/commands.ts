@@ -19,7 +19,6 @@ export const command: Command = {
         .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
         .setTitle('Command List')
         .setThumbnail(client.user.avatarURL())
-        .setFooter('Created by Banner#1017')
         
         const commands = (category:any) => {
             return client.commands

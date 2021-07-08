@@ -30,9 +30,10 @@ export const command: Command = {
                 .setThumbnail(client.user.avatarURL())
                 .setDescription(`For a full list of commands, please type \`${guildDB.prefix}commands\` \nTo see more info about a specific command, please type \`${guildDB.prefix}help <command>\` without the \`<>\``)
                 .addField('About Bento Bot 🍱', 'A Discord bot for chat moderation and fun features you did not know you needed on Discord.')
-                .addField('Github', 'https://github.com/thebentobot')
-                .setFooter('Created by Banner#1017');
-            message.channel.send(embed);
+                .addField('Want to check out the code for Bento 🍱?', 'https://github.com/thebentobot/bentoTS')
+                .addField('Need help? Or do you have some ideas or feedback to Bento 🍱? Feel free to join the support server', 'https://discord.gg/dd68WwP')
+                .setFooter('Bento 🍱 is created by Banner#1017', (await client.users.fetch('232584569289703424')).avatarURL({dynamic: true}))
+            await message.channel.send(embed);
         }
 
         async function getCMD(client: ExtendedClient, message: Message, input: any) {

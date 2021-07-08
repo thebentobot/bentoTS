@@ -119,34 +119,31 @@ export const command: Command = {
             }
         }
 
-        async function windDirection (degree: any) {
-            switch (degree) {
-                case 90:
-                    `⬆️ (${degree}°)`
-                    break;
-                case 270:
-                    `⬇️ (${degree}°)`
-                    break;
-                case 180:
-                    `⬅️ (${degree}°)`
-                    break;
-                case 360 || 0:
-                    `➡️ (${degree}°)`
-                    break;
-                case degree > 0 && degree < 90:
-                    `↗️ (${degree}°)`
-                    break;
-                case degree > 270 && degree < 360:
-                    `↘️ (${degree}°)`
-                    break;
-                case degree > 180 && degree < 270:
-                    `↙️ (${degree}°)`
-                    break;
-                case degree > 90 && degree < 180:
-                    `↖️ (${degree}°)`
-                    break;
-            }
-            return degree
+        async function windDirection (degree: number) {
+            if (degree == 90) {
+                return `⬆️ (${degree}°)`
+              }
+              else if  (degree == 270) {
+                return `⬇️ (${degree}°)`
+              }
+              else if  (degree == 180) {
+                return `⬅️ (${degree}°)`
+              }
+              else if  (degree == 360 || 0) {
+                return `➡️ (${degree}°)`
+              }
+              else if  (degree > 0 && degree < 90) {
+                return `↗️ (${degree}°)`
+              }
+              else if  (degree > 270 && degree < 360) {
+                return `↘️ (${degree}°)`
+              }
+              else if  (degree > 180 && degree < 270) {
+                return `↙️ (${degree}°)`
+              }
+              else if  (degree > 90 && degree < 180) {
+                return `↖️ (${degree}°)`
+              }
         }
 
         async function weatherEmote (weather: number) {
