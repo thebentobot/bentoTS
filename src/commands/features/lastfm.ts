@@ -103,6 +103,9 @@ export const command: Command = {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
                 user = theUser.id
                 const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
+                if (!lastfmData) {
+                    return message.channel.send(`This user doesn't have a last.fm account saved.`)
+                }
                 username = lastfmData.lastfm
                 } catch {
                     try {
@@ -138,10 +141,34 @@ export const command: Command = {
         async function setUser (message: Message, username: string) {
             initModels(database);
 
-            const guildData = await guild.findOne({raw:true, where: {guildID: message.guild.id}});
+            const userExits = await lastfm.findOne({raw: true, where: {userID: message.author.id}})
+
+            if (userExits && username) {
+                try {
+                    let response = await lastfmAPI.get('/', {params: { method: "user.getinfo", user: username }});
+                    username = response.data.user.name;
+                } catch (error) {
+                    if (error.response) {
+                        console.error(Error(`Last.fm error: ${error.response.status} - ${error.response.statusText}`));
+                        if (error.response.status >= 500) {
+                            return message.channel.send(`Server Error. LastFM is likely down or experiencing issues.`);
+                        } else {
+                            return message.channel.send(`Error occurred fetching LastDM data.`);
+                        }
+                    } else {
+                        console.error(error);
+                        message.channel.send(`Unknown error occurred.`);
+                    }
+                    return;
+                }
+
+                await lastfm.update({lastfm: username}, {where: {userID: message.author.id}})
+                return message.channel.send(`Last.fm username was updated to \`${username}\`.`);
+            }
 
             if (!username) {
-                message.channel.send(`Please provide a LastFM username: \`${guildData.prefix}fm set <lastfm account name>\`.`);
+                const guildData = await guild.findOne({raw:true, where: {guildID: message.guild.id}});
+                return message.channel.send(`Please provide a LastFM username: \`${guildData.prefix}fm set <lastfm account name>\`.`);
             } else {
                 try {
                     let response = await lastfmAPI.get('/', {params: { method: "user.getinfo", user: username }});
@@ -150,9 +177,9 @@ export const command: Command = {
                     if (error.response) {
                         console.error(Error(`Last.fm error: ${error.response.status} - ${error.response.statusText}`));
                         if (error.response.status >= 500) {
-                            message.channel.send(`Server Error. LastFM is likely down or experiencing issues.`);
+                            return message.channel.send(`Server Error. LastFM is likely down or experiencing issues.`);
                         } else {
-                            message.channel.send(`Error occurred fetching LastDM data.`);
+                            return message.channel.send(`Error occurred fetching LastDM data.`);
                         }
                     } else {
                         console.error(error);
@@ -167,7 +194,7 @@ export const command: Command = {
                 }
 
                 await lastfm.create(lastFMUser)
-                message.channel.send(`Last.fm username set to \`${username}\`.`);
+                return message.channel.send(`Last.fm username set to \`${username}\`.`);
             }
 
 
@@ -175,8 +202,13 @@ export const command: Command = {
 
         async function removeUser (message: Message) {
             initModels(database);
-            let removed = await lastfm.destroy({where: {userID: message.author.id}})
-            message.channel.send(removed ? `Your LastFM username was removed.` : `No LastFM username found.`);
+
+            try {
+                await lastfm.destroy({where: {userID: message.author.id}})
+                return message.channel.send(`Your LastFM username was removed.`);
+            } catch {
+                return message.channel.send(`No LastFM username found.`);
+            }
         }
 
         async function topTracks (message: Message, secondArg?: string, thirdArg?: string) {
@@ -227,6 +259,9 @@ export const command: Command = {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
                 userID = theUser.id
                 const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
+                if (!lastfmData) {
+                    return message.channel.send(`This user doesn't have a last.fm account saved.`)
+                }
                 username = lastfmData.lastfm
                 } catch {
                     try {
@@ -354,6 +389,9 @@ export const command: Command = {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
                 userID = theUser.id
                 const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
+                if (!lastfmData) {
+                    return message.channel.send(`This user doesn't have a last.fm account saved.`)
+                }
                 username = lastfmData.lastfm
                 } catch {
                     try {
@@ -475,6 +513,9 @@ export const command: Command = {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
                 userID = theUser.id
                 const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
+                if (!lastfmData) {
+                    return message.channel.send(`This user doesn't have a last.fm account saved.`)
+                }
                 username = lastfmData.lastfm
                 } catch {
                     try {
@@ -565,6 +606,9 @@ export const command: Command = {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
                 user = theUser.id
                 const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
+                if (!lastfmData) {
+                    return message.channel.send(`This user doesn't have a last.fm account saved.`)
+                }
                 username = lastfmData.lastfm
                 } catch {
                     try {
@@ -651,6 +695,9 @@ export const command: Command = {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
                 user = theUser.id
                 const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
+                if (!lastfmData) {
+                    return message.channel.send(`This user doesn't have a last.fm account saved.`)
+                }
                 username = lastfmData.lastfm
                 } catch {
                     try {
