@@ -43,8 +43,12 @@ export const event: Event = {
             }
             const url = checkURL(message.content);
             const tiktok = await tiktokEmbedding(url);
-            await message.channel.send(tiktok[0])
-            await message.channel.send(tiktok[1])
+            try {
+                await message.channel.send(tiktok[0])
+                await message.channel.send(tiktok[1])
+            } catch {
+                return
+            }
         }
 
         if (messageGuild.leaderboard === true) {
