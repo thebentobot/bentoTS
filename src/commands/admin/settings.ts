@@ -37,7 +37,7 @@ export const command: Command = {
         .setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}))
         .setTitle(`Server settings for ${message.guild.name}`)
         .setTimestamp()
-        .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)
+        .setColor(`${message.guild.iconURL() ? await urlToColours(message.guild.iconURL({ format: 'png'})) : await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
         .addFields(
             {name: 'NSFW', value: `${guildData.nsfw ? 'Enabled' : 'Disabled'}`, inline: true},
             {name: 'Tiktok', value: `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, inline: true},

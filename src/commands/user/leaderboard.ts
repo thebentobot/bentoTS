@@ -240,11 +240,11 @@ export const command: Command = {
                 k += 10;
                 // det foroven skærer, så det kun bliver 10 pr. page.
                 const embed = new MessageEmbed()
-                embed.setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)
+                embed.setColor(`${message.guild.iconURL() ? await urlToColours(message.guild.iconURL({ format: 'png'})) : await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
                 embed.setTimestamp()
                 current.map(async user => embed.addField(`${user.rank}. ${user.username + '#' + user.discriminator}`, `Level ${user.level}, ${user.xp} XP`))
                 embed.setTitle(`Leaderboard for ${message.guild.name}`)
-                embed.setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}));
+                embed.setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}) ? message.guild.iconURL({ dynamic: true, format: 'png'}) : client.user.avatarURL());
                 embeds.push(embed)
             }
             return embeds;
@@ -259,11 +259,11 @@ export const command: Command = {
                 k += 10;
                 // det foroven skærer, så det kun bliver 10 pr. page.
                 const embed = new MessageEmbed()
-                embed.setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)
+                embed.setColor(`${message.guild.iconURL() ? await urlToColours(message.guild.iconURL({ format: 'png'})) : await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
                 embed.setTimestamp()
                 current.map(async user => embed.addField(`${user.rank}. ${user.username + '#' + user.discriminator}`, `${user.bento} Bento 🍱`))
                 embed.setTitle(`Leaderboard for ${message.guild.name}`)
-                embed.setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}));
+                embed.setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}) ? message.guild.iconURL({ dynamic: true, format: 'png'}) : client.user.avatarURL());
                 embeds.push(embed)
             }
             return embeds;
