@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, bye, byeCreationAttributes, guild } from '../../database/models/init-models';
+import { Message } from 'discord.js';
 
 export const command: Command = {
     name: 'bye',
@@ -8,7 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Bye message settings, for when a member leaves.\nDisabled by default and only works by assigning <channel> and <content>.\n{user} or {usertag} - mention user\n{username} - mention username\n{discriminator} - mention the #0000 for the user\n{server} - mention server\n{memberCount} - the member count\n{space} - adds a new line\nUse reverse / (slash) in front of a channel e.g. for linking to a rules channel.',
     usage: ' is the prefix\nbye <status>\nbye <channel> <channelID>\nbye <message> <content>\nbye <delete>',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };

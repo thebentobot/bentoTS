@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
 import axios from 'axios'
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { trim } from '../../utils/index';
 
 const urbanAPI = axios.create({
@@ -13,7 +13,7 @@ export const command: Command = {
     category: 'features',
     description: 'Search for definitions on Urban dictionary',
     usage: 'urban <search input>',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
 			return message.channel.send('You need to search for a definition!');
 		}

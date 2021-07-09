@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import { Command } from "../../interfaces";
 import { urlToColours } from "../../utils";
 
@@ -9,7 +9,7 @@ export const command: Command = {
     description:
       "Bento repeats your message. If embed is added as an argument, Bento shows the message as en embed",
     usage: "say [embed] <input>",
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         await message.delete();
 
         if (!message.member.hasPermission("MANAGE_MESSAGES"))

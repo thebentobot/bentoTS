@@ -2,11 +2,11 @@ import { Message } from 'discord.js';
 import { Command } from '../../interfaces';
 
 export const command: Command = {
-    name: 'github',
+    name: 'mute',
     aliases: [],
-    category: 'info',
+    category: 'moderation',
     description: 'Link to the Bento GitHub organisation',
-    usage: 'github',
+    usage: 'mute',
     run: async (client, message, args): Promise<Message> => {
         return message.channel.send('https://github.com/thebentobot')
     }

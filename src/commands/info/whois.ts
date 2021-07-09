@@ -1,5 +1,5 @@
 import { Command } from '../../interfaces';
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { trim, urlToColours } from '../../utils/index';
 
 export const command: Command = {
@@ -8,7 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Displays info about the mentioned user or the user who uses the command.',
     usage: 'whois <@user/userID> to find a user. If no user is specified it shows your own profile',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             const embed = new MessageEmbed()
             .setColor(`${await urlToColours(message.author.avatarURL({ format: 'png'}))}`)

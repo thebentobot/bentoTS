@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
+import { Message } from 'discord.js';
 const gis: any = require('g-i-s');
 //import * as gis from 'g-i-s'
 
@@ -10,7 +11,7 @@ export const command: Command = {
     category: 'features',
     description: 'Searches for random images based on the search input',
     usage: 'image <search query>',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
 
         initModels(database);
 

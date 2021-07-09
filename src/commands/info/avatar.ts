@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { Command } from '../../interfaces';
 import { urlToColours } from '../../utils/urlToColours';
 
@@ -8,7 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Shows user\'s avatars, or your own if you don\'t mention anyone. You can also check the server avatar and banner.',
     usage: 'avatar [userID or mention a user]\navatar server\navatar banner',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             const embed = new MessageEmbed()
                 .setColor(`${await urlToColours(message.author.avatarURL({ format: 'png'}))}`)

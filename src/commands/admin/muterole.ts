@@ -1,14 +1,15 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, muteRole, muteRoleCreationAttributes, guild } from '../../database/models/init-models';
+import { Message } from 'discord.js';
 
 export const command: Command = {
     name: 'muterole',
     aliases: [],
     category: 'admin',
     description: 'Set an mute role that users get assigned when a mod mutes them',
-    usage: ' is the prefix\nmuterole <status>\nmuterole set <roleID>\nmuterole delete <roleID>',
-    run: async (client, message, args): Promise<any> => {
+    usage: ' is the prefix\nmuterole <status>\nmuterole set <roleID or role mention>\nmuterole delete <roleID>',
+    run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
@@ -33,22 +34,27 @@ export const command: Command = {
 
         if (args[0] == 'set') {
             if (!args[1]) return message.channel.send('Please assign a role id as the second argument');
-            let regExp = /[a-zA-Z]/g;
-            let role = args[1]
-            if (regExp.test(role) == true) return message.channel.send(`Your role id ${args[1]} was invalid.\nPlease use a valid role id.`);
             
-            const attr: muteRoleCreationAttributes = {
-                guildID: BigInt(message.guild.id),
-                roleID: BigInt(role)
-            }
-            await muteRole.create(attr);
-            
-            return message.channel.send(`Your role <@&${role}> was set as an mute role.`); 
+            try {
+                const roleID = message.mentions.roles.first() || await message.guild.roles.cache.get(args[1])
+                const attr: muteRoleCreationAttributes = {
+                    guildID: BigInt(message.guild.id),
+                    roleID: BigInt(roleID.id)
+                }
+                await muteRole.create(attr);
+                return message.channel.send(`Your role <@&${roleID.id}> was set as an mute role.`, {disableMentions: 'everyone'}); 
+            } catch {
+                return message.channel.send(`Your role id ${args[1]} was invalid.\nPlease use a valid role id.`);
+            }            
         }
 
         if (args[0] == 'delete') {
-            message.channel.send(`Your mute role <@&${args[1]}> is now deleted in Bento's database and Bento will from now on not assign users with that role when they get muted by a mod.\nPlease use ${guildData.prefix}muterole set <roleID> to set an mute role again.\nYou can't mute users without a mute role.`);
-            await muteRole.destroy({where: { roleID: args[1], guildID: message.guild.id}});
+            try {
+                await muteRole.destroy({where: { roleID: args[1], guildID: message.guild.id}});
+                return message.channel.send(`Your mute role <@&${args[1]}> is now deleted in Bento's database and Bento will from now on not assign users with that role when they get muted by a mod.\nPlease use ${guildData.prefix}muterole set <roleID> to set an mute role again.\nYou can't mute users without a mute role.`);
+            } catch {
+                return message.channel.send(`You don't have a mute role saved.`)
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 import { Command } from '../../interfaces';
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import database from '../../database/database';
 import { initModels, guild, messageLog, modLog, bye, welcome, autoRole, muteRole } from '../../database/models/init-models';
 import { trim } from '../../utils/trim';
@@ -11,7 +11,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Sends an overview of the server settings',
     usage: 'settings',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };

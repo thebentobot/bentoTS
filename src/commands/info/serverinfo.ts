@@ -1,5 +1,5 @@
 import { Command } from '../../interfaces';
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { capitalize, urlToColours } from '../../utils/index';
 
 export const command: Command = {
@@ -8,7 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Displays info about the current server.',
     usage: 'serverinfo',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         const embed = new MessageEmbed()
         .setTitle(message.guild.name)
         .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)

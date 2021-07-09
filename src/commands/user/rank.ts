@@ -12,7 +12,7 @@ export const command: Command = {
     category: 'user',
     description: 'Shows your rank level, xp and praises',
     usage: 'rank [userID/mention a user]',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             return rankFunction (message)
         } else {

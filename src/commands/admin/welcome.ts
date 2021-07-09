@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, welcome, welcomeCreationAttributes, guild } from '../../database/models/init-models';
+import { Message } from 'discord.js';
 
 export const command: Command = {
     name: 'welcome',
@@ -8,7 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'welcome message settings, for when a member joins.\nDisabled by default and only works by assigning <channel> and <content>.\n{user} or {usertag} - mention user\n{username} - mention username\n{discriminator} - mention the #0000 for the user\n{server} - mention server\n{memberCount} - the member count\n{space} - adds a new line\nUse reverse / (slash) in front of a channel e.g. for linking to a rules channel.',
     usage: ' is the prefix\nwelcome <status>\nwelcome <channel> <channelID>\nwelcome <msg/message> <content>\nwelcome <delete>',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
@@ -65,9 +66,13 @@ export const command: Command = {
 
         if (args[0] == 'channel') {
             if (!args[1]) return message.channel.send('Please assign a channel id as the second argument');
-            let regExp = /[a-zA-Z]/g;
-            let channel = args[1]
-            if (regExp.test(channel) == true) return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`);
+            let channel: string;
+            try {
+                const channelID = message.mentions.channels.first() || await message.guild.channels.cache.get(args[1].match(/<#(\d+)>/)[1])
+                channel = channelID.id
+            } catch {
+                return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`);
+            }
             
             const welcomeData = await welcome.findOne({raw: true, where: {guildID: message.guild.id}});
             
@@ -98,8 +103,12 @@ export const command: Command = {
         }
 
         if (args[0] == 'delete') {
-            await welcome.destroy({where: { channel: message.guild.id}});
-            return message.channel.send(`Your welcome configuration is now deleted in Bento's database and Bento will from now on not say welcome to users who join.\nPlease use ${guildData.prefix}welcome to enable welcome again.`);
+            try {
+                await welcome.destroy({where: { channel: message.guild.id}});
+                return message.channel.send(`Your welcome configuration is now deleted in Bento's database and Bento will from now on not say welcome to users who join.\nPlease use ${guildData.prefix}welcome to enable welcome again.`);
+            } catch {
+                return message.channel.send(`You don't have a welcome message enabled.`)
+            }
         }
     }
 }

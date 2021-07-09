@@ -1,5 +1,5 @@
 import { Command } from '../../interfaces';
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import database from '../../database/database';
 import { urlToColours } from '../../utils/urlToColours';
 
@@ -9,7 +9,7 @@ export const command: Command = {
     category: 'info',
     description: 'Shows the latency for Bento Bot, the Discord API and the bot\'s database in PostgreSQL',
     usage: 'ping',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         const msg = await message.channel.send('🏓 Pinging...');
 
         let dbTimeStart = new Date().getTime();

@@ -4,6 +4,7 @@ import utf8 from 'utf8'
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
 import * as dotenv from "dotenv";
+import { Message } from 'discord.js';
 dotenv.config();
 
 const tenorAPI = axios.create({
@@ -16,7 +17,7 @@ export const command: Command = {
     category: 'features',
     description: 'Searches for random GIFs based on the search input',
     usage: 'gif <search input>',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             return message.channel.send('You need to provide a search input!').then(m => m.delete({timeout: 5000}));
         }

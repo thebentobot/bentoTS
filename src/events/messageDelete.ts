@@ -17,6 +17,8 @@ export const event: Event = {
             .setAuthor(`${message.author.username} (userID: ${message.author.id})`, message.author.displayAvatarURL())
             .setColor('#FF2D00')
             .setDescription(`Message deleted in <#${message.channel.id}>\n**Deleted message:**\n${message.content}`)
+            .addField('Channel ID', message.channel.id)
+            .addField('Message ID', message.id)
             .setFooter('Deleted at')
             .setTimestamp(message.createdAt)
 

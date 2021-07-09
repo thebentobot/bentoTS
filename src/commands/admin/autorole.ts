@@ -2,14 +2,15 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, autoRole, autoRoleCreationAttributes, guild } from '../../database/models/init-models';
+import { Message } from 'discord.js';
 
 export const command: Command = {
     name: 'autorole',
     aliases: [],
     category: 'admin',
     description: 'Set an auto role that users get assigned automatically when they join',
-    usage: ' is the prefix\nautoRole <status>\nautoRole set <roleID>\nautoRole delete <roleID>\nautoRole list',
-    run: async (client, message, args): Promise<any> => {
+    usage: 'autorole <status>\nautorole set <roleID or role mention>\nautorole delete <roleID>\nautorole list',
+    run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };

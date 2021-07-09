@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel } from 'discord.js';
+import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import { Command } from '../../interfaces';
 import { urlToColours } from '../../utils';
 
@@ -8,7 +8,7 @@ export const command: Command = {
     category: 'moderation',
     description: 'Removes messages',
     usage: 'prune <1-100> [mention a user or a user id]',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_MESSAGES'))
             return message.channel.send('You do not have permission to use this command.').then(m => m.delete({timeout: 5000}));
 

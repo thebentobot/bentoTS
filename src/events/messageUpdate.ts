@@ -20,6 +20,9 @@ export const event: Event = {
             .setAuthor(`${oldMessage.author.username + '#' + oldMessage.author.discriminator} (userID: ${oldMessage.author.id})`, oldMessage.author.displayAvatarURL())
             .setColor('#FFF000')
             .setDescription(`[Message](${oldMessage.url}) edited in <#${oldMessage.channel.id}>\n**Before:** ${oldMessage.content}\n**After:** ${newMessage.content}`)
+            .addField('Channel ID', oldMessage.channel.id)
+            .addField('Old Message ID', oldMessage.id)
+            .addField('New Message ID', newMessage.id)
             .setFooter('Edited at')
             .setTimestamp(oldMessage.createdAt)
 
