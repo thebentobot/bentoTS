@@ -10,6 +10,7 @@ export interface warningAttributes {
   date?: Date;
   note?: string;
   actor: bigint;
+  reason?: string;
 }
 
 export type warningPk = "warningCase";
@@ -23,6 +24,7 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
   date?: Date;
   note?: string;
   actor!: bigint;
+  reason?: string;
 
   // warning belongsTo guild via guildID
   guild!: guild;
@@ -80,6 +82,10 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
         model: 'user',
         key: 'userID'
       }
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -87,20 +93,6 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "warning_actor_uindex",
-        unique: true,
-        fields: [
-          { name: "actor" },
-        ]
-      },
-      {
-        name: "warning_guildid_uindex",
-        unique: true,
-        fields: [
-          { name: "guildID" },
-        ]
-      },
       {
         name: "warning_mutecase_uindex",
         unique: true,
@@ -113,13 +105,6 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
         unique: true,
         fields: [
           { name: "warningCase" },
-        ]
-      },
-      {
-        name: "warning_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
         ]
       },
     ]

@@ -11,6 +11,7 @@ export interface muteAttributes {
   duration?: number;
   note?: string;
   actor: bigint;
+  reason?: string;
 }
 
 export type mutePk = "muteCase";
@@ -25,6 +26,7 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
   duration?: number;
   note?: string;
   actor!: bigint;
+  reason?: string;
 
   // mute belongsTo guild via guildID
   guild!: guild;
@@ -86,6 +88,10 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
         model: 'user',
         key: 'userID'
       }
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -93,20 +99,6 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "mute_actor_uindex",
-        unique: true,
-        fields: [
-          { name: "actor" },
-        ]
-      },
-      {
-        name: "mute_guildid_uindex",
-        unique: true,
-        fields: [
-          { name: "guildID" },
-        ]
-      },
       {
         name: "mute_mutecase_uindex",
         unique: true,
@@ -119,13 +111,6 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
         unique: true,
         fields: [
           { name: "muteCase" },
-        ]
-      },
-      {
-        name: "mute_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
         ]
       },
     ]

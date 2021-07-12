@@ -4,12 +4,13 @@ import type { guild, guildId } from './guild';
 import type { user, userId } from './user';
 
 export interface banAttributes {
-  banCase?: number;
+  banCase?: bigint;
   userID: bigint;
   guildID: bigint;
   date?: Date;
   note?: string;
   actor: bigint;
+  reason?: string;
 }
 
 export type banPk = "banCase";
@@ -17,12 +18,13 @@ export type banId = ban[banPk];
 export type banCreationAttributes = Optional<banAttributes, banPk>;
 
 export class ban extends Model<banAttributes, banCreationAttributes> implements banAttributes {
-  banCase?: number;
+  banCase?: bigint;
   userID!: bigint;
   guildID!: bigint;
   date?: Date;
   note?: string;
   actor!: bigint;
+  reason?: string;
 
   // ban belongsTo guild via guildID
   guild!: guild;
@@ -80,6 +82,10 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
         model: 'user',
         key: 'userID'
       }
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -87,20 +93,6 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "ban_actor_uindex",
-        unique: true,
-        fields: [
-          { name: "actor" },
-        ]
-      },
-      {
-        name: "ban_guildid_uindex",
-        unique: true,
-        fields: [
-          { name: "guildID" },
-        ]
-      },
       {
         name: "ban_mutecase_uindex",
         unique: true,
@@ -113,13 +105,6 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
         unique: true,
         fields: [
           { name: "banCase" },
-        ]
-      },
-      {
-        name: "ban_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
         ]
       },
     ]

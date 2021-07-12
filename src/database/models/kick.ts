@@ -10,6 +10,7 @@ export interface kickAttributes {
   date?: Date;
   note?: string;
   actor: bigint;
+  reason?: string;
 }
 
 export type kickPk = "kickCase";
@@ -23,6 +24,7 @@ export class kick extends Model<kickAttributes, kickCreationAttributes> implemen
   date?: Date;
   note?: string;
   actor!: bigint;
+  reason?: string;
 
   // kick belongsTo guild via guildID
   guild!: guild;
@@ -80,6 +82,10 @@ export class kick extends Model<kickAttributes, kickCreationAttributes> implemen
         model: 'user',
         key: 'userID'
       }
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -87,20 +93,6 @@ export class kick extends Model<kickAttributes, kickCreationAttributes> implemen
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "kick_actor_uindex",
-        unique: true,
-        fields: [
-          { name: "actor" },
-        ]
-      },
-      {
-        name: "kick_guildid_uindex",
-        unique: true,
-        fields: [
-          { name: "guildID" },
-        ]
-      },
       {
         name: "kick_mutecase_uindex",
         unique: true,
@@ -113,13 +105,6 @@ export class kick extends Model<kickAttributes, kickCreationAttributes> implemen
         unique: true,
         fields: [
           { name: "kickCase" },
-        ]
-      },
-      {
-        name: "kick_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
         ]
       },
     ]
