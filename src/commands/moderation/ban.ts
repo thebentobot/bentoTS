@@ -34,7 +34,7 @@ export const command: Command = {
             return message.channel.send('This member is not bannable.')
         }
 
-        if (message.member.roles.highest.position < bannedUser.roles.highest.position) {
+        if (message.member.roles.highest.position <= bannedUser.roles.highest.position) {
             return message.channel.send('You cannot ban someone with a higher role than you.')
         }
 
@@ -68,17 +68,18 @@ export const command: Command = {
                 .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
                 .setThumbnail(bannedUser.user.avatarURL())
                 .setTitle(`${bannedUser.nickname ? `${bannedUser.nickname} (${bannedUser.user.username}#${bannedUser.user.discriminator})` : `${bannedUser.user.username}#${bannedUser.user.discriminator}`} was banned!`)
-                .setDescription(`**Reason**\n${reason}`)
+                .setDescription(`**Reason**\n${reason ? reason : 'Reason not listed'}`)
                 .addField('Username', bannedUser.user.username + '#' + bannedUser.user.discriminator)
                 .addField('User ID', bannedUser.id)
                 .addField('Banned by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
+                .setFooter(`Ban Case Number: ${banned[0].banCase}`)
                 .setTimestamp();
                 logChannel.send(embed);
-                (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** \n**Reason**: ${reason}.`)
+                (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
                 message.channel.send(`${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`} was successfully banned on this server.\nCase number: ${banned[0].banCase}.\nReason: ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
                 bannedUser.ban({reason: reason, days: 7});
             } catch {
-                (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** \n**Reason**: ${reason}.`)
+                (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
                 message.channel.send(`${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`} was successfully banned on this server.\nCase number: ${banned[0].banCase}.\nReason: ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
                 bannedUser.ban({reason: reason, days: 7});
             }

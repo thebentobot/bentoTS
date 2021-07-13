@@ -34,7 +34,7 @@ export const command: Command = {
             return message.channel.send('This member is not kickable.')
         }
 
-        if (message.member.roles.highest.position < kickedUser.roles.highest.position) {
+        if (message.member.roles.highest.position <= kickedUser.roles.highest.position) {
             return message.channel.send('You cannot kick someone with a higher role than you.')
         }
 
@@ -55,10 +55,7 @@ export const command: Command = {
         initModels(database);
 
         const kicked = await kick.findOrCreate({raw: true, where: {userID: kickedUserID, guildID: message.guild.id}, defaults: kickAttr})
-
-        if (kicked[1] === false) {
-            return message.channel.send(`${message.guild.members.cache.get(`${kickedUserID}`).nickname ? `${message.guild.members.cache.get(`${kickedUserID}`).nickname} (${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator}`} is already kicked from this server.\nThe case number for this kick is: \`${kicked[0].kickCase}\` if you want to look up details for this kick use the case check command.`);
-        } else {
+        const kickedCount = await kick.findAndCountAll({where: {guildID: message.guild.id, userID: kickedUserID}})
             try {
                 let logChannel: TextChannel;
                 const channel = await modLog.findOne({raw: true, where: { guildID: message.guild.id}})
@@ -68,20 +65,20 @@ export const command: Command = {
                 .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
                 .setThumbnail(kickedUser.user.avatarURL())
                 .setTitle(`${kickedUser.nickname ? `${kickedUser.nickname} (${kickedUser.user.username}#${kickedUser.user.discriminator})` : `${kickedUser.user.username}#${kickedUser.user.discriminator}`} was kicked!`)
-                .setDescription(`**Reason**\n${reason}`)
+                .setDescription(`This user has been kicked **${kickedCount.count > 1 ? `${kickedCount.count} times` : `once`}** from this server\n**Reason**\n${reason ? reason : 'No reason specified'}`)
                 .addField('Username', kickedUser.user.username + '#' + kickedUser.user.discriminator)
                 .addField('User ID', kickedUser.id)
                 .addField('Kicked by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
+                .setFooter(`Kick Case Number: ${kicked[0].kickCase}`)
                 .setTimestamp();
                 logChannel.send(embed);
-                (await client.users.fetch(kickedUserID)).send(`🦶You were \`kicked\` from **${message.guild.name}** \n**Reason**: ${reason}.`)
+                (await client.users.fetch(kickedUserID)).send(`🦶 You were \`kicked\` from **${message.guild.name}** 🦶 \n**Reason**: ${reason}.`)
                 message.channel.send(`${message.guild.members.cache.get(`${kickedUserID}`).nickname ? `${message.guild.members.cache.get(`${kickedUserID}`).nickname} (${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator}`} was successfully banned on this server.\nCase number: ${kicked[0].kickCase}.\nReason: ${kicked[0].reason}\nYou can add notes for this kick by using the case command together with the case number.`)
                 kickedUser.kick(reason);
             } catch {
-                (await client.users.fetch(kickedUserID)).send(`🦶You were \`kicked\` from **${message.guild.name}** \n**Reason**: ${reason}.`)
+                (await client.users.fetch(kickedUserID)).send(`🦶You were \`kicked\` from **${message.guild.name}** 🦶 \n**Reason**: ${reason}.`)
                 message.channel.send(`${message.guild.members.cache.get(`${kickedUserID}`).nickname ? `${message.guild.members.cache.get(`${kickedUserID}`).nickname} (${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator}`} was successfully banned on this server.\nCase number: ${kicked[0].kickCase}.\nReason: ${kicked[0].reason}\nYou can add notes for this kick by using the case command together with the case number.`)
                 kickedUser.kick(reason);
             }
-        }
     }
 }

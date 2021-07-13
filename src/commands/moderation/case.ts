@@ -8,6 +8,9 @@ export const command: Command = {
     description: 'Link to the Bento GitHub organisation',
     usage: 'case',
     run: async (client, message, args): Promise<Message> => {
+
+        // you need to be able to specify if it's kick/ban/mute/warn
+
         if (args[0] === 'user') {
             // check a user, args 1 is the user, args 2 is global option
             return userCheck (message, args[1], args[2])
