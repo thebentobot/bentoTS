@@ -22,7 +22,7 @@ export const command: Command = {
 
         const response = await urbanAPI.get('/define?', {params: {term: query}});
 
-        if (response.data.length) {
+        if (!response.data.length) {
             return message.channel.send(`No definition found for \`${query}\`.`);
         }
 

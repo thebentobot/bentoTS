@@ -8,8 +8,8 @@ export const command: Command = {
     name: 'mute',
     aliases: [],
     category: 'moderation',
-    description: 'Link to the Bento GitHub organisation',
-    usage: 'mute',
+    description: 'Mutes a user until unmute or for a specific time',
+    usage: 'mute <user id or mention user> [reason]\nmute <time> <user id or mention user> [reason]',
     run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'time') {
             return timedMute (message, args[1], args[2], args.slice(3).join(' '))

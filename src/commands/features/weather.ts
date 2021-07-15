@@ -97,7 +97,7 @@ export const command: Command = {
                 { name: 'Wind Speed', value: `${response.wind.speed} m/s`, inline: true },
                 { name: 'Wind Direction', value: await windDirection(response.wind.deg), inline: true },
                 )
-            return message.channel.send(Embed)
+            return await message.channel.send(Embed)
         }
 
         async function saveWeather (message: Message, city: string) {
