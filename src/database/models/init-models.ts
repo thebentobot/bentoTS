@@ -25,6 +25,8 @@ import { mute } from "./mute";
 import type { muteAttributes, muteCreationAttributes } from "./mute";
 import { muteRole } from "./muteRole";
 import type { muteRoleAttributes, muteRoleCreationAttributes } from "./muteRole";
+import { reminder } from "./reminder";
+import type { reminderAttributes, reminderCreationAttributes } from "./reminder";
 import { tag } from "./tag";
 import type { tagAttributes, tagCreationAttributes } from "./tag";
 import { user } from "./user";
@@ -50,6 +52,7 @@ export {
   modLog,
   mute,
   muteRole,
+  reminder,
   tag,
   user,
   warning,
@@ -84,6 +87,8 @@ export type {
   muteCreationAttributes,
   muteRoleAttributes,
   muteRoleCreationAttributes,
+  reminderAttributes,
+  reminderCreationAttributes,
   tagAttributes,
   tagCreationAttributes,
   userAttributes,
@@ -110,6 +115,7 @@ export function initModels(sequelize: Sequelize) {
   modLog.initModel(sequelize);
   mute.initModel(sequelize);
   muteRole.initModel(sequelize);
+  reminder.initModel(sequelize);
   tag.initModel(sequelize);
   user.initModel(sequelize);
   warning.initModel(sequelize);
@@ -160,6 +166,8 @@ export function initModels(sequelize: Sequelize) {
   user.hasMany(mute, { as: "mutes", foreignKey: "userID"});
   mute.belongsTo(user, { as: "actor_user", foreignKey: "actor"});
   user.hasMany(mute, { as: "actor_mutes", foreignKey: "actor"});
+  reminder.belongsTo(user, { as: "user", foreignKey: "userID"});
+  user.hasMany(reminder, { as: "reminders", foreignKey: "userID"});
   tag.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(tag, { as: "tags", foreignKey: "userID"});
   warning.belongsTo(user, { as: "user", foreignKey: "userID"});
@@ -183,6 +191,7 @@ export function initModels(sequelize: Sequelize) {
     modLog: modLog,
     mute: mute,
     muteRole: muteRole,
+    reminder: reminder,
     tag: tag,
     user: user,
     warning: warning,

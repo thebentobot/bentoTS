@@ -1,12 +1,20 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, guildMember, guildMemberCreationAttributes, user, userCreationAttributes, welcome, autoRole } from '../database/models/init-models';
+import { initModels, guildMember, guildMemberCreationAttributes, user, userCreationAttributes, welcome, autoRole, mute, muteRole } from '../database/models/init-models';
 import { GuildMember, TextChannel } from "discord.js"
 
 export const event: Event = {
     name: 'guildMemberAdd',
     run: async (client, member: GuildMember): Promise<any> => {
         initModels(database);
+
+        const currentMute = await mute.findOne({raw: true, where: {userID: member.id, guildID: member.guild.id, MuteStatus: true}})
+
+        if (currentMute) {
+            const muteRoleData = await muteRole.findOne({raw: true, where: {guildID: member.guild.id}})
+            const role = member.guild.roles.cache.get(`${muteRoleData.roleID}`)
+            await member.roles.add(role)
+        }
 
         const userAttr: userCreationAttributes = {
             userID: BigInt(member.id),
@@ -52,7 +60,7 @@ export const event: Event = {
             const iterator = autoRoleData.values();
 
             for (const value of iterator) {
-                member.roles.add([`${value.roleID}`])
+                member.roles.add(`${value.roleID}`) // there was an array around the string before, was that a mistake? Most likely
             }
         }
     }

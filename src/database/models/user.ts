@@ -7,6 +7,7 @@ import type { horoscope, horoscopeCreationAttributes, horoscopeId } from './horo
 import type { kick, kickId } from './kick';
 import type { lastfm, lastfmCreationAttributes, lastfmId } from './lastfm';
 import type { mute, muteId } from './mute';
+import type { reminder, reminderId } from './reminder';
 import type { tag, tagId } from './tag';
 import type { warning, warningId } from './warning';
 import type { weather, weatherCreationAttributes, weatherId } from './weather';
@@ -129,6 +130,18 @@ export class user extends Model<userAttributes, userCreationAttributes> implemen
   hasActor_mute!: Sequelize.HasManyHasAssociationMixin<mute, muteId>;
   hasActor_mutes!: Sequelize.HasManyHasAssociationsMixin<mute, muteId>;
   countActor_mutes!: Sequelize.HasManyCountAssociationsMixin;
+  // user hasMany reminder via userID
+  reminders!: reminder[];
+  getReminders!: Sequelize.HasManyGetAssociationsMixin<reminder>;
+  setReminders!: Sequelize.HasManySetAssociationsMixin<reminder, reminderId>;
+  addReminder!: Sequelize.HasManyAddAssociationMixin<reminder, reminderId>;
+  addReminders!: Sequelize.HasManyAddAssociationsMixin<reminder, reminderId>;
+  createReminder!: Sequelize.HasManyCreateAssociationMixin<reminder>;
+  removeReminder!: Sequelize.HasManyRemoveAssociationMixin<reminder, reminderId>;
+  removeReminders!: Sequelize.HasManyRemoveAssociationsMixin<reminder, reminderId>;
+  hasReminder!: Sequelize.HasManyHasAssociationMixin<reminder, reminderId>;
+  hasReminders!: Sequelize.HasManyHasAssociationsMixin<reminder, reminderId>;
+  countReminders!: Sequelize.HasManyCountAssociationsMixin;
   // user hasMany tag via userID
   tags!: tag[];
   getTags!: Sequelize.HasManyGetAssociationsMixin<tag>;

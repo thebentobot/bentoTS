@@ -8,6 +8,7 @@ export const command: Command = {
     description: 'Link to the Bento GitHub organisation',
     usage: 'case',
     run: async (client, message, args): Promise<Message> => {
+        /*
 
         // you need to be able to specify if it's kick/ban/mute/warn
 
@@ -85,5 +86,7 @@ export const command: Command = {
         async function caseList (message: Message, caseType: string, firstDate: string, secondDate: string): Promise<Message> {
             
         }
+        */
+       return message.channel.send('lmao')
     }
 }

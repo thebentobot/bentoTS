@@ -4,7 +4,7 @@ import type { guild, guildId } from './guild';
 import type { user, userId } from './user';
 
 export interface banAttributes {
-  banCase?: bigint;
+  banCase?: number;
   userID: bigint;
   guildID: bigint;
   date?: Date;
@@ -18,7 +18,7 @@ export type banId = ban[banPk];
 export type banCreationAttributes = Optional<banAttributes, banPk>;
 
 export class ban extends Model<banAttributes, banCreationAttributes> implements banAttributes {
-  banCase?: bigint;
+  banCase?: number;
   userID!: bigint;
   guildID!: bigint;
   date?: Date;

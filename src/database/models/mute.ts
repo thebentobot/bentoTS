@@ -8,10 +8,11 @@ export interface muteAttributes {
   userID: bigint;
   guildID: bigint;
   date?: Date;
-  duration?: number;
+  muteEnd?: Date;
   note?: string;
   actor: bigint;
   reason?: string;
+  MuteStatus: boolean;
 }
 
 export type mutePk = "muteCase";
@@ -23,10 +24,11 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
   userID!: bigint;
   guildID!: bigint;
   date?: Date;
-  duration?: number;
+  muteEnd?: Date;
   note?: string;
   actor!: bigint;
   reason?: string;
+  MuteStatus!: boolean;
 
   // mute belongsTo guild via guildID
   guild!: guild;
@@ -73,9 +75,10 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
       allowNull: false,
       defaultValue: Sequelize.Sequelize.fn('now')
     },
-    duration: {
-      type: DataTypes.INTEGER,
-      allowNull: true
+    muteEnd: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.Sequelize.fn('now')
     },
     note: {
       type: DataTypes.STRING,
@@ -92,6 +95,10 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
     reason: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    MuteStatus: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     }
   }, {
     sequelize,

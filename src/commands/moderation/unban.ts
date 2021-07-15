@@ -10,7 +10,7 @@ export const command: Command = {
     name: 'unban',
     aliases: [],
     category: 'moderation',
-    description: 'Unbans the mentioned user from your server.',
+    description: 'Unbans the mentioned user from your server. The reason argument does not overwrite the reason for the ban but rather shows in the mod log as a reason for unban, if it was a manual unban.',
     usage: 'unban <user id or mention user> [reason]',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('BAN_MEMBERS')) {
@@ -53,25 +53,24 @@ export const command: Command = {
                 .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
                 .setThumbnail(unbannedUser.user.avatarURL())
                 .setTitle(`${unbannedUser.nickname ? `${unbannedUser.nickname} (${unbannedUser.user.username}#${unbannedUser.user.discriminator})` : `${unbannedUser.user.username}#${unbannedUser.user.discriminator}`} was unbanned!`)
-                .setDescription(`**Reason**\n${reason ? reason : 'No reason for the unban specified'}`)
+                .setDescription(`**Reason for unban**\n${reason ? reason : 'No reason for the unban specified'}`)
                 .addField('Username', unbannedUser.user.username + '#' + unbannedUser.user.discriminator)
                 .addField('User ID', unbannedUser.id)
                 .addField('Banned by', message.guild.members.cache.get(`${banned.actor}`).nickname ? `${message.guild.members.cache.get(`${banned.actor}`).nickname} (${message.guild.members.cache.get(`${banned.actor}`).user.username}#${message.guild.members.cache.get(`${banned.actor}`).user.discriminator})` : `${message.guild.members.cache.get(`${banned.actor}`).user.username}#${message.guild.members.cache.get(`${banned.actor}`).user.discriminator}`)
                 .addField('Ban date', moment(banned.date).format('dddd, MMMM Do YYYY, HH:mm:ss A z'))
+                .addField('Reason for ban', banned.reason != null ? 'No reason specified for mute' : banned.reason)
                 .addField('Unbanned by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
                 .addField('Notes about the ban case', banned.note ? banned.note : 'No notes made for this ban case')
-                .setFooter(`Ban Case Number: ${banned[0].banCase}`)
+                .setFooter(`Ban Case Number: ${banned.banCase}`)
                 .setTimestamp();
-                logChannel.send(embed);
+                await logChannel.send(embed);
                 (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
-                message.channel.send(`${message.guild.members.cache.get(unbannedUserID).user.username}#${message.guild.members.cache.get(unbannedUserID).user.discriminator} was successfully unbanned on this server.\nReason: ${reason ? reason : 'No reason for the unban specified'}.`)
-                message.guild.members.unban(unbannedUserID, reason)
-                await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID}})
+                await message.channel.send(`**${message.guild.members.cache.get(unbannedUserID).user.username}#${message.guild.members.cache.get(unbannedUserID).user.discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
+                await message.guild.members.unban(unbannedUserID, reason)
             } catch {
                 (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
-                message.channel.send(`${message.guild.members.cache.get(unbannedUserID).user.username}#${message.guild.members.cache.get(unbannedUserID).user.discriminator} was successfully unbanned on this server.\nReason: ${reason ? reason : 'No reason for the unban specified'}.`)
-                message.guild.members.unban(unbannedUserID, reason)
-                await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID}})
+                await message.channel.send(`**${message.guild.members.cache.get(unbannedUserID).user.username}#${message.guild.members.cache.get(unbannedUserID).user.discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
+                await message.guild.members.unban(unbannedUserID, reason)
             }
         }
     }
