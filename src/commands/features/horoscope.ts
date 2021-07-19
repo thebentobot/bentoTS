@@ -89,6 +89,7 @@ export const command: Command = {
             } else {
                 try {
                 const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
+                if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
                 const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
                 sign = horoData.horoscope
@@ -138,6 +139,7 @@ export const command: Command = {
             } else {
                 try {
                 const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
+                if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
                 const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
                 sign = horoData.horoscope
@@ -187,6 +189,7 @@ export const command: Command = {
             } else {
                 try {
                 const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
+                if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
                 const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
                 sign = horoData.horoscope

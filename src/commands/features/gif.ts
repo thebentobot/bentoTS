@@ -31,7 +31,7 @@ export const command: Command = {
         let query: string;
         let filter: string;
         if (guildDB.nsfw === false) {
-            query = args.join(" ");
+            query = args.join(" ").replace('contentfilter', '');
             filter = 'high';
         } else {
             query = args.join(" ");

@@ -44,6 +44,7 @@ export const command: Command = {
             if (input) {
                 try {
                     const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
+                    if (mentionedUser.user.bot === true) return message.channel.send(`Bots doesn't care about the weather.`)
                     userID = mentionedUser.id
                     const weatherData = await weather.findOne({raw: true, where : {userID: userID}})
                     city = weatherData.city

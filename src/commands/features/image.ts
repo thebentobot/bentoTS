@@ -21,7 +21,7 @@ export const command: Command = {
         
         let query: string;
         if (guildDB.nsfw === false) {
-            query = args.join(" ") + '&safe=on'
+            query = args.join(" ").replace('#', '') + '&safe=on'
         } else {
             query = args.join(" ")
         }
@@ -39,7 +39,7 @@ export const command: Command = {
                 try {
                     return message.channel.send(results[index].url);
                 } catch {
-                    return message.channel.send(`No images found based on your search input \`${query}\`.`);
+                    return message.channel.send(`No images found based on your search input \`${query.replace('&safe=on', '')}\`.`);
                 }
             }
         }

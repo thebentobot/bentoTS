@@ -417,6 +417,7 @@ export const command: Command = {
 
             try {
                 const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                if (mentionedUser.user.bot === true) return message.channel.send(`This command doesn't work with bots.`)
                 userID = mentionedUser.id
                 const tagData = await tag.findAndCountAll({raw: true, where : {userID: userID, guildID: message.guild.id}, order: [['command', 'DESC'], ['count', 'DESC']]})
                 commands = tagData.rows

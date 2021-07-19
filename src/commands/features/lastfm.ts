@@ -101,6 +101,7 @@ export const command: Command = {
 
             try {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 user = theUser.id
                 try {
                     const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
@@ -229,6 +230,7 @@ export const command: Command = {
 
             try {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 userID = theUser.id
                 try {
                     const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
@@ -360,6 +362,7 @@ export const command: Command = {
 
             try {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 userID = theUser.id
                 try {
                     const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
@@ -485,6 +488,7 @@ export const command: Command = {
 
             try {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 userID = theUser.id
                 try {
                     const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
@@ -579,6 +583,7 @@ export const command: Command = {
 
             try {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 user = theUser.id
                 try {
                     const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
@@ -669,6 +674,7 @@ export const command: Command = {
 
             try {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 user = theUser.id
                 try {
                     const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
