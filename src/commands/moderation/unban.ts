@@ -64,13 +64,23 @@ export const command: Command = {
                 .setFooter(`Ban Case Number: ${banned.banCase}`)
                 .setTimestamp();
                 await logChannel.send(embed);
-                (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
                 await message.channel.send(`**${message.guild.members.cache.get(unbannedUserID).user.username}#${message.guild.members.cache.get(unbannedUserID).user.discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
-                await message.guild.members.unban(unbannedUserID, reason)
+                try {
+                    (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
+                    await message.guild.members.unban(unbannedUserID, reason)
+
+                } catch {
+                    await message.guild.members.unban(unbannedUserID, reason)
+                }
             } catch {
-                (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
                 await message.channel.send(`**${message.guild.members.cache.get(unbannedUserID).user.username}#${message.guild.members.cache.get(unbannedUserID).user.discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
-                await message.guild.members.unban(unbannedUserID, reason)
+                try {
+                    (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
+                    await message.guild.members.unban(unbannedUserID, reason)
+
+                } catch {
+                    await message.guild.members.unban(unbannedUserID, reason)
+                }
             }
         }
     }

@@ -95,30 +95,38 @@ export const command: Command = {
             }
 
             const muteCount = await mute.findAndCountAll({where: {guildID: message.guild.id, userID: mutedUserID}})
+            try {
+                let logChannel: TextChannel;
+                const channel = await modLog.findOne({raw: true, where: { guildID: message.guild.id}})
+                logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel;
+                const embed = new MessageEmbed()
+                .setColor('#000000')
+                .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
+                .setThumbnail(mutedUser.user.avatarURL())
+                .setTitle(`${mutedUser.nickname ? `${mutedUser.nickname} (${mutedUser.user.username}#${mutedUser.user.discriminator})` : `${mutedUser.user.username}#${mutedUser.user.discriminator}`} was muted for ${amountOfTime} ${timeframe}!`)
+                .setDescription(`This user has been muted **${muteCount.count > 1 ? `${muteCount.count} times` : `once`}** on this server\n**Reason**\n${reason ? reason : 'Reason not listed'}`)
+                .addField('Username', mutedUser.user.username + '#' + mutedUser.user.discriminator)
+                .addField('User ID', mutedUser.id)
+                .addField('Muted by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
+                .setFooter(`Mute Case Number: ${muted[0].muteCase}`)
+                .setTimestamp();
+                await logChannel.send(embed);
+                await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 try {
-                    let logChannel: TextChannel;
-                    const channel = await modLog.findOne({raw: true, where: { guildID: message.guild.id}})
-                    logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel;
-                    const embed = new MessageEmbed()
-                    .setColor('#000000')
-                    .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
-                    .setThumbnail(mutedUser.user.avatarURL())
-                    .setTitle(`${mutedUser.nickname ? `${mutedUser.nickname} (${mutedUser.user.username}#${mutedUser.user.discriminator})` : `${mutedUser.user.username}#${mutedUser.user.discriminator}`} was muted for ${amountOfTime} ${timeframe}!`)
-                    .setDescription(`This user has been muted **${muteCount.count > 1 ? `${muteCount.count} times` : `once`}** on this server\n**Reason**\n${reason ? reason : 'Reason not listed'}`)
-                    .addField('Username', mutedUser.user.username + '#' + mutedUser.user.discriminator)
-                    .addField('User ID', mutedUser.id)
-                    .addField('Muted by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
-                    .setFooter(`Mute Case Number: ${muted[0].muteCase}`)
-                    .setTimestamp();
-                    await logChannel.send(embed);
                     (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.\nYou will be unmuted at approx. ${moment(muted[0].muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A z')}.`)
-                    await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                     await mutedUser.roles.add(role)
                 } catch {
-                    (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.\nYou will be unmuted at approx. ${moment(muted[0].muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A z')}.`)
-                    await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                     await mutedUser.roles.add(role)
                 }
+            } catch {
+                await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
+                try {
+                    (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.\nYou will be unmuted at approx. ${moment(muted[0].muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A z')}.`)
+                    await mutedUser.roles.add(role)
+                } catch {
+                    await mutedUser.roles.add(role)
+                }                
+            }
         }
 
         async function regularMute (message: Message, user: string, reason?: string) {
@@ -174,30 +182,40 @@ export const command: Command = {
             }
 
             const muteCount = await mute.findAndCountAll({where: {guildID: message.guild.id, userID: mutedUserID}})
+            try {
+                let logChannel: TextChannel;
+                const channel = await modLog.findOne({raw: true, where: { guildID: message.guild.id}})
+                logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel;
+                const embed = new MessageEmbed()
+                .setColor('#000000')
+                .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
+                .setThumbnail(mutedUser.user.avatarURL())
+                .setTitle(`${mutedUser.nickname ? `${mutedUser.nickname} (${mutedUser.user.username}#${mutedUser.user.discriminator})` : `${mutedUser.user.username}#${mutedUser.user.discriminator}`} has been muted for indefinite time!`)
+                .setDescription(`This user has been muted **${muteCount.count > 1 ? `${muteCount.count} times` : `once`}** on this server\n**Reason**\n${reason ? reason : 'Reason not listed'}`)
+                .addField('Username', mutedUser.user.username + '#' + mutedUser.user.discriminator)
+                .addField('User ID', mutedUser.id)
+                .addField('Muted by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
+                .setFooter(`Mute Case Number: ${muted[0].muteCase}`)
+                .setTimestamp();
+                await logChannel.send(embed);
+                await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number:** ${muted[0].muteCase}.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 try {
-                    let logChannel: TextChannel;
-                    const channel = await modLog.findOne({raw: true, where: { guildID: message.guild.id}})
-                    logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel;
-                    const embed = new MessageEmbed()
-                    .setColor('#000000')
-                    .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
-                    .setThumbnail(mutedUser.user.avatarURL())
-                    .setTitle(`${mutedUser.nickname ? `${mutedUser.nickname} (${mutedUser.user.username}#${mutedUser.user.discriminator})` : `${mutedUser.user.username}#${mutedUser.user.discriminator}`} has been muted for indefinite time!`)
-                    .setDescription(`This user has been muted **${muteCount.count > 1 ? `${muteCount.count} times` : `once`}** on this server\n**Reason**\n${reason ? reason : 'Reason not listed'}`)
-                    .addField('Username', mutedUser.user.username + '#' + mutedUser.user.discriminator)
-                    .addField('User ID', mutedUser.id)
-                    .addField('Muted by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
-                    .setFooter(`Mute Case Number: ${muted[0].muteCase}`)
-                    .setTimestamp();
-                    await logChannel.send(embed);
                     (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for indefinite time from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.`)
-                    await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number:** ${muted[0].muteCase}.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                     await mutedUser.roles.add(role)
                 } catch {
-                    (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for indefinite time from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.`)
-                    await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number:** ${muted[0].muteCase}.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                     await mutedUser.roles.add(role)
+
                 }
+            } catch {
+                await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number:** ${muted[0].muteCase}.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
+                try {
+                    (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for indefinite time from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.`)
+                    await mutedUser.roles.add(role)
+                } catch {
+                    await mutedUser.roles.add(role)
+
+                }                
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ export async function tiktokEmbedding(URL: string): Promise<any> {
         .setColor('#000000')
         .setAuthor(video.authorMeta.name, video.authorMeta.avatar, `https://www.tiktok.com/@${video.authorMeta.name}?`)
         let finalVideo = new MessageAttachment(buffer, 'video.mp4')
-        return [embed, finalVideo];
+        return [finalVideo, embed];
     } catch {
         return;
     };

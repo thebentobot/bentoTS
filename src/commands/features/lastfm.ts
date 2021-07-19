@@ -1,12 +1,15 @@
+// @ts-nocheck
 import { Message, MessageEmbed, Util } from 'discord.js';
 import { Command } from '../../interfaces';
 import database from '../../database/database';
-import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models';
+import { initModels, guild, lastfmCreationAttributes, lastfm, guildMember } from '../../database/models/init-models';
 import axios from 'axios';
 import * as dotenv from "dotenv";
 import SpotifyWebApi from 'spotify-web-api-node';
 import moment from 'moment';
 import { flag } from 'country-emoji';
+import { QueryTypes } from 'sequelize';
+import { urlToColours } from '../../utils';
 dotenv.config();
 
 const api_key = process.env.lastfm
@@ -82,6 +85,30 @@ export const command: Command = {
 
         if (args[0] === 'profile') {
             return lastfmProfile (message, args[1]);
+        }
+
+        if (args[0] === 'wkt') {
+            return lastfmWkt (message, args.slice(1).join(" "));
+        }
+
+        if (args[0] === 'wka') {
+            return lastfmWka (message, args.slice(1).join(" "));
+        }
+
+        if (args[0] === 'wk') {
+            return lastfmWk (message, args.slice(1).join(" "));
+        }
+        
+        if (args[0] === 'gwkt') {
+            return lastfmGwkt (message, args.slice(1).join(" "));
+        }
+
+        if (args[0] === 'gwka') {
+            return lastfmGwka (message, args.slice(1).join(" "));
+        }
+
+        if (args[0] === 'gwk') {
+            return lastfmGwk (message, args.slice(1).join(" "));
         }
 
         /*
@@ -713,6 +740,568 @@ export const command: Command = {
             .setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
             
             return message.channel.send(embed)
+        }
+
+        async function lastfmWkt (message: Message, song?: string) {
+            interface lastfmUsers {
+                userid: bigint,
+                lastfmaccountname: string
+            }
+
+            const lastfmUsersData: Array<lastfmUsers> = await database.query(`
+            SELECT fm."userID" AS userID, fm.lastfm AS lastfmAccountName
+            FROM lastfm as fm
+            INNER JOIN "guildMember" gM on fm."userID" = gM."userID"
+            WHERE gM."guildID" = :guild;`, {
+                replacements: { guild: message.guild.id },
+                type: QueryTypes.SELECT
+            });
+
+            let playData: object[] = []
+            let artist: string;
+            let track: string;
+            let imageURL: string;
+
+            if (song) {
+                let songData = []
+                songData = song.split('-')
+                artist = songData[0]
+                track = songData[1]
+                try {
+                    let getImageData = await lastfmAPI.get('/', {params: { method: "track.getInfo", artist: artist, track: track}});
+                    let parseImageData = await getImageData.data
+                    imageURL = parseImageData.track.album.image[3]['#text']
+                    artist = parseImageData.track.artist.name
+                    track = parseImageData.track.name
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "track.getInfo", username: user.lastfmaccountname, artist: artist, track: track}});
+                        let trackData = await response.data
+                        playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: parseInt(trackData.track.userplaycount)})
+                    }
+                } catch {
+                    return message.channel.send('Error! This is not a valid song. Remember the format is Artist - Track')
+                }
+            } else {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    const username = lastFmName.lastfm
+                    const currentSongData = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
+                    const theCurrentSongData = await currentSongData.data
+                    artist = theCurrentSongData.recenttracks.track[0].artist['#text']
+                    track = theCurrentSongData.recenttracks.track[0].name
+                    imageURL = theCurrentSongData.recenttracks.track[0].image[3]['#text']
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "track.getInfo", username: user.lastfmaccountname, artist: artist, track: track}});
+                        let trackData = await response.data
+                        playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: parseInt(trackData.track.userplaycount)})
+                    }
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
+ 
+            playData.sort(function (a, b) {
+                return b.playCount - a.playCount
+            });
+
+            playData.slice(0, 9);
+
+            const embeds = generateWktEmbed(playData)
+            await message.channel.send(await embeds);
+
+            async function generateWktEmbed (input) {
+                const embeds = [];
+                let k = 10;
+                for(let i =0; i < input.length; i += 10) {
+                    const current = input.slice(i, k);
+                    let j = i;
+                    k += 10;
+
+                    const embed = new MessageEmbed()
+                    let cover;
+                    await spotifyCred.searchArtists(artist, {limit: 1}).then(function(data) {
+                        cover = data
+                    }, function (err) {
+                        console.error(err);
+                    })
+                    embed.setAuthor(artist, cover.body.artists.items[0].images[0].url)
+                    embed.setColor(`${await urlToColours(imageURL)}`)
+                    embed.setTimestamp()
+                    const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
+                    embed.setDescription(`${info}`)
+                    embed.setThumbnail(imageURL)
+                    embed.setTitle(`Who in ${message.guild.name} knows ${track}`)
+                    embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
+                    embeds.push(embed)
+                }
+                return embeds;
+            }
+        }
+
+        async function lastfmWka (message: Message, album?: string) {
+            interface lastfmUsers {
+                userid: bigint,
+                lastfmaccountname: string
+            }
+
+            const lastfmUsersData: Array<lastfmUsers> = await database.query(`
+            SELECT fm."userID" AS userID, fm.lastfm AS lastfmAccountName
+            FROM lastfm as fm
+            INNER JOIN "guildMember" gM on fm."userID" = gM."userID"
+            WHERE gM."guildID" = :guild;`, {
+                replacements: { guild: message.guild.id },
+                type: QueryTypes.SELECT
+            });
+
+            let playData: object[] = []
+            let artist: string;
+            let artistAlbum: string;
+            let imageURL: string;
+
+            if (album) {
+                let songData = []
+                songData = album.split('-')
+                artist = songData[0]
+                artistAlbum = songData[1]
+                try {
+                    let getImageData = await lastfmAPI.get('/', {params: { method: "album.getInfo", artist: artist, album: artistAlbum}});
+                    let parseImageData = await getImageData.data
+                    imageURL = parseImageData.album.image[3]['#text']
+                    artist = parseImageData.album.artist
+                    artistAlbum = parseImageData.album.name
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "album.getInfo", username: user.lastfmaccountname, artist: artist, album: artistAlbum}});
+                        let albumData = await response.data
+                        playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: parseInt(albumData.album.userplaycount)})
+                    }
+                } catch {
+                    return message.channel.send('Error! This is not a valid album. Remember the format is Artist - Album')
+                }
+            } else {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    const username = lastFmName.lastfm
+                    const currentSongData = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
+                    const theCurrentSongData = await currentSongData.data
+                    artist = theCurrentSongData.recenttracks.track[0].artist['#text']
+                    artistAlbum = theCurrentSongData.recenttracks.track[0].album['#text']
+                    imageURL = theCurrentSongData.recenttracks.track[0].image[3]['#text']
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "album.getInfo", username: user.lastfmaccountname, artist: artist, album: artistAlbum}});
+                        let albumData = await response.data
+                        playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: parseInt(albumData.album.userplaycount)})
+                    }
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
+ 
+            playData.sort(function (a, b) {
+                return b.playCount - a.playCount
+            });
+
+            playData.slice(0, 9);
+
+            const embeds = generateWkaEmbed(playData)
+            await message.channel.send(await embeds);
+
+            async function generateWkaEmbed (input) {
+                const embeds = [];
+                let k = 10;
+                for(let i =0; i < input.length; i += 10) {
+                    const current = input.slice(i, k);
+                    let j = i;
+                    k += 10;
+
+                    const embed = new MessageEmbed()
+                    let cover;
+                    await spotifyCred.searchArtists(artist, {limit: 1}).then(function(data) {
+                        cover = data
+                    }, function (err) {
+                        console.error(err);
+                    })
+                    embed.setAuthor(artist, cover.body.artists.items[0].images[0].url)
+                    embed.setColor(`${await urlToColours(imageURL)}`)
+                    embed.setTimestamp()
+                    const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
+                    embed.setDescription(`${info}`)
+                    embed.setThumbnail(imageURL)
+                    embed.setTitle(`Who in ${message.guild.name} knows ${artistAlbum}`)
+                    embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
+                    embeds.push(embed)
+                }
+                return embeds;
+            }
+        }
+
+        async function lastfmWk (message: Message, artist?: string) {
+            interface lastfmUsers {
+                userid: bigint,
+                lastfmaccountname: string
+            }
+
+            const lastfmUsersData: Array<lastfmUsers> = await database.query(`
+            SELECT fm."userID" AS userID, fm.lastfm AS lastfmAccountName
+            FROM lastfm as fm
+            INNER JOIN "guildMember" gM on fm."userID" = gM."userID"
+            WHERE gM."guildID" = :guild;`, {
+                replacements: { guild: message.guild.id },
+                type: QueryTypes.SELECT
+            });
+
+            let playData: object[] = []
+            let artistName: string;
+
+            if (artist) {
+                artistName = artist
+                try {
+                    let getImageData = await lastfmAPI.get('/', {params: { method: "artist.getInfo", artist: artistName}});
+                    let parseImageData = await getImageData.data
+                    artistName = parseImageData.artist.name
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "artist.getInfo", username: user.lastfmaccountname, artist: artistName}});
+                        let artistData = await response.data
+                        playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: parseInt(artistData.artist.stats.userplaycount)})
+                    }
+                } catch {
+                    return message.channel.send('Error! This is not a valid artist')
+                }
+            } else {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    const username = lastFmName.lastfm
+                    const currentSongData = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
+                    const theCurrentSongData = await currentSongData.data
+                    artistName = theCurrentSongData.recenttracks.track[0].artist['#text']
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "artist.getInfo", username: user.lastfmaccountname, artist: artistName}});
+                        let artistData = await response.data
+                        playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: parseInt(artistData.artist.stats.userplaycount)})
+                    }
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
+ 
+            playData.sort(function (a, b) {
+                return b.playCount - a.playCount
+            });
+
+            playData.slice(0, 9);
+
+            const embeds = generateWkEmbed(playData)
+            await message.channel.send(await embeds);
+
+            async function generateWkEmbed (input) {
+                const embeds = [];
+                let k = 10;
+                for(let i =0; i < input.length; i += 10) {
+                    const current = input.slice(i, k);
+                    let j = i;
+                    k += 10;
+
+                    const embed = new MessageEmbed()
+                    let cover;
+                    await spotifyCred.searchArtists(artistName, {limit: 1}).then(function(data) {
+                        cover = data
+                    }, function (err) {
+                        console.error(err);
+                    })
+                    embed.setColor(`${await urlToColours(cover.body.artists.items[0].images[0].url)}`)
+                    embed.setTimestamp()
+                    const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
+                    embed.setDescription(`${info}`)
+                    embed.setThumbnail(cover.body.artists.items[0].images[0].url)
+                    embed.setTitle(`Who in ${message.guild.name} knows ${artistName}`)
+                    embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
+                    embeds.push(embed)
+                }
+                return embeds;
+            }
+        }
+
+        async function lastfmGwkt (message: Message, song?: string) {
+            interface lastfmUsers {
+                userid: bigint,
+                lastfm: string,
+                username: string,
+                discriminator: string
+            }
+
+            const lastfmUsersData: Array<lastfmUsers> = await database.query(`
+            SELECT u."userID" AS userid, fm.lastfm, u.username, u.discriminator
+            FROM lastfm as fm
+            INNER JOIN "user" u on u."userID" = fm."userID";`, {
+                type: QueryTypes.SELECT
+            });
+
+            let playData: object[] = []
+            let artist: string;
+            let track: string;
+            let imageURL: string;
+
+            if (song) {
+                let songData = []
+                songData = song.split('-')
+                artist = songData[0]
+                track = songData[1]
+                try {
+                    let getImageData = await lastfmAPI.get('/', {params: { method: "track.getInfo", artist: artist, track: track}});
+                    let parseImageData = await getImageData.data
+                    imageURL = parseImageData.track.album.image[3]['#text']
+                    artist = parseImageData.track.artist.name
+                    track = parseImageData.track.name
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "track.getInfo", username: user.lastfm, artist: artist, track: track}});
+                        let trackData = await response.data
+                        playData.push({userID: user.userid, username: user.username, discriminator: user.discriminator, lastfm: user.lastfm, playCount: parseInt(trackData.track.userplaycount)})
+                    }
+                } catch {
+                    return message.channel.send('Error! This is not a valid song. Remember the format is Artist - Track')
+                }
+            } else {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    const username = lastFmName.lastfm
+                    const currentSongData = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
+                    const theCurrentSongData = await currentSongData.data
+                    artist = theCurrentSongData.recenttracks.track[0].artist['#text']
+                    track = theCurrentSongData.recenttracks.track[0].name
+                    imageURL = theCurrentSongData.recenttracks.track[0].image[3]['#text']
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "track.getInfo", username: user.lastfm, artist: artist, track: track}});
+                        let trackData = await response.data
+                        playData.push({userID: user.userid, username: user.username, discriminator: user.discriminator, lastfm: user.lastfm, playCount: parseInt(trackData.track.userplaycount)})
+                    }
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
+ 
+            playData.sort(function (a, b) {
+                return b.playCount - a.playCount
+            });
+
+            playData.slice(0, 9);
+
+            const embeds = generateGwktEmbed(playData)
+            await message.channel.send(await embeds);
+
+            async function generateGwktEmbed (input) {
+                const embeds = [];
+                let k = 10;
+                for(let i =0; i < input.length; i += 10) {
+                    const current = input.slice(i, k);
+                    let j = i;
+                    k += 10;
+
+                    const embed = new MessageEmbed()
+                    let cover;
+                    await spotifyCred.searchArtists(artist, {limit: 1}).then(function(data) {
+                        cover = data
+                    }, function (err) {
+                        console.error(err);
+                    })
+                    embed.setAuthor(artist, cover.body.artists.items[0].images[0].url)
+                    embed.setColor(`${await urlToColours(imageURL)}`)
+                    embed.setTimestamp()
+                    const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
+                    embed.setDescription(`${info}`)
+                    embed.setThumbnail(imageURL)
+                    embed.setTitle(`Who in ${client.user.username} knows ${track}`)
+                    embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
+                    embeds.push(embed)
+                }
+                return embeds;
+            }
+        }
+
+        async function lastfmGwka (message: Message, album?: string) {
+            interface lastfmUsers {
+                userid: bigint,
+                lastfm: string,
+                username: string,
+                discriminator: string
+            }
+
+            const lastfmUsersData: Array<lastfmUsers> = await database.query(`
+            SELECT u."userID" AS userid, fm.lastfm, u.username, u.discriminator
+            FROM lastfm as fm
+            INNER JOIN "user" u on u."userID" = fm."userID";`, {
+                type: QueryTypes.SELECT
+            });
+
+            let playData: object[] = []
+            let artist: string;
+            let artistAlbum: string;
+            let imageURL: string;
+
+            if (album) {
+                let songData = []
+                songData = album.split('-')
+                artist = songData[0]
+                artistAlbum = songData[1]
+                try {
+                    let getImageData = await lastfmAPI.get('/', {params: { method: "album.getInfo", artist: artist, album: artistAlbum}});
+                    let parseImageData = await getImageData.data
+                    imageURL = parseImageData.album.image[3]['#text']
+                    artist = parseImageData.album.artist
+                    artistAlbum = parseImageData.album.name
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "album.getInfo", username: user.lastfm, artist: artist, album: artistAlbum}});
+                        let albumData = await response.data
+                        playData.push({userID: user.userid, username: user.username, discriminator: user.discriminator, lastfm: user.lastfm, playCount: parseInt(albumData.album.userplaycount)})
+                    }
+                } catch {
+                    return message.channel.send('Error! This is not a valid album. Remember the format is Artist - Album')
+                }
+            } else {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    const username = lastFmName.lastfm
+                    const currentSongData = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
+                    const theCurrentSongData = await currentSongData.data
+                    artist = theCurrentSongData.recenttracks.track[0].artist['#text']
+                    artistAlbum = theCurrentSongData.recenttracks.track[0].album['#text']
+                    imageURL = theCurrentSongData.recenttracks.track[0].image[3]['#text']
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "album.getInfo", username: user.lastfm, artist: artist, album: artistAlbum}});
+                        let albumData = await response.data
+                        playData.push({userID: user.userid, username: user.username, discriminator: user.discriminator, lastfm: user.lastfm, playCount: parseInt(albumData.album.userplaycount)})
+                    }
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
+ 
+            playData.sort(function (a, b) {
+                return b.playCount - a.playCount
+            });
+
+            playData.slice(0, 9);
+
+            const embeds = generateGwkaEmbed(playData)
+            await message.channel.send(await embeds);
+
+            async function generateGwkaEmbed (input) {
+                const embeds = [];
+                let k = 10;
+                for(let i =0; i < input.length; i += 10) {
+                    const current = input.slice(i, k);
+                    let j = i;
+                    k += 10;
+
+                    const embed = new MessageEmbed()
+                    let cover;
+                    await spotifyCred.searchArtists(artist, {limit: 1}).then(function(data) {
+                        cover = data
+                    }, function (err) {
+                        console.error(err);
+                    })
+                    embed.setAuthor(artist, cover.body.artists.items[0].images[0].url)
+                    embed.setColor(`${await urlToColours(imageURL)}`)
+                    embed.setTimestamp()
+                    const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
+                    embed.setDescription(`${info}`)
+                    embed.setThumbnail(imageURL)
+                    embed.setTitle(`Who in ${client.user.username} knows ${artistAlbum}`)
+                    embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
+                    embeds.push(embed)
+                }
+                return embeds;
+            }
+        }
+
+        async function lastfmGwk (message: Message, artist?: string) {
+            interface lastfmUsers {
+                userid: bigint,
+                lastfm: string,
+                username: string,
+                discriminator: string
+            }
+
+            const lastfmUsersData: Array<lastfmUsers> = await database.query(`
+            SELECT u."userID" AS userid, fm.lastfm, u.username, u.discriminator
+            FROM lastfm as fm
+            INNER JOIN "user" u on u."userID" = fm."userID";`, {
+                type: QueryTypes.SELECT
+            });
+
+            let playData: object[] = []
+            let artistName: string;
+
+            if (artist) {
+                artistName = artist
+                try {
+                    let getImageData = await lastfmAPI.get('/', {params: { method: "artist.getInfo", artist: artistName}});
+                    let parseImageData = await getImageData.data
+                    artistName = parseImageData.artist.name
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "artist.getInfo", username: user.lastfm, artist: artistName}});
+                        let artistData = await response.data
+                        playData.push({userID: user.userid, username: user.username, discriminator: user.discriminator, lastfm: user.lastfm, playCount: parseInt(artistData.artist.stats.userplaycount)})
+                    }
+                } catch {
+                    return message.channel.send('Error! This is not a valid artist')
+                }
+            } else {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    const username = lastFmName.lastfm
+                    const currentSongData = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
+                    const theCurrentSongData = await currentSongData.data
+                    artistName = theCurrentSongData.recenttracks.track[0].artist['#text']
+                    for (let user of lastfmUsersData) {
+                        let response = await lastfmAPI.get('/', {params: { method: "artist.getInfo", username: user.lastfm, artist: artistName}});
+                        let artistData = await response.data
+                        playData.push({userID: user.userid, username: user.username, discriminator: user.discriminator, lastfm: user.lastfm, playCount: parseInt(artistData.artist.stats.userplaycount)})
+                    }
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
+ 
+            playData.sort(function (a, b) {
+                return b.playCount - a.playCount
+            });
+
+            playData.slice(0, 9);
+
+            const embeds = generateGwkEmbed(playData)
+            await message.channel.send(await embeds);
+
+            async function generateGwkEmbed (input) {
+                const embeds = [];
+                let k = 10;
+                for(let i =0; i < input.length; i += 10) {
+                    const current = input.slice(i, k);
+                    let j = i;
+                    k += 10;
+
+                    const embed = new MessageEmbed()
+                    let cover;
+                    await spotifyCred.searchArtists(artistName, {limit: 1}).then(function(data) {
+                        cover = data
+                    }, function (err) {
+                        console.error(err);
+                    })
+                    embed.setColor(`${await urlToColours(cover.body.artists.items[0].images[0].url)}`)
+                    embed.setTimestamp()
+                    const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
+                    embed.setDescription(`${info}`)
+                    embed.setThumbnail(cover.body.artists.items[0].images[0].url)
+                    embed.setTitle(`Who in ${client.user.username} knows ${artistName}`)
+                    embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
+                    embeds.push(embed)
+                }
+                return embeds;
+            }
         }
     }
 }

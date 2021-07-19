@@ -75,13 +75,21 @@ export const command: Command = {
                 .setFooter(`Ban Case Number: ${banned[0].banCase}`)
                 .setTimestamp();
                 await logChannel.send(embed);
-                (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
                 await message.channel.send(`**${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
-                await bannedUser.ban({reason: reason, days: 7});
+                try {
+                    (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
+                    await bannedUser.ban({reason: reason, days: 7});
+                } catch {
+                    await bannedUser.ban({reason: reason, days: 7});
+                }
             } catch {
-                (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
                 await message.channel.send(`${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
-                await bannedUser.ban({reason: reason, days: 7});
+                try {
+                    (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
+                    await bannedUser.ban({reason: reason, days: 7});
+                } catch {
+                    await bannedUser.ban({reason: reason, days: 7});
+                }
             }
         }
     }
