@@ -36,7 +36,7 @@ export const command: Command = {
             if (!args[1]) return message.channel.send('Please assign a role id as the second argument');
             
             try {
-                const roleID = message.mentions.roles.first() || await message.guild.roles.cache.get(args[1])
+                const roleID = message.mentions.roles.first() || message.guild.roles.cache.get(args[1])
                 const attr: muteRoleCreationAttributes = {
                     guildID: BigInt(message.guild.id),
                     roleID: BigInt(roleID.id)

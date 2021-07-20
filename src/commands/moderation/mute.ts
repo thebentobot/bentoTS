@@ -6,14 +6,14 @@ import { initModels, modLog, muteRole } from '../../database/models/init-models'
 import moment from 'moment';
 
 const momentTimeUnitBases = [
-    "year" || "years" || "y",
-    "month" || "months" || "M" ,
-    "week" || "weeks" || "w" ,
-    "day" || "days" || "d" ,
-    "hour" || "hours" || "h" ,
-    "minute" || "minutes" || "m" ,
-    "second" || "seconds" || "s" ,
-    "millisecond" || "milliseconds" || "ms"
+    "year", "years", "y",
+    "month", "months", "M" ,
+    "week", "weeks", "w" ,
+    "day", "days", "d" ,
+    "hour", "hours", "h" ,
+    "minute", "minutes", "m" ,
+    "second", "seconds", "s" ,
+    "millisecond", "milliseconds", "ms"
 ]
 
 export const command: Command = {
@@ -21,7 +21,7 @@ export const command: Command = {
     aliases: [],
     category: 'moderation',
     description: 'Mutes a user until unmute or for a specific time.\nPossible timeframes: millisecond/milliseconds/ms, second/seconds/s, minute/minutes/m, hour/hours/h, day/days/d, month/months/M, year/years/y.',
-    usage: 'mute <user id or mention user> [reason]\nmute <amount of time> <timeframe> <user id or mention user> [reason]',
+    usage: 'mute <user id or mention user> [reason]\nmute time <amount of time> <timeframe> <user id or mention user> [reason]',
     run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'time') {
             return timedMute (message, args[1], args[2], args[3], args.slice(4).join(' '))
@@ -88,7 +88,7 @@ export const command: Command = {
     
             initModels(database);
     
-            const muted = await mute.findOrCreate({raw: true, where: {userID: mutedUserID, guildID: message.guild.id}, defaults: muteAttr})
+            const muted = await mute.findOrCreate({raw: true, where: {userID: mutedUserID, guildID: message.guild.id, MuteStatus: true}, defaults: muteAttr})
             
             if (muted[1] === false) {
                 return message.channel.send(`${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`} is already muted on this server.\nThe case number for this mute is: \`${muted[0].muteCase}\` if you want to look up details for this mute use the case check command.`);

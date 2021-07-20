@@ -3,11 +3,6 @@ import moment from 'moment';
 import database from '../../database/database';
 import { initModels, modLog, mute, muteRole } from '../../database/models/init-models';
 import { Command } from '../../interfaces';
-import { checkMutes } from '../../utils/index';
-
-checkMutes();
-
-setInterval(checkMutes, 5000) // 5 seconds
 
 export const command: Command = {
     name: 'unmute',

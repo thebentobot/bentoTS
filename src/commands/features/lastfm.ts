@@ -2,7 +2,7 @@
 import { Message, MessageEmbed, Util } from 'discord.js';
 import { Command } from '../../interfaces';
 import database from '../../database/database';
-import { initModels, guild, lastfmCreationAttributes, lastfm, guildMember } from '../../database/models/init-models';
+import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models';
 import axios from 'axios';
 import * as dotenv from "dotenv";
 import SpotifyWebApi from 'spotify-web-api-node';
@@ -49,7 +49,7 @@ export const command: Command = {
     aliases: ['fm', 'lf'],
     category: 'features',
     description: 'last.fm feature. If you don\'t mention a user with an argument, it searches for your last.fm. If you only mention a user and no time period, it checks for overall.\nThe possible time period arguments: overall, 7day, 1month, 3month, 6month, 12month.',
-    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.',
+    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.\n**lastfm wkt [artist - song]** shows top 10 users on the server in terms of plays of a song.\n**lastfm wka [artist - album]** shows top 10 users on the server in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 users on the server in terms of plays of an artist.\n**lastfm gwkt [artist - song]** shows top 10 global Bento users in terms of plays of a song.\n**lastfm gwka [artist - album]** shows top 10 global Bento users in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 Bento users in terms of plays of an artist.',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             return nowPlaying (message);

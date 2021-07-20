@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, messageLog, messageLogCreationAttributes, guild } from '../../database/models/init-models';
-import { Message } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 
 export const command: Command = {
     name: 'messagelog',
@@ -36,7 +36,7 @@ export const command: Command = {
             if (!args[1]) return message.channel.send('Please assign a channel id as the second argument');
             let channel: string;
             try {
-                const channelID = message.mentions.channels.first() || await message.guild.channels.cache.get(args[1].match(/<#(\d+)>/)[1])
+                const channelID = message.mentions.channels.first() || message.guild.channels.cache.get(args[1]) as TextChannel
                 channel = channelID.id
             } catch {
                 return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`);
