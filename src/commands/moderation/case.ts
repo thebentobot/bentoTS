@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Guild, GuildMember, Message, MessageEmbed, User } from 'discord.js';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
 import database from '../../database/database';
@@ -23,14 +23,14 @@ export const command: Command = {
             return userCheck (message, args[1], args[2], args[3])
             // returns a list of a user's cases 
         }
-        /*
+        
         if (args[0] === 'check') {
-            // check a case, args 1 is the case number
-            return caseCheck (message, args[1])
+            // check a case, args 1 is the case type, args 2 is the case number
+            return caseCheck (message, args[1], args[2])
             // only returns local cases, so you can't just check random cases for fun lol
             // returns one case
         }
-
+        /*
         if (args[0] === 'edit') {
             // edit a case, args 1 is the case number
             return caseEdit (message, args[1])
@@ -286,11 +286,130 @@ export const command: Command = {
                 return embed
             }
         }
-        /*
-        async function caseCheck (message: Message, caseNumber: string): Promise<Message> {
-            
-        }
+        
+        async function caseCheck (message: Message, caseType: string, caseNumber: string): Promise<Message> {
+            if (!caseType) {
+                return message.channel.send('You need to specify a type of case to check')
+            }
+            if (!caseNumber) {
+                return message.channel.send('You need to specify a case number')
+            }
 
+            const caseTypesArray = ['ban', 'kick', 'mute', 'warning']
+
+            if (!caseTypesArray.includes(caseType)) {
+                return message.channel.send('You need to specify a valid case type to check');
+            }
+
+            let caseNumbered: number = parseInt(caseNumber)
+
+            interface caseTables {
+                muteCase?: number,
+                kickCase?: number,
+                banCase?: number,
+                warningCase?: number,
+                userID: bigint,
+                guildID: bigint,
+                date: Date,
+                muteEnd?: Date,
+                note: string,
+                actor: bigint,
+                reason: string,
+                muteStatus?: boolean
+            }
+
+            const caseQuery: Array<caseTables> = await database.query(`
+            SELECT *
+            FROM ${caseType}
+            WHERE ${caseType}."${caseType}Case" = :caseNumber;`, {
+                replacements: { caseNumber: caseNumbered },
+                type: QueryTypes.SELECT
+            })
+
+            if (!caseQuery.length) {
+                return message.channel.send(`Case number \`${caseNumbered}\` for the case type \`${caseType}\` does not exist.`);
+            }
+
+            if (`${caseQuery[0].guildID}` !== message.guild.id) {
+                return message.channel.send(`Case number \`${caseNumbered}\` for the case type \`${caseType}\` is not a case from your server and therefore not available for you.`)
+            }
+
+            let actorNickname;
+            let actorUsername;
+            let actorDiscri;
+            let actorPfp;
+            let caseUserNickname;
+            let caseUsername;
+            let caseUserDiscri;
+            let caseUserPfp;
+
+            try {
+                const data = message.guild.members.cache.get(`${caseQuery[0].actor}`) as GuildMember
+                actorNickname = data.nickname ? data.nickname : ``
+                actorUsername = data.user.username
+                actorDiscri = data.user.discriminator
+                actorPfp = data.user.avatarURL({format: 'png', dynamic: true})
+            } catch {
+                try {
+                    const data = client.users.cache.get(`${caseQuery[0].actor}`) as User
+                    actorUsername = data.username
+                    actorDiscri = data.discriminator
+                    actorPfp = data.avatarURL({format: 'png', dynamic: true})
+                } catch {
+                    actorUsername = 'Username'
+                    actorDiscri = 'Not in our system'
+                    actorPfp = client.user.avatarURL({format: 'png', dynamic: true})
+                }
+            }
+            try {
+                const data = message.guild.members.cache.get(`${caseQuery[0].userID}`) as GuildMember
+                caseUserNickname = data.nickname ? data.nickname : ``
+                caseUsername = data.user.username
+                caseUserDiscri = data.user.discriminator
+                caseUserPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})
+            } catch {
+                try {
+                    const data = client.users.cache.get(`${caseQuery[0].userID}`) as User
+                    caseUsername = data.username
+                    caseUserDiscri = data.discriminator
+                    caseUserPfp = data.avatarURL({format: 'png', size: 1024, dynamic: true})
+                } catch {
+                    caseUsername = 'Username'
+                    caseUserDiscri = 'Not in our system'
+                    caseUserPfp = client.user.avatarURL({format: 'png'})
+                }
+            }
+
+            const embed = new MessageEmbed()
+            embed.setAuthor(actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`, actorPfp)
+            embed.setColor(`${await urlToColours(actorPfp)}`)
+            embed.setTimestamp()
+            embed.setDescription(`**Reason for ${caseType}**\n${caseQuery[0].reason}`)
+            embed.addField('Date of occurence', moment(caseQuery[0].date).format('dddd, MMMM Do YYYY, HH:mm:ss A Z'))
+            embed.setTitle(`${caseType} Case Number ${caseNumbered}: ${caseUserNickname ? `${caseUserNickname}(${caseUsername}#${caseUserDiscri})` : `${caseUsername}#${caseUserDiscri}`}`)
+            embed.setThumbnail(caseUserPfp)
+            if (caseType === 'mute') {
+                embed.setFooter(`Mute Case Number: ${caseQuery[0].muteCase}`, client.user.avatarURL({format: 'png'}))
+                embed.addField('Date of unmute', caseQuery[0].muteEnd != null ? moment(caseQuery[0].muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A Z') : 'The mute was on indefinite time' )
+                embed.addField('Mute activity', caseQuery[0].muteStatus === true ? 'Currently muted for this case' : 'Unmuted')
+            }
+            if (caseType === 'kick') {
+                embed.setFooter(`Kick Case Number: ${caseQuery[0].kickCase}`, client.user.avatarURL())
+            }
+            if (caseType === 'ban') {
+                embed.setFooter(`Ban Case Number: ${caseQuery[0].banCase}`, client.user.avatarURL())
+            }
+            if (caseType === 'warning') {
+                embed.setFooter(`Warning Case Number: ${caseQuery[0].warningCase}`, client.user.avatarURL())
+            }
+            if (message.guild.id == `${caseQuery[0].guildID}`) {
+                embed.addField(`User who gave the ${caseType}`, actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`)
+                embed.addField('Notes about this case', caseQuery[0].note ? caseQuery[0].note : 'No notes made for this case')
+            }
+            return await message.channel.send(embed)
+
+        }
+        /*
         async function caseEdit (message: Message, caseNumber: string): Promise<Message> {
             
         }
