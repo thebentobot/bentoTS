@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import { Message, MessageEmbed } from 'discord.js';
 import database from '../../database/database';
-import { initModels, guild, messageLog, modLog, bye, welcome, autoRole, muteRole } from '../../database/models/init-models';
+import { initModels, guild, messageLog, modLog, bye, welcome, autoRole, muteRole, caseGlobal } from '../../database/models/init-models';
 import { trim } from '../../utils/trim';
 import { urlToColours } from '../../utils/urlToColours';
 
@@ -25,6 +25,7 @@ export const command: Command = {
         const welcomeData = await welcome.findOne({raw:true, where: {guildID: message.guild.id}});
         const autoRoleData = await autoRole.findAll({raw:true, where: {guildID: message.guild.id}});
         const muteRoleData = await muteRole.findOne({raw:true, where: {guildID: message.guild.id}});
+        const caseGlobalData = await caseGlobal.findOne({raw: true, where: {guildID: message.guild.id}})
 
         const modLogText = modLogData ? `<#${modLogData.channel}>`: 'Not configured';
         const msgLogText = messageLogData ? `<#${messageLogData.channel}>`: 'Not configured';
@@ -43,6 +44,8 @@ export const command: Command = {
             {name: 'Tiktok', value: `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, inline: true},
             {name: 'Media', value: `${guildData.media ? 'Enabled' : 'Disabled'}`, inline: true},
             {name: 'leaderboard', value: `${guildData.leaderboard ? 'Enabled' : 'Disabled'}`, inline: true},
+            {name: 'Server name enabled for global cases', value: `${caseGlobalData.serverName ? 'Enabled' : 'Disabled'}`, inline: true},
+            {name: 'Case reasons enabled for global cases', value: `${caseGlobalData.reason ? 'Enabled' : 'Disabled'}`, inline: true},
             {name: 'Welcome Messages', value: `${byeDataText}`, inline: true},
             {name: 'Bye Messages', value: `${welcomeDataText}`, inline: true},
             {name: 'Mod log channel', value: `${modLogText}`, inline: true},

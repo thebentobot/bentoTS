@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, guild as DbGuild, guildCreationAttributes } from '../database/models/init-models';
+import { initModels, guild as DbGuild, guildCreationAttributes, caseGlobalCreationAttributes, caseGlobal } from '../database/models/init-models';
 import * as dotenv from "dotenv";
 dotenv.config();
 import { Guild, MessageEmbed, TextChannel } from "discord.js";
@@ -21,10 +21,17 @@ export const event: Event = {
             media: true
         };
 
+        const caseGlobalAttr: caseGlobalCreationAttributes = {
+            guildID: BigInt(guild.id),
+            serverName: true,
+            reason: true
+        }
+
         const newGuild = await DbGuild.create(attr);
+        await caseGlobal.create(caseGlobalAttr)
         console.log('New guild were added to the database. It is called: ' + newGuild.guildName + ', ID: ' + newGuild.guildID);
         try {
-            const channelNames = ['general', 'welcome', 'main-chat']
+            const channelNames = ['general','main-chat', 'welcome']
             const channel = guild.channels.cache.find(ch => channelNames.includes(ch.name))
 
             if (channel) {

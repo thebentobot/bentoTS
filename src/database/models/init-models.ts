@@ -7,6 +7,8 @@ import { bento } from "./bento";
 import type { bentoAttributes, bentoCreationAttributes } from "./bento";
 import { bye } from "./bye";
 import type { byeAttributes, byeCreationAttributes } from "./bye";
+import { caseGlobal } from "./caseGlobal";
+import type { caseGlobalAttributes, caseGlobalCreationAttributes } from "./caseGlobal";
 import { guild } from "./guild";
 import type { guildAttributes, guildCreationAttributes } from "./guild";
 import { guildMember } from "./guildMember";
@@ -43,6 +45,7 @@ export {
   ban,
   bento,
   bye,
+  caseGlobal,
   guild,
   guildMember,
   horoscope,
@@ -69,6 +72,8 @@ export type {
   bentoCreationAttributes,
   byeAttributes,
   byeCreationAttributes,
+  caseGlobalAttributes,
+  caseGlobalCreationAttributes,
   guildAttributes,
   guildCreationAttributes,
   guildMemberAttributes,
@@ -106,6 +111,7 @@ export function initModels(sequelize: Sequelize) {
   ban.initModel(sequelize);
   bento.initModel(sequelize);
   bye.initModel(sequelize);
+  caseGlobal.initModel(sequelize);
   guild.initModel(sequelize);
   guildMember.initModel(sequelize);
   horoscope.initModel(sequelize);
@@ -182,6 +188,7 @@ export function initModels(sequelize: Sequelize) {
     ban: ban,
     bento: bento,
     bye: bye,
+    caseGlobal: caseGlobal,
     guild: guild,
     guildMember: guildMember,
     horoscope: horoscope,

@@ -2,7 +2,7 @@ import { Message, MessageEmbed } from 'discord.js';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
 import database from '../../database/database';
-import { guildMember, initModels } from '../../database/models/init-models';
+import { ban, caseGlobal, guildMember, initModels, kick, mute, warning } from '../../database/models/init-models';
 import { Command } from '../../interfaces';
 import { urlToColours } from '../../utils';
 
@@ -101,7 +101,7 @@ export const command: Command = {
                 initModels(database)
                 const userExists = await guildMember.findOne({raw: true, where: {userID: userID, guildID: message.guild.id}})
                 if (!userExists) { // here we can implement servers or users who may be authorised to check for any user, by e.g. !userExists && message.guild.id !== ID
-                    return message.channel.send(`You can't check users who haven't been or aren't on your server`)
+                    return message.channel.send(`You can't check users who haven't been or aren't on your server.`)
                 }
                 } catch {
                     return message.channel.send(`User mention or userID is invalid`)
@@ -109,9 +109,25 @@ export const command: Command = {
             }
 
             if (caseType === 'overview') {
-                // short overview of a user. Must only be available for all servers where the user is there
-                // only shows numbers and last time an offense occurred if any
-                // so we sort after showing the most recent event.
+                if (!global) {
+                    initModels(database)
+                    const bans = await ban.findAndCountAll({raw: true, where: {userID: userID, guildID: message.guild.id}, order: [['date', 'DESC']]})
+                    const kicks = await kick.findAndCountAll({raw: true, where: {userID: userID, guildID: message.guild.id}, order: [['date', 'DESC']]})
+                    const mutes = await mute.findAndCountAll({raw: true, where: {userID: userID, guildID: message.guild.id}, order: [['date', 'DESC']]})
+                    const warnings = await warning.findAndCountAll({raw: true, where: {userID: userID, guildID: message.guild.id}, order: [['date', 'DESC']]})
+                    const overviewObject = {bans: bans, kicks: kicks, mutes: mutes, warnings: warnings, status: 'local'}
+                    const embeds = generateOverviewEmbedding(overviewObject)
+                    return await message.channel.send((await embeds));
+                } else {
+                    initModels(database)
+                    const bans = await ban.findAndCountAll({raw: true, where: {userID: userID}, order: [['date', 'DESC']]})
+                    const kicks = await kick.findAndCountAll({raw: true, where: {userID: userID}, order: [['date', 'DESC']]})
+                    const mutes = await mute.findAndCountAll({raw: true, where: {userID: userID}, order: [['date', 'DESC']]})
+                    const warnings = await warning.findAndCountAll({raw: true, where: {userID: userID}, order: [['date', 'DESC']]})
+                    const overviewObject = {bans: bans, kicks: kicks, mutes: mutes, warnings: warnings, status: 'global'}
+                    const embeds = generateOverviewEmbedding(overviewObject)
+                    return await message.channel.send((await embeds));
+                }
             }
 
             interface caseTables {
@@ -189,47 +205,85 @@ export const command: Command = {
             })
 
             async function generateCaseEmbedding (input) {
-                let k = 1;
                 const embeds = [];
                 for(let i =0; i < input.length; i += 1) {
                     const current = input[i]
-                    let j = i;
-                    k += 1;
 
-                    // for each case we fetch the caseGlobal table to check if the server allows to show server name and reason for case
-                    // so we need to create a db table with
-                    // guildID: bigint, serverName: boolean, reason: boolean
-                    // so a server got a choice for if they want to share name and reason or nah
-
-                    const embed = new MessageEmbed()
-                    embed.setAuthor(client.guilds.cache.get(`${current.guildID}`).name, client.guilds.cache.get(`${current.guildID}`).iconURL())
-                    embed.setColor(`${await urlToColours(client.guilds.cache.get(`${current.guildID}`).iconURL({ format: 'png'}))}`)
-                    embed.setTimestamp()
-                    embed.setDescription(`**Reason for ${caseType}**\n${current.reason}`)
-                    embed.addField('Date of occurence', moment(current.date).format('dddd, MMMM Do YYYY, HH:mm:ss A z'))
-                    embed.setTitle(message.guild.id == current.guildID ? `${message.guild.members.cache.get(`${current.userID}`).nickname ? `${message.guild.members.cache.get(`${current.userID}`).nickname} (${message.guild.members.cache.get(`${current.userID}`).user.username + '#' + message.guild.members.cache.get(`${current.userID}`).user.discriminator})` : message.guild.members.cache.get(`${current.userID}`).user.username + '#' + message.guild.members.cache.get(`${current.userID}`).user.discriminator}`:`${client.users.cache.get(`${current.userID}`).username}#${client.users.cache.get(`${current.userID}`).discriminator} was ${caseWording} in the server ${client.guilds.cache.get(`${current.guildID}`).name}`)
-                    embed.setThumbnail(client.users.cache.get(`${current.userID}`).avatarURL({size: 1024, format: 'png', dynamic: true}));
-                    if (caseType === 'mute') {
-                        embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user.avatarURL())
-                        embed.addField('Date of unmute', current.muteEnd != null ? moment(current.muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A z') : 'The mute was on indefinite time' )
-                        embed.addField('Mute activity', current.muteStatus === true ? 'Currently muted for this case' : 'Unmuted')
-                    }
-                    if (caseType === 'kick') {
-                        embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user.avatarURL())
-                    }
-                    if (caseType === 'ban') {
-                        embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user.avatarURL())
-                    }
-                    if (caseType === 'warning') {
-                        embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user.avatarURL())
-                    }
                     if (message.guild.id == current.guildID) {
-                        embed.addField(`User who gave the ${caseType}`, `${message.guild.members.cache.get(`${current.actor}`).nickname ? `${message.guild.members.cache.get(`${current.actor}`).nickname} (${message.guild.members.cache.get(`${current.actor}`).user.username + '#' + message.guild.members.cache.get(`${current.actor}`).user.discriminator})` : message.guild.members.cache.get(`${current.actor}`).user.username + '#' + message.guild.members.cache.get(`${current.actor}`).user.discriminator}`)
-                        embed.addField('Notes about this case', current.note ? current.note : 'No notes made for this case')
+                        const embed = new MessageEmbed()
+                        embed.setAuthor(client.guilds.cache.get(`${current.guildID}`).name, client.guilds.cache.get(`${current.guildID}`).iconURL())
+                        embed.setColor(`${await urlToColours(client.guilds.cache.get(`${current.guildID}`).iconURL({ format: 'png'}))}`)
+                        embed.setTimestamp()
+                        embed.setDescription(`**Reason for ${caseType}**\n${current.reason}`)
+                        embed.addField('Date of occurence', moment(current.date).format('dddd, MMMM Do YYYY, HH:mm:ss A z'))
+                        embed.setTitle(message.guild.id == current.guildID ? `${message.guild.members.cache.get(`${current.userID}`).nickname ? `${message.guild.members.cache.get(`${current.userID}`).nickname} (${message.guild.members.cache.get(`${current.userID}`).user.username + '#' + message.guild.members.cache.get(`${current.userID}`).user.discriminator})` : message.guild.members.cache.get(`${current.userID}`).user.username + '#' + message.guild.members.cache.get(`${current.userID}`).user.discriminator}`:`${client.users.cache.get(`${current.userID}`).username}#${client.users.cache.get(`${current.userID}`).discriminator} was ${caseWording} in the server ${client.guilds.cache.get(`${current.guildID}`).name}`)
+                        embed.setThumbnail(client.users.cache.get(`${current.userID}`).avatarURL({size: 1024, format: 'png', dynamic: true}));
+                        if (caseType === 'mute') {
+                            embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user.avatarURL())
+                            embed.addField('Date of unmute', current.muteEnd != null ? moment(current.muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A z') : 'The mute was on indefinite time' )
+                            embed.addField('Mute activity', current.muteStatus === true ? 'Currently muted for this case' : 'Unmuted')
+                        }
+                        if (caseType === 'kick') {
+                            embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user.avatarURL())
+                        }
+                        if (caseType === 'ban') {
+                            embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user.avatarURL())
+                        }
+                        if (caseType === 'warning') {
+                            embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user.avatarURL())
+                        }
+                        if (message.guild.id == current.guildID) {
+                            embed.addField(`User who gave the ${caseType}`, `${message.guild.members.cache.get(`${current.actor}`).nickname ? `${message.guild.members.cache.get(`${current.actor}`).nickname} (${message.guild.members.cache.get(`${current.actor}`).user.username + '#' + message.guild.members.cache.get(`${current.actor}`).user.discriminator})` : message.guild.members.cache.get(`${current.actor}`).user.username + '#' + message.guild.members.cache.get(`${current.actor}`).user.discriminator}`)
+                            embed.addField('Notes about this case', current.note ? current.note : 'No notes made for this case')
+                        }
+                        embeds.push(embed)
+                    } else {
+                        const caseGlobalData = await caseGlobal.findOne({raw: true, where: {guildID: current.guildID}})
+                        const embed = new MessageEmbed()
+                        embed.setAuthor(caseGlobalData.serverName === true ? client.guilds.cache.get(`${current.guildID}`).name : 'Anonymous Server', caseGlobalData.serverName === true ? client.guilds.cache.get(`${current.guildID}`).iconURL({ format: 'png'}) : client.user.avatarURL({ format: 'png'}))
+                        embed.setColor(`${caseGlobalData.serverName === true ? await urlToColours(client.guilds.cache.get(`${current.guildID}`).iconURL({ format: 'png'})) : await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
+                        embed.setTimestamp()
+                        embed.setDescription(`**Reason for ${caseType}**\n${caseGlobalData.reason === true ? current.reason : 'Reason not public'}`)
+                        embed.addField('Date of occurence', moment(current.date).format('dddd, MMMM Do YYYY, HH:mm:ss A z'))
+                        embed.setTitle(message.guild.id == current.guildID ? `${message.guild.members.cache.get(`${current.userID}`).nickname ? `${message.guild.members.cache.get(`${current.userID}`).nickname} (${message.guild.members.cache.get(`${current.userID}`).user.username + '#' + message.guild.members.cache.get(`${current.userID}`).user.discriminator})` : message.guild.members.cache.get(`${current.userID}`).user.username + '#' + message.guild.members.cache.get(`${current.userID}`).user.discriminator}`:`${client.users.cache.get(`${current.userID}`).username}#${client.users.cache.get(`${current.userID}`).discriminator} was ${caseWording} in the server ${caseGlobalData.serverName === true ? client.guilds.cache.get(`${current.guildID}`).name : 'Anonymous Server'}`)
+                        embed.setThumbnail(client.users.cache.get(`${current.userID}`).avatarURL({size: 1024, format: 'png', dynamic: true}));
+                        if (caseType === 'mute') {
+                            embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user.avatarURL())
+                            embed.addField('Date of unmute', current.muteEnd != null ? moment(current.muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A z') : 'The mute was on indefinite time' )
+                            embed.addField('Mute activity', current.muteStatus === true ? 'Currently muted for this case' : 'Unmuted')
+                        }
+                        if (caseType === 'kick') {
+                            embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user.avatarURL())
+                        }
+                        if (caseType === 'ban') {
+                            embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user.avatarURL())
+                        }
+                        if (caseType === 'warning') {
+                            embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user.avatarURL())
+                        }
+                        if (message.guild.id == current.guildID) {
+                            embed.addField(`User who gave the ${caseType}`, `${message.guild.members.cache.get(`${current.actor}`).nickname ? `${message.guild.members.cache.get(`${current.actor}`).nickname} (${message.guild.members.cache.get(`${current.actor}`).user.username + '#' + message.guild.members.cache.get(`${current.actor}`).user.discriminator})` : message.guild.members.cache.get(`${current.actor}`).user.username + '#' + message.guild.members.cache.get(`${current.actor}`).user.discriminator}`)
+                            embed.addField('Notes about this case', current.note ? current.note : 'No notes made for this case')
+                        }
+                        embeds.push(embed)
                     }
-                    embeds.push(embed)
                 }
                 return embeds;
+            }
+
+            async function generateOverviewEmbedding (input) {
+                const embed = new MessageEmbed()
+                embed.setAuthor(input.status === 'local' ? client.guilds.cache.get(`${message.guild.id}`).name : client.user.username, input.status === 'local' ? client.guilds.cache.get(`${message.guild.id}`).iconURL() : client.user.avatarURL({ format: 'png'}))
+                embed.setColor(`${await urlToColours(input.status === 'local' ? client.guilds.cache.get(`${message.guild.id}`).iconURL({ format: 'png'}) : client.user.avatarURL({ format: 'png'}))}`)
+                embed.setFooter(`UserID: ${userID}`)
+                embed.setTimestamp()
+                embed.addField('Bans', `This user has received ${input.bans.count > 1 || (input.bans.count === 0) ? `${input.bans.count} bans` : `${input.bans.count} ban`}\n${!input.bans.rows.length ? `` : `Last ban was on ${moment(input.bans.rows[0].date).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}`}`)
+                embed.addField('Kicks', `This user has received ${input.kicks.count > 1 || (input.kicks.count === 0) ? `${input.kicks.count} kicks` : `${input.kicks.count} kick`}\n${!input.kicks.rows.length ? `` : `Last kick was on ${moment(input.kicks.rows[0].date).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}`}`)
+                embed.addField('Mutes', `This user has received ${input.mutes.count > 1 || (input.mutes.count === 0) ? `${input.mutes.count} mutes` : `${input.mutes.count} mute`}\n${!input.mutes.rows.length ? `` : `Last mute was on ${moment(input.mutes.rows[0].date).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}`}`)
+                embed.addField('Warnings', `This user has received ${input.warnings.count > 1 || (input.warnings.count === 0) ? `${input.warnings.count} warnings` : `${input.warnings.count} warning`}\n${!input.warnings.rows.length ? `` : `Last warning was on ${moment(input.warnings.rows[0].date).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}`}`)
+                embed.setTitle(input.status === 'local' ? `Overview for ${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname}(${message.guild.members.cache.get(userID).user.username}#${message.guild.members.cache.get(userID).user.discriminator})` : `${message.guild.members.cache.get(userID).user.username}#${message.guild.members.cache.get(userID).user.discriminator}`}` : `Global Overview for ${client.users.cache.get(userID).username}#${client.users.cache.get(userID).discriminator}`)
+                embed.setThumbnail(client.users.cache.get(`${userID}`).avatarURL({size: 1024, format: 'png', dynamic: true}));
+                return embed
             }
         }
         /*
