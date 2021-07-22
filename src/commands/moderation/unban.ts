@@ -68,18 +68,20 @@ export const command: Command = {
                 try {
                     (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
                     await message.guild.members.unban(unbannedUserID, reason)
-
+                    await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
                 } catch {
                     await message.guild.members.unban(unbannedUserID, reason)
+                    await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
                 }
             } catch {
                 await message.channel.send(`**${message.guild.members.cache.get(unbannedUserID).user.username}#${message.guild.members.cache.get(unbannedUserID).user.discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
                 try {
                     (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`)
                     await message.guild.members.unban(unbannedUserID, reason)
-
+                    await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
                 } catch {
                     await message.guild.members.unban(unbannedUserID, reason)
+                    await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
                 }
             }
         }

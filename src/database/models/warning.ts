@@ -1,7 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
-import type { user, userId } from './user';
 
 export interface warningAttributes {
   warningCase?: number;
@@ -31,16 +30,6 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
   getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
   setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
   createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
-  // warning belongsTo user via userID
-  user!: user;
-  getUser!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setUser!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createUser!: Sequelize.BelongsToCreateAssociationMixin<user>;
-  // warning belongsTo user via actor
-  actor_user!: user;
-  getActor_user!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setActor_user!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createActor_user!: Sequelize.BelongsToCreateAssociationMixin<user>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof warning {
     warning.init({
@@ -52,11 +41,7 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
     },
     userID: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
     },
     guildID: {
       type: DataTypes.BIGINT,
@@ -77,11 +62,7 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
     },
     actor: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
     },
     reason: {
       type: DataTypes.STRING,

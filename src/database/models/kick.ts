@@ -1,7 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
-import type { user, userId } from './user';
 
 export interface kickAttributes {
   kickCase?: number;
@@ -31,16 +30,6 @@ export class kick extends Model<kickAttributes, kickCreationAttributes> implemen
   getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
   setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
   createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
-  // kick belongsTo user via userID
-  user!: user;
-  getUser!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setUser!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createUser!: Sequelize.BelongsToCreateAssociationMixin<user>;
-  // kick belongsTo user via actor
-  actor_user!: user;
-  getActor_user!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setActor_user!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createActor_user!: Sequelize.BelongsToCreateAssociationMixin<user>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof kick {
     kick.init({
@@ -52,11 +41,7 @@ export class kick extends Model<kickAttributes, kickCreationAttributes> implemen
     },
     userID: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
     },
     guildID: {
       type: DataTypes.BIGINT,
@@ -77,11 +62,7 @@ export class kick extends Model<kickAttributes, kickCreationAttributes> implemen
     },
     actor: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
     },
     reason: {
       type: DataTypes.STRING,
