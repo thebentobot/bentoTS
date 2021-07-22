@@ -34,7 +34,7 @@ export const command: Command = {
         }
         
         if (args[0] === 'search') {
-            return caseSearch (message, args[1], args[2], args[3])
+            return caseSearch (message, args[1], args[2], args.slice(3).join(' '))
         }
         
         if (args[0] === 'list') {
