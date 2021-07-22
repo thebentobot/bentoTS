@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
@@ -11,7 +11,7 @@ export const command: Command = {
     category: 'info',
     description: 'Displays a full list of bot commands categorised',
     usage: 'commands',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         initModels(database);
         const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}});
     

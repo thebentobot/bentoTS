@@ -7,6 +7,8 @@ import { bento } from "./bento";
 import type { bentoAttributes, bentoCreationAttributes } from "./bento";
 import { bye } from "./bye";
 import type { byeAttributes, byeCreationAttributes } from "./bye";
+import { caseGlobal } from "./caseGlobal";
+import type { caseGlobalAttributes, caseGlobalCreationAttributes } from "./caseGlobal";
 import { guild } from "./guild";
 import type { guildAttributes, guildCreationAttributes } from "./guild";
 import { guildMember } from "./guildMember";
@@ -25,6 +27,8 @@ import { mute } from "./mute";
 import type { muteAttributes, muteCreationAttributes } from "./mute";
 import { muteRole } from "./muteRole";
 import type { muteRoleAttributes, muteRoleCreationAttributes } from "./muteRole";
+import { reminder } from "./reminder";
+import type { reminderAttributes, reminderCreationAttributes } from "./reminder";
 import { tag } from "./tag";
 import type { tagAttributes, tagCreationAttributes } from "./tag";
 import { user } from "./user";
@@ -41,6 +45,7 @@ export {
   ban,
   bento,
   bye,
+  caseGlobal,
   guild,
   guildMember,
   horoscope,
@@ -50,6 +55,7 @@ export {
   modLog,
   mute,
   muteRole,
+  reminder,
   tag,
   user,
   warning,
@@ -66,6 +72,8 @@ export type {
   bentoCreationAttributes,
   byeAttributes,
   byeCreationAttributes,
+  caseGlobalAttributes,
+  caseGlobalCreationAttributes,
   guildAttributes,
   guildCreationAttributes,
   guildMemberAttributes,
@@ -84,6 +92,8 @@ export type {
   muteCreationAttributes,
   muteRoleAttributes,
   muteRoleCreationAttributes,
+  reminderAttributes,
+  reminderCreationAttributes,
   tagAttributes,
   tagCreationAttributes,
   userAttributes,
@@ -101,6 +111,7 @@ export function initModels(sequelize: Sequelize) {
   ban.initModel(sequelize);
   bento.initModel(sequelize);
   bye.initModel(sequelize);
+  caseGlobal.initModel(sequelize);
   guild.initModel(sequelize);
   guildMember.initModel(sequelize);
   horoscope.initModel(sequelize);
@@ -110,6 +121,7 @@ export function initModels(sequelize: Sequelize) {
   modLog.initModel(sequelize);
   mute.initModel(sequelize);
   muteRole.initModel(sequelize);
+  reminder.initModel(sequelize);
   tag.initModel(sequelize);
   user.initModel(sequelize);
   warning.initModel(sequelize);
@@ -140,32 +152,18 @@ export function initModels(sequelize: Sequelize) {
   guild.hasMany(warning, { as: "warnings", foreignKey: "guildID"});
   welcome.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasOne(welcome, { as: "welcome", foreignKey: "guildID"});
-  ban.belongsTo(user, { as: "user", foreignKey: "userID"});
-  user.hasMany(ban, { as: "bans", foreignKey: "userID"});
-  ban.belongsTo(user, { as: "actor_user", foreignKey: "actor"});
-  user.hasMany(ban, { as: "actor_bans", foreignKey: "actor"});
   bento.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasOne(bento, { as: "bento", foreignKey: "userID"});
   guildMember.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(guildMember, { as: "guildMembers", foreignKey: "userID"});
   horoscope.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasOne(horoscope, { as: "horoscope", foreignKey: "userID"});
-  kick.belongsTo(user, { as: "user", foreignKey: "userID"});
-  user.hasMany(kick, { as: "kicks", foreignKey: "userID"});
-  kick.belongsTo(user, { as: "actor_user", foreignKey: "actor"});
-  user.hasMany(kick, { as: "actor_kicks", foreignKey: "actor"});
   lastfm.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasOne(lastfm, { as: "lastfm", foreignKey: "userID"});
-  mute.belongsTo(user, { as: "user", foreignKey: "userID"});
-  user.hasMany(mute, { as: "mutes", foreignKey: "userID"});
-  mute.belongsTo(user, { as: "actor_user", foreignKey: "actor"});
-  user.hasMany(mute, { as: "actor_mutes", foreignKey: "actor"});
+  reminder.belongsTo(user, { as: "user", foreignKey: "userID"});
+  user.hasMany(reminder, { as: "reminders", foreignKey: "userID"});
   tag.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(tag, { as: "tags", foreignKey: "userID"});
-  warning.belongsTo(user, { as: "user", foreignKey: "userID"});
-  user.hasMany(warning, { as: "warnings", foreignKey: "userID"});
-  warning.belongsTo(user, { as: "actor_user", foreignKey: "actor"});
-  user.hasMany(warning, { as: "actor_warnings", foreignKey: "actor"});
   weather.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasOne(weather, { as: "weather", foreignKey: "userID"});
 
@@ -174,6 +172,7 @@ export function initModels(sequelize: Sequelize) {
     ban: ban,
     bento: bento,
     bye: bye,
+    caseGlobal: caseGlobal,
     guild: guild,
     guildMember: guildMember,
     horoscope: horoscope,
@@ -183,6 +182,7 @@ export function initModels(sequelize: Sequelize) {
     modLog: modLog,
     mute: mute,
     muteRole: muteRole,
+    reminder: reminder,
     tag: tag,
     user: user,
     warning: warning,

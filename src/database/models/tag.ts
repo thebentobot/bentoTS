@@ -7,7 +7,7 @@ export interface tagAttributes {
   tagID?: number;
   userID: bigint;
   guildID: bigint;
-  date?: string;
+  date?: Date;
   command: string;
   content: string;
   count: number;
@@ -21,7 +21,7 @@ export class tag extends Model<tagAttributes, tagCreationAttributes> implements 
   tagID?: number;
   userID!: bigint;
   guildID!: bigint;
-  date?: string;
+  date?: Date;
   command!: string;
   content!: string;
   count!: number;
@@ -62,7 +62,7 @@ export class tag extends Model<tagAttributes, tagCreationAttributes> implements 
       }
     },
     date: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: true,
       defaultValue: Sequelize.Sequelize.fn('now')
     },

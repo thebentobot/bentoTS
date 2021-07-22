@@ -86,6 +86,10 @@ export const command: Command = {
             return authorTag (message, args[1])
         }
 
+        if (args[0] === 'top') {
+            return usageCountList (message)
+        }
+
         if (args[0]) {
             initModels(database);
             const customCommand = await tag.findOne({raw: true, where: {guildID: message.guild.id, command: args[0]}})
@@ -107,8 +111,9 @@ export const command: Command = {
             initModels(database);
             const cmdNameArray: string[] = client.commands.mapValues(values => values.name).array(); // returns cmd names of the bot
             const aliasesNameArray: string[] = client.aliases.each(values => values.aliases).mapValues(value => value.aliases).keyArray(); // returns cmd aliases of the bot
+            const tagArgs: string[] = ['add', 'delete', 'edit', 'info', 'list', 'random', 'rename', 'search', 'author', 'top']
 
-            if (cmdNameArray.includes(tagName) && aliasesNameArray.includes(tagName)) {
+            if (cmdNameArray.includes(tagName) || aliasesNameArray.includes(tagName) || tagArgs.includes(tagName)) {
                 return message.channel.send(`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`);
             }
 
@@ -417,12 +422,13 @@ export const command: Command = {
 
             try {
                 const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                if (mentionedUser.user.bot === true) return message.channel.send(`This command doesn't work with bots.`)
                 userID = mentionedUser.id
                 const tagData = await tag.findAndCountAll({raw: true, where : {userID: userID, guildID: message.guild.id}, order: [['command', 'DESC'], ['count', 'DESC']]})
                 commands = tagData.rows
                 commandCount = tagData.count
                 if (tagData === null) {
-                    return message.channel.send(`Your mentioned user ${mentionedUser.nickname ? `${mentionedUser.nickname} (${mentionedUser.user.username + '#' + mentionedUser.user.discriminator})` : mentionedUser.user.username + '#' + mentionedUser.user.discriminator}`)
+                    return message.channel.send(`Your mentioned user ${mentionedUser.nickname ? `${mentionedUser.nickname} (${mentionedUser.user.username + '#' + mentionedUser.user.discriminator})` : mentionedUser.user.username + '#' + mentionedUser.user.discriminator} hasn't created any tags.`)
                 }
             } catch {
                 try {
@@ -480,6 +486,73 @@ export const command: Command = {
                     .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({ format: 'png', dynamic: true }) : message.author.avatarURL({format: 'png', dynamic: true}))
                     .setFooter(`Total tags: ${count}`)
                     .setThumbnail(userID ? message.guild.members.cache.get(userID).user.avatarURL({ format: 'png', dynamic: true }) : message.author.displayAvatarURL({format: 'png', dynamic: true}))
+                    .setTimestamp()
+                    // denne funktion skal skubbe siderne
+                    embeds.push(embed)
+                }
+                return embeds;
+            }
+        }
+
+        async function usageCountList (message: Message) {
+            initModels(database);
+
+            //let userID: string;
+            let commands: any;
+            let commandCount: number;
+
+            try {
+                const tagData = await tag.findAndCountAll({raw: true, where : {guildID: message.guild.id}, order: [['count', 'DESC']]})
+                commands = tagData.rows
+                commandCount = tagData.count
+            } catch {
+                const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                return message.channel.send(`This server hasn't made any tags\nUse \`${guildData.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData.prefix}help tag\` for help with your request.`)
+            }
+
+            let currentPage: number = 0;
+            const embeds = await generateTagAuthorEmbed(commands, commandCount)
+            const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${embeds.length}`, embeds[currentPage]);
+            await queueEmbed.react('⬅️');
+            await queueEmbed.react('➡️');
+            await queueEmbed.react('❌');
+            const filter = (reaction, user) => ['⬅️', '➡️', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
+            const collector = queueEmbed.createReactionCollector(filter);
+
+            collector.on('collect', async (reaction, user) => {
+                if (reaction.emoji.name === '➡️') {
+                    if (currentPage < embeds.length-1) {
+                      currentPage++;
+                      reaction.users.remove(user);
+                      queueEmbed.edit(`Current Page: ${currentPage+1}/${embeds.length}`, embeds[currentPage]);
+                    } 
+                } else if (reaction.emoji.name === '⬅️') {
+                    if (currentPage !== 0) {
+                      --currentPage;
+                      reaction.users.remove(user);
+                      queueEmbed.edit(`Current Page ${currentPage+1}/${embeds.length}`, embeds[currentPage]);
+                    }
+                } else {
+                    collector.stop();
+                    await queueEmbed.delete();
+                }
+            })
+
+            async function generateTagAuthorEmbed (data: any, count: number) {
+                const embeds = [];
+                let k = 10;
+                for(let i =0; i < data.length; i += 10) {
+                    const current = data.slice(i, k);
+                    let j = i;
+                    k += 10;
+                    // det foroven skærer, så det kun bliver 10 pr. page.
+                    const info = current.map(command => `**${++j}. ${command.command} - ${command.count > 1 ? `${command.count} uses` : `${command.count} use`}**`).join(`\n`)
+                    const embed = new MessageEmbed()
+                    .setDescription(`${info}`)
+                    .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png' }))}`)
+                    .setTitle(`Top tags used on ${message.guild.name}`)
+                    .setFooter(`Total tags: ${count}`)
+                    .setThumbnail(message.guild.iconURL({ format: 'png', dynamic: true }))
                     .setTimestamp()
                     // denne funktion skal skubbe siderne
                     embeds.push(embed)

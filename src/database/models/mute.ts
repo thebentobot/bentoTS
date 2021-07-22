@@ -1,16 +1,17 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
-import type { user, userId } from './user';
 
 export interface muteAttributes {
   muteCase?: number;
   userID: bigint;
   guildID: bigint;
   date?: Date;
-  duration?: number;
+  muteEnd?: Date;
   note?: string;
   actor: bigint;
+  reason?: string;
+  MuteStatus: boolean;
 }
 
 export type mutePk = "muteCase";
@@ -22,25 +23,17 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
   userID!: bigint;
   guildID!: bigint;
   date?: Date;
-  duration?: number;
+  muteEnd?: Date;
   note?: string;
   actor!: bigint;
+  reason?: string;
+  MuteStatus!: boolean;
 
   // mute belongsTo guild via guildID
   guild!: guild;
   getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
   setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
   createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
-  // mute belongsTo user via userID
-  user!: user;
-  getUser!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setUser!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createUser!: Sequelize.BelongsToCreateAssociationMixin<user>;
-  // mute belongsTo user via actor
-  actor_user!: user;
-  getActor_user!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setActor_user!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createActor_user!: Sequelize.BelongsToCreateAssociationMixin<user>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof mute {
     mute.init({
@@ -52,11 +45,7 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
     },
     userID: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
     },
     guildID: {
       type: DataTypes.BIGINT,
@@ -71,9 +60,10 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
       allowNull: false,
       defaultValue: Sequelize.Sequelize.fn('now')
     },
-    duration: {
-      type: DataTypes.INTEGER,
-      allowNull: true
+    muteEnd: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.Sequelize.fn('now')
     },
     note: {
       type: DataTypes.STRING,
@@ -81,11 +71,15 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
     },
     actor: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    MuteStatus: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     }
   }, {
     sequelize,
@@ -93,20 +87,6 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "mute_actor_uindex",
-        unique: true,
-        fields: [
-          { name: "actor" },
-        ]
-      },
-      {
-        name: "mute_guildid_uindex",
-        unique: true,
-        fields: [
-          { name: "guildID" },
-        ]
-      },
       {
         name: "mute_mutecase_uindex",
         unique: true,
@@ -119,13 +99,6 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
         unique: true,
         fields: [
           { name: "muteCase" },
-        ]
-      },
-      {
-        name: "mute_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
         ]
       },
     ]

@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, modLog, modLogCreationAttributes, guild } from '../../database/models/init-models';
+import { Message, TextChannel } from 'discord.js';
 
 export const command: Command = {
     name: 'modlog',
@@ -8,7 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Get a mod log in a specified channel, to log changes and moderation on the server',
     usage: ' is the prefix\nmodlog <status>\nmodlog <channel> <channelID>\nmodlog <delete>',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
@@ -33,9 +34,13 @@ export const command: Command = {
 
         if (args[0] == 'channel') {
             if (!args[1]) return message.channel.send('Please assign a channel id as the second argument');
-            let regExp = /[a-zA-Z]/g;
-            let channel = args[1]
-            if (regExp.test(channel) == true) return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`);
+            let channel: string;
+            try {
+                const channelID = message.mentions.channels.first() || message.guild.channels.cache.get(args[1]) as TextChannel
+                channel = channelID.id
+            } catch {
+                return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`);
+            }
             
             const modLogData = await modLog.findOne({raw: true, where: {guildID: message.guild.id}});
             
@@ -56,8 +61,12 @@ export const command: Command = {
         }
 
         if (args[0] == 'delete') {
-            await modLog.destroy({where: { channel: message.guild.id}});
+            try {
+                await modLog.destroy({where: { channel: message.guild.id}});
             return message.channel.send(`Your mod log channel is deleted in Bento's database and Bento will from now on not log changes and moderation.\nPlease use ${guildData.prefix}modlog channel <channelID> to enable it again.`);
+            } catch {
+                return message.channel.send(`You don't have a mod log enabled.`)
+            }
         }
     }
 }

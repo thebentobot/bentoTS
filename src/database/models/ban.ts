@@ -1,7 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
-import type { user, userId } from './user';
 
 export interface banAttributes {
   banCase?: number;
@@ -10,6 +9,7 @@ export interface banAttributes {
   date?: Date;
   note?: string;
   actor: bigint;
+  reason?: string;
 }
 
 export type banPk = "banCase";
@@ -23,22 +23,13 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
   date?: Date;
   note?: string;
   actor!: bigint;
+  reason?: string;
 
   // ban belongsTo guild via guildID
   guild!: guild;
   getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
   setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
   createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
-  // ban belongsTo user via userID
-  user!: user;
-  getUser!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setUser!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createUser!: Sequelize.BelongsToCreateAssociationMixin<user>;
-  // ban belongsTo user via actor
-  actor_user!: user;
-  getActor_user!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setActor_user!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createActor_user!: Sequelize.BelongsToCreateAssociationMixin<user>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof ban {
     ban.init({
@@ -50,11 +41,7 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
     },
     userID: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
     },
     guildID: {
       type: DataTypes.BIGINT,
@@ -75,11 +62,11 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
     },
     actor: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -87,20 +74,6 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "ban_actor_uindex",
-        unique: true,
-        fields: [
-          { name: "actor" },
-        ]
-      },
-      {
-        name: "ban_guildid_uindex",
-        unique: true,
-        fields: [
-          { name: "guildID" },
-        ]
-      },
       {
         name: "ban_mutecase_uindex",
         unique: true,
@@ -113,13 +86,6 @@ export class ban extends Model<banAttributes, banCreationAttributes> implements 
         unique: true,
         fields: [
           { name: "banCase" },
-        ]
-      },
-      {
-        name: "ban_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
         ]
       },
     ]

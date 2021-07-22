@@ -12,7 +12,7 @@ export const command: Command = {
     category: 'user',
     description: 'Shows your rank level, xp and praises',
     usage: 'rank [userID/mention a user]',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             return rankFunction (message)
         } else {
@@ -28,6 +28,7 @@ export const command: Command = {
             if (user) {
                 try {
                     const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                    if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a rank. That would be unfair for users ;-)`)
                     userID = mentionedUser.id
                 } catch {
                     return message.channel.send(`Error couldn't find a valid user based on your input: \`${user}\`.`)

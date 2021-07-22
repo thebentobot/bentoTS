@@ -22,7 +22,7 @@ export const command: Command = {
     category: 'features',
     description: 'Displays info about the weather at the city saved for the user, or at the specified city.\nIf it shows a city from another country than the one you expected, try to add a country code (e.g. US, GB, DE) beside the city (remember a comma after city), as shown below\nIf it does not show up either, it may not be included in the OpenWeather API.',
     usage: 'weather [save] <city>, [country code]',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'save') {
             return saveWeather (message, args[1])
         }
@@ -44,6 +44,7 @@ export const command: Command = {
             if (input) {
                 try {
                     const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
+                    if (mentionedUser.user.bot === true) return message.channel.send(`Bots doesn't care about the weather.`)
                     userID = mentionedUser.id
                     const weatherData = await weather.findOne({raw: true, where : {userID: userID}})
                     city = weatherData.city
@@ -97,7 +98,7 @@ export const command: Command = {
                 { name: 'Wind Speed', value: `${response.wind.speed} m/s`, inline: true },
                 { name: 'Wind Direction', value: await windDirection(response.wind.deg), inline: true },
                 )
-            return message.channel.send(Embed)
+            return await message.channel.send(Embed)
         }
 
         async function saveWeather (message: Message, city: string) {

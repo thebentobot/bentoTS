@@ -1,7 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { guild, guildId } from './guild';
-import type { user, userId } from './user';
 
 export interface warningAttributes {
   warningCase?: number;
@@ -10,6 +9,7 @@ export interface warningAttributes {
   date?: Date;
   note?: string;
   actor: bigint;
+  reason?: string;
 }
 
 export type warningPk = "warningCase";
@@ -23,22 +23,13 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
   date?: Date;
   note?: string;
   actor!: bigint;
+  reason?: string;
 
   // warning belongsTo guild via guildID
   guild!: guild;
   getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
   setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
   createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
-  // warning belongsTo user via userID
-  user!: user;
-  getUser!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setUser!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createUser!: Sequelize.BelongsToCreateAssociationMixin<user>;
-  // warning belongsTo user via actor
-  actor_user!: user;
-  getActor_user!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setActor_user!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createActor_user!: Sequelize.BelongsToCreateAssociationMixin<user>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof warning {
     warning.init({
@@ -50,11 +41,7 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
     },
     userID: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
     },
     guildID: {
       type: DataTypes.BIGINT,
@@ -75,11 +62,11 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
     },
     actor: {
       type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
+      allowNull: false
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
@@ -87,20 +74,6 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "warning_actor_uindex",
-        unique: true,
-        fields: [
-          { name: "actor" },
-        ]
-      },
-      {
-        name: "warning_guildid_uindex",
-        unique: true,
-        fields: [
-          { name: "guildID" },
-        ]
-      },
       {
         name: "warning_mutecase_uindex",
         unique: true,
@@ -113,13 +86,6 @@ export class warning extends Model<warningAttributes, warningCreationAttributes>
         unique: true,
         fields: [
           { name: "warningCase" },
-        ]
-      },
-      {
-        name: "warning_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
         ]
       },
     ]

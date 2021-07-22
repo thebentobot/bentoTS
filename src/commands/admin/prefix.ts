@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
+import { Message } from 'discord.js';
 
 export const command: Command = {
     name: 'prefix',
@@ -8,7 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Sets the prefix for this server.',
     usage: 'prefix <newPrefix>',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         message.delete();
 
         if (!message.member.hasPermission('ADMINISTRATOR')) {

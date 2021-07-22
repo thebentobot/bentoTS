@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, bento, bentoCreationAttributes, guildMember } from '../../database/models/init-models';
-import { Message } from 'discord.js';
+import { GuildMember, Message } from 'discord.js';
 import moment from 'moment';
 import { getTimeRemaining } from '../../utils/getTimeRemaining';
 
@@ -11,7 +11,7 @@ export const command: Command = {
     category: 'user',
     description: 'Give a Bento Box 🍱 to your friend every 24th hour :D.',
     usage: 'bento [<user>]. If you just write the command, it shows when you can give a Bento Box 🍱 again.',
-    run: async (client, message, args): Promise<any> => {
+    run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             return giveBento (message)
         } else {
@@ -33,6 +33,7 @@ export const command: Command = {
                 const diff: number = now.getTime() - then.getTime();
                 const diffHours = Math.round(diff / (1000 * 60 * 60));
                 const hours = 24;
+                // to make it 12 hours, i assume it's just changing 24 to 12, and for the moment add days it's 12 hours instead of 1 day
                 if (diffHours < hours) {
                     return message.channel.send(`${(await message.guild.members.fetch(message.author.id)).nickname ? (await message.guild.members.fetch(message.author.id)).nickname : message.author.username}, you can give someone a Bento Box 🍱 again in ${getTimeRemaining(moment(bentoData.bentoDate).add(1, 'day')).hours} hours, ${getTimeRemaining(moment(bentoData.bentoDate).add(1, 'day')).minutes} minutes and ${getTimeRemaining(moment(bentoData.bentoDate).add(1, 'day')).seconds} seconds`);
                 }
@@ -40,13 +41,14 @@ export const command: Command = {
                     return message.channel.send(`You didn't specify a user to give the daily Bento 🍱 to!`);
                 }
             } else {
-                let mentionedUser: any;
+                let mentionedUser: GuildMember;
                 try {
                     mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
                 } catch {
                     return message.channel.send(`Your input was invalid. Please specify a user.`)
                 }
                 if (mentionedUser.id === message.author.id) return message.channel.send(`You can't give yourself a Bento 🍱`)
+                if (mentionedUser.user.bot === true) return message.channel.send(`You can't give a bot a Bento 🍱, don't feed bots food :-(())`)
 
                 const bentoAttr: bentoCreationAttributes = {
                     userID: BigInt(message.author.id),

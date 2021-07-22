@@ -2,6 +2,7 @@ import axios from "axios";
 import getColors from 'get-image-colors';
 
 export async function urlToColours (url: string) {
+    if (url === null) return
     let colours: any;
     try {
         const response = await axios.get(url, {responseType: 'arraybuffer'});
