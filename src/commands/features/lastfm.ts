@@ -101,21 +101,23 @@ export const command: Command = {
 
             try {
                 const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 user = theUser.id
-                const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
-                if (!lastfmData) {
-                    return message.channel.send(`This user doesn't have a last.fm account saved.`)
-                }
-                username = lastfmData.lastfm
+                try {
+                    const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
+                    username = lastfmData.lastfm
                 } catch {
-                    try {
-                        let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
-                        username = lastFmName.lastfm
-                    } catch {
-                        const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
-                        return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
-                    }
+                    return message.channel.send(`The mentioned user doesn't have a lastfm account saved.`)
                 }
+            } catch {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    username = lastFmName.lastfm
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
 
             try {
                 let response = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
