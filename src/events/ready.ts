@@ -1,8 +1,8 @@
-import { GuildMember, MessageEmbed, TextChannel } from "discord.js";
+import { GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
 import moment from "moment";
 import { QueryTypes } from "sequelize";
 import database from "../database/database";
-import { initModels, modLog } from "../database/models/init-models";
+import { initModels, modLog, reminder } from "../database/models/init-models";
 import { mute } from "../database/models/mute";
 import { muteRole } from "../database/models/muteRole";
 import { Event } from "../interfaces";
@@ -14,7 +14,6 @@ export const event: Event = {
         client.user.setActivity(`🍱 - Feeding in ${client.channels.cache.size} channels, serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
         
         async function checkMutes() {
-    
             interface muteDataTypes {
                 muteCase: number,
                 userID: bigint,
@@ -38,7 +37,7 @@ export const event: Event = {
         
             //const unmutes = await mute.findAll({raw: true, where: { muteEnd: {[lt]: now}, MuteStatus: true }})
         
-            if (unmutes && unmutes) {
+            if (unmutes) {
                 for (const unmute of unmutes) {
                     initModels(database);
         
@@ -97,5 +96,40 @@ export const event: Event = {
         checkMutes();
 
         setInterval(checkMutes, 5000) // 5 seconds
+
+        async function checkReminders () {
+            interface muteDataTypes {
+                id: number,
+                userID: bigint,
+                date: Date,
+                reminder: string
+            }
+        
+            const reminders: Array<muteDataTypes> = await database.query(`
+            SELECT *
+            FROM reminder
+            WHERE reminder.date < now()::timestamp at time zone 'utc';`, {
+                type: QueryTypes.SELECT
+            })
+
+            if (reminders) {
+                for (const remind of reminders) {
+                    initModels(database);
+        
+                    let user: User;
+                    try {
+                        user = client.users.cache.get(`${remind.userID}`)
+                        await user.send(`**Reminder!** ${remind.reminder}`)
+                        await reminder.destroy({where: {id: remind.id, userID: remind.userID, reminder: remind.reminder, date: remind.date}})
+                    } catch {
+                        return
+                    }
+                }
+            }
+        }
+
+        checkReminders();
+
+        setInterval(checkReminders, 5000) // 5 seconds
     }
 }
