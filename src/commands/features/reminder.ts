@@ -20,8 +20,8 @@ export const command: Command = {
     name: 'reminder',
     aliases: ['remind'],
     category: 'features',
-    description: 'Link to the Bento GitHub organisation',
-    usage: 'reminder time <amount of time> <timeframe> <reminder>\nreminder schedule <date> <time> <reminder>',
+    description: 'Create reminders and you will receive a message reminder from Bento at your desired time.\nYou can either use time and say remind me in a day, or use schedule to specify a specific time. Use list to see a list of your reminders.',
+    usage: ' is the prefix\n**reminder time <amount of time> <timeframe> <reminder>** E.g. reminder time 1 day eat cake\n**reminder schedule <DD-MM-YYYY> <HH:mm> <timezone offset> <reminder>** E.g. reminder schedule 25-11-2021 08:00 +02:00 eat cake',
     run: async (client, message, args): Promise<Message> => {
         initModels(database);
 
