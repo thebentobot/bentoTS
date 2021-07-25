@@ -40,10 +40,8 @@ export const command: Command = {
             const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}})
         
             const embed = new MessageEmbed()
-
-            const aliases:any = client.aliases.get(input.toLowerCase())
         
-            const cmd = client.commands.get(input.toLowerCase()) || client.commands.get(aliases);
+            const cmd = client.commands.get(input.toLowerCase()) || client.commands.get(`${client.aliases.get(input.toLowerCase()).name}`);
         
             let info = `No information found for command **${input.toLowerCase()}**`;
         

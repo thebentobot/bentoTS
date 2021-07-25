@@ -34,25 +34,23 @@ export const command: Command = {
         const muteRoleDataText = muteRoleData ? `<@&${muteRoleData.roleID}>`: 'Not configured';
 
         const Embed = new MessageEmbed()
-        .setAuthor('Bento 🍱', 'https://repository-images.githubusercontent.com/322448646/e3422d00-90d9-11eb-9d3d-2939e261681a', 'https://github.com/banner4422/bento')
+        .setAuthor('Bento 🍱', 'https://repository-images.githubusercontent.com/322448646/e3422d00-90d9-11eb-9d3d-2939e261681a', 'https://github.com/thebentobot/bentoTS')
         .setThumbnail(message.guild.iconURL({ dynamic: true, format: 'png'}))
         .setTitle(`Server settings for ${message.guild.name}`)
         .setTimestamp()
         .setColor(`${message.guild.iconURL() ? await urlToColours(message.guild.iconURL({ format: 'png'})) : await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
-        .addFields(
-            {name: 'NSFW', value: `${guildData.nsfw ? 'Enabled' : 'Disabled'}`, inline: true},
-            {name: 'Tiktok', value: `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, inline: true},
-            {name: 'Media', value: `${guildData.media ? 'Enabled' : 'Disabled'}`, inline: true},
-            {name: 'leaderboard', value: `${guildData.leaderboard ? 'Enabled' : 'Disabled'}`, inline: true},
-            {name: 'Server name enabled for global cases', value: `${caseGlobalData.serverName ? 'Enabled' : 'Disabled'}`, inline: true},
-            {name: 'Case reasons enabled for global cases', value: `${caseGlobalData.reason ? 'Enabled' : 'Disabled'}`, inline: true},
-            {name: 'Welcome Messages', value: `${byeDataText}`, inline: true},
-            {name: 'Bye Messages', value: `${welcomeDataText}`, inline: true},
-            {name: 'Mod log channel', value: `${modLogText}`, inline: true},
-            {name: 'Message log channel', value: `${msgLogText}`, inline: true},
-            {name: 'Mute role', value: `${muteRoleDataText}`, inline: true},
-            {name: autoRoleData.length > 1 ? 'Auto assigned roles' : 'Auto assigned role', value: autoRoleData ? trim(autoRoleData.map(r => `<@&${r.roleID}>`).join(' | '), 1024) : 'Not configured', inline: true},
-        )
+        .addField('NSFW', `${guildData.nsfw ? 'Enabled' : 'Disabled'}`, true)
+        .addField('Tiktok', `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, true)
+        .addField('Media', `${guildData.media ? 'Enabled' : 'Disabled'}`, true)
+        .addField('Leaderboard', `${guildData.leaderboard ? 'Enabled' : 'Disabled'}`, true)
+        .addField('Server name enabled for global cases', `${caseGlobalData.serverName ? 'Enabled' : 'Disabled'}`, true)
+        .addField('Case reasons enabled for global cases', `${caseGlobalData.reason ? 'Enabled' : 'Disabled'}`, true)
+        .addField('Welcome Messages', `${byeDataText}`, true)
+        .addField('Bye Messages', `${welcomeDataText}`, true)
+        .addField('Mod log channel', `${modLogText}`, true)
+        .addField('Message log channel', `${msgLogText}`, true)
+        .addField('Mute role', `${muteRoleDataText}`, true)
+        .addField(autoRoleData.length > 1 ? 'Auto assigned roles' : 'Auto assigned role', autoRoleData.length ? trim(autoRoleData.map(r => `<@&${r.roleID}>`).join(' | '), 1024) : 'Not configured', true)
 
         return message.channel.send(Embed);
     }

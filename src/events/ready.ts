@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel } from "discord.js";
+import { GuildMember, MessageEmbed, TextChannel } from "discord.js";
 import moment from "moment";
 import { QueryTypes } from "sequelize";
 import database from "../database/database";
@@ -42,8 +42,13 @@ export const event: Event = {
                 for (const unmute of unmutes) {
                     initModels(database);
         
+                    let member: GuildMember;
                     const guild = client.guilds.cache.get(`${unmute.guildID}`)
-                    const member = guild.members.cache.get(`${unmute.userID}`)
+                    try {
+                        member = guild.members.cache.get(`${unmute.userID}`)
+                    } catch {
+                        return
+                    }
         
                     const muteRoleData = await muteRole.findOne({raw: true, where: {guildID: unmute.guildID}})
                     const role = guild.roles.cache.get(`${muteRoleData.roleID}`)
