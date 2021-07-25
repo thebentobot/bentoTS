@@ -54,7 +54,7 @@ export const command: Command = {
 
         initModels(database);
 
-        const banned = await ban.findOrCreate({raw: true, where: {userID: bannedUserID, guildID: message.guild.id}, defaults: banAttr})
+        const banned = await ban.findOrCreate({raw: true, where: {userID: bannedUserID, guildID: message.guild.id}, defaults: banAttr}).catch(console.error)
 
         if (banned[1] === false) {
             return message.channel.send(`${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`} is already banned on this server.\nThe case number for this ban is: \`${banned[0].banCase}\` if you want to look up details for this ban use the case check command.`);

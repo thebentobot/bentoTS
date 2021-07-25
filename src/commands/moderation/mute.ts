@@ -38,6 +38,12 @@ export const command: Command = {
                 return message.channel.send(`You need to specify an amount of time, timeframe and a user to mute.\nUse the help command with mute to check options when using the mute command.`)
             }
 
+            const reg = new RegExp(/^\d+$/)
+
+            if (reg.test(amountOfTime) === false) {
+                return message.channel.send(`Your amiunt of time is invalid because it is not a number.\nUse the help command with mute to check options when using the mute command.`)
+            }
+
             if (!timeframe) {
                 return message.channel.send(`You need to specify a timeframe and a user to mute.\nUse the help command with mute to check options when using the mute command.`)
             }
@@ -88,7 +94,7 @@ export const command: Command = {
     
             initModels(database);
     
-            const muted = await mute.findOrCreate({raw: true, where: {userID: mutedUserID, guildID: message.guild.id, MuteStatus: true}, defaults: muteAttr})
+            const muted = await mute.findOrCreate({raw: true, where: {userID: mutedUserID, guildID: message.guild.id, MuteStatus: true}, defaults: muteAttr}).catch(console.error)
             
             if (muted[1] === false) {
                 return message.channel.send(`${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`} is already muted on this server.\nThe case number for this mute is: \`${muted[0].muteCase}\` if you want to look up details for this mute use the case check command.`);

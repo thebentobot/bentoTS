@@ -54,7 +54,7 @@ export const command: Command = {
 
         initModels(database);
 
-        const kicked = await kick.findOrCreate({raw: true, where: {userID: kickedUserID, guildID: message.guild.id}, defaults: kickAttr})
+        const kicked = await kick.findOrCreate({raw: true, where: {userID: kickedUserID, guildID: message.guild.id}, defaults: kickAttr}).catch(console.error)
         const kickedCount = await kick.findAndCountAll({where: {guildID: message.guild.id, userID: kickedUserID}})
             try {
                 let logChannel: TextChannel;
