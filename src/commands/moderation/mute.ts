@@ -102,7 +102,7 @@ export const command: Command = {
                 const embed = new MessageEmbed()
                 .setColor('#000000')
                 .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
-                .setThumbnail(mutedUser.user.avatarURL())
+                .setThumbnail(mutedUser.user.avatarURL({format: 'png', size: 1024, dynamic: true}))
                 .setTitle(`${mutedUser.nickname ? `${mutedUser.nickname} (${mutedUser.user.username}#${mutedUser.user.discriminator})` : `${mutedUser.user.username}#${mutedUser.user.discriminator}`} was muted for ${amountOfTime} ${timeframe}!`)
                 .setDescription(`This user has been muted **${muteCount.count > 1 ? `${muteCount.count} times` : `once`}** on this server\n**Reason**\n${reason ? reason : 'Reason not listed'}`)
                 .addField('Username', mutedUser.user.username + '#' + mutedUser.user.discriminator)
