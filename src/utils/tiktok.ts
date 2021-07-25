@@ -22,8 +22,8 @@ export async function tiktokEmbedding(URL: string): Promise<any> {
     try {
         const embed = new MessageEmbed()
         .setTitle(`${Util.escapeMarkdown(video.text)}`)
-        //.setFooter(moment.unix(video.createTime).format("dddd, MMMM Do YYYY, h:mm A z"))
-        .setTimestamp(moment.unix(video.createTime).toDate())
+        .setFooter(moment.unix(video.createTime).format("dddd, MMMM Do YYYY, h:mm A Z"))
+        //.setTimestamp(moment.unix(video.createTime).toDate())
         .setColor('#000000')
         .setAuthor(video.authorMeta.name, video.authorMeta.avatar, `https://www.tiktok.com/@${video.authorMeta.name}?`)
         let finalVideo = new MessageAttachment(buffer, 'video.mp4')

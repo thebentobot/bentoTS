@@ -74,7 +74,7 @@ export const command: Command = {
                 await logChannel.send(embed);
                 await message.channel.send(`**${message.guild.members.cache.get(`${kickedUserID}`).nickname ? `${message.guild.members.cache.get(`${kickedUserID}`).nickname} (${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator}`}** was successfully **kicked** on this server.\n**Case number: ${kicked[0].kickCase}**.\n**Reason:** ${kicked[0].reason}\nYou can add notes for this kick by using the case command together with the case number.`)
                 try {
-                    (await client.users.fetch(kickedUserID)).send(`🦶 You were \`kicked\` from **${message.guild.name}** 🦶 \n**Reason**: ${reason}.`)
+                    (await client.users.fetch(kickedUserID)).send(`🦶 You were \`kicked\` from **${message.guild.name}** 🦶 \n**Reason**: ${reason}.`).catch(console.error)
                     await kickedUser.kick(reason);
                 } catch {
                     await kickedUser.kick(reason);
@@ -82,7 +82,7 @@ export const command: Command = {
             } catch {
                 await message.channel.send(`**${message.guild.members.cache.get(`${kickedUserID}`).nickname ? `${message.guild.members.cache.get(`${kickedUserID}`).nickname} (${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${kickedUserID}`).user.username + '#' + message.guild.members.cache.get(`${kickedUserID}`).user.discriminator}`}** was successfully **kicked** on this server.\n**Case number: ${kicked[0].kickCase}**.\n**Reason:** ${kicked[0].reason}\nYou can add notes for this kick by using the case command together with the case number.`)
                 try {
-                    (await client.users.fetch(kickedUserID)).send(`🦶 You were \`kicked\` from **${message.guild.name}** 🦶 \n**Reason**: ${reason}.`)
+                    (await client.users.fetch(kickedUserID)).send(`🦶 You were \`kicked\` from **${message.guild.name}** 🦶 \n**Reason**: ${reason}.`).catch(console.error)
                     await kickedUser.kick(reason);
                 } catch {
                     await kickedUser.kick(reason);
