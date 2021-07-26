@@ -872,10 +872,11 @@ export const command: Command = {
                     let cover;
                     await spotifyCred.searchArtists(artist, {limit: 1}).then(function(data) {
                         cover = data
+                        console.log(cover.body.artists.items[0].images[0].url)
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -981,7 +982,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -1077,11 +1078,11 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setColor(`${await urlToColours(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
+                    embed.setColor(`${await urlToColours(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
                     embed.setDescription(`${info}`)
-                    embed.setThumbnail(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setThumbnail(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setTitle(`Who in ${message.guild.name} knows ${artistName}`)
                     embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
                     embeds.push(embed)
@@ -1126,7 +1127,7 @@ export const command: Command = {
                         let trackData = await response.data
                         let playCountData = parseInt(trackData.track.userplaycount)
                         if (playCountData !== 0) {
-                            playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: playCountData})
+                            playData.push({userID: user.userid, lastfm: user.lastfm, username: user.username, discriminator: user.discriminator, playCount: playCountData})
                         }                    }
                 } catch {
                     return message.channel.send('Error! This is not a valid song. Remember the format is Artist - Track')
@@ -1148,7 +1149,7 @@ export const command: Command = {
                         let trackData = await response.data
                         let playCountData = parseInt(trackData.track.userplaycount)
                         if (playCountData !== 0) {
-                            playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: playCountData})
+                            playData.push({userID: user.userid, lastfm: user.lastfm, username: user.username, discriminator: user.discriminator, playCount: playCountData})
                         }                    }
                 } catch {
                     const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
@@ -1161,6 +1162,7 @@ export const command: Command = {
             });
 
             playData.slice(0, 9);
+            console.log(playData)
 
             const embeds = generateGwktEmbed(playData)
             await message.channel.send(await embeds);
@@ -1180,7 +1182,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -1230,7 +1232,7 @@ export const command: Command = {
                         let albumData = await response.data
                         let playCountData = parseInt(albumData.album.userplaycount)
                         if (playCountData !== 0) {
-                            playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: playCountData})
+                            playData.push({userID: user.userid, lastfm: user.lastfm, username: user.username, discriminator: user.discriminator, playCount: playCountData})
                         }                    }
                 } catch {
                     return message.channel.send('Error! This is not a valid album. Remember the format is Artist - Album')
@@ -1252,7 +1254,7 @@ export const command: Command = {
                         let albumData = await response.data
                         let playCountData = parseInt(albumData.album.userplaycount)
                         if (playCountData !== 0) {
-                            playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: playCountData})
+                            playData.push({userID: user.userid, lastfm: user.lastfm, username: user.username, discriminator: user.discriminator, playCount: playCountData})
                         }                    }
                 } catch {
                     const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
@@ -1284,7 +1286,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -1327,7 +1329,7 @@ export const command: Command = {
                         let artistData = await response.data
                         let playCountData = parseInt(artistData.artist.stats.userplaycount)
                         if (playCountData !== 0) {
-                            playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: playCountData})
+                            playData.push({userID: user.userid, lastfm: user.lastfm, username: user.username, discriminator: user.discriminator, playCount: playCountData})
                         }                    }
                 } catch {
                     return message.channel.send('Error! This is not a valid artist')
@@ -1347,7 +1349,7 @@ export const command: Command = {
                         let artistData = await response.data
                         let playCountData = parseInt(artistData.artist.stats.userplaycount)
                         if (playCountData !== 0) {
-                            playData.push({userID: user.userid, lastfm: user.lastfmaccountname, playCount: playCountData})
+                            playData.push({userID: user.userid, lastfm: user.lastfm, username: user.username, discriminator: user.discriminator, playCount: playCountData})
                         }                    }
                 } catch {
                     const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
@@ -1379,11 +1381,11 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setColor(`${await urlToColours(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
+                    embed.setColor(`${await urlToColours(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
                     embed.setDescription(`${info}`)
-                    embed.setThumbnail(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setThumbnail(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setTitle(`Who in ${client.user.username} knows ${artistName}`)
                     embed.setFooter(`Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
                     embeds.push(embed)
