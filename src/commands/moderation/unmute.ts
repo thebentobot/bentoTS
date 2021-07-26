@@ -77,7 +77,7 @@ export const command: Command = {
                 await logChannel.send(embed);
                 await message.channel.send(`**${message.guild.members.cache.get(unmutedUserID).user.username}#${message.guild.members.cache.get(unmutedUserID).user.discriminator}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 try {
-                    (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(console.error)
+                    (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(error => { console.error(`Could not send unmute DM`, error)})
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
                 } catch {
@@ -87,7 +87,7 @@ export const command: Command = {
             } catch {
                 await message.channel.send(`**${message.guild.members.cache.get(unmutedUserID).user.username}#${message.guild.members.cache.get(unmutedUserID).user.discriminator}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 try {
-                    (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(console.error)
+                    (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(error => { console.error(`Could not send unmute DM`, error)})
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
                 } catch {

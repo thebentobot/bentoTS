@@ -875,7 +875,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -981,7 +981,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -1077,7 +1077,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setColor(`${await urlToColours(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
+                    embed.setColor(`${await urlToColours(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${message.guild.members.cache.get(user.userID).user} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
                     embed.setDescription(`${info}`)
@@ -1180,7 +1180,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -1284,7 +1284,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
+                    embed.setAuthor(artist, cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))
                     embed.setColor(`${await urlToColours(imageURL)}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
@@ -1379,7 +1379,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setColor(`${await urlToColours(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
+                    embed.setColor(`${await urlToColours(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(message.author.id).user.avatarURL({format: 'png', dynamic: true, size: 1024}))}`)
                     embed.setTimestamp()
                     const info = current.map(user => `**${++j}.** ${user.username}#${user.discriminator} - **${user.playCount > 1 ? `${user.playCount} plays` : `${user.playCount} play`}**`).join(`\n`)
                     embed.setDescription(`${info}`)

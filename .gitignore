@@ -3,3 +3,4 @@ node_modules
 config.json
 dist
 build/
+pm2.json
