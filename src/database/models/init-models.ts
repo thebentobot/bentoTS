@@ -27,6 +27,8 @@ import { mute } from "./mute";
 import type { muteAttributes, muteCreationAttributes } from "./mute";
 import { muteRole } from "./muteRole";
 import type { muteRoleAttributes, muteRoleCreationAttributes } from "./muteRole";
+import { notificationMessage } from "./notificationMessage";
+import type { notificationMessageAttributes, notificationMessageCreationAttributes } from "./notificationMessage";
 import { reminder } from "./reminder";
 import type { reminderAttributes, reminderCreationAttributes } from "./reminder";
 import { tag } from "./tag";
@@ -55,6 +57,7 @@ export {
   modLog,
   mute,
   muteRole,
+  notificationMessage,
   reminder,
   tag,
   user,
@@ -92,6 +95,8 @@ export type {
   muteCreationAttributes,
   muteRoleAttributes,
   muteRoleCreationAttributes,
+  notificationMessageAttributes,
+  notificationMessageCreationAttributes,
   reminderAttributes,
   reminderCreationAttributes,
   tagAttributes,
@@ -121,6 +126,7 @@ export function initModels(sequelize: Sequelize) {
   modLog.initModel(sequelize);
   mute.initModel(sequelize);
   muteRole.initModel(sequelize);
+  notificationMessage.initModel(sequelize);
   reminder.initModel(sequelize);
   tag.initModel(sequelize);
   user.initModel(sequelize);
@@ -160,6 +166,8 @@ export function initModels(sequelize: Sequelize) {
   user.hasOne(horoscope, { as: "horoscope", foreignKey: "userID"});
   lastfm.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasOne(lastfm, { as: "lastfm", foreignKey: "userID"});
+  notificationMessage.belongsTo(user, { as: "user", foreignKey: "userID"});
+  user.hasMany(notificationMessage, { as: "notificationMessages", foreignKey: "userID"});
   reminder.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(reminder, { as: "reminders", foreignKey: "userID"});
   tag.belongsTo(user, { as: "user", foreignKey: "userID"});
@@ -182,6 +190,7 @@ export function initModels(sequelize: Sequelize) {
     modLog: modLog,
     mute: mute,
     muteRole: muteRole,
+    notificationMessage: notificationMessage,
     reminder: reminder,
     tag: tag,
     user: user,
