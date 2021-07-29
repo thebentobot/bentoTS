@@ -4,6 +4,7 @@ import type { bento, bentoCreationAttributes, bentoId } from './bento';
 import type { guildMember, guildMemberId } from './guildMember';
 import type { horoscope, horoscopeCreationAttributes, horoscopeId } from './horoscope';
 import type { lastfm, lastfmCreationAttributes, lastfmId } from './lastfm';
+import type { notificationMessage, notificationMessageId } from './notificationMessage';
 import type { reminder, reminderId } from './reminder';
 import type { tag, tagId } from './tag';
 import type { weather, weatherCreationAttributes, weatherId } from './weather';
@@ -54,6 +55,18 @@ export class user extends Model<userAttributes, userCreationAttributes> implemen
   getLastfm!: Sequelize.HasOneGetAssociationMixin<lastfm>;
   setLastfm!: Sequelize.HasOneSetAssociationMixin<lastfm, lastfmId>;
   createLastfm!: Sequelize.HasOneCreateAssociationMixin<lastfmCreationAttributes>;
+  // user hasMany notificationMessage via userID
+  notificationMessages!: notificationMessage[];
+  getNotificationMessages!: Sequelize.HasManyGetAssociationsMixin<notificationMessage>;
+  setNotificationMessages!: Sequelize.HasManySetAssociationsMixin<notificationMessage, notificationMessageId>;
+  addNotificationMessage!: Sequelize.HasManyAddAssociationMixin<notificationMessage, notificationMessageId>;
+  addNotificationMessages!: Sequelize.HasManyAddAssociationsMixin<notificationMessage, notificationMessageId>;
+  createNotificationMessage!: Sequelize.HasManyCreateAssociationMixin<notificationMessage>;
+  removeNotificationMessage!: Sequelize.HasManyRemoveAssociationMixin<notificationMessage, notificationMessageId>;
+  removeNotificationMessages!: Sequelize.HasManyRemoveAssociationsMixin<notificationMessage, notificationMessageId>;
+  hasNotificationMessage!: Sequelize.HasManyHasAssociationMixin<notificationMessage, notificationMessageId>;
+  hasNotificationMessages!: Sequelize.HasManyHasAssociationsMixin<notificationMessage, notificationMessageId>;
+  countNotificationMessages!: Sequelize.HasManyCountAssociationsMixin;
   // user hasMany reminder via userID
   reminders!: reminder[];
   getReminders!: Sequelize.HasManyGetAssociationsMixin<reminder>;

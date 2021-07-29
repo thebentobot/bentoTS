@@ -19,6 +19,8 @@ import { kick } from "./kick";
 import type { kickAttributes, kickCreationAttributes } from "./kick";
 import { lastfm } from "./lastfm";
 import type { lastfmAttributes, lastfmCreationAttributes } from "./lastfm";
+import { memberLog } from "./memberLog";
+import type { memberLogAttributes, memberLogCreationAttributes } from "./memberLog";
 import { messageLog } from "./messageLog";
 import type { messageLogAttributes, messageLogCreationAttributes } from "./messageLog";
 import { modLog } from "./modLog";
@@ -27,6 +29,8 @@ import { mute } from "./mute";
 import type { muteAttributes, muteCreationAttributes } from "./mute";
 import { muteRole } from "./muteRole";
 import type { muteRoleAttributes, muteRoleCreationAttributes } from "./muteRole";
+import { notificationMessage } from "./notificationMessage";
+import type { notificationMessageAttributes, notificationMessageCreationAttributes } from "./notificationMessage";
 import { reminder } from "./reminder";
 import type { reminderAttributes, reminderCreationAttributes } from "./reminder";
 import { tag } from "./tag";
@@ -51,10 +55,12 @@ export {
   horoscope,
   kick,
   lastfm,
+  memberLog,
   messageLog,
   modLog,
   mute,
   muteRole,
+  notificationMessage,
   reminder,
   tag,
   user,
@@ -84,6 +90,8 @@ export type {
   kickCreationAttributes,
   lastfmAttributes,
   lastfmCreationAttributes,
+  memberLogAttributes,
+  memberLogCreationAttributes,
   messageLogAttributes,
   messageLogCreationAttributes,
   modLogAttributes,
@@ -92,6 +100,8 @@ export type {
   muteCreationAttributes,
   muteRoleAttributes,
   muteRoleCreationAttributes,
+  notificationMessageAttributes,
+  notificationMessageCreationAttributes,
   reminderAttributes,
   reminderCreationAttributes,
   tagAttributes,
@@ -117,10 +127,12 @@ export function initModels(sequelize: Sequelize) {
   horoscope.initModel(sequelize);
   kick.initModel(sequelize);
   lastfm.initModel(sequelize);
+  memberLog.initModel(sequelize);
   messageLog.initModel(sequelize);
   modLog.initModel(sequelize);
   mute.initModel(sequelize);
   muteRole.initModel(sequelize);
+  notificationMessage.initModel(sequelize);
   reminder.initModel(sequelize);
   tag.initModel(sequelize);
   user.initModel(sequelize);
@@ -138,6 +150,8 @@ export function initModels(sequelize: Sequelize) {
   guild.hasMany(guildMember, { as: "guildMembers", foreignKey: "guildID"});
   kick.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(kick, { as: "kicks", foreignKey: "guildID"});
+  memberLog.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasOne(memberLog, { as: "memberLog", foreignKey: "guildID"});
   messageLog.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasOne(messageLog, { as: "messageLog", foreignKey: "guildID"});
   modLog.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
@@ -160,6 +174,8 @@ export function initModels(sequelize: Sequelize) {
   user.hasOne(horoscope, { as: "horoscope", foreignKey: "userID"});
   lastfm.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasOne(lastfm, { as: "lastfm", foreignKey: "userID"});
+  notificationMessage.belongsTo(user, { as: "user", foreignKey: "userID"});
+  user.hasMany(notificationMessage, { as: "notificationMessages", foreignKey: "userID"});
   reminder.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(reminder, { as: "reminders", foreignKey: "userID"});
   tag.belongsTo(user, { as: "user", foreignKey: "userID"});
@@ -178,10 +194,12 @@ export function initModels(sequelize: Sequelize) {
     horoscope: horoscope,
     kick: kick,
     lastfm: lastfm,
+    memberLog: memberLog,
     messageLog: messageLog,
     modLog: modLog,
     mute: mute,
     muteRole: muteRole,
+    notificationMessage: notificationMessage,
     reminder: reminder,
     tag: tag,
     user: user,

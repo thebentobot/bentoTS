@@ -11,7 +11,7 @@ export const event: Event = {
         try {
             const log = await modLog.findOne({where: { guildID: oldChannel.guild.id}})
             const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
-            await modLogChannel.send(`**Channel update!**\nOld channel info:\n${oldChannel}\nNew channel info:\n${newChannel}`)
+            return await modLogChannel.send(`**Channel update!**\nOld channel info:\n${oldChannel}\nNew channel info:\n${newChannel}`)
         } catch {
             return
         }

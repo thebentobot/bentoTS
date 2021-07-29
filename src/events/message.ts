@@ -1,5 +1,5 @@
 import { Event, Command } from '../interfaces';
-import { Message } from 'discord.js';
+import { Message, MessageEmbed, User } from 'discord.js';
 import database from '../database/database';
 
 import { checkURL } from '../utils/checkURL';
@@ -8,6 +8,10 @@ import { addXpServer, addXpGlobal } from '../utils/xp'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
 import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember } from '../database/models/init-models';
+import { QueryTypes } from 'sequelize';
+import { urlToColours } from '../utils';
+import moment from 'moment';
+import _ from 'lodash';
 
 export const event: Event = {
     name: 'message',
@@ -33,6 +37,51 @@ export const event: Event = {
 
         await user.findOrCreate({where: {userID: message.author.id}, defaults: userAttr})
         await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
+
+        interface notificationValues {
+            id: number,
+            userID: bigint,
+            guildID: bigint,
+            content: string,
+            global: boolean
+        }
+        
+        const notificationData: Array<notificationValues> = await database.query(`
+        SELECT *
+        FROM "notificationMessage"
+        WHERE content ILIKE ANY(ARRAY [:content]);`, {
+            type: QueryTypes.SELECT,
+            replacements: { content: message.content.split(' ') }
+        })
+
+        if (notificationData) {
+            const newNotiArr: Array<notificationValues> = []
+            for (const notiCheck of notificationData) {
+                if (`${notiCheck.guildID}` !== message.guild.id) {
+                    if (notiCheck.global === true && `${notiCheck.userID}` !== message.author.id) {
+                        newNotiArr.push(notiCheck)
+                    }
+                } else if (`${notiCheck.userID}` !== message.author.id) {
+                    newNotiArr.push(notiCheck)
+                }
+            }
+            for (const noti of newNotiArr) {
+                let user: User;
+                try {
+                    user = client.users.cache.get(`${noti.userID}`)
+                    const lastMessages = (await message.channel.messages.fetch({limit: 3})).array().reverse()
+                    const embed = new MessageEmbed()
+                    .setAuthor(message.guild.name, message.guild.iconURL({dynamic: true, format: 'png'}) ? message.guild.iconURL({dynamic: true, format: 'png'}) : client.user.avatarURL({format: 'png'}))
+                    .setTimestamp()
+                    .setThumbnail(message.author.avatarURL({format: 'png', size: 1024, dynamic: true}))
+                    .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}) ? message.guild.iconURL({ format: 'png'}) : client.user.avatarURL({format: 'png'}))}`)
+                    .setDescription(`🗨 ${message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`} mentioned \`${noti.content}\` in ${message.channel} on **${message.guild.name}**.\nLink to the message [here](${message.url})\n${lastMessages.map(msg => `**[${moment(msg.createdAt).format('HH:mm:ss Z')}] ${msg.member.nickname ? `${msg.member.nickname} (${msg.author.username}#${msg.author.discriminator})` : `${msg.author.username}#${msg.author.discriminator}`}**\n> ${msg.content === '' ? '[MessageEmbed]' : msg.content.replace(noti.content, `**${noti.content}**`)}\n`).join('')}`)
+                    await user.send(`Link to message:\n${message.url}`, embed).catch(error => { console.error(`Could not send notification DM`, error)})
+                } catch {
+                    return
+                }
+            }
+        }
 
         // finds prefix by guildID
         const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
