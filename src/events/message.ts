@@ -11,6 +11,7 @@ import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreati
 import { QueryTypes } from 'sequelize';
 import { urlToColours } from '../utils';
 import moment from 'moment';
+import _ from 'lodash';
 
 export const event: Event = {
     name: 'message',
@@ -54,18 +55,28 @@ export const event: Event = {
         })
 
         if (notificationData) {
-            for (const noti of notificationData) {
-                if (noti.global === false && `${noti.guildID}` !== message.guild.id) return
+            const newNotiArr: Array<notificationValues> = []
+            for (const notiCheck of notificationData) {
+                if (`${notiCheck.guildID}` !== message.guild.id) {
+                    if (notiCheck.global === true && `${notiCheck.userID}` !== message.author.id) {
+                        newNotiArr.push(notiCheck)
+                    }
+                } else if (`${notiCheck.userID}` !== message.author.id) {
+                    newNotiArr.push(notiCheck)
+                }
+            }
+            for (const noti of newNotiArr) {
                 let user: User;
                 try {
                     user = client.users.cache.get(`${noti.userID}`)
                     const lastMessages = (await message.channel.messages.fetch({limit: 3})).array().reverse()
                     const embed = new MessageEmbed()
+                    .setAuthor(message.guild.name, message.guild.iconURL({dynamic: true, format: 'png'}) ? message.guild.iconURL({dynamic: true, format: 'png'}) : client.user.avatarURL({format: 'png'}))
                     .setTimestamp()
                     .setThumbnail(message.author.avatarURL({format: 'png', size: 1024, dynamic: true}))
-                    .setColor(`${await urlToColours(client.user.avatarURL({ format: "png" }))}`)
+                    .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}) ? message.guild.iconURL({ format: 'png'}) : client.user.avatarURL({format: 'png'}))}`)
                     .setDescription(`🗨 ${message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`} mentioned \`${noti.content}\` in ${message.channel} on **${message.guild.name}**.\nLink to the message [here](${message.url})\n${lastMessages.map(msg => `**[${moment(msg.createdAt).format('HH:mm:ss Z')}] ${msg.member.nickname ? `${msg.member.nickname} (${msg.author.username}#${msg.author.discriminator})` : `${msg.author.username}#${msg.author.discriminator}`}**\n> ${msg.content === '' ? '[MessageEmbed]' : msg.content.replace(noti.content, `**${noti.content}**`)}\n`).join('')}`)
-                    await user.send(embed).catch(error => { console.error(`Could not send notification DM`, error)})
+                    await user.send(`Link to message:\n${message.url}`, embed).catch(error => { console.error(`Could not send notification DM`, error)})
                 } catch {
                     return
                 }

@@ -46,7 +46,7 @@ export const command: Command = {
 
             if (content.includes('--global')) {
                 globalStatus = true
-                wordContent = content.replace('--global', '')
+                wordContent = content.replace('--global', '').trim()
             } else {
                 globalStatus = false
                 wordContent = content
@@ -69,10 +69,10 @@ export const command: Command = {
                     .setColor(`${await urlToColours(client.user.avatarURL({ format: "png" }))}`)
                     .setTimestamp()
                     .setDescription(`Your notification \`${createNoti[0].content}\` has been saved!\n${createNoti[0].global ? `You have enabled global and will be notified when your notification content are mentioned on any server you are on, who has Bento.` : `You will be notified when your notification content are mentioned on the server you saved it on. Use the global argument for the notification command to enable global notifications.`}`)
-                    return await message.author.send(embed).catch(error => { console.error(`Could not send ban DM`, error)}) as Message
+                    return await message.author.send(embed).catch(error => { console.error(`Could not send noti DM`, error)}) as Message
                 } catch {
                     await notificationMessage.destroy({where: {userID: message.author.id, content: createNoti[0].content, id: createNoti[0].id}})
-                    return await message.channel.send(`Notification hasn't been saved, because I can't send DM's to you.\nPlease check your privacy settings and try again.`)
+                    return await message.channel.send(`Notification hasn't been saved, because I can't send DM's to you ${message.author}.\nPlease check your privacy settings and try again.`)
                 }
             }
         }
@@ -103,10 +103,11 @@ export const command: Command = {
                 const embed = new MessageEmbed()
                 .setColor(`${await urlToColours(client.user.avatarURL({ format: "png" }))}`)
                 .setTimestamp()
+                .setThumbnail(message.author.avatarURL({dynamic: true, format: 'png', size: 1024}))
                 .setTitle(`Your saved notifications`)
                 .setFooter(`Notifications marked with (G) is enabled globally.\nNotifications in total: ${listNoti.count}.`)
                 .setDescription(trim(listNoti.rows.map(noti => `${noti.global ? `${noti.content} (G)` : `${noti.content} (${client.guilds.cache.get(`${noti.guildID}`).name ? client.guilds.cache.get(`${noti.guildID}`).name : `Server unreachable`})`}`).join(` | `), 4096))
-                await message.author.send(embed)
+                await message.author.send(embed).catch(error => { console.error(`Could not send noti DM`, error)}) as Message
                 return await message.channel.send(`${message.author} your list of notifications has been sent to your DM's!`)
             } catch {
                 return await message.channel.send(`Notification list hasn't been sent, because I can't send DM's to you.\nPlease check your privacy settings and try again.`)
