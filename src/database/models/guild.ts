@@ -5,6 +5,7 @@ import type { ban, banId } from './ban';
 import type { bye, byeCreationAttributes, byeId } from './bye';
 import type { guildMember, guildMemberId } from './guildMember';
 import type { kick, kickId } from './kick';
+import type { memberLog, memberLogCreationAttributes, memberLogId } from './memberLog';
 import type { messageLog, messageLogCreationAttributes, messageLogId } from './messageLog';
 import type { modLog, modLogCreationAttributes, modLogId } from './modLog';
 import type { mute, muteId } from './mute';
@@ -89,6 +90,11 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   hasKick!: Sequelize.HasManyHasAssociationMixin<kick, kickId>;
   hasKicks!: Sequelize.HasManyHasAssociationsMixin<kick, kickId>;
   countKicks!: Sequelize.HasManyCountAssociationsMixin;
+  // guild hasOne memberLog via guildID
+  memberLog!: memberLog;
+  getMemberLog!: Sequelize.HasOneGetAssociationMixin<memberLog>;
+  setMemberLog!: Sequelize.HasOneSetAssociationMixin<memberLog, memberLogId>;
+  createMemberLog!: Sequelize.HasOneCreateAssociationMixin<memberLogCreationAttributes>;
   // guild hasOne messageLog via guildID
   messageLog!: messageLog;
   getMessageLog!: Sequelize.HasOneGetAssociationMixin<messageLog>;

@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, modLog, user } from '../database/models/init-models';
+import { initModels, memberLog, modLog, user } from '../database/models/init-models';
 import { TextChannel, GuildMember, MessageEmbed } from "discord.js";
 
 export const event: Event = {
@@ -10,15 +10,15 @@ export const event: Event = {
 
         if (oldMember.nickname !== newMember.nickname) {
             try {
-                const log = await modLog.findOne({where: { guildID: oldMember.guild.id}})
-                const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
+                const log = await memberLog.findOne({where: { guildID: oldMember.guild.id}})
+                const memberLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
                 const embed = new MessageEmbed()
                 .setAuthor(`${oldMember.user.username + '#' + oldMember.user.discriminator} (userID: ${oldMember.id})`, oldMember.user.displayAvatarURL())
                 .setColor('#39FF14')
                 .setDescription(`Nickname updated for this user.\n**Previous nickname:**\n${oldMember.nickname}\n**New nickname:**\n${newMember.nickname}`)
                 .setFooter('Updated at')
                 .setTimestamp()
-                await modLogChannel.send(embed)
+                await memberLogChannel.send(embed)
             } catch {
                 return
             }
@@ -26,8 +26,8 @@ export const event: Event = {
 
         if (oldMember.user.avatarURL() !== newMember.user.avatarURL()) {
             try {
-                const log = await modLog.findOne({where: { guildID: oldMember.guild.id}})
-                const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
+                const log = await memberLog.findOne({where: { guildID: oldMember.guild.id}})
+                const memberLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
                 const embed = new MessageEmbed()
                 .setAuthor(`${oldMember.user.username + '#' + oldMember.user.discriminator} (userID: ${oldMember.id})`, oldMember.user.displayAvatarURL())
                 .setThumbnail(newMember.user.avatarURL())
@@ -35,7 +35,7 @@ export const event: Event = {
                 .setDescription(`Avatar updated for this user.\n**Previous avatar:**\n${oldMember.user.avatarURL()}\n**New avatar:**\n${newMember.user.avatarURL()}`)
                 .setFooter('Updated at')
                 .setTimestamp()
-                await modLogChannel.send(embed)
+                await memberLogChannel.send(embed)
             } catch {
                 return
             }
@@ -43,8 +43,8 @@ export const event: Event = {
 
         if (oldMember.user.username !== newMember.user.username) {
             try {
-                const log = await modLog.findOne({where: { guildID: oldMember.guild.id}})
-                const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
+                const log = await memberLog.findOne({where: { guildID: oldMember.guild.id}})
+                const memberLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
                 const embed = new MessageEmbed()
                 .setAuthor(`${oldMember.user.username + '#' + oldMember.user.discriminator} (userID: ${oldMember.id})`, oldMember.user.displayAvatarURL())
                 .setColor('#39FF14')
@@ -52,7 +52,7 @@ export const event: Event = {
                 .setFooter('Updated at')
                 .setTimestamp()
                 await user.update({username: newMember.user.username}, {where: {userID: oldMember.id}})
-                await modLogChannel.send(embed)
+                await memberLogChannel.send(embed)
             } catch {
                 return
             }
@@ -60,8 +60,8 @@ export const event: Event = {
 
         if (oldMember.user.discriminator !== newMember.user.discriminator) {
             try {
-                const log = await modLog.findOne({where: { guildID: oldMember.guild.id}})
-                const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
+                const log = await memberLog.findOne({where: { guildID: oldMember.guild.id}})
+                const memberLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
                 const embed = new MessageEmbed()
                 .setAuthor(`${oldMember.user.username + '#' + oldMember.user.discriminator} (userID: ${oldMember.id})`, oldMember.user.displayAvatarURL())
                 .setColor('#39FF14')
@@ -69,7 +69,7 @@ export const event: Event = {
                 .setFooter('Updated at')
                 .setTimestamp()
                 await user.update({discriminator: newMember.user.discriminator}, {where: {userID: oldMember.id}})
-                await modLogChannel.send(embed)
+                await memberLogChannel.send(embed)
             } catch {
                 return
             }

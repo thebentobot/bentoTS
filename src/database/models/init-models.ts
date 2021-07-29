@@ -19,6 +19,8 @@ import { kick } from "./kick";
 import type { kickAttributes, kickCreationAttributes } from "./kick";
 import { lastfm } from "./lastfm";
 import type { lastfmAttributes, lastfmCreationAttributes } from "./lastfm";
+import { memberLog } from "./memberLog";
+import type { memberLogAttributes, memberLogCreationAttributes } from "./memberLog";
 import { messageLog } from "./messageLog";
 import type { messageLogAttributes, messageLogCreationAttributes } from "./messageLog";
 import { modLog } from "./modLog";
@@ -53,6 +55,7 @@ export {
   horoscope,
   kick,
   lastfm,
+  memberLog,
   messageLog,
   modLog,
   mute,
@@ -87,6 +90,8 @@ export type {
   kickCreationAttributes,
   lastfmAttributes,
   lastfmCreationAttributes,
+  memberLogAttributes,
+  memberLogCreationAttributes,
   messageLogAttributes,
   messageLogCreationAttributes,
   modLogAttributes,
@@ -122,6 +127,7 @@ export function initModels(sequelize: Sequelize) {
   horoscope.initModel(sequelize);
   kick.initModel(sequelize);
   lastfm.initModel(sequelize);
+  memberLog.initModel(sequelize);
   messageLog.initModel(sequelize);
   modLog.initModel(sequelize);
   mute.initModel(sequelize);
@@ -144,6 +150,8 @@ export function initModels(sequelize: Sequelize) {
   guild.hasMany(guildMember, { as: "guildMembers", foreignKey: "guildID"});
   kick.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(kick, { as: "kicks", foreignKey: "guildID"});
+  memberLog.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasOne(memberLog, { as: "memberLog", foreignKey: "guildID"});
   messageLog.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasOne(messageLog, { as: "messageLog", foreignKey: "guildID"});
   modLog.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
@@ -186,6 +194,7 @@ export function initModels(sequelize: Sequelize) {
     horoscope: horoscope,
     kick: kick,
     lastfm: lastfm,
+    memberLog: memberLog,
     messageLog: messageLog,
     modLog: modLog,
     mute: mute,

@@ -11,7 +11,7 @@ export const event: Event = {
         try {
             const log = await modLog.findOne({where: { guildID: channel.guild.id}})
             const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
-            await modLogChannel.send(`A channel called **${channel.name}** under the category **${channel.parent}** was created at **${channel.createdAt}**.\nGet more info in the audit log.`)
+            return await modLogChannel.send(`A channel called **${channel.name}** under the category **${channel.parent}** was created at **${channel.createdAt}**.\nGet more info in the audit log.`)
         } catch {
             return
         }

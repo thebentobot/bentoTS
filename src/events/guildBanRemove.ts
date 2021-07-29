@@ -25,11 +25,11 @@ export const event: Event = {
             .addField('Banned by', guild.members.cache.get(`${banCase.actor}`).nickname ? `${guild.members.cache.get(`${banCase.actor}`).nickname} (${guild.members.cache.get(`${banCase.actor}`).user.username}#${guild.members.cache.get(`${banCase.actor}`).user.discriminator})` : `${guild.members.cache.get(`${banCase.actor}`).user.username}#${guild.members.cache.get(`${banCase.actor}`).user.discriminator}`)
             .setTimestamp();
             logChannel.send(embed);
-            (await client.users.fetch(user.id)).send(`🙏You were \`unbanned\` from **${guild.name}**`)
-            await ban.destroy({where: {guildID: guild.id, userID: user.id}})
+            (await client.users.fetch(user.id)).send(`🙏You were \`unbanned\` from **${guild.name}**`).catch(error => { console.error(`Could not send unban DM`, error)})
+            await ban.destroy({where: {guildID: guild.id, userID: user.id}});
         } catch {
-            (await client.users.fetch(user.id)).send(`🙏You were \`unbanned\` from **${guild.name}**`)
-            await ban.destroy({where: {guildID: guild.id, userID: user.id}})
+            await ban.destroy({where: {guildID: guild.id, userID: user.id}});
+            (await client.users.fetch(user.id)).send(`🙏You were \`unbanned\` from **${guild.name}**`).catch(error => { console.error(`Could not send unban DM`, error)})
         }
     }
 }
