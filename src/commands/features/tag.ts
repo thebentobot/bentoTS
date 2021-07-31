@@ -428,7 +428,7 @@ export const command: Command = {
                 commands = tagData.rows
                 commandCount = tagData.count
                 if (tagData === null) {
-                    return message.channel.send(`Your mentioned user ${mentionedUser.nickname ? `${mentionedUser.nickname} (${mentionedUser.user.username + '#' + mentionedUser.user.discriminator})` : mentionedUser.user.username + '#' + mentionedUser.user.discriminator} hasn't created any tags.`)
+                    return message.channel.send(`Your mentioned user ${Util.removeMentions(mentionedUser.nickname) ? `${Util.removeMentions(mentionedUser.nickname)} (${mentionedUser.user.username + '#' + mentionedUser.user.discriminator})` : mentionedUser.user.username + '#' + mentionedUser.user.discriminator} hasn't created any tags.`)
                 }
             } catch {
                 try {

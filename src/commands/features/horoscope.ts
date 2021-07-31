@@ -2,7 +2,7 @@ import { Command } from '../../interfaces';
 import { capitalize, horoSigns, horoSignsLow, urlToColours } from '../../utils';
 import database from '../../database/database';
 import { initModels, guild, horoscope, horoscopeCreationAttributes} from '../../database/models/init-models';
-import { Message, MessageEmbed, GuildMember } from 'discord.js';
+import { Message, MessageEmbed, GuildMember, Util } from 'discord.js';
 //const aztroJs = require("aztro-js");
 import * as aztroJs from 'aztro-js'
 import chroma from 'chroma-js'
@@ -72,7 +72,7 @@ export const command: Command = {
             }
             try {
                 await horoscope.create(horoAttr)
-                return message.channel.send(`${message.author.username} your horoscope \`${capitalize(sign)}\` was saved!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was saved!\nYou can now use horoscope commands without signs, to see your horoscope.`)
             } catch {
                 return message.channel.send(`Database error, couldn't save your horoscope. I am sorry :-(`)
             }

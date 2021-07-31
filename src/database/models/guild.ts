@@ -1,6 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { autoRole, autoRoleId } from './autoRole';
+import type { availableRolesGuild, availableRolesGuildId } from './availableRolesGuild';
 import type { ban, banId } from './ban';
 import type { bye, byeCreationAttributes, byeId } from './bye';
 import type { guildMember, guildMemberId } from './guildMember';
@@ -10,6 +11,9 @@ import type { messageLog, messageLogCreationAttributes, messageLogId } from './m
 import type { modLog, modLogCreationAttributes, modLogId } from './modLog';
 import type { mute, muteId } from './mute';
 import type { muteRole, muteRoleCreationAttributes, muteRoleId } from './muteRole';
+import type { role, roleId } from './role';
+import type { roleChannel, roleChannelCreationAttributes, roleChannelId } from './roleChannel';
+import type { roleMessages, roleMessagesCreationAttributes, roleMessagesId } from './roleMessages';
 import type { tag, tagId } from './tag';
 import type { warning, warningId } from './warning';
 import type { welcome, welcomeCreationAttributes, welcomeId } from './welcome';
@@ -49,6 +53,18 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   hasAutoRole!: Sequelize.HasManyHasAssociationMixin<autoRole, autoRoleId>;
   hasAutoRoles!: Sequelize.HasManyHasAssociationsMixin<autoRole, autoRoleId>;
   countAutoRoles!: Sequelize.HasManyCountAssociationsMixin;
+  // guild hasMany availableRolesGuild via guildID
+  availableRolesGuilds!: availableRolesGuild[];
+  getAvailableRolesGuilds!: Sequelize.HasManyGetAssociationsMixin<availableRolesGuild>;
+  setAvailableRolesGuilds!: Sequelize.HasManySetAssociationsMixin<availableRolesGuild, availableRolesGuildId>;
+  addAvailableRolesGuild!: Sequelize.HasManyAddAssociationMixin<availableRolesGuild, availableRolesGuildId>;
+  addAvailableRolesGuilds!: Sequelize.HasManyAddAssociationsMixin<availableRolesGuild, availableRolesGuildId>;
+  createAvailableRolesGuild!: Sequelize.HasManyCreateAssociationMixin<availableRolesGuild>;
+  removeAvailableRolesGuild!: Sequelize.HasManyRemoveAssociationMixin<availableRolesGuild, availableRolesGuildId>;
+  removeAvailableRolesGuilds!: Sequelize.HasManyRemoveAssociationsMixin<availableRolesGuild, availableRolesGuildId>;
+  hasAvailableRolesGuild!: Sequelize.HasManyHasAssociationMixin<availableRolesGuild, availableRolesGuildId>;
+  hasAvailableRolesGuilds!: Sequelize.HasManyHasAssociationsMixin<availableRolesGuild, availableRolesGuildId>;
+  countAvailableRolesGuilds!: Sequelize.HasManyCountAssociationsMixin;
   // guild hasMany ban via guildID
   bans!: ban[];
   getBans!: Sequelize.HasManyGetAssociationsMixin<ban>;
@@ -122,6 +138,28 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   getMuteRole!: Sequelize.HasOneGetAssociationMixin<muteRole>;
   setMuteRole!: Sequelize.HasOneSetAssociationMixin<muteRole, muteRoleId>;
   createMuteRole!: Sequelize.HasOneCreateAssociationMixin<muteRoleCreationAttributes>;
+  // guild hasMany role via guildID
+  roles!: role[];
+  getRoles!: Sequelize.HasManyGetAssociationsMixin<role>;
+  setRoles!: Sequelize.HasManySetAssociationsMixin<role, roleId>;
+  addRole!: Sequelize.HasManyAddAssociationMixin<role, roleId>;
+  addRoles!: Sequelize.HasManyAddAssociationsMixin<role, roleId>;
+  createRole!: Sequelize.HasManyCreateAssociationMixin<role>;
+  removeRole!: Sequelize.HasManyRemoveAssociationMixin<role, roleId>;
+  removeRoles!: Sequelize.HasManyRemoveAssociationsMixin<role, roleId>;
+  hasRole!: Sequelize.HasManyHasAssociationMixin<role, roleId>;
+  hasRoles!: Sequelize.HasManyHasAssociationsMixin<role, roleId>;
+  countRoles!: Sequelize.HasManyCountAssociationsMixin;
+  // guild hasOne roleChannel via guildID
+  roleChannel!: roleChannel;
+  getRoleChannel!: Sequelize.HasOneGetAssociationMixin<roleChannel>;
+  setRoleChannel!: Sequelize.HasOneSetAssociationMixin<roleChannel, roleChannelId>;
+  createRoleChannel!: Sequelize.HasOneCreateAssociationMixin<roleChannelCreationAttributes>;
+  // guild hasOne roleMessages via guildID
+  roleMessage!: roleMessages;
+  getRoleMessage!: Sequelize.HasOneGetAssociationMixin<roleMessages>;
+  setRoleMessage!: Sequelize.HasOneSetAssociationMixin<roleMessages, roleMessagesId>;
+  createRoleMessage!: Sequelize.HasOneCreateAssociationMixin<roleMessagesCreationAttributes>;
   // guild hasMany tag via guildID
   tags!: tag[];
   getTags!: Sequelize.HasManyGetAssociationsMixin<tag>;

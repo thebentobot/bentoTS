@@ -1,5 +1,5 @@
 import { Event, Command } from '../interfaces';
-import { Message, MessageEmbed, User } from 'discord.js';
+import { GuildMember, Message, MessageEmbed, Role, User, Util } from 'discord.js';
 import database from '../database/database';
 
 import { checkURL } from '../utils/checkURL';
@@ -7,11 +7,13 @@ import { tiktokEmbedding } from '../utils/tiktok';
 import { addXpServer, addXpGlobal } from '../utils/xp'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
-import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember } from '../database/models/init-models';
+import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember, roleChannel, role as roleDB } from '../database/models/init-models';
 import { QueryTypes } from 'sequelize';
 import { urlToColours } from '../utils';
 import moment from 'moment';
 import _ from 'lodash';
+import { performance } from 'perf_hooks';
+import { roleManagement } from '../commands/admin/role';
 
 export const event: Event = {
     name: 'message',
@@ -106,6 +108,14 @@ export const event: Event = {
         }
 
         const prefix = messageGuild.prefix
+
+        const roleChannelData = await roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
+
+        if (roleChannelData) {
+            if (`${roleChannelData.channelID}` === message.channel.id) {
+                await roleManagement(message)
+            }
+        }
 
         if (!message.content.startsWith(prefix)) return
 

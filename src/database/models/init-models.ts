@@ -1,6 +1,8 @@
 import type { Sequelize, Model } from "sequelize";
 import { autoRole } from "./autoRole";
 import type { autoRoleAttributes, autoRoleCreationAttributes } from "./autoRole";
+import { availableRolesGuild } from "./availableRolesGuild";
+import type { availableRolesGuildAttributes, availableRolesGuildCreationAttributes } from "./availableRolesGuild";
 import { ban } from "./ban";
 import type { banAttributes, banCreationAttributes } from "./ban";
 import { bento } from "./bento";
@@ -33,6 +35,12 @@ import { notificationMessage } from "./notificationMessage";
 import type { notificationMessageAttributes, notificationMessageCreationAttributes } from "./notificationMessage";
 import { reminder } from "./reminder";
 import type { reminderAttributes, reminderCreationAttributes } from "./reminder";
+import { role } from "./role";
+import type { roleAttributes, roleCreationAttributes } from "./role";
+import { roleChannel } from "./roleChannel";
+import type { roleChannelAttributes, roleChannelCreationAttributes } from "./roleChannel";
+import { roleMessages } from "./roleMessages";
+import type { roleMessagesAttributes, roleMessagesCreationAttributes } from "./roleMessages";
 import { tag } from "./tag";
 import type { tagAttributes, tagCreationAttributes } from "./tag";
 import { user } from "./user";
@@ -46,6 +54,7 @@ import type { welcomeAttributes, welcomeCreationAttributes } from "./welcome";
 
 export {
   autoRole,
+  availableRolesGuild,
   ban,
   bento,
   bye,
@@ -62,6 +71,9 @@ export {
   muteRole,
   notificationMessage,
   reminder,
+  role,
+  roleChannel,
+  roleMessages,
   tag,
   user,
   warning,
@@ -72,6 +84,8 @@ export {
 export type {
   autoRoleAttributes,
   autoRoleCreationAttributes,
+  availableRolesGuildAttributes,
+  availableRolesGuildCreationAttributes,
   banAttributes,
   banCreationAttributes,
   bentoAttributes,
@@ -104,6 +118,12 @@ export type {
   notificationMessageCreationAttributes,
   reminderAttributes,
   reminderCreationAttributes,
+  roleAttributes,
+  roleCreationAttributes,
+  roleChannelAttributes,
+  roleChannelCreationAttributes,
+  roleMessagesAttributes,
+  roleMessagesCreationAttributes,
   tagAttributes,
   tagCreationAttributes,
   userAttributes,
@@ -118,6 +138,7 @@ export type {
 
 export function initModels(sequelize: Sequelize) {
   autoRole.initModel(sequelize);
+  availableRolesGuild.initModel(sequelize);
   ban.initModel(sequelize);
   bento.initModel(sequelize);
   bye.initModel(sequelize);
@@ -134,6 +155,9 @@ export function initModels(sequelize: Sequelize) {
   muteRole.initModel(sequelize);
   notificationMessage.initModel(sequelize);
   reminder.initModel(sequelize);
+  role.initModel(sequelize);
+  roleChannel.initModel(sequelize);
+  roleMessages.initModel(sequelize);
   tag.initModel(sequelize);
   user.initModel(sequelize);
   warning.initModel(sequelize);
@@ -142,6 +166,8 @@ export function initModels(sequelize: Sequelize) {
 
   autoRole.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(autoRole, { as: "autoRoles", foreignKey: "guildID"});
+  availableRolesGuild.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasMany(availableRolesGuild, { as: "availableRolesGuilds", foreignKey: "guildID"});
   ban.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(ban, { as: "bans", foreignKey: "guildID"});
   bye.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
@@ -160,6 +186,12 @@ export function initModels(sequelize: Sequelize) {
   guild.hasMany(mute, { as: "mutes", foreignKey: "guildID"});
   muteRole.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasOne(muteRole, { as: "muteRole", foreignKey: "guildID"});
+  role.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasMany(role, { as: "roles", foreignKey: "guildID"});
+  roleChannel.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasOne(roleChannel, { as: "roleChannel", foreignKey: "guildID"});
+  roleMessages.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasOne(roleMessages, { as: "roleMessage", foreignKey: "guildID"});
   tag.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(tag, { as: "tags", foreignKey: "guildID"});
   warning.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
@@ -185,6 +217,7 @@ export function initModels(sequelize: Sequelize) {
 
   return {
     autoRole: autoRole,
+    availableRolesGuild: availableRolesGuild,
     ban: ban,
     bento: bento,
     bye: bye,
@@ -201,6 +234,9 @@ export function initModels(sequelize: Sequelize) {
     muteRole: muteRole,
     notificationMessage: notificationMessage,
     reminder: reminder,
+    role: role,
+    roleChannel: roleChannel,
+    roleMessages: roleMessages,
     tag: tag,
     user: user,
     warning: warning,

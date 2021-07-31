@@ -31,7 +31,6 @@ export const command: Command = {
         let userID = args[0]
         const user = message.mentions.members.first() || await message.guild.members.fetch(userID)
         if (user) {
-            const colour = await urlToColours(user.user.avatarURL({ format: 'png'}))
             const embed = new MessageEmbed()
             .setColor(`${await urlToColours(user.user.avatarURL({ format: 'png'}))}`)
             .setTitle(`Profile for ${user.user.username + '#' + user.user.discriminator}`)
@@ -48,6 +47,24 @@ export const command: Command = {
                 { name: 'All roles', value: trim(user.roles.cache.map(r => `${r}`).join(' | '), 1024), inline: true},
             )
             return message.channel.send(embed)
+        } else {
+            try {
+                const globalUser = await client.users.fetch(userID)
+                if (globalUser.bot === true) return
+                const embed = new MessageEmbed()
+                .setColor(`${await urlToColours(globalUser.avatarURL({ format: 'png'}))}`)
+                .setTitle(`Profile for ${globalUser.username + '#' + globalUser.discriminator}`)
+                .setThumbnail(globalUser.avatarURL({ format: 'png', dynamic: true }))
+                .setTimestamp()
+                .addFields(
+                    { name: 'Status', value: globalUser.presence.status, inline: true},
+                    { name: 'User ID', value: globalUser.id},
+                    { name: 'Account created at', value: globalUser.createdAt},
+                )
+                return message.channel.send(embed)
+            } catch {
+                return message.channel.send('This user does not exist in our system.')
+            }
         }
     }
 }

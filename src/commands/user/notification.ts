@@ -8,8 +8,8 @@ export const command: Command = {
     name: 'notification',
     aliases: ['noti', 'notify'],
     category: 'user',
-    description: 'Link to the Bento GitHub organisation',
-    usage: 'github',
+    description: 'Get a notification when someone mentions a specific word or sentence. You can enable it for the server you write the command from, or enable it globally to get it from all servers who has Bento.',
+    usage: ' is the prefix.\n**notification add <content>** to add content to be notified by. Add \'\'--global\'\' if you want to get notified when someone mentions the word on all Bento servers.\n**notification delete <content>** to delete the saved notification.\n**notification list** to get a DM with a list of all your saved notifications.\n**notification global <content>** to enable/disable global notifications for a saved notification.',
     run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'add') {
             return addNoti (message, args.slice(1).join(' '))
