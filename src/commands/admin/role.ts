@@ -295,7 +295,7 @@ export const command: Command = {
                     }
                     const roleCheck = await role.findAndCountAll({raw: true, where: {guildID: message.guild.id, roleName: roleData.roleName, type: roleData.type}})
                     if (roleCheck.count === 0) {
-                        const availableRoleData = availableRolesGuild.findOne({raw: true, where: {guildID: message.guild.id, role: roleData.roleName, type: roleData.type}})
+                        const availableRoleData = await availableRolesGuild.findOne({raw: true, where: {guildID: message.guild.id, role: roleData.roleName, type: roleData.type}})
                         if (availableRoleData === null) {
                             availableRolesNotExisting.push(roleData.roleName)
                         } else {
@@ -334,7 +334,7 @@ export const command: Command = {
                 return message.channel.send(`You haven't written a message for your role management channel.\nWrite a message by using\`${guildData.prefix}role message <content>\``)
             }
 
-            const channelData = roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
+            const channelData = await roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
 
             if (channelData === null) {
                 const getChannel = client.channels.cache.get(channelID) as TextChannel
