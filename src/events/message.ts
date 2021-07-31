@@ -111,7 +111,7 @@ export const event: Event = {
 
         const roleChannelData = await roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
 
-        if (roleChannelData) {
+        if (roleChannelData !== null) {
             if (`${roleChannelData.channelID}` === message.channel.id) {
                 await roleManagement(message)
             }

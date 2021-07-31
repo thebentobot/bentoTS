@@ -154,21 +154,21 @@ export const command: Command = {
 
             const roleMessageData = roleMessages.findOne({raw: true, where: {guildID: message.guild.id}})
 
-            if (roleMessageData) {
-                try {
-                    await roleMessages.update({message: content}, {where: {guildID: message.guild.id}})
-                    return message.channel.send(`The message for your role management channel has been updated.`)   
-                } catch {
-                    return
-                }
-            } else {
+            if (roleMessageData === null) {
                 const roleMessageAttr: roleMessagesCreationAttributes = {
                     guildID: BigInt(message.guild.id),
                     message: content
                 }
     
                 await roleMessages.create(roleMessageAttr)
-                return message.channel.send(`The message for your role management channel has been set.`)   
+                return message.channel.send(`The message for your role management channel has been set.`)
+            } else {
+                try {
+                    await roleMessages.update({message: content}, {where: {guildID: message.guild.id}})
+                    return message.channel.send(`The message for your role management channel has been updated.`)   
+                } catch {
+                    return
+                }   
             }
         }
 
@@ -286,21 +286,21 @@ export const command: Command = {
                     errors.push(roleCommand);
                 } else {
                     const roleData = await role.findOne({where: {roleCommand: roleCommand, guildID: message.guild.id, type: type}})
-                    if (!roleData) {
+                    if (roleData === null) {
                         rolesNotExisting.push(roleCommand)
                     }
                     const removed = await role.destroy({where: {roleCommand: roleCommand, guildID: message.guild.id, type: type}})
-                    if (removed) {
+                    if (removed > 0) {
                         rolesRemoved.push(roleCommand);
                     }
                     const roleCheck = await role.findAndCountAll({raw: true, where: {guildID: message.guild.id, roleName: roleData.roleName, type: roleData.type}})
                     if (roleCheck.count === 0) {
                         const availableRoleData = availableRolesGuild.findOne({raw: true, where: {guildID: message.guild.id, role: roleData.roleName, type: roleData.type}})
-                        if (availableRoleData) {
+                        if (availableRoleData === null) {
+                            availableRolesNotExisting.push(roleData.roleName)
+                        } else {
                             await availableRolesGuild.destroy({where: {guildID: message.guild.id, role: roleData.roleName, type: roleData.type}})
                             availableRolesRemoved.push(roleData.roleName)
-                        } else {
-                            availableRolesNotExisting.push(roleData.roleName)
                         }
                     }
                 }
@@ -330,21 +330,13 @@ export const command: Command = {
             }
 
             const messageData = await roleMessages.findOne({raw: true, where: {guildID: message.guild.id}})
-            if (!messageData || !messageData.message) {
+            if (messageData === null) {
                 return message.channel.send(`You haven't written a message for your role management channel.\nWrite a message by using\`${guildData.prefix}role message <content>\``)
             }
 
             const channelData = roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
 
-            if (channelData) {
-                const getChannel = client.channels.cache.get(channelID) as TextChannel
-                const embed: MessageEmbed = await roleListEmbed(message)
-                const msg = await getChannel.send(messageData.message, embed)
-
-                await roleMessages.update({messageID: BigInt(msg.id)}, {where: {guildID: message.guild.id}})
-                await roleChannel.update({channelID: BigInt(channelID)}, {where: {guildID: message.guild.id}})
-                return message.channel.send(`Roles channel updated to <#${channelID}>`)
-            } else {
+            if (channelData === null) {
                 const getChannel = client.channels.cache.get(channelID) as TextChannel
                 const embed: MessageEmbed = await roleListEmbed(message)
                 const msg = await getChannel.send(messageData.message, embed)
@@ -357,20 +349,28 @@ export const command: Command = {
                 await roleMessages.update({messageID: BigInt(msg.id)}, {where: {guildID: message.guild.id}})
                 await roleChannel.create(roleChannelAttr)
                 return message.channel.send(`Roles channel set to <#${channelID}>`)
+            } else {
+                const getChannel = client.channels.cache.get(channelID) as TextChannel
+                const embed: MessageEmbed = await roleListEmbed(message)
+                const msg = await getChannel.send(messageData.message, embed)
+
+                await roleMessages.update({messageID: BigInt(msg.id)}, {where: {guildID: message.guild.id}})
+                await roleChannel.update({channelID: BigInt(channelID)}, {where: {guildID: message.guild.id}})
+                return message.channel.send(`Roles channel updated to <#${channelID}>`)
             }
         }
 
         async function rolesChannelUpdate (message: Message) {
             const messageData = await roleMessages.findOne({raw: true, where: {guildID: message.guild.id}})
 
-            if (!messageData || !messageData.message) {
+            if (messageData === null) {
                 return await message.channel.send(`No roles channel message assigned.`)
             }
 
             const messageID = messageData.messageID
             const MessageContent = messageData.message
             const channelData = await roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
-            if (!channelData) {
+            if (channelData === null) {
                 return await message.channel.send(`No roles channel assigned.`)
             }
             const channelID = channelData.channelID
