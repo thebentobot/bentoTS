@@ -152,7 +152,7 @@ export const command: Command = {
                 return message.channel.send(`You haven't written a message for your role management channel.\nWrite a message by using\`${guildData.prefix}role message <content>\``)
             }
 
-            const roleMessageData = roleMessages.findOne({raw: true, where: {guildID: message.guild.id}})
+            const roleMessageData = await roleMessages.findOne({raw: true, where: {guildID: message.guild.id}})
 
             if (roleMessageData === null) {
                 const roleMessageAttr: roleMessagesCreationAttributes = {
