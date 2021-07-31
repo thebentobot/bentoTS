@@ -872,7 +872,6 @@ export const command: Command = {
                     let cover;
                     await spotifyCred.searchArtists(artist, {limit: 1}).then(function(data) {
                         cover = data
-                        console.log(cover.body.artists.items[0].images[0].url)
                     }, function (err) {
                         console.error(err);
                     })
@@ -1162,7 +1161,6 @@ export const command: Command = {
             });
 
             playData.slice(0, 9);
-            console.log(playData)
 
             const embeds = generateGwktEmbed(playData)
             await message.channel.send(await embeds);

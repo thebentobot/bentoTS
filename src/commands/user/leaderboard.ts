@@ -18,15 +18,14 @@ export const command: Command = {
         if (args[0] === 'global') {
             return globalLeaderboard (message)
         }
+
+        if (args[0] === 'bento' && args[1] === 'global') {
+          return bentoGlobalLeaderboard (message)
+        }
         
         if (args[0] === 'bento') {
             return bentoServerLeaderboard (message)
         }
-        
-        if (args[0] === 'bento' && args[1] === 'global') {
-            return bentoGlobalLeaderboard (message)
-        }
-        
 
         async function serverLeaderboard (message: Message) {
             interface Rankings {

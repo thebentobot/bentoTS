@@ -26,7 +26,7 @@ export const command: Command = {
             try {
                 const modLogData = await modLog.findOne({raw: true, where: {guildID: message.guild.id}});
                 return message.channel.send(`
-            The mod Log is currently \`enabled\` on this server.\nThe mod Log  channel on this server is currently in <#${modLogData.channel}>.`);
+            The mod Log is currently \`enabled\` on this server.\nThe mod Log channel on this server is currently in <#${modLogData.channel}>.`);
             } catch {
                 return message.channel.send(`This server doesn't have a mod log.\nUse \`${guildData.prefix}help modlog\` to see how to setup a mod log for this server.`)
             }

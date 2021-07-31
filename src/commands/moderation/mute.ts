@@ -181,7 +181,7 @@ export const command: Command = {
     
             initModels(database);
     
-            const muted = await mute.findOrCreate({raw: true, where: {userID: mutedUserID, guildID: message.guild.id}, defaults: muteAttr})
+            const muted = await mute.findOrCreate({raw: true, where: {userID: mutedUserID, guildID: message.guild.id, MuteStatus: true}, defaults: muteAttr})
 
             if (muted[1] === false) {
                 return message.channel.send(`${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`} is already muted on this server.\nThe case number for this mute is: \`${muted[0].muteCase}\` if you want to look up details for this mute use the case check command.`);

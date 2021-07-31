@@ -19,7 +19,7 @@ export const command: Command = {
         }
 
         if (args[0] === 'server') {
-            if (message.guild.iconURL() === null) return
+            if (message.guild.iconURL() === null) return message.channel.send('This server does not have an icon/avatar')
             const embed = new MessageEmbed()
                 .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}))}`)
                 .setTitle(`${message.guild.name}'s avatar`)
@@ -29,7 +29,7 @@ export const command: Command = {
         }
 
         if (args[0] === 'banner') {
-            if (message.guild.bannerURL() === null) return
+            if (message.guild.bannerURL() === null) return message.channel.send('This server does not have a banner')
             const embed = new MessageEmbed()
                 .setColor(`${await urlToColours(message.guild.bannerURL({ format: 'png'}))}`)
                 .setTitle(`${message.guild.name}'s banner`)
@@ -47,6 +47,19 @@ export const command: Command = {
                 .setImage(user.user.avatarURL({ format: 'png', size: 1024, dynamic: true }))
                 .setTimestamp()
             return message.channel.send(embed)
+        } else {
+            try {
+                const globalUser = await client.users.fetch(userID)
+                if (globalUser.bot === true) return
+                const embed = new MessageEmbed()
+                .setColor(`${await urlToColours(globalUser.avatarURL({ format: 'png'}))}`)
+                .setTitle(`${globalUser.username + '#' + globalUser.discriminator}'s avatar`)
+                .setImage(globalUser.avatarURL({ format: 'png', size: 1024, dynamic: true }))
+                .setTimestamp()
+                return message.channel.send(embed)
+            } catch {
+                return message.channel.send('This user does not exist in our system.')
+            }
         }
     }
 }
