@@ -43,6 +43,13 @@ export const event: Event = {
         await user.findOrCreate({where: {userID: message.author.id}, defaults: userAttr})
         await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
 
+        const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
+
+        if (messageGuild.leaderboard === true) {
+            await addXpServer(message.guild.id, message.author.id, 23).catch();
+            await addXpGlobal(message.author.id, 23).catch();
+        }
+
         interface notificationValues {
             id: number,
             userID: bigint,
@@ -89,9 +96,6 @@ export const event: Event = {
                 }
             }
         }
-
-        // finds prefix by guildID
-        const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
 
         if (message.content.includes('tiktok.com')) {
             if (messageGuild.tiktok == false) {
@@ -316,12 +320,13 @@ export const event: Event = {
                         })
                   }
 
-                  if (message.guild.memberCount <= 10) {
+                  if (message.guild.memberCount <= 10 && !instagramUsedSmallGuild.has(message.author.id)) {
                       instagramUsedSmallGuild.add(message.author.id)
                       setTimeout(() => {
                           instagramUsedSmallGuild.delete(message.author.id)
                       }, 600000) // 10 minutes
-                  } else if (message.guild.memberCount > 10) {
+                  } 
+                  if (message.guild.memberCount > 10 && !instagramUsed.has(message.author.id)) {
                       instagramUsed.add(message.author.id)
                       setTimeout(() => {
                         instagramUsedSmallGuild.delete(message.author.id)
@@ -330,11 +335,6 @@ export const event: Event = {
             } catch {
                 return
             }
-        }
-
-        if (messageGuild.leaderboard === true) {
-            await addXpServer(message.guild.id, message.author.id, 23).catch();
-            await addXpGlobal(message.author.id, 23).catch();
         }
 
         const prefix = messageGuild.prefix

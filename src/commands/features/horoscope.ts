@@ -60,15 +60,13 @@ export const command: Command = {
             userID = message.author.id
             
             if (horoSigns.includes(input) || horoSignsLow.includes(input)) {
-                sign = input
+                sign = capitalize(input)
             } else {
                 const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
                 return message.channel.send(`Your request was invalid. You wrote the wrong sign or misspelled the sign.\nUse \`${guildData.prefix}signs\` to see a list of horoscopes, or \`${guildData.prefix}help horoscope\` for help with your request.`)
             }
 
             let horoAttr: horoscopeCreationAttributes
-
-            capitalize(sign)
 
             if (sign === 'Aries') {
                 horoAttr = {
@@ -204,8 +202,9 @@ export const command: Command = {
                         await horoscope.update({horoscope: 'Virgo'}, {where: {userID: message.author.id}})
                         return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
                     }
+                } else {
+                    return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was saved!\nYou can now use horoscope commands without signs, to see your horoscope.`)
                 }
-                return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was saved!\nYou can now use horoscope commands without signs, to see your horoscope.`)
             } catch {
                 return message.channel.send(`Database error, couldn't save your horoscope. I am sorry :-(`)
             }

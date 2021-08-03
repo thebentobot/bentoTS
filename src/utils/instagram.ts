@@ -14,7 +14,7 @@ export async function instagramEmbedding(URL: string): Promise<any> {
         }
         const openData = data.graphql.shortcode_media
         return openData
-    } catch {
-        return;
+    } catch (err) {
+        return console.log(err);
     };
 };
