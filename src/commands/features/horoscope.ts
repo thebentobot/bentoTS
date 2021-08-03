@@ -66,12 +66,145 @@ export const command: Command = {
                 return message.channel.send(`Your request was invalid. You wrote the wrong sign or misspelled the sign.\nUse \`${guildData.prefix}signs\` to see a list of horoscopes, or \`${guildData.prefix}help horoscope\` for help with your request.`)
             }
 
-            const horoAttr: horoscopeCreationAttributes = {
-                userID: BigInt(userID),
-                horoscope: horoscope[capitalize(sign)]
+            let horoAttr: horoscopeCreationAttributes
+
+            capitalize(sign)
+
+            if (sign === 'Aries') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Aries'
+                }
+            }
+
+            if (sign === 'Aquarius') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Aquarius'
+                }
+            }
+
+            if (sign === 'Cancer') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Cancer'
+                }
+            }
+
+            if (sign === 'Capricorn') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Capricorn'
+                }
+            }
+
+            if (sign === 'Gemini') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Gemini'
+                }
+            }
+
+            if (sign === 'Leo') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Leo'
+                }
+            }
+
+            if (sign === 'Libra') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Libra'
+                }
+            }
+
+            if (sign === 'Pisces') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Pisces'
+                }
+            }
+
+            if (sign === 'Sagittarius') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Sagittarius'
+                }
+            }
+
+            if (sign === 'Scorpio') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Scorpio'
+                }
+            }
+
+            if (sign === 'Taurus') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Taurus'
+                }
+            }
+
+            if (sign === 'Virgo') {
+                horoAttr = {
+                    userID: BigInt(userID),
+                    horoscope: 'Virgo'
+                }
             }
             try {
-                await horoscope.create(horoAttr)
+                const horoscopeData = await horoscope.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: horoAttr})
+                if (horoscopeData[1] === false) {
+                    if (sign === 'Aries') {
+                        await horoscope.update({horoscope: 'Aries'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Aquarius') {
+                        await horoscope.update({horoscope: 'Aquarius'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Cancer') {
+                        await horoscope.update({horoscope: 'Cancer'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Capricorn') {
+                        await horoscope.update({horoscope: 'Capricorn'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Gemini') {
+                        await horoscope.update({horoscope: 'Gemini'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Leo') {
+                        await horoscope.update({horoscope: 'Leo'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Libra') {
+                        await horoscope.update({horoscope: 'Libra'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Pisces') {
+                        await horoscope.update({horoscope: 'Pisces'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Sagittarius') {
+                        await horoscope.update({horoscope: 'Sagittarius'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Scorpio') {
+                        await horoscope.update({horoscope: 'Scorpio'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Taurus') {
+                        await horoscope.update({horoscope: 'Taurus'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                    if (sign === 'Virgo') {
+                        await horoscope.update({horoscope: 'Virgo'}, {where: {userID: message.author.id}})
+                        return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was updated!\nYou can now use horoscope commands without signs, to see your horoscope.`)
+                    }
+                }
                 return message.channel.send(`${message.author} your horoscope \`${capitalize(sign)}\` was saved!\nYou can now use horoscope commands without signs, to see your horoscope.`)
             } catch {
                 return message.channel.send(`Database error, couldn't save your horoscope. I am sorry :-(`)

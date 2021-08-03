@@ -44,6 +44,7 @@ newToken()
 
 setInterval(newToken, 3600000)
 
+
 export const command: Command = {
     name: 'lastfm',
     aliases: ['fm', 'lf'],
