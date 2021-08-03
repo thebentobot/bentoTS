@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, guild as DbGuild, welcome, tag, modLog, messageLog, guildMember, bye, muteRole, autoRole, caseGlobal, ban, kick, mute, warning, memberLog } from '../database/models/init-models';
+import { initModels, guild as DbGuild, welcome, tag, modLog, messageLog, guildMember, bye, muteRole, autoRole, caseGlobal, ban, kick, mute, warning, memberLog, role, roleChannel, availableRolesGuild, roleMessages } from '../database/models/init-models';
 import { Guild } from "discord.js"
 
 export const event: Event = {
@@ -22,6 +22,10 @@ export const event: Event = {
         await kick.destroy({where: {guildID: guild.id}});
         await mute.destroy({where: {guildID: guild.id}});
         await warning.destroy({where: {guildID: guild.id}});
+        await role.destroy({where: {guildID: guild.id}});
+        await roleChannel.destroy({where: {guildID: guild.id}});
+        await availableRolesGuild.destroy({where: {guildID: guild.id}});
+        await roleMessages.destroy({where: {guildID: guild.id}});
         await DbGuild.destroy({where: { guildID: guild.id }});
     }
 }

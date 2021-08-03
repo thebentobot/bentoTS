@@ -157,7 +157,11 @@ export const command: Command = {
             }
 
             const embeds = await generateCaseEmbedding(reminderData)
-            embeds.forEach(async embed => await client.users.cache.get(message.author.id).send(embed))
+            try {
+                embeds.forEach(async embed => await client.users.cache.get(message.author.id).send(embed))
+            } catch (err) {
+                return message.channel.send(`Reminder list hasn't been sent, because I can't send DM's to you.\nPlease check your privacy settings and try again.`)
+            }
 
             async function generateCaseEmbedding (input) {
                 const embeds = [];

@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, modLog, messageLog, welcome, bye, guild, memberLog } from '../database/models/init-models';
+import { initModels, modLog, messageLog, welcome, bye, guild, memberLog, roleChannel } from '../database/models/init-models';
 import { TextChannel, GuildChannel } from "discord.js"
 
 export const event: Event = {
@@ -14,6 +14,7 @@ export const event: Event = {
         const modLogData = await modLog.findOne({where: { channel: channel.id}});
         const welcomeData = await welcome.findOne({where: { channel: channel.id}});
         const byeData = await bye.findOne({where: { channel: channel.id}});
+        const roleData = await roleChannel.findOne({where: {channelID: channel.id}})
 
         if (messageLogData && modLogData) {
             await messageLog.destroy({where: { channel: channel.id}});
@@ -40,7 +41,14 @@ export const event: Event = {
             await memberLog.destroy({where: { channel: channel.id}});
             const log = await modLog.findOne({where: { guildID: channel.guild.id}});
             const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
-            await modLogChannel.send(`The deleted channel called **${channel.name}** was a **bye channel** and has been deleted from Bento's database.\nIf you want a new bye channel and bye message, please use ${guildData.prefix}bye again.`)
+            await modLogChannel.send(`The deleted channel called **${channel.name}** was a **member log channel** and has been deleted from Bento's database.\nIf you want a new member log channel, please use ${guildData.prefix}memberlog again.`)
+        }
+
+        if (roleData && modLogData) {
+            await roleChannel.destroy({where: { channelID: channel.id}});
+            const log = await modLog.findOne({where: { guildID: channel.guild.id}});
+            const modLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
+            await modLogChannel.send(`The deleted channel called **${channel.name}** was a **role channel** and has been deleted from Bento's database.\nIf you want a new role channel and role functionality, please use ${guildData.prefix}role again.`)
         }
 
         try {

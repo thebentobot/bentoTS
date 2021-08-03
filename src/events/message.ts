@@ -11,11 +11,12 @@ import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreati
 import { QueryTypes } from 'sequelize';
 import { trim, urlToColours } from '../utils';
 import moment from 'moment';
-import _ from 'lodash';
-import { performance } from 'perf_hooks';
 import { roleManagement } from '../commands/admin/role';
 import { instagramEmbedding } from '../utils/instagram';
 import fetch from 'node-fetch';
+
+const instagramUsed = new Set();
+const instagramUsedSmallGuild = new Set();
 
 export const event: Event = {
     name: 'message',
@@ -49,13 +50,15 @@ export const event: Event = {
             content: string,
             global: boolean
         }
+
+        let notiMessage = message.content.replace('%', '').replace('_', '').replace('__', '').split(' ')
         
         const notificationData: Array<notificationValues> = await database.query(`
         SELECT *
         FROM "notificationMessage"
         WHERE content ILIKE ANY(ARRAY [:content]);`, {
             type: QueryTypes.SELECT,
-            replacements: { content: message.content.split(' ') }
+            replacements: { content: notiMessage }
         })
 
         if (notificationData) {
@@ -105,6 +108,12 @@ export const event: Event = {
         }
 
         if (message.content.includes('instagram.com')) {
+            if (instagramUsed.has(message.author.id)) {
+                return
+            }
+            if (instagramUsedSmallGuild.has(message.author.id)) {
+                return
+            }
             /*
             if (messageGuild.instagram == false) {
                 return
@@ -214,7 +223,6 @@ export const event: Event = {
                       await queueEmbed.react('⬅️');
                       await queueEmbed.react('➡️');
                       await queueEmbed.react('❌');
-                      queueEmbed.edit();
                       const filter = (reaction, user) => ['⬅️', '➡️', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
                       const collector = queueEmbed.createReactionCollector(filter);
             
@@ -228,7 +236,7 @@ export const event: Event = {
                                     queueEmbed.edit(`Current Picture: ${currentPage+1}/${embeds.length}`, embeds[currentPage]);
                                     // if the last page has a video
                                     if (typeof embeds[currentPage-1][1] != 'undefined') {
-                                        await message.channel.messages.fetch({ limit: 10 }).then(messages => { 
+                                        await message.channel.messages.fetch({ limit: 5 }).then(messages => { 
                                         const channel = message.channel as TextChannel
                                         const botMessages = [];
                                         messages.filter(m => m.author.id === '787041583580184609')
@@ -240,7 +248,7 @@ export const event: Event = {
                                     if (typeof embeds[currentPage][1] != 'undefined') {
                                     // if the last page has a video
                                     if (typeof embeds[currentPage-1][1] != 'undefined') {
-                                        await message.channel.messages.fetch({ limit: 10 }).then(messages => { 
+                                        await message.channel.messages.fetch({ limit: 5 }).then(messages => { 
                                             const channel = message.channel as TextChannel
                                             const botMessages = [];
                                             messages.filter(m => m.author.id === '787041583580184609')
@@ -265,7 +273,7 @@ export const event: Event = {
                                     queueEmbed.edit(`Current Picture ${currentPage+1}/${embeds.length}`, embeds[currentPage])
                                     // if the last page has a video
                                     if (typeof embeds[currentPage+1][1] != 'undefined') {
-                                        await message.channel.messages.fetch({ limit: 10 }).then(messages => { 
+                                        await message.channel.messages.fetch({ limit: 5 }).then(messages => { 
                                             const channel = message.channel as TextChannel
                                             const botMessages = [];
                                             messages.filter(m => m.author.id === '787041583580184609')
@@ -277,7 +285,7 @@ export const event: Event = {
                                     if (typeof embeds[currentPage][1] != 'undefined') {
                                     // if the last page has a video
                                     if (typeof embeds[currentPage+1][1] != 'undefined') {
-                                        await message.channel.messages.fetch({ limit: 10 }).then(messages => { 
+                                        await message.channel.messages.fetch({ limit: 5 }).then(messages => { 
                                             const channel = message.channel as TextChannel
                                             const botMessages = [];
                                             messages.filter(m => m.author.id === '787041583580184609')
@@ -297,7 +305,7 @@ export const event: Event = {
                             collector.stop();
                             await queueEmbed.delete();
                             if (typeof embeds[currentPage][1] != 'undefined') {
-                                await message.channel.messages.fetch({ limit: 10 }).then(messages => { 
+                                await message.channel.messages.fetch({ limit: 5 }).then(messages => { 
                                     const channel = message.channel as TextChannel
                                     const botMessages = [];
                                     messages.filter(m => m.author.id === '787041583580184609')
@@ -306,6 +314,18 @@ export const event: Event = {
                             }
                             }
                         })
+                  }
+
+                  if (message.guild.memberCount <= 10) {
+                      instagramUsedSmallGuild.add(message.author.id)
+                      setTimeout(() => {
+                          instagramUsedSmallGuild.delete(message.author.id)
+                      }, 600000) // 10 minutes
+                  } else if (message.guild.memberCount > 10) {
+                      instagramUsed.add(message.author.id)
+                      setTimeout(() => {
+                        instagramUsedSmallGuild.delete(message.author.id)
+                    }, 180000) // 3 minutes
                   }
             } catch {
                 return
