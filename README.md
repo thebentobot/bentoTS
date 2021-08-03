@@ -10,7 +10,8 @@ Want to give feedback or got any questions? Join the support server [here](https
 
 ## List of notable features
 
-- Tiktok embedding
+- TikTok embedding
+- Instagram embedding
 - LastFM API features
 - Advanced moderation tools that include a comprehensive case-based logging system.
 - Database that saves server info such as feature settings and welcome message, and user data such as XP/Levels and command info
