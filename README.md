@@ -11,7 +11,6 @@ Want to give feedback or got any questions? Join the support server [here](https
 ## List of notable features
 
 - TikTok embedding
-- Instagram embedding
 - LastFM API features
 - Advanced moderation tools that include a comprehensive case-based logging system.
 - Database that saves server info such as feature settings and welcome message, and user data such as XP/Levels and command info
@@ -30,7 +29,6 @@ Want to give feedback or got any questions? Join the support server [here](https
 * A [PostgreSQL](https://www.postgresql.org/) Database
 * [Docker](https://www.docker.com/) if you want to deploy it with Docker
 * [LastFM](https://www.last.fm/api), [Spotify](https://developer.spotify.com/documentation/web-api/), [Tenor](https://tenor.com/gifapi/documentation) and [OpenWeather](https://openweathermap.org/api) API keys.
-* An Instagram sessionid and 5 proxy addresses if you are using it longterm.
 
 ### Installing the server side of Bento 🍱
 
