@@ -1,10 +1,10 @@
+# [Invite Bento 🍱 to your own server here!](https://discord.com/api/oauth2/authorize?client_id=787041583580184609&permissions=261926943991&scope=bot%20applications.commands)
+
 # Bento 🍱
 
 A Discord bot with server moderation tools and various entertaining commands.
 
 Bento 🍱 is a [TypeScript](https://www.typescriptlang.org/) rewrite of [Bento](https://github.com/thebentobot/bento). Bento 🍱 uses the [Discord.js](https://discord.js.org/#/) node.js module, that interacts with the [Discord API](https://discord.com/developers/docs/reference), and stores data in a [PostgreSQL](https://www.postgresql.org/) database.
-
-Bot will be available for public use very soon.
 
 Want to give feedback or got any questions? Join the support server [here](https://discord.gg/dd68WwP).
 
