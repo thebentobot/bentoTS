@@ -1,4 +1,4 @@
-# [Invite Bento 🍱 to your own server here!](https://discord.com/api/oauth2/authorize?client_id=787041583580184609&permissions=8&scope=bot%20applications.commands)
+# [Invite Bento 🍱 to your own server here!](https://discord.com/api/oauth2/authorize?client_id=787041583580184609&permissions=261926943991&scope=bot%20applications.commands)
 
 # Bento 🍱
 
