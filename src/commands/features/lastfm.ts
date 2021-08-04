@@ -364,7 +364,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setThumbnail(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}));
+                    embed.setThumbnail(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}));
                     embed.setFooter(`Time period - ${period[0]} | Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
                     embeds.push(embed)
                 }
@@ -628,7 +628,7 @@ export const command: Command = {
                     }, function (err) {
                         console.error(err);
                     })
-                    embed.setThumbnail(cover.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}));
+                    embed.setThumbnail(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}));
                     embed.setFooter(`Time period - ${period[0]} | Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
                     embeds.push(embed)
                 }
