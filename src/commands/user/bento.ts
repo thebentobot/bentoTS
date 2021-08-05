@@ -49,7 +49,7 @@ export const command: Command = {
                     return message.channel.send(`Your input was invalid. Please specify a user.`)
                 }
                 if (mentionedUser.id === message.author.id) return message.channel.send(`You can't give yourself a Bento 🍱`)
-                if (mentionedUser.user.bot === true) return message.channel.send(`You can't give a bot a Bento 🍱, don't feed bots food :-(())`)
+                if (mentionedUser.user.bot === true) return message.channel.send(`You can't give a bot a Bento 🍱, don't feed bots food 😭`)
 
                 const bentoAttr: bentoCreationAttributes = {
                     userID: BigInt(message.author.id),

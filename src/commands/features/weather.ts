@@ -24,7 +24,7 @@ export const command: Command = {
     usage: 'weather [save] <city>, [country code]',
     run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'save') {
-            return saveWeather (message, args[1])
+            return saveWeather (message, args.slice(1).join(" "))
         }
 
         if (args[0]) {
@@ -111,11 +111,13 @@ export const command: Command = {
                 city: city
             }
 
-            try {
-                await weather.create(weatherAttr)
-                return message.channel.send(`${message.author.username} your weather city \`${city}\` was saved!\nYou can now use weather commands without mentioning cities, to check the weather in your saved city.`)
-            } catch {
-                return message.channel.send(`Database error, couldn't save your horoscope. I am sorry :-(`)
+            const createWeather = await weather.findOrCreate({raw: true, where: {userID: userID}})
+
+            if (createWeather[1] === false) {
+              await weather.update({city: city}, {where: {userID: userID}})
+              return message.channel.send(`${message.author} your weather city was updated to \`${city}\`!\n`)
+            } else {
+              return message.channel.send(`${message.author} your weather city \`${city}\` was saved!\nYou can now use weather commands without mentioning cities, to check the weather in your saved city.`)
             }
         }
 
