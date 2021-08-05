@@ -13,7 +13,7 @@ export const command: Command = {
     aliases: ['t'],
     category: 'features',
     description: 'Add, delete, search, edit tags, get info about a tag or a list of all tags on a server',
-    usage: 'tag <add> <tag name> <tag content>\ntag <delete> <tag name>\ntag <edit> <tag name> <tag content being edit>\ntag <info> <tag name>\ntag <list>\ntag <random>\ntag <rename> <tag name> <new tag name>\ntag <search> <query>\ntag <author> [mention a user or userID]',
+    usage: 'tag <add> <tag name> <tag content>\ntag <delete> <tag name>\ntag <edit> <tag name> <tag content being edit>\ntag <info> <tag name>\ntag <list>\ntag <random> [search query]\ntag <rename> <tag name> <new tag name>\ntag <search> <query>\ntag <author> [mention a user or userID]',
     run: async (client, message, args): Promise<any> => {
 
         if (!args.length) {
@@ -67,7 +67,7 @@ export const command: Command = {
         }
 
         if (args[0] === 'random') {
-            return randomTag (message)
+            return randomTag (message, args.slice(1).join(" "))
         }
 
         if (args[0] === 'rename') {
@@ -103,7 +103,7 @@ export const command: Command = {
         }
 
         async function addTag (message: Message, tagName?: string) {
-            tagName.toLowerCase()
+            tagName.toLowerCase().trim()
             if (regex.test(tagName) === true) {
                 return message.channel.send(`You can't add special characters to your tag name \`${tagName}\``);
             }
@@ -113,7 +113,15 @@ export const command: Command = {
             const aliasesNameArray: string[] = client.aliases.each(values => values.aliases).mapValues(value => value.aliases).keyArray(); // returns cmd aliases of the bot
             const tagArgs: string[] = ['add', 'delete', 'edit', 'info', 'list', 'random', 'rename', 'search', 'author', 'top']
 
-            if (cmdNameArray.includes(tagName) || aliasesNameArray.includes(tagName) || tagArgs.includes(tagName)) {
+            if (cmdNameArray.includes(tagName)) {
+                return message.channel.send(`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`);
+            }
+
+            if (aliasesNameArray.includes(tagName)) {
+                return message.channel.send(`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`);
+            }
+
+            if (tagArgs.includes(tagName)) {
                 return message.channel.send(`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`);
             }
 
@@ -169,7 +177,7 @@ export const command: Command = {
                 return message.channel.send(`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData.prefix}tag [query]\` or get help with tags by using \`${guildData.prefix}help tag\``);
             }
 
-            if (!message.member.permissions.has("MANAGE_GUILD") || message.author.id !== `${tagData.userID}`) {
+            if (message.author.id !== `${tagData.userID}` || !message.member.permissions.has('BAN_MEMBERS')) {
                 const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}}) 
                 return message.channel.send(`You are not authorised to delete this tag.\nCheck who owns this tag by using the command ${guildData.prefix}tag info ${tagName}`);
             }
@@ -189,7 +197,7 @@ export const command: Command = {
                 return message.channel.send(`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData.prefix}tag [query]\` or get help with tags by using \`${guildData.prefix}help tag\``);
             }
 
-            if (!message.member.permissions.has("MANAGE_GUILD") || message.author.id !== `${tagData.userID}`) {
+            if (message.author.id !== `${tagData.userID}` || !message.member.permissions.has('BAN_MEMBERS')) {
                 const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}}) 
                 return message.channel.send(`You are not authorised to edit this tag.\nCheck who owns this tag by using the command ${guildData.prefix}tag info ${tagName}`);
             }
@@ -303,12 +311,37 @@ export const command: Command = {
             }
         }
 
-        async function randomTag (message: Message) {
-            initModels(database);
+        async function randomTag (message: Message, query?: string) {
+            if (query) {
+                query.toLowerCase()
 
-            const randomTag = await tag.findAll({raw: true, where: {guildID: message.guild.id}, order: Sequelize.literal('random()'), limit: 1})
+                interface randomTagInterface {
+                    command: string,
+                    content: string
+                }
 
-            return message.channel.send(`\`${randomTag[0].command}\`\n${randomTag[0].content}`)
+                const queryData: Array<randomTagInterface> = await database.query(`
+                SELECT *
+                FROM tag
+                WHERE "guildID" = :guild AND command LIKE :query`, {
+                    replacements: { guild: message.guild.id, query: '%' + query + '%' },
+                    type: QueryTypes.SELECT
+                });
+
+                if (!queryData.length) {
+                    return message.channel.send(`No tags found containing \`${query}\`.\nSearch for something else please.`);
+                }
+
+                const randomNumber:number = Math.floor(Math.random()*queryData.length)
+
+                return message.channel.send(`\`${queryData[randomNumber].command}\`\n${queryData[randomNumber].content}`)
+            } else {
+                initModels(database);
+
+                const randomTag = await tag.findAll({raw: true, where: {guildID: message.guild.id}, order: Sequelize.literal('random()'), limit: 1})
+
+                return message.channel.send(`\`${randomTag[0].command}\`\n${randomTag[0].content}`)
+            }
         }
 
         async function renameTag (message: Message, oldTagName?: string, newTagName?: string) {
@@ -335,9 +368,18 @@ export const command: Command = {
 
             const cmdNameArray: string[] = client.commands.mapValues(values => values.name).array(); // returns cmd names of the bot
             const aliasesNameArray: string[] = client.aliases.each(values => values.aliases).mapValues(value => value.aliases).keyArray(); // returns cmd aliases of the bot
+            const tagArgs: string[] = ['add', 'delete', 'edit', 'info', 'list', 'random', 'rename', 'search', 'author', 'top']
 
-            if (cmdNameArray.includes(newTagName) && aliasesNameArray.includes(newTagName)) {
-                return message.channel.send(`The new tag name \`${newTagName}\` is either a command or an alias for a Bento 🍱 command.\nRename your tag something else please.`);
+            if (cmdNameArray.includes(newTagName)) {
+                return message.channel.send(`The new tag name \`${newTagName}\` is a command name for a Bento 🍱 command.\nRename your tag something else please.`);
+            }
+
+            if (aliasesNameArray.includes(newTagName)) {
+                return message.channel.send(`The new tag name \`${newTagName}\` is an alias for a Bento 🍱 command.\nRename your tag something else please.`);
+            }
+
+            if (tagArgs.includes(newTagName)) {
+                return message.channel.send(`The new tag name \`${newTagName}\` is a tag argument.\nRename your tag something else please.`);
             }
 
             const NewTagData = await tag.findOne({raw: true, where: {guildID: message.guild.id, command: newTagName}})

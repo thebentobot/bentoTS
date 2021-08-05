@@ -49,7 +49,7 @@ export const command: Command = {
     aliases: ['fm', 'lf'],
     category: 'features',
     description: 'last.fm feature. If you don\'t mention a user with an argument, it searches for your last.fm. If you only mention a user and no time period, it checks for overall.\n**The possible time period arguments:** overall, 7day, 1month, 3month, 6month, 12month.',
-    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.\n**lastfm wkt [artist - song]** shows top 10 users on the server in terms of plays of a song.\n**lastfm wka [artist - album]** shows top 10 users on the server in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 users on the server in terms of plays of an artist.\n**lastfm gwkt [artist - song]** shows top 10 global Bento users in terms of plays of a song.\n**lastfm gwka [artist - album]** shows top 10 global Bento users in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 Bento users in terms of plays of an artist.',
+    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.\n**lastfm wkt [artist - song]** shows top 10 users on the server in terms of plays of a song.\n**lastfm wka [artist - album]** shows top 10 users on the server in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 users on the server in terms of plays of an artist.\n**lastfm gwkt [artist - song]** shows top 10 global Bento users in terms of plays of a song.\n**lastfm gwka [artist - album]** shows top 10 global Bento users in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 Bento users in terms of plays of an artist.',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             return nowPlaying (message);
@@ -71,11 +71,23 @@ export const command: Command = {
             return topTracks (message, args[1], args[2]);
         }
 
+        if (args[0] === 'tt') {
+            return topTracks (message, args[1], args[2]);
+        }
+
         if (args[0] === 'topalbums') {
             return topAlbums (message, args[1], args[2]);
         }
 
+        if (args[0] === 'tal') {
+            return topAlbums (message, args[1], args[2]);
+        }
+
         if (args[0] === 'topartists') {
+            return topArtists (message, args[1], args[2]);
+        }
+        
+        if (args[0] === 'ta') {
             return topArtists (message, args[1], args[2]);
         }
 

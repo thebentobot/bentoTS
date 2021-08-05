@@ -23,12 +23,13 @@ export const command: Command = {
 
             if (!user) {
                 let bentoData: any;
+                let then: Date
                 try {
                     bentoData = await bento.findOne({raw: true, where: {userID: message.author.id}});
+                    then = new Date(bentoData.bentoDate);
                 } catch {
                     return message.channel.send(Util.removeMentions(`${(await message.guild.members.fetch(message.author.id)).nickname ? (await message.guild.members.fetch(message.author.id)).nickname : message.author.username} you haven't tried to give someone a Bento Box 🍱 before.\nPlease do the command again and mention a friend or a userID to give them a Bento 🍱!\nYou'll most likely get one back! 🥺`))
                 }
-                const then: Date = new Date(bentoData.bentoDate);
                 const now: Date = new Date();
                 const diff: number = now.getTime() - then.getTime();
                 const diffHours = Math.round(diff / (1000 * 60 * 60));
