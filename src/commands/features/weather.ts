@@ -28,7 +28,7 @@ export const command: Command = {
         }
 
         if (args[0]) {
-            return weatherFunction (message, args[0])
+            return weatherFunction (message, args.slice(0).join(" "))
         }
 
         if (!args.length) {
@@ -111,7 +111,7 @@ export const command: Command = {
                 city: city
             }
 
-            const createWeather = await weather.findOrCreate({raw: true, where: {userID: userID}})
+            const createWeather = await weather.findOrCreate({raw: true, where: {userID: userID}, defaults: weatherAttr})
 
             if (createWeather[1] === false) {
               await weather.update({city: city}, {where: {userID: userID}})
