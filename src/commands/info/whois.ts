@@ -1,5 +1,5 @@
 import { Command } from '../../interfaces';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed, User } from 'discord.js';
 import { trim, urlToColours } from '../../utils/index';
 
 export const command: Command = {
@@ -28,42 +28,63 @@ export const command: Command = {
             return message.channel.send(embed)
         }
 
-        let userID = args[0]
-        const user = message.mentions.members.first() || await message.guild.members.fetch(userID)
-        if (user) {
-            const embed = new MessageEmbed()
-            .setColor(`${await urlToColours(user.user.avatarURL({ format: 'png'}))}`)
-            .setTitle(`Profile for ${user.user.username + '#' + user.user.discriminator}`)
-            .setThumbnail(user.user.avatarURL({ format: 'png', dynamic: true }))
-            .setTimestamp()
-            .addFields(
-                { name: 'Nickname on the server', value: user.displayName},
-                { name: 'Status', value: user.presence.status, inline: true},
-                { name: 'Last message', value: user.lastMessage, inline: true},
-                { name: 'User ID', value: user.id},
-                { name: 'Account created at', value: user.user.createdAt},
-                { name: 'Joined server at', value: user.joinedAt, inline: true},
-                { name: 'Highest role', value: user.roles.highest},
-                { name: 'All roles', value: trim(user.roles.cache.map(r => `${r}`).join(' | '), 1024), inline: true},
-            )
-            return message.channel.send(embed)
-        } else {
-            try {
-                const globalUser = await client.users.fetch(userID)
-                if (globalUser.bot === true) return
+        if (args[0]) {
+            let user = args[0]
+
+            let userID = getUserFromMention(user)
+
+            if (message.guild.members.cache.has(userID)) {
+                const user = message.guild.members.cache.get(userID)
                 const embed = new MessageEmbed()
-                .setColor(`${await urlToColours(globalUser.avatarURL({ format: 'png'}))}`)
-                .setTitle(`Profile for ${globalUser.username + '#' + globalUser.discriminator}`)
-                .setThumbnail(globalUser.avatarURL({ format: 'png', dynamic: true }))
+                .setColor(`${await urlToColours(user.user.avatarURL({ format: 'png'}))}`)
+                .setTitle(`Profile for ${user.user.username + '#' + user.user.discriminator}`)
+                .setThumbnail(user.user.avatarURL({ format: 'png', dynamic: true }))
                 .setTimestamp()
                 .addFields(
-                    { name: 'Status', value: globalUser.presence.status, inline: true},
-                    { name: 'User ID', value: globalUser.id},
-                    { name: 'Account created at', value: globalUser.createdAt},
+                    { name: 'Nickname on the server', value: user.displayName},
+                    { name: 'Status', value: user.presence.status, inline: true},
+                    { name: 'Last message', value: user.lastMessage, inline: true},
+                    { name: 'User ID', value: user.id},
+                    { name: 'Account created at', value: user.user.createdAt},
+                    { name: 'Joined server at', value: user.joinedAt, inline: true},
+                    { name: 'Highest role', value: user.roles.highest},
+                    { name: 'All roles', value: trim(user.roles.cache.map(r => `${r}`).join(' | '), 1024), inline: true},
                 )
-                return message.channel.send(embed)
-            } catch {
-                return message.channel.send('This user does not exist in our system.')
+            return message.channel.send(embed)
+            } else {
+                try {
+                    const globalUser = await client.users.fetch(userID).catch(() => console.error('fetch user error in whois.ts line 56')) as User
+                    if (globalUser.bot === true) return
+                    const embed = new MessageEmbed()
+                    .setColor(`${await urlToColours(globalUser.avatarURL({ format: 'png'}))}`)
+                    .setTitle(`Profile for ${globalUser.username + '#' + globalUser.discriminator}`)
+                    .setThumbnail(globalUser.avatarURL({ format: 'png', dynamic: true }))
+                    .setTimestamp()
+                    .addFields(
+                        { name: 'Status', value: globalUser.presence.status, inline: true},
+                        { name: 'User ID', value: globalUser},
+                        { name: 'Account created at', value: globalUser.createdAt},
+                    )
+                    return message.channel.send(embed)
+                } catch {
+                    return message.channel.send('This user does not exist.')
+                }
+            }
+        }
+
+        function getUserFromMention(mention: string) {
+            if (!mention) return;
+        
+            if (mention.startsWith('<@') && mention.endsWith('>')) {
+                mention = mention.slice(2, -1);
+        
+                if (mention.startsWith('!')) {
+                    mention = mention.slice(1);
+                }
+        
+                return client.users.cache.get(mention).id;
+            } else {
+                return mention
             }
         }
     }

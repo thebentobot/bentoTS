@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed, User } from 'discord.js';
 import { Command } from '../../interfaces';
 import { urlToColours } from '../../utils/urlToColours';
 
@@ -38,27 +38,35 @@ export const command: Command = {
             return message.channel.send(embed)
         }
 
-        let userID = args[0]
-        const user = message.mentions.members.first() || await message.guild.members.fetch(userID)
-        if (user) {
+        let userID = getUserFromMention(args[0])
+        let user: User
+
+        user = await client.users.fetch(`${userID}`).catch(() => console.error('fetch user error in avatar.ts line 44')) as User
+        
+        try {
             const embed = new MessageEmbed()
-                .setColor(`${await urlToColours(user.user.avatarURL({ format: 'png'}))}`)
-                .setTitle(`${user.user.username + '#' + user.user.discriminator}'s avatar`)
-                .setImage(user.user.avatarURL({ format: 'png', size: 1024, dynamic: true }))
-                .setTimestamp()
+            .setColor(`${await urlToColours(user.avatarURL({ format: 'png'}))}`)
+            .setTitle(`${user.username + '#' + user.discriminator}'s avatar`)
+            .setImage(user.avatarURL({ format: 'png', size: 1024, dynamic: true }))
+            .setTimestamp()
             return message.channel.send(embed)
-        } else {
-            try {
-                const globalUser = await client.users.fetch(userID)
-                if (globalUser.bot === true) return
-                const embed = new MessageEmbed()
-                .setColor(`${await urlToColours(globalUser.avatarURL({ format: 'png'}))}`)
-                .setTitle(`${globalUser.username + '#' + globalUser.discriminator}'s avatar`)
-                .setImage(globalUser.avatarURL({ format: 'png', size: 1024, dynamic: true }))
-                .setTimestamp()
-                return message.channel.send(embed)
-            } catch {
-                return message.channel.send('This user does not exist in our system.')
+        } catch {
+            return message.channel.send(`Invalid user.`)
+        }
+
+        function getUserFromMention(mention: string) {
+            if (!mention) return;
+        
+            if (mention.startsWith('<@') && mention.endsWith('>')) {
+                mention = mention.slice(2, -1);
+        
+                if (mention.startsWith('!')) {
+                    mention = mention.slice(1);
+                }
+        
+                return client.users.cache.get(mention).id;
+            } else {
+                return mention
             }
         }
     }

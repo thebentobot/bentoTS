@@ -57,7 +57,6 @@ export const command: Command = {
                 info += `\n**Usage**: ${guildDB.prefix}${cmd.usage}`;
                 embed.setFooter('<> = REQUIRED | [] = OPTIONAL')
             }
-            //if (cmd.usage2) info += `\n**Usage 2**: ${guildDB.prefix}${cmd.usage2}`;
         
             return message.channel.send(embed.setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`).setDescription(info));
         }

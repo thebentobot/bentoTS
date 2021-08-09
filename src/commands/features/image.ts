@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
-import { Message } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 const gis: any = require('g-i-s');
 //import * as gis from 'g-i-s'
 
@@ -12,16 +12,23 @@ export const command: Command = {
     description: 'Searches for random images based on the search input',
     usage: 'image <search query>',
     run: async (client, message, args): Promise<Message> => {
+        if (!args.length) {
+            return message.channel.send('You need to provide a search input!').then(m => m.delete({timeout: 5000}));
+        }
+
+        if (message.channel.type !== 'text') return
 
         initModels(database);
 
         const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}});
 
         if (guildDB.media === false) return
+
+        const channelObject = message.channel as TextChannel
         
         let query: string;
-        if (guildDB.nsfw === false) {
-            query = args.join(" ").replace('#', '') + '&safe=on'
+        if (channelObject.nsfw === false) {
+            query = args.join(" ").replace('#', '').replace('&safe=off', '').replace('&safe=on', '') + '&safe=on'
         } else {
             query = args.join(" ")
         }

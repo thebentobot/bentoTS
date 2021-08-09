@@ -18,7 +18,7 @@ const lastfmAPI = axios.create({
     baseURL: "https://ws.audioscrobbler.com/2.0",
     params: { api_key: api_key, format: 'json' }
 });
-
+/*
 let spotifyCred = new SpotifyWebApi({
     clientId: process.env.spotifyClientID,
     clientSecret: process.env.spotifyClientSecret,
@@ -43,7 +43,7 @@ async function newToken () {
 newToken()
 
 setInterval(newToken, 3600000)
-
+*/
 export const command: Command = {
     name: 'lastfm',
     aliases: ['fm', 'lf'],
@@ -869,6 +869,10 @@ export const command: Command = {
 
             playData.slice(0, 9);
 
+            if (!playData.length) {
+                return message.channel.send(`No one on this server knows the track ${track} by ${artist}`)
+            }
+
             const embeds = generateWktEmbed(playData)
             await message.channel.send(await embeds);
 
@@ -975,6 +979,10 @@ export const command: Command = {
 
             playData.slice(0, 9);
 
+            if (!playData.length) {
+                return message.channel.send(`No one on this server knows the album ${artistAlbum} by ${artist}`)
+            }
+
             const embeds = generateWkaEmbed(playData)
             await message.channel.send(await embeds);
 
@@ -1070,6 +1078,10 @@ export const command: Command = {
             });
 
             playData.slice(0, 9);
+            
+            if (!playData.length) {
+                return message.channel.send(`No one on this server knows the artist ${artistName}`)
+            }
 
             const embeds = generateWkEmbed(playData)
             await message.channel.send(await embeds);
@@ -1173,6 +1185,10 @@ export const command: Command = {
             });
 
             playData.slice(0, 9);
+
+            if (!playData.length) {
+                return message.channel.send(`No one who uses Bento Bot knows the track ${track} by ${artist}`)
+            }
 
             const embeds = generateGwktEmbed(playData)
             await message.channel.send(await embeds);
@@ -1278,6 +1294,10 @@ export const command: Command = {
 
             playData.slice(0, 9);
 
+            if (!playData.length) {
+                return message.channel.send(`No one who uses Bento Bot knows the album ${artistAlbum} by ${artist}`)
+            }
+
             const embeds = generateGwkaEmbed(playData)
             await message.channel.send(await embeds);
 
@@ -1372,6 +1392,10 @@ export const command: Command = {
             });
 
             playData.slice(0, 9);
+
+            if (!playData.length) {
+                return message.channel.send(`No one who uses Bento Bot knows ${artist}`)
+            }
 
             const embeds = generateGwkEmbed(playData)
             await message.channel.send(await embeds);

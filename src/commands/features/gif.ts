@@ -4,7 +4,7 @@ import utf8 from 'utf8'
 import database from '../../database/database';
 import { initModels, guild } from '../../database/models/init-models';
 import * as dotenv from "dotenv";
-import { Message } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 dotenv.config();
 
 const tenorAPI = axios.create({
@@ -22,6 +22,10 @@ export const command: Command = {
             return message.channel.send('You need to provide a search input!').then(m => m.delete({timeout: 5000}));
         }
 
+        if (message.channel.type !== 'text') return
+
+        const channelObject = message.channel as TextChannel
+
         initModels(database);
 
         const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}});
@@ -30,7 +34,7 @@ export const command: Command = {
         
         let query: string;
         let filter: string;
-        if (guildDB.nsfw === false) {
+        if (channelObject.nsfw === false) {
             query = args.join(" ").replace('contentfilter', '');
             filter = 'high';
         } else {

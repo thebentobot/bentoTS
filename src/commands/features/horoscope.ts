@@ -1,7 +1,7 @@
 import { Command } from '../../interfaces';
 import { capitalize, horoSigns, horoSignsLow, urlToColours } from '../../utils';
 import database from '../../database/database';
-import { initModels, guild, horoscope, horoscopeCreationAttributes} from '../../database/models/init-models';
+import { initModels, guild, horoscope, horoscopeCreationAttributes, horoscopeAttributes} from '../../database/models/init-models';
 import { Message, MessageEmbed, GuildMember, Util } from 'discord.js';
 //const aztroJs = require("aztro-js");
 import * as aztroJs from 'aztro-js'
@@ -361,17 +361,27 @@ export const command: Command = {
         }
 
         async function horoList (message: Message) {
-            const serverRank = await database.query(`
-            SELECT u.username, u.discriminator, horo.horoscope
+            interface horoscopeListInterface {
+                userID: bigint,
+                username: string,
+                discriminator: string,
+                horoscope: horoscopeAttributes
+            }
+            const serverRank: Array<horoscopeListInterface> = await database.query(`
+            SELECT u."userID", u.username, u.discriminator, horo.horoscope
             FROM horoscope AS horo
             INNER JOIN "user" u on u."userID" = horo."userID"
             INNER JOIN "guildMember" gM on u."userID" = gM."userID"
             WHERE "guildID" = :guild
-            GROUP BY u.username, u.discriminator, horo.horoscope
+            GROUP BY u."userID", u.username, u.discriminator, horo.horoscope
             ORDER BY u.username ASC;`, {
                 replacements: { guild: message.guild.id },
                 type: QueryTypes.SELECT
             });
+
+            if (!serverRank.length) {
+                return message.channel.send(`No horoscopes are saved on this server.`)
+            }
 
             let currentPage: number = 0;
             const embeds = await generateHoroListEmbed(serverRank)
@@ -401,15 +411,14 @@ export const command: Command = {
                 }
             })
 
-            async function generateHoroListEmbed (data) {
+            async function generateHoroListEmbed (data: Array<horoscopeListInterface>) {
                 const embeds = [];
                 let k = 10;
                 for(let i =0; i < data.length; i += 10) {
                     const current = data.slice(i, k);
                     let j = i;
                     k += 10;
-                    // det foroven skærer, så det kun bliver 10 pr. page.
-                    const info = current.map(horoscope => `${++j}. **${horoscope.username}#${horoscope.discriminator}:** ${horoscope.horoscope}`).join(`\n`)
+                    const info = current.map(horoscope => `**${++j}.** ${message.guild.members.cache.get(`${horoscope.userID}`)} - ${horoscope.horoscope}`).join(`\n`)
                     const embed = new MessageEmbed()
                     .setDescription(`${info}`)
                     .setColor(message.guild.iconURL() ? `${await urlToColours(message.guild.iconURL({ format: 'png'}))}` : `${await urlToColours(client.user.displayAvatarURL({ format: 'png'}))}`)
@@ -417,7 +426,6 @@ export const command: Command = {
                     .setThumbnail(message.guild.iconURL() ? message.guild.iconURL() : '')
                     .setAuthor(message.guild.iconURL() ? message.guild.name : client.user.username, message.guild.iconURL() ? message.guild.iconURL() : client.user.displayAvatarURL())
                     .setTimestamp()
-                    // denne funktion skal skubbe siderne
                     embeds.push(embed)
                 }
                 return embeds;
@@ -425,13 +433,19 @@ export const command: Command = {
         }
 
         async function horoSearch (message: Message, query?: string) {
-            const queryData = await database.query(`
-            SELECT u.username, u.discriminator, horo.horoscope
+            interface horoscopeListInterface {
+                userID: bigint,
+                username: string,
+                discriminator: string,
+                horoscope: horoscopeAttributes
+            }
+            const queryData: Array<horoscopeListInterface> = await database.query(`
+            SELECT u."userID", u.username, u.discriminator, horo.horoscope
             FROM horoscope AS horo
             INNER JOIN "user" u on u."userID" = horo."userID"
             INNER JOIN "guildMember" gM on u."userID" = gM."userID"
             WHERE gM."guildID" = :guild AND horo.horoscope::text ILIKE :query
-            GROUP BY u.username, u.discriminator, horo.horoscope
+            GROUP BY u."userID", u.username, u.discriminator, horo.horoscope
             ORDER BY u.username ASC;`, {
                 replacements: { guild: message.guild.id, query: '%' + query + '%' },
                 type: QueryTypes.SELECT
@@ -469,7 +483,7 @@ export const command: Command = {
                 }
             })
 
-            async function generateTagSearchEmbed (data) {
+            async function generateTagSearchEmbed (data: Array<horoscopeListInterface>) {
                 const embeds = [];
                 let k = 10;
                 for(let i =0; i < data.length; i += 10) {
@@ -477,7 +491,7 @@ export const command: Command = {
                     let j = i;
                     k += 10;
                     // det foroven skærer, så det kun bliver 10 pr. page.
-                    const info = current.map(horoscope => `${++j}. **${horoscope.username}#${horoscope.discriminator}:** ${horoscope.horoscope}`).join(`\n`)
+                    const info = current.map(horoscope => `**${++j}.** ${message.guild.members.cache.get(`${horoscope.userID}`)} - ${horoscope.horoscope}`).join(`\n`)
                     const embed = new MessageEmbed()
                     .setDescription(`${info}`)
                     .setColor(message.guild.iconURL() ? `${await urlToColours(message.guild.iconURL({ format: 'png'}))}` : `${await urlToColours(client.user.displayAvatarURL({ format: 'png'}))}`)

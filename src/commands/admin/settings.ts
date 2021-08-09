@@ -39,7 +39,7 @@ export const command: Command = {
         .setTitle(`Server settings for ${message.guild.name}`)
         .setTimestamp()
         .setColor(`${message.guild.iconURL() ? await urlToColours(message.guild.iconURL({ format: 'png'})) : await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
-        .addField('NSFW', `${guildData.nsfw ? 'Enabled' : 'Disabled'}`, true)
+        //.addField('NSFW', `${guildData.nsfw ? 'Enabled' : 'Disabled'}`, true)
         .addField('Tiktok', `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, true)
         .addField('Media', `${guildData.media ? 'Enabled' : 'Disabled'}`, true)
         .addField('Leaderboard', `${guildData.leaderboard ? 'Enabled' : 'Disabled'}`, true)
@@ -50,7 +50,7 @@ export const command: Command = {
         .addField('Mod log channel', `${modLogText}`, true)
         .addField('Message log channel', `${msgLogText}`, true)
         .addField('Mute role', `${muteRoleDataText}`, true)
-        .addField(autoRoleData.length > 1 ? 'Auto assigned roles' : 'Auto assigned role', autoRoleData.length ? trim(autoRoleData.map(r => `<@&${r.roleID}>`).join(' | '), 1024) : 'Not configured', true)
+        .addField(autoRoleData.length > 1 ? 'Auto assigned roles' : 'Auto assigned role', autoRoleData.length ? trim(autoRoleData.map(r => `<@&${r.roleID}>`).join(' | '), 1024) : 'Not configured', false)
 
         return message.channel.send(Embed);
     }

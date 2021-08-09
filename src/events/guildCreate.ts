@@ -31,7 +31,7 @@ export const event: Event = {
         await caseGlobal.create(caseGlobalAttr)
         console.log('New guild were added to the database. It is called: ' + newGuild.guildName + ', ID: ' + newGuild.guildID);
         try {
-            const channelNames = ['general','main-chat', 'welcome']
+            const channelNames = ['general', 'general-chat', 'chat', 'main-chat', 'welcome']
             const channel = guild.channels.cache.find(ch => channelNames.includes(ch.name))
 
             if (channel) {

@@ -1,12 +1,13 @@
 import database from '../database/database';
 import { initModels, guildMember, user } from '../database/models/init-models';
 
-const cooldown = new Set();
+const cooldownServer = new Set();
+const cooldownGlobal = new Set();
 
 export async function addXpServer(guildID: string, userID: string, xpToAdd: number): Promise<any> {
     initModels(database);
 
-    if (cooldown.has(userID)) {
+    if (cooldownServer.has(userID)) {
         return
     }
 
@@ -20,16 +21,16 @@ export async function addXpServer(guildID: string, userID: string, xpToAdd: numb
         await guildMember.update({xp: 0}, {where: {userID: userID, guildID: guildID,}})
     }
 
-    cooldown.add(userID);
+    cooldownServer.add(userID);
     setTimeout(() => {
-        cooldown.delete(userID)
+        cooldownServer.delete(userID)
     }, 60000) // 1 minute
 }
 
 export async function addXpGlobal(userID: string, xpToAdd: number): Promise<any> {
     initModels(database);
 
-    if (cooldown.has(userID)) {
+    if (cooldownGlobal.has(userID)) {
         return
     }
 
@@ -42,10 +43,9 @@ export async function addXpGlobal(userID: string, xpToAdd: number): Promise<any>
         await user.increment('level', {by: 1, where: {userID: userID}});
         await user.update({xp: 0}, {where: {userID: userID}})
     }
-
     
-    cooldown.add(userID);
+    cooldownGlobal.add(userID);
     setTimeout(() => {
-        cooldown.delete(userID)
+        cooldownGlobal.delete(userID)
     }, 60000) // 1 minute
 }

@@ -13,7 +13,7 @@ export const command: Command = {
     aliases: ['t'],
     category: 'features',
     description: 'Add, delete, search, edit tags, get info about a tag or a list of all tags on a server',
-    usage: 'tag <add> <tag name> <tag content>\ntag <delete> <tag name>\ntag <edit> <tag name> <tag content being edit>\ntag <info> <tag name>\ntag <list>\ntag <random> [search query]\ntag <rename> <tag name> <new tag name>\ntag <search> <query>\ntag <author> [mention a user or userID]',
+    usage: 'tag <add> <tag name> <tag content>\ntag <delete> <tag name>\ntag <edit> <tag name> <tag content being edit>\ntag <info> <tag name>\ntag <list>\ntag <random> [search query]\ntag <rename> <tag name> <new tag name>\ntag <search> <query>\ntag <author> [mention a user or userID]\ntag <top>',
     run: async (client, message, args): Promise<any> => {
 
         if (!args.length) {
@@ -139,9 +139,9 @@ export const command: Command = {
             }
             
             if (files && text) {
-                tagContent = `${text}\n${files}`
+                tagContent = `${Util.escapeMarkdown(text)}\n${files}`
             } else if (text && !files) {
-                tagContent = text
+                tagContent = Util.escapeMarkdown(text)
             } else if (!text && files) {
                 tagContent = files
             } else if (!text && !files) {
@@ -152,7 +152,7 @@ export const command: Command = {
                 userID: BigInt(message.author.id),
                 guildID: BigInt(message.guild.id),
                 command: tagName,
-                content: Util.escapeMarkdown(tagContent),
+                content: tagContent,
                 count: 0
             }
 
@@ -216,16 +216,16 @@ export const command: Command = {
             }
             
             if (files && text) {
-                tagContent = `${text}\n${files}`
+                tagContent = `${Util.escapeMarkdown(text)}\n${files}`
             } else if (text && !files) {
-                tagContent = text
+                tagContent = Util.escapeMarkdown(text)
             } else if (!text && files) {
                 tagContent = files
             } else if (!text && !files) {
                 return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
             }
 
-            await tag.update({content: Util.escapeMarkdown(tagContent)}, {where: {guildID: tagData.guildID, userID: tagData.userID, command: tagData.command}})
+            await tag.update({content: tagContent}, {where: {guildID: tagData.guildID, userID: tagData.userID, command: tagData.command}})
             return message.channel.send(`The tag \`${tagData.command}\` got updated!\nThe content is now: \`${tagContent}\``)
         }
 

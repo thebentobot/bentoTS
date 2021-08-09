@@ -62,7 +62,56 @@ export const command: Command = {
                 }
             }
 
-            let response; 
+            interface weatherAPIWeatherObjectInterface {
+              id: number,
+              main: string,
+              description: string,
+              icon: string
+            }
+
+            interface weatherAPISysObjectInterface {
+              country: string,
+              sunrise: number,
+              sunset: number
+            }
+
+            interface weatherAPIMainObjectInterface {
+              temp: number,
+              feels_like: number,
+              temp_min: number,
+              temp_max: number,
+              pressure: number,
+              humidity: number
+            }
+
+            interface weatherAPICloudsObjectInterface {
+              all: number
+            }
+
+            interface weatherAPIWindObjectInterface {
+              speed: number,
+              deg: number
+            }
+
+            interface weatherAPICoordObjectInterface {
+              lon: number,
+              lat: number
+            }
+
+            interface weatherAPIObjectInterface {
+              name: string,
+              id: number,
+              weather: Array<weatherAPIWeatherObjectInterface>
+              sys: weatherAPISysObjectInterface,
+              main: weatherAPIMainObjectInterface,
+              dt: number,
+              timezone: number,
+              clouds: weatherAPICloudsObjectInterface,
+              wind: weatherAPIWindObjectInterface,
+              coord: weatherAPICoordObjectInterface
+            }
+
+            let response: weatherAPIObjectInterface; 
             try {
                 const fetch = await openWeatherAPI.get('/weather?', {params: {q: city, units: 'metric', appid: process.env.WEATHERKEY, lang: 'en'}});
                 response = fetch.data
@@ -70,6 +119,8 @@ export const command: Command = {
                 const guildData = await guild.findOne({raw: true, where: {guildID: message.guild.id}})
                 return message.channel.send(`No results found for the location \`${city}\`.\nIf you've saved the location you can change the location to something else by using \`${guildData.prefix}weather save <city>\`.\nIf you tried to check the weather by ID and it failed, it's either because the user hasn't saved a city or the user isn't on this server.\nIf you searched for the location, perhaps add the country code for the location or you've misspelled.\nUse \`${guildData.prefix}help weather\` to get help.`)
             }
+
+            console.log(response)
 
             const Embed = new MessageEmbed()
                 .setColor('#EB6E4B')

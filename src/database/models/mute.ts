@@ -62,8 +62,7 @@ export class mute extends Model<muteAttributes, muteCreationAttributes> implemen
     },
     muteEnd: {
       type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: Sequelize.Sequelize.fn('now')
+      allowNull: true
     },
     note: {
       type: DataTypes.STRING,

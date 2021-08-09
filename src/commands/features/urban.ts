@@ -22,11 +22,20 @@ export const command: Command = {
 
         const response = await urbanAPI.get('/define?', {params: {term: query}});
 
-        if (!response.data.length) {
+        if (!response.data.list.length) {
             return message.channel.send(`No definition found for \`${query}\`.`);
         }
 
-        const answer = response.data.list[0]
+        interface urbanDicInterface {
+            word: string,
+            permalink: string,
+            definition: string,
+            example: string,
+            thumbs_up: number,
+            thumbs_down: number
+        }
+
+        const answer: urbanDicInterface = response.data.list[0]
 
         const exampleEmbed = new MessageEmbed()
             .setColor('#1c9fea')
