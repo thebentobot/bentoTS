@@ -10,7 +10,7 @@ export const command: Command = {
     description: 'Bye message settings, for when a member leaves.\nDisabled by default and only works by assigning <channel> and <content>.\n{user} or {usertag} - mention user\n{username} - mention username\n{discriminator} - mention the #0000 for the user\n{server} - mention server\n{memberCount} - the member count\n{space} - adds a new line\nUse reverse / (slash) in front of a channel e.g. for linking to a rules channel.',
     usage: ' is the prefix\nbye <status>\nbye <channel> <channelID>\nbye <message> <content>\nbye <delete>',
     run: async (client, message, args): Promise<Message> => {
-        if (!message.member.hasPermission('MANAGE_GUILD')) {
+        if (!message.member.hasPermission('MANAGE_MESSAGES')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
 

@@ -16,15 +16,14 @@ export const event: Event = {
             guildName: guild.name,
             prefix: process.env.prefix,
             tiktok: true,
-            nsfw: false,
             leaderboard: true,
             media: true
         };
 
         const caseGlobalAttr: caseGlobalCreationAttributes = {
             guildID: BigInt(guild.id),
-            serverName: true,
-            reason: true
+            serverName: false,
+            reason: false
         }
 
         const newGuild = await DbGuild.create(attr);

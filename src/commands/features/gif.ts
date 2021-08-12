@@ -15,7 +15,7 @@ export const command: Command = {
     name: 'gif',
     aliases: [],
     category: 'features',
-    description: 'Searches for random GIFs based on the search input',
+    description: 'Searches for random GIFs based on the search input. The GIFs comes from Tenor, and has a G-rated content filter for non-NSFW channels. The filter is off in NSFW channels.',
     usage: 'gif <search input>',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {

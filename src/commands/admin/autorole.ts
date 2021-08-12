@@ -10,7 +10,7 @@ export const command: Command = {
     description: 'Set an auto role that users get assigned automatically when they join',
     usage: 'autorole <status>\nautorole set <roleID or role mention>\nautorole delete <roleID>\nautorole list',
     run: async (client, message, args): Promise<Message> => {
-        if (!message.member.hasPermission('MANAGE_GUILD')) {
+        if (!message.member.hasPermission('MANAGE_ROLES')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
 

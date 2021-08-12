@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, memberLog, modLog, user } from '../database/models/init-models';
+import { guildMember, initModels, memberLog, modLog, user } from '../database/models/init-models';
 import { TextChannel, GuildMember, MessageEmbed } from "discord.js";
 
 export const event: Event = {
@@ -35,6 +35,8 @@ export const event: Event = {
                 .setDescription(`Avatar updated for this user.\n**Previous avatar:**\n${oldMember.user.avatarURL()}\n**New avatar:**\n${newMember.user.avatarURL()}`)
                 .setFooter('Updated at')
                 .setTimestamp()
+                await user.update({avatarURL: newMember.user.avatarURL()}, {where: {userID: oldMember.id}})
+                await guildMember.update({avatarURL: newMember.user.avatarURL()}, {where: {userID: oldMember.id, guildID: oldMember.guild.id}})
                 await memberLogChannel.send(embed)
             } catch {
                 return

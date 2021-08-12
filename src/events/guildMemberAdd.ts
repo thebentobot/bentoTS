@@ -22,7 +22,8 @@ export const event: Event = {
             discriminator: member.user.discriminator,
             xp: 0,
             level: 1,
-            username: member.user.username
+            username: member.user.username,
+            avatarURL: member.user.avatarURL()
         }
 
         await user.findOrCreate({where: { userID: member.id}, defaults: userAttr});
@@ -31,7 +32,8 @@ export const event: Event = {
             userID: BigInt(member.id),
             guildID: BigInt(member.guild.id),
             xp: 0,
-            level: 1
+            level: 1,
+            avatarURL: member.user.avatarURL()
         }
 
         await guildMember.create(guildMemberAttr);
@@ -59,7 +61,7 @@ export const event: Event = {
             .setColor(`#00ff1a`)
             .setFooter(`UserID: ${member.user.id}`)
             .setTimestamp()
-            .setDescription(`**Account created:** ${moment(member.user.createdAt).format(`D/M/YYYY HH:mm:ss Z`)}\n**Bans on other servers:** \`${banData.rows}\`.\n**Kicks from other servers:** \`${kickData.rows}\`.\n**Mutes on other servers:** \`${muteData.rows}\`.\n**Warnings on other servers:** \`${warningData.rows}\`.`)
+            .setDescription(`**Account created:** ${moment(member.user.createdAt).format(`D/M/YYYY HH:mm:ss Z`)}${new Date().getTime() - member.user.createdAt.getTime() < 3600000 ? `\n**WARNING** This user is created under an hour ago.` : ``}\n**Bans on other servers:** \`${banData.count}\`.\n**Kicks from other servers:** \`${kickData.count}\`.\n**Mutes on other servers:** \`${muteData.count}\`.\n**Warnings on other servers:** \`${warningData.count}\`.`)
             await channel.send(embed)
         }
 

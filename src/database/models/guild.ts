@@ -23,7 +23,6 @@ export interface guildAttributes {
   guildName: string;
   prefix: string;
   tiktok: boolean;
-  nsfw: boolean;
   leaderboard: boolean;
   media: boolean;
 }
@@ -37,7 +36,6 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   guildName!: string;
   prefix!: string;
   tiktok!: boolean;
-  nsfw!: boolean;
   leaderboard!: boolean;
   media!: boolean;
 
@@ -206,10 +204,6 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
       allowNull: false
     },
     tiktok: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    nsfw: {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },

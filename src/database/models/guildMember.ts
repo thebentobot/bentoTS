@@ -9,6 +9,7 @@ export interface guildMemberAttributes {
   guildID: bigint;
   xp: number;
   level: number;
+  avatarURL?: string;
 }
 
 export type guildMemberPk = "guildMemberID";
@@ -21,6 +22,7 @@ export class guildMember extends Model<guildMemberAttributes, guildMemberCreatio
   guildID!: bigint;
   xp!: number;
   level!: number;
+  avatarURL?: string;
 
   // guildMember belongsTo guild via guildID
   guild!: guild;
@@ -64,6 +66,10 @@ export class guildMember extends Model<guildMemberAttributes, guildMemberCreatio
     level: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    avatarURL: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,

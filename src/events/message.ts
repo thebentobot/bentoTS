@@ -25,18 +25,22 @@ export const event: Event = {
             discriminator: message.author.discriminator,
             username: message.author.username,
             xp: 0,
-            level: 1
+            level: 1,
+            avatarURL: message.author.avatarURL()
         }
 
         const guildMemberAttr: guildMemberCreationAttributes = {
             userID: BigInt(message.author.id),
             guildID: BigInt(message.guild.id),
             xp: 0,
-            level: 1
+            level: 1,
+            avatarURL: message.author.avatarURL()
         }
 
-        await user.findOrCreate({where: {userID: message.author.id}, defaults: userAttr})
-        await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
+        if (message.author.bot === false) {
+            await user.findOrCreate({where: {userID: message.author.id}, defaults: userAttr})
+            await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
+        }
 
         const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
 

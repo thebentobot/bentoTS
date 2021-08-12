@@ -10,7 +10,7 @@ export const command: Command = {
     description: 'Set an mute role that users get assigned when a mod mutes them',
     usage: ' is the prefix\nmuterole <status>\nmuterole set <roleID or role mention>\nmuterole delete <roleID>',
     run: async (client, message, args): Promise<Message> => {
-        if (!message.member.hasPermission('MANAGE_GUILD')) {
+        if (!message.member.hasPermission('MANAGE_ROLES')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
 

@@ -12,7 +12,7 @@ export const command: Command = {
     run: async (client, message, args): Promise<Message> => {
         message.delete();
 
-        if (!message.member.hasPermission('ADMINISTRATOR')) {
+        if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
 

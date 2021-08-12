@@ -2,10 +2,11 @@ import { GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
 import moment from "moment";
 import { QueryTypes } from "sequelize";
 import database from "../database/database";
-import { initModels, modLog, reminder } from "../database/models/init-models";
+import { initModels, modLog, reminder, user, guildMember } from "../database/models/init-models";
 import { mute } from "../database/models/mute";
 import { muteRole } from "../database/models/muteRole";
 import { Event } from "../interfaces";
+//import fs from 'fs'
 
 export const event: Event = {
     name: 'ready',
@@ -13,6 +14,26 @@ export const event: Event = {
         console.log(`${client.user.tag} is online! Let\'s get this bread!`);
         client.user.setActivity(`🍱 - Feeding in ${client.channels.cache.size} channels, serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
         
+        // get a json of all commands. Used for website
+        // https://jsonformatter.curiousconcept.com/# use this website for formatting
+        /*
+        const commands = JSON.stringify(client.commands)
+        fs.writeFile('commands.json', commands, 'utf8', function (err) {
+            if (err) throw err;
+            console.log('commands complete')
+        })
+        */
+
+        // get user pfps, used when integrating avatarurls into the db for the website
+        /*
+        initModels(database);
+        const userData = await user.findAll({raw: true})
+        for (let i = 0; userData.length; i++) {
+            await user.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({format: "png", dynamic: true, size: 1024})}, {where: {userID: userData[i].userID}})
+            await guildMember.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({format: "png", dynamic: true, size: 1024})}, {where: {userID: userData[i].userID}})
+        }
+        */
+
         async function checkMutes() {
             interface muteDataTypes {
                 muteCase: number,
@@ -31,11 +52,7 @@ export const event: Event = {
             FROM mute
             WHERE mute."muteEnd" < now()::timestamp at time zone  'utc' AND mute."MuteStatus" = true AND "muteEnd" is not null;`, {
                 type: QueryTypes.SELECT
-            })
-            
-            //const now = new Date()
-        
-            //const unmutes = await mute.findAll({raw: true, where: { muteEnd: {[lt]: now}, MuteStatus: true }})
+            })        
         
             if (unmutes) {
                 for (const unmute of unmutes) {

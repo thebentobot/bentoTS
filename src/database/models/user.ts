@@ -15,6 +15,7 @@ export interface userAttributes {
   xp: number;
   level: number;
   username?: string;
+  avatarURL?: string;
 }
 
 export type userPk = "userID";
@@ -27,6 +28,7 @@ export class user extends Model<userAttributes, userCreationAttributes> implemen
   xp!: number;
   level!: number;
   username?: string;
+  avatarURL?: string;
 
   // user hasOne bento via userID
   bento!: bento;
@@ -117,6 +119,10 @@ export class user extends Model<userAttributes, userCreationAttributes> implemen
       allowNull: false
     },
     username: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    avatarURL: {
       type: DataTypes.STRING,
       allowNull: true
     }

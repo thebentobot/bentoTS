@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, user } from '../database/models/init-models';
+import { guildMember, initModels, user } from '../database/models/init-models';
 import { User } from "discord.js";
 
 export const event: Event = {
@@ -8,6 +8,6 @@ export const event: Event = {
     run: async (client, oldUser: User, newUser: User): Promise<any> => {
         initModels(database);
 
-        await user.update({discriminator: newUser.discriminator, username: newUser.username}, {where: {userID: oldUser.id}})
+        await user.update({discriminator: newUser.discriminator, username: newUser.username, avatarURL: newUser.avatarURL()}, {where: {userID: oldUser.id}})
     }
 }

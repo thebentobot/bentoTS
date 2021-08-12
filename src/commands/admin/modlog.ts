@@ -10,7 +10,7 @@ export const command: Command = {
     description: 'Get a mod log in a specified channel, to log changes and moderation on the server',
     usage: ' is the prefix\nmodlog <status>\nmodlog <channel> <channelID>\nmodlog <delete>',
     run: async (client, message, args): Promise<Message> => {
-        if (!message.member.hasPermission('MANAGE_GUILD')) {
+        if (!message.member.hasPermission('MANAGE_CHANNELS')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
         };
 
