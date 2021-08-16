@@ -25,6 +25,8 @@ export interface guildAttributes {
   tiktok: boolean;
   leaderboard: boolean;
   media: boolean;
+  icon?: string;
+  memberCount?: number;
 }
 
 export type guildPk = "guildID";
@@ -38,6 +40,8 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   tiktok!: boolean;
   leaderboard!: boolean;
   media!: boolean;
+  icon?: string;
+  memberCount?: number;
 
   // guild hasMany autoRole via guildID
   autoRoles!: autoRole[];
@@ -214,6 +218,14 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
     media: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    icon: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    memberCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

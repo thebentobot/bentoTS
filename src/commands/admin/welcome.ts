@@ -8,7 +8,7 @@ export const command: Command = {
     aliases: [],
     category: 'admin',
     description: 'welcome message settings, for when a member joins.\nDisabled by default and only works by assigning <channel> and <content>.\n{user} or {usertag} - mention user\n{username} - mention username\n{discriminator} - mention the #0000 for the user\n{server} - mention server\n{memberCount} - the member count\n{space} - adds a new line\nUse reverse / (slash) in front of a channel e.g. for linking to a rules channel.',
-    usage: ' is the prefix\nwelcome <status>\nwelcome <channel> <channelID>\nwelcome <msg/message> <content>\nwelcome <delete>',
+    usage: 'welcome status\nwelcome channel <channelID>\nwelcome msg/message <content>\nwelcome delete',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_MESSAGES')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));
@@ -44,17 +44,11 @@ export const command: Command = {
                     message: msg
                 }
                 const createwelcomeMessageData = await welcome.create(attr);
-
-                if (welcomeData.channel === null) {
-                    return message.channel.send(`Your welcome message was created! It is: ${createwelcomeMessageData.message}. You need to specify a channel where your welcome message will appear\nAssign a channel by the following command: ${guildData.prefix}welcome channel <channelID>`);
-                } else {
-                    return message.channel.send(`Your welcome message was created! It is: ${createwelcomeMessageData.message}.\nThe message will now appear in ${welcomeData.channel}`);
-                };
-
+                return message.channel.send(`Your welcome message was created! It is: ${createwelcomeMessageData.message}. You need to specify a channel where your welcome message will appear\nAssign a channel by the following command: ${guildData.prefix}welcome channel <channelID>`);               
             } else {
                 await welcome.update({message: msg}, {where: {guildID: message.guild.id}});
 
-                if (welcomeData.channel === null) {
+                if (!welcomeData.channel) {
                     return message.channel.send(`Your welcome message was updated! It is now: ${msg}. You need to specify a channel where your welcome message will appear\nAssign a channel by the following command: ${guildData.prefix}welcome channel <channelID>`);
                 } else {
                     return message.channel.send(`Your welcome message was updated! It is now: ${msg}.\nThe message will now appear in ${welcomeData.channel}`);

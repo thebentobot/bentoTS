@@ -44,12 +44,7 @@ export const command: Command = {
                 }
                 const createByeMessageData = await bye.create(attr);
 
-                if (byeData.channel === null) {
-                    return message.channel.send(`Your bye message was created! It is: ${createByeMessageData.message}. You need to specify a channel where your bye message will appear\nAssign a channel by the following command: ${guildData.prefix}bye channel <channelID>`);
-                } else {
-                    return message.channel.send(`Your bye message was created! It is: ${createByeMessageData.message}.\nThe message will now appear in <#${byeData.channel}>`);
-                };
-
+                return message.channel.send(`Your bye message was created! It is: ${createByeMessageData.message}. You need to specify a channel where your bye message will appear\nAssign a channel by the following command: ${guildData.prefix}bye channel <channelID>`);
             } else {
                 await bye.update({message: msg}, {where: {guildID: message.guild.id}});
 
@@ -82,12 +77,7 @@ export const command: Command = {
                 }
                 const createByeChannelData = await bye.create(attr);
 
-                if (byeData.message === null) {
-                    return message.channel.send(`Your bye channel was assigned! It is: <#${createByeChannelData.channel}> You need to specify a message to be sent in the channel\nCreate a bye message for when members leave the server by the following command: ${guildData.prefix}bye message <bye message>`);
-                } else {
-                    return message.channel.send(`Your bye channel was assigned! It is: <#${createByeChannelData.channel}>\nThe message: "${byeData.message}" will now be sent in the assigned channel.`);
-                };
-
+                return message.channel.send(`Your bye channel was assigned! It is: <#${createByeChannelData.channel}> You need to specify a message to be sent in the channel\nCreate a bye message for when members leave the server by the following command: ${guildData.prefix}bye message <bye message>`);
             } else {
                 await bye.update({channel: BigInt(channel)}, {where: {guildID: message.guild.id}});
 

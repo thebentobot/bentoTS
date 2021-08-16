@@ -104,7 +104,6 @@ export const command: Command = {
             if (listNoti.count === 0) {
                 return message.channel.send(`You don't have any notifications saved.`)
             }
-
             try {
                 const embed = new MessageEmbed()
                 .setColor(`${await urlToColours(client.user.avatarURL({ format: "png" }))}`)
@@ -112,7 +111,7 @@ export const command: Command = {
                 .setThumbnail(message.author.avatarURL({dynamic: true, format: 'png', size: 1024}))
                 .setTitle(`Your saved notifications`)
                 .setFooter(`Notifications marked with (G) is enabled globally.\nNotifications in total: ${listNoti.count}.`)
-                .setDescription(trim(listNoti.rows.map(noti => `${noti.global ? `${noti.content} (G)` : `${noti.content} (${client.guilds.cache.get(`${noti.guildID}`).name ? client.guilds.cache.get(`${noti.guildID}`).name : `Server unreachable`})`}`).join(` | `), 4096))
+                .setDescription(trim(listNoti.rows.map(noti => `${noti.global ? `${noti.content} (G)` : `${noti.content} (${client.guilds.cache.get(`${noti.guildID}`) ? client.guilds.cache.get(`${noti.guildID}`).name : `Server unreachable`})`}`).join(` | `), 4096))
                 await message.author.send(embed).catch(error => { console.error(`Could not send noti DM`, error), message.channel.send(`Notification list wasn't sent, because I can't send DM's to you ${message.author}.\nPlease check your privacy settings and try again.`)}) as Message
                 return await message.channel.send(`${message.author} your list of notifications has been sent to your DM's!`)
             } catch {

@@ -7,7 +7,7 @@ export const command: Command = {
     name: 'media',
     aliases: [],
     category: 'admin',
-    description: 'Enable or disable the image and gif command on this server.',
+    description: 'Enable or disable the gif command on this server.',
     usage: 'media <enable/disable/status>',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {

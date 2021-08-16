@@ -7,7 +7,7 @@ export const command: Command = {
     aliases: [],
     category: 'moderation',
     description: 'Removes messages',
-    usage: 'prune <1-100> [mention a user or a user id]',
+    usage: 'prune <1-100> [mention a user or a user id] [all channels or mention a channel or a channel id]',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_MESSAGES'))
             return message.channel.send('You do not have permission to use this command.').then(m => m.delete({timeout: 5000}));
@@ -34,7 +34,7 @@ export const command: Command = {
         if (args[1]) {
             let userID;
             try {
-                const theUser = message.mentions.members.first() || await message.guild.members.fetch(args[1]);
+                const theUser = message.mentions.members.first() || await client.users.fetch(args[1]);
                 userID = theUser.id
             } catch {
                 return message.channel.send('Specify a valid user please.')

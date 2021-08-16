@@ -4,11 +4,11 @@ import { initModels, guild } from '../../database/models/init-models';
 import { Message } from 'discord.js';
 
 export const command: Command = {
-    name: 'leaderboard',
-    aliases: [],
+    name: 'leaderboardSettings',
+    aliases: ['lbs'],
     category: 'admin',
     description: 'Enable or disable the XP and levelling system on this server.',
-    usage: 'leaderboard <enable/disable/status>',
+    usage: 'leaderboardSettings <enable/disable/status>',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

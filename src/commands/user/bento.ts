@@ -9,7 +9,7 @@ export const command: Command = {
     name: 'bento',
     aliases: ['bentobox', '🍱'],
     category: 'user',
-    description: 'Give a Bento Box 🍱 to your friend every 24th hour :D.',
+    description: 'Give a Bento Box 🍱 to your friend every 12th hour :D.',
     usage: 'bento [<user>]. If you just write the command, it shows when you can give a Bento Box 🍱 again.',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
@@ -39,7 +39,7 @@ export const command: Command = {
                     return message.channel.send(Util.removeMentions(`${(await message.guild.members.fetch(message.author.id)).nickname ? (await message.guild.members.fetch(message.author.id)).nickname : message.author.username}, you can give someone a Bento Box 🍱 again in ${getTimeRemaining(moment(bentoData.bentoDate).add(12, 'hour')).hours} hours, ${getTimeRemaining(moment(bentoData.bentoDate).add(12, 'hour')).minutes} minutes and ${getTimeRemaining(moment(bentoData.bentoDate).add(12, 'hour')).seconds} seconds`));
                 }
                 if (diffHours >= hours) {
-                    return message.channel.send(`You didn't specify a user to give the daily Bento 🍱 to!`);
+                    return message.channel.send(`You didn't specify a user to give a Bento 🍱 to 🥺`);
                 }
             } else {
                 let mentionedUser: GuildMember;
@@ -48,7 +48,7 @@ export const command: Command = {
                 } catch {
                     return message.channel.send(`Your input was invalid. Please specify a user.`)
                 }
-                if (mentionedUser.id === message.author.id) return message.channel.send(`You can't give yourself a Bento 🍱`)
+                if (mentionedUser.id === message.author.id) return message.channel.send(`You can't give yourself a Bento 🍱 😠`)
                 if (mentionedUser.user.bot === true) return message.channel.send(`You can't give a bot a Bento 🍱, don't feed bots food 😭`)
 
                 const bentoAttr: bentoCreationAttributes = {
@@ -80,7 +80,7 @@ export const command: Command = {
                     const bentoDataTarget = await bento.findOrCreate({raw: true, where: {userID: mentionedUser.id}, defaults: bentoAttrTarget})
                     const targetIncrement = await bento.increment('bento', {by: 1, where: { userID: bentoDataTarget[0].userID}});
 
-                    return message.channel.send(Util.removeMentions(`${(await message.guild.members.fetch(message.author.id)).nickname ? (await message.guild.members.fetch(message.author.id)).nickname : message.author.username} just gave a Bento 🍱 to ${(await message.guild.members.fetch(mentionedUser.id)).nickname ? `${(await message.guild.members.fetch(mentionedUser.id)).nickname} (${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})` : `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator}`}!\n${(await message.guild.members.fetch(mentionedUser.id)).nickname ? `${(await message.guild.members.fetch(mentionedUser.id)).nickname} (${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})` : `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator}`} has received ${targetIncrement[0][0][0].bento} Bento 🍱 over time 😋\n${message.author.username} can give a Bento 🍱 again in 12 hours.`))
+                    return message.channel.send(Util.removeMentions(`**${(await message.guild.members.fetch(message.author.id)).nickname ? (await message.guild.members.fetch(message.author.id)).nickname : message.author.username}** just gave a Bento 🍱 to **${(await message.guild.members.fetch(mentionedUser.id)).nickname ? `${(await message.guild.members.fetch(mentionedUser.id)).nickname} (${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})` : `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator}`}**!\n**${(await message.guild.members.fetch(mentionedUser.id)).nickname ? `${(await message.guild.members.fetch(mentionedUser.id)).nickname} (${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})` : `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator}`}** has received **${targetIncrement[0][0][0].bento} Bento** 🍱 over time 😋\n**${(await message.guild.members.fetch(message.author.id)).nickname ? (await message.guild.members.fetch(message.author.id)).nickname : message.author.username}** can give a Bento 🍱 again in 12 hours.`))
                 }
             }
         }

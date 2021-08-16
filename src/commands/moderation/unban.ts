@@ -64,24 +64,26 @@ export const command: Command = {
                 .setFooter(`Ban Case Number: ${banned.banCase}`)
                 .setTimestamp();
                 await logChannel.send(embed);
-                await message.channel.send(`**${(await client.users.fetch(unbannedUserID)).username}#${(await client.users.fetch(unbannedUserID)).discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
                 try {
                     (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`).catch(error => { console.error(`Could not send unban DM`, error)})
                     await message.guild.members.unban(unbannedUserID, reason)
                     await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
+                    return await message.channel.send(`**${(await client.users.fetch(unbannedUserID)).username}#${(await client.users.fetch(unbannedUserID)).discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
                 } catch {
                     await message.guild.members.unban(unbannedUserID, reason)
                     await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
+                    return await message.channel.send(`**${(await client.users.fetch(unbannedUserID)).username}#${(await client.users.fetch(unbannedUserID)).discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
                 }
             } catch {
-                await message.channel.send(`**${(await client.users.fetch(unbannedUserID)).username}#${(await client.users.fetch(unbannedUserID)).discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
                 try {
                     (await client.users.fetch(unbannedUserID)).send(`🙏You were \`unbanned\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unban specified'}.`).catch(error => { console.error(`Could not send unban DM`, error)})
                     await message.guild.members.unban(unbannedUserID, reason)
                     await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
+                    return await message.channel.send(`**${(await client.users.fetch(unbannedUserID)).username}#${(await client.users.fetch(unbannedUserID)).discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
                 } catch {
                     await message.guild.members.unban(unbannedUserID, reason)
                     await ban.destroy({where: {guildID: message.guild.id, userID: unbannedUserID, actor: banned.actor}})
+                    return await message.channel.send(`**${(await client.users.fetch(unbannedUserID)).username}#${(await client.users.fetch(unbannedUserID)).discriminator}** was successfully **unbanned** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unban specified'}.`)
                 }
             }
         }

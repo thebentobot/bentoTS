@@ -4,7 +4,7 @@ import { trim } from '../../utils';
 
 export const command: Command = {
     name: 'roles',
-    aliases: ['role'],
+    aliases: [],
     category: 'info',
     description: 'Shows list of roles on the server.',
     usage: 'roles',

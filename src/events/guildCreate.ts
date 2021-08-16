@@ -17,7 +17,9 @@ export const event: Event = {
             prefix: process.env.prefix,
             tiktok: true,
             leaderboard: true,
-            media: true
+            media: true,
+            icon: guild.iconURL() ? guild.iconURL() : 'https://cdn.discordapp.com/icons/714496317522444352/ebfb32b4ee4b60ed457d36c03654b260.png?size=1024',
+            memberCount: guild.memberCount
         };
 
         const caseGlobalAttr: caseGlobalCreationAttributes = {

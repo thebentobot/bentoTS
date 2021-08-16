@@ -7,7 +7,7 @@ export const command: Command = {
     name: 'autorole',
     aliases: [],
     category: 'admin',
-    description: 'Set an auto role that users get assigned automatically when they join',
+    description: 'Set an auto role that users get assigned automatically when they join. You can add multiple roles.',
     usage: 'autorole <status>\nautorole set <roleID or role mention>\nautorole delete <roleID>\nautorole list',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_ROLES')) {

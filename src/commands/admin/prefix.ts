@@ -8,7 +8,7 @@ export const command: Command = {
     aliases: [],
     category: 'admin',
     description: 'Sets the prefix for this server.',
-    usage: 'prefix <newPrefix>',
+    usage: 'prefix <new prefix>',
     run: async (client, message, args): Promise<Message> => {
         message.delete();
 

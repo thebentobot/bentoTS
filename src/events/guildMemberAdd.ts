@@ -16,7 +16,7 @@ export const event: Event = {
             const role = member.guild.roles.cache.get(`${muteRoleData.roleID}`)
             await member.roles.add(role)
         }
-
+        /*
         const userAttr: userCreationAttributes = {
             userID: BigInt(member.id),
             discriminator: member.user.discriminator,
@@ -37,7 +37,7 @@ export const event: Event = {
         }
 
         await guildMember.create(guildMemberAttr);
-
+        */
         const autoRoleData = await autoRole.findAll({where: {guildID: member.guild.id}})
         if (autoRoleData) {
             const iterator = autoRoleData.values();

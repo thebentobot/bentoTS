@@ -81,24 +81,26 @@ export const command: Command = {
                 .setFooter(`Mute Case Number: ${muted.muteCase}`)
                 .setTimestamp();
                 await logChannel.send(embed);
-                await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 try {
                     (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(error => { console.error(`Could not send unmute DM`, error)})
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
+                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 } catch {
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
+                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 }
             } catch {
-                await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 try {
                     (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(error => { console.error(`Could not send unmute DM`, error)})
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
+                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 } catch {
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
+                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 }
             }
         }

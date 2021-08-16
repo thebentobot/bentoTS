@@ -2,7 +2,7 @@ import { GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
 import moment from "moment";
 import { QueryTypes } from "sequelize";
 import database from "../database/database";
-import { initModels, modLog, reminder, user, guildMember } from "../database/models/init-models";
+import { initModels, modLog, reminder, user, guildMember, guild } from "../database/models/init-models";
 import { mute } from "../database/models/mute";
 import { muteRole } from "../database/models/muteRole";
 import { Event } from "../interfaces";
@@ -27,11 +27,11 @@ export const event: Event = {
         // get user pfps, used when integrating avatarurls into the db for the website
         /*
         initModels(database);
-        const userData = await user.findAll({raw: true})
+        const userData = await guild.findAll({raw: true})
         for (let i = 0; userData.length; i++) {
-            await user.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({format: "png", dynamic: true, size: 1024})}, {where: {userID: userData[i].userID}})
-            await guildMember.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({format: "png", dynamic: true, size: 1024})}, {where: {userID: userData[i].userID}})
+            await guild.update({memberCount: (await client.guilds.fetch(`${userData[i].guildID}`)).memberCount, guildName: (await client.guilds.fetch(`${userData[i].guildID}`)).name, icon: ((await client.guilds.fetch(`${userData[i].guildID}`)).iconURL() ? (await client.guilds.fetch(`${userData[i].guildID}`)).iconURL() : 'https://cdn.discordapp.com/icons/714496317522444352/ebfb32b4ee4b60ed457d36c03654b260.png?size=1024')}, {where: {guildID: userData[i].guildID}})
         }
+        console.log('done')
         */
 
         async function checkMutes() {

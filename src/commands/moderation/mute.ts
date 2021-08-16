@@ -58,7 +58,7 @@ export const command: Command = {
 
             const muteRoleData = await muteRole.findOne({raw: true, where: {guildID: message.guild.id}})
 
-            if (!muteRoleData.roleID) {
+            if (muteRoleData === null) {
                 return message.channel.send(`You haven't set a mute role.\nPlease use the muterole command.\nIf you need help, use the help command with muterole.`)
             }
 
@@ -117,20 +117,23 @@ export const command: Command = {
                 .setFooter(`Mute Case Number: ${muted[0].muteCase}`)
                 .setTimestamp();
                 await logChannel.send(embed);
-                await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 try {
                     (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.\nYou will be unmuted at approx. ${moment(muted[0].muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}.`).catch(error => { console.error(`Could not send mute DM`, error)})
                     await mutedUser.roles.add(role)
+                    return await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 } catch {
                     await mutedUser.roles.add(role)
+                    return await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 }
             } catch {
                 await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 try {
                     (await client.users.fetch(mutedUserID)).send(`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${message.guild.name}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${muteCount.count} that you have received from this server.\nYou will be unmuted at approx. ${moment(muted[0].muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}.`).catch(error => { console.error(`Could not send mute DM`, error)})
                     await mutedUser.roles.add(role)
+                    return await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 } catch {
                     await mutedUser.roles.add(role)
+                    return await message.channel.send(`**${message.guild.members.cache.get(`${mutedUserID}`).nickname ? `${message.guild.members.cache.get(`${mutedUserID}`).nickname} (${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${mutedUserID}`).user.username + '#' + message.guild.members.cache.get(`${mutedUserID}`).user.discriminator}`}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${reason ? reason : 'No reason specified'}.\nYou can add notes for this mute by using the case command together with the case number.`)
                 }                
             }
         }
@@ -146,7 +149,7 @@ export const command: Command = {
 
             const muteRoleData = await muteRole.findOne({raw: true, where: {guildID: message.guild.id}})
 
-            if (!muteRoleData.roleID) {
+            if (muteRoleData === null) {
                 return message.channel.send(`You haven't set a mute role.\nPlease use the muterole command.\nIf you need help, use the help command with muterole.`)
             }
 

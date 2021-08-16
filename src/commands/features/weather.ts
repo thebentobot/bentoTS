@@ -120,8 +120,6 @@ export const command: Command = {
                 return message.channel.send(`No results found for the location \`${city}\`.\nIf you've saved the location you can change the location to something else by using \`${guildData.prefix}weather save <city>\`.\nIf you tried to check the weather by ID and it failed, it's either because the user hasn't saved a city or the user isn't on this server.\nIf you searched for the location, perhaps add the country code for the location or you've misspelled.\nUse \`${guildData.prefix}help weather\` to get help.`)
             }
 
-            console.log(response)
-
             const Embed = new MessageEmbed()
                 .setColor('#EB6E4B')
                 .setAuthor(userID ? (message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator) : 'OpenWeather', userID ? message.guild.members.cache.get(userID).user.displayAvatarURL({format: 'png', dynamic: true}) : 'https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg', userID ? null : 'https://openweathermap.org/')

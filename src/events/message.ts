@@ -7,11 +7,13 @@ import { tiktokEmbedding } from '../utils/tiktok';
 import { addXpServer, addXpGlobal } from '../utils/xp'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
-import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember, roleChannel, role as roleDB } from '../database/models/init-models';
+import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember, roleChannel, role as roleDB, notificationMessage } from '../database/models/init-models';
 import { QueryTypes } from 'sequelize';
 import { trim, urlToColours } from '../utils';
 import moment from 'moment';
 import { roleManagement } from '../commands/admin/role';
+
+const guildUpdate = new Set();
 
 export const event: Event = {
     name: 'message',
@@ -47,6 +49,26 @@ export const event: Event = {
         if (messageGuild.leaderboard === true) {
             await addXpServer(message.guild.id, message.author.id, 23).catch();
             await addXpGlobal(message.author.id, 23).catch();
+        }
+
+        if (!guildUpdate.has(message.guild.id)) {
+            if (messageGuild.memberCount !== message.guild.memberCount) {
+                await guild.update({memberCount: message.guild.memberCount}, {where: {guildID: message.guild.id}})
+            }
+    
+            if (messageGuild.guildName !== message.guild.name) {
+                await guild.update({guildName: message.guild.name}, {where: {guildID: message.guild.id}})
+            }
+    
+            if (messageGuild.icon !== message.guild.iconURL()) {
+                await guild.update({icon: message.guild.iconURL()}, {where: {guildID: message.guild.id}})
+            }
+
+            guildUpdate.add(message.guild.id);
+            setTimeout(() => {
+                guildUpdate.delete(message.guild.id)
+            }, 3600000
+            ) // 1 hour
         }
 
         interface notificationValues {
@@ -89,7 +111,10 @@ export const event: Event = {
                     .setThumbnail(message.author.avatarURL({format: 'png', size: 1024, dynamic: true}))
                     .setColor(`${await urlToColours(message.guild.iconURL({ format: 'png'}) ? message.guild.iconURL({ format: 'png'}) : client.user.avatarURL({format: 'png'}))}`)
                     .setDescription(trim(`🗨 ${message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`} mentioned \`${noti.content}\` in ${message.channel} on **${message.guild.name}**.\nLink to the message [here](${message.url})\n${lastMessages.map(msg => `**[${moment(msg.createdAt).format('HH:mm:ss Z')}] ${msg.member.nickname ? `${msg.member.nickname} (${msg.author.username}#${msg.author.discriminator})` : `${msg.author.username}#${msg.author.discriminator}`}**\n> ${msg.content === '' ? '[MessageEmbed]' : msg.content.replace(noti.content, `**${noti.content}**`)}\n`).join('')}`, 4096))
-                    await user.send(`Link to message:\n${message.url}`, embed).catch(error => { console.error(`Could not send notification DM`, error)})
+                    await user.send(`Link to message:\n${message.url}`, embed).catch(async error => { 
+                        console.error(`Could not send notification DM`, error)
+                        await notificationMessage.destroy({where: {userID: noti.userID, content: noti.content, id: noti.id}})
+                    })
                 } catch {
                     return
                 }
