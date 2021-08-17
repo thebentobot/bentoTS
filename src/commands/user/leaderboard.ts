@@ -10,6 +10,7 @@ export const command: Command = {
     category: 'user',
     description: 'Shows the XP/level leaderboard for a server, globally for the bot, or global/local Bentos 🍱',
     usage: 'leaderboard [<global/bento>] [global]',
+    website: 'https://www.bentobot.xyz/commands#leaderboard',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             return serverLeaderboard (message)
@@ -25,6 +26,10 @@ export const command: Command = {
         
         if (args[0] === 'bento') {
             return bentoServerLeaderboard (message)
+        }
+
+        if (args[0] === 'web') {
+          return message.channel.send(`https://www.bentobot.xyz/leaderboard/${message.guild.id}`)
         }
 
         async function serverLeaderboard (message: Message) {

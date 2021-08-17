@@ -17,6 +17,7 @@ export const command: Command = {
     category: 'features',
     description: 'Searches for random GIFs based on the search input. The GIFs comes from Tenor, and has a G-rated content filter for non-NSFW channels. The filter is off in NSFW channels.',
     usage: 'gif <search input>',
+    website: 'https://www.bentobot.xyz/commands#gif',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             return message.channel.send('You need to provide a search input!').then(m => m.delete({timeout: 5000}));

@@ -8,6 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Shows user\'s avatars, or your own if you don\'t mention anyone. You can also check the server avatar and banner.',
     usage: 'avatar [userID or mention a user]\navatar server\navatar banner',
+    website: 'https://www.bentobot.xyz/commands#avatar',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             const embed = new MessageEmbed()

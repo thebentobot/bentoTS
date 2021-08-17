@@ -12,6 +12,7 @@ export const command: Command = {
     category: 'user',
     description: 'Shows your rank level, xp and praises',
     usage: 'rank [userID/mention a user]',
+    website: 'https://www.bentobot.xyz/commands#rank',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             return rankFunction (message)

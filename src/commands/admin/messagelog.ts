@@ -9,6 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Get a message log in a specified channel, for edited and deleted messages',
     usage: 'messagelog status\nmessagelog channel <channelID>\nmessagelog delete',
+    website: 'https://www.bentobot.xyz/commands#messagelog',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_CHANNELS')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

@@ -8,6 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Shows list of roles on the server.',
     usage: 'roles',
+    website: 'https://www.bentobot.xyz/commands#roles',
     run: async (client, message, args): Promise<any> => {
         const embed = new MessageEmbed()
         .setAuthor(message.guild.name, message.guild.iconURL({format: 'png'}))

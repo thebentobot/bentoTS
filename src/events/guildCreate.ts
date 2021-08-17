@@ -38,13 +38,14 @@ export const event: Event = {
             if (channel) {
                 const messageLogChannel: TextChannel = client.channels.cache.get(`${channel.id}`) as TextChannel;
                 const embed = new MessageEmbed()
-                .setAuthor(client.user.username, client.user.avatarURL())
+                .setAuthor(client.user.username, client.user.avatarURL(), 'https://www.bentobot.xyz/')
                 .setTitle('Hello! My name is Bento 🍱')
                 .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
                 .setDescription(`Thank you for choosing me to service your server!\nMy default prefix is \`${process.env.prefix}\`.\nIf the prefix is conflicting because of other bots, you can change it by writing \`${process.env.prefix}prefix <NEW PREFIX>\`\nUse \`${process.env.prefix}settings\` to check what features I've enabled or disabled by default.\nUse \`${process.env.prefix}commands\` to see a list of all my commands and \`${process.env.prefix}help <command name>\` to get help or info about a command.`)
+                .addField('Check out the website for more information and help with all commands and settings', 'https://www.bentobot.xyz/')
                 .addField('Need help? Or do you have some ideas or feedback to Bento 🍱? Feel free to join the support server', 'https://discord.gg/dd68WwP')
                 .addField('Want to check out the code for Bento 🍱?', 'https://github.com/thebentobot/bentoTS')
-                .setFooter('Bento 🍱 is created by Banner#1017', (await client.users.fetch('232584569289703424')).avatarURL())
+                .setFooter('Bento 🍱 is created by Banner#1017', (await client.users.fetch('232584569289703424')).avatarURL({dynamic: true}))
                 .setTimestamp()
                 await messageLogChannel.send(embed)
             } else {

@@ -13,6 +13,7 @@ export const command: Command = {
     category: 'features',
     description: 'Search for definitions on Urban dictionary',
     usage: 'urban <search input>',
+    website: 'https://www.bentobot.xyz/commands#urban',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
 			return message.channel.send('You need to search for a definition!');

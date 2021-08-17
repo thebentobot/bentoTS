@@ -9,6 +9,7 @@ export const command: Command = {
     description:
       "Bento repeats your message. If embed is added as an argument, Bento shows the message as en embed",
     usage: "say [embed] <input>",
+    website: 'https://www.bentobot.xyz/commands#say',
     run: async (client, message, args): Promise<Message> => {
         await message.delete();
 

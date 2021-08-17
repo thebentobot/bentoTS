@@ -9,6 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Sets the prefix for this server.',
     usage: 'prefix <new prefix>',
+    website: 'https://www.bentobot.xyz/commands#prefix',
     run: async (client, message, args): Promise<Message> => {
         message.delete();
 

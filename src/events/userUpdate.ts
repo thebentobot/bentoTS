@@ -8,6 +8,28 @@ export const event: Event = {
     run: async (client, oldUser: User, newUser: User): Promise<any> => {
         initModels(database);
 
-        await user.update({discriminator: newUser.discriminator, username: newUser.username, avatarURL: newUser.avatarURL()}, {where: {userID: oldUser.id}})
+        if (oldUser.avatarURL({dynamic: true, format: "png", size: 1024}) !== newUser.avatarURL({dynamic: true, format: "png", size: 1024})) {
+            try {
+                await user.update({avatarURL: newUser.avatarURL({dynamic: true, format: "png", size: 1024})}, {where: {userID: oldUser.id}})
+            } catch {
+                return
+            }
+        }
+
+        if (oldUser.username !== newUser.username) {
+            try {
+                await user.update({username: newUser.username}, {where: {userID: oldUser.id}})
+            } catch {
+                return
+            }
+        }
+
+        if (oldUser.discriminator !== newUser.discriminator) {
+            try {
+                await user.update({discriminator: newUser.discriminator}, {where: {userID: oldUser.id}})
+            } catch {
+                return
+            }
+        }
     }
 }

@@ -10,8 +10,12 @@ export const command: Command = {
     aliases: [],
     category: 'info',
     description: 'Displays a full list of bot commands categorised',
-    usage: 'commands',
+    usage: 'commands\ncommands web',
+    website: 'https://www.bentobot.xyz/commands#commands',
     run: async (client, message, args): Promise<Message> => {
+        if (args[0] === 'web') {
+            return message.channel.send('https://www.bentobot.xyz/commands')
+        }
         initModels(database);
         const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}});
     

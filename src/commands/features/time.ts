@@ -16,6 +16,7 @@ export const command: Command = {
     category: 'features',
     description: 'Displays the local time for a specifc city. \n If it shows a city from another country than the one you expected, try to add a country code (e.g. US, GB, DE) beside the city (remember a comma after city), as shown below \n if it does not show up either, it may not be included in the time API.',
     usage: 'time <city>, [country code]',
+    website: 'https://www.bentobot.xyz/commands#time',
     run: async (client, message, args): Promise<Message> => {
 
         if (!args[0]) {

@@ -28,7 +28,7 @@ export const event: Event = {
             username: message.author.username,
             xp: 0,
             level: 1,
-            avatarURL: message.author.avatarURL()
+            avatarURL: message.author.avatarURL({format: 'png', dynamic: true, size: 1024})
         }
 
         const guildMemberAttr: guildMemberCreationAttributes = {
@@ -36,7 +36,7 @@ export const event: Event = {
             guildID: BigInt(message.guild.id),
             xp: 0,
             level: 1,
-            avatarURL: message.author.avatarURL()
+            avatarURL: message.author.avatarURL({format: 'png', dynamic: true, size: 1024})
         }
 
         if (message.author.bot === false) {
@@ -60,8 +60,8 @@ export const event: Event = {
                 await guild.update({guildName: message.guild.name}, {where: {guildID: message.guild.id}})
             }
     
-            if (messageGuild.icon !== message.guild.iconURL()) {
-                await guild.update({icon: message.guild.iconURL()}, {where: {guildID: message.guild.id}})
+            if (messageGuild.icon !== message.guild.iconURL({format: 'png', dynamic: true, size: 1024})) {
+                await guild.update({icon: message.guild.iconURL({format: 'png', dynamic: true, size: 1024})}, {where: {guildID: message.guild.id}})
             }
 
             guildUpdate.add(message.guild.id);
@@ -69,6 +69,28 @@ export const event: Event = {
                 guildUpdate.delete(message.guild.id)
             }, 3600000
             ) // 1 hour
+        }
+
+        const roleChannelData = await roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
+
+        if (roleChannelData !== null) {
+            if (`${roleChannelData.channelID}` === message.channel.id) {
+                await roleManagement(message)
+            }
+        }
+
+        if (message.content.includes('tiktok.com')) {
+            if (messageGuild.tiktok == false) {
+                return
+            }
+            const url = checkURL(message.content);
+            const tiktok = await tiktokEmbedding(url);
+            try {
+                await message.channel.send(tiktok[0])
+                await message.channel.send(tiktok[1])
+            } catch {
+                return
+            }
         }
 
         interface notificationValues {
@@ -121,29 +143,7 @@ export const event: Event = {
             }
         }
 
-        if (message.content.includes('tiktok.com')) {
-            if (messageGuild.tiktok == false) {
-                return
-            }
-            const url = checkURL(message.content);
-            const tiktok = await tiktokEmbedding(url);
-            try {
-                await message.channel.send(tiktok[0])
-                await message.channel.send(tiktok[1])
-            } catch {
-                return
-            }
-        }
-
         const prefix = messageGuild.prefix
-
-        const roleChannelData = await roleChannel.findOne({raw: true, where: {guildID: message.guild.id}})
-
-        if (roleChannelData !== null) {
-            if (`${roleChannelData.channelID}` === message.channel.id) {
-                await roleManagement(message)
-            }
-        }
 
         if (!message.content.startsWith(prefix)) return
 

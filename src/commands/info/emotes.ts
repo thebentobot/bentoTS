@@ -8,6 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Shows list of emotes from the server.',
     usage: 'emotes\nemotes animated\nemotes static',
+    website: 'https://www.bentobot.xyz/commands#emotes',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             const embed = new MessageEmbed()

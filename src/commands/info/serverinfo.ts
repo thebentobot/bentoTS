@@ -8,6 +8,7 @@ export const command: Command = {
     category: 'info',
     description: 'Displays info about the current server.',
     usage: 'serverinfo',
+    website: 'https://www.bentobot.xyz/commands#serverinfo',
     run: async (client, message, args): Promise<Message> => {
         const embed = new MessageEmbed()
         .setTitle(message.guild.name)

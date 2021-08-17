@@ -9,6 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Enable or disable TikTok embedding for all messages on this server.',
     usage: 'tiktok <enable/disable/status>',
+    website: 'https://www.bentobot.xyz/commands#tiktok',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

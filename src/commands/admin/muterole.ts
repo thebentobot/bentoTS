@@ -9,6 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Set an mute role that users get assigned when a mod mutes them',
     usage: 'muterole status\nmuterole set <roleID or role mention>\nmuterole delete <roleID>',
+    website: 'https://www.bentobot.xyz/commands#muterole',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_ROLES')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

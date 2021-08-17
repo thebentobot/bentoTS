@@ -11,6 +11,7 @@ export const command: Command = {
     category: 'moderation',
     description: 'Kicks the mentioned user from your server.',
     usage: 'kick <user id or mention user> [reason]',
+    website: 'https://www.bentobot.xyz/commands#kick',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('KICK_MEMBERS')) {
             return message.channel.send('You do not have permission to use this command.\nYou are not a mod.').then(m => m.delete({timeout: 5000}));

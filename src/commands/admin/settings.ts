@@ -11,6 +11,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Sends an overview of the server settings',
     usage: 'settings',
+    website: 'https://www.bentobot.xyz/commands#settings',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_CHANNELS')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

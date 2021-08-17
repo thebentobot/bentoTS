@@ -12,6 +12,7 @@ export const command: Command = {
     category: 'info',
     description: 'Displays bot help message or info for a command',
     usage: 'help [command name]',
+    website: 'https://www.bentobot.xyz/commands#help',
     run: async (client, message, args): Promise<any> => {
         if (args[0]) {
             return getCMD(client, message, args[0]);
@@ -30,6 +31,7 @@ export const command: Command = {
                 .setThumbnail(client.user.avatarURL())
                 .setDescription(`For a full list of commands, please type \`${guildDB.prefix}commands\` \nTo see more info about a specific command, please type \`${guildDB.prefix}help <command>\` without the \`<>\``)
                 .addField('About Bento Bot 🍱', 'A Discord bot for chat moderation and fun features you did not know you needed on Discord.')
+                .addField('The Bento Bot Website', 'https://www.bentobot.xyz/')
                 .addField('Want to check out the code for Bento 🍱?', 'https://github.com/thebentobot/bentoTS')
                 .addField('Need help? Or do you have some ideas or feedback to Bento 🍱? Feel free to join the support server', 'https://discord.gg/dd68WwP')
                 .setFooter('Bento 🍱 is created by Banner#1017', (await client.users.fetch('232584569289703424')).avatarURL({dynamic: true}))
@@ -57,6 +59,7 @@ export const command: Command = {
                 info += `\n**Usage**: ${guildDB.prefix}${cmd.usage}`;
                 embed.setFooter('<> = REQUIRED | [] = OPTIONAL')
             }
+            if (cmd.website) info += `\n**Website**: ${cmd.website}`;
         
             return message.channel.send(embed.setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`).setDescription(info));
         }

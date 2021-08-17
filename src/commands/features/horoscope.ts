@@ -14,6 +14,7 @@ export const command: Command = {
     category: 'features',
     description: 'Provides a horoscope based on day and sign. If you search signs, it provides a list of signs and their date range',
     usage: '**horoscope <save> <sign>** to save your horoscope\n**horoscope <today/tomorrow/yesterday> [sign or a user mention/id]** to show horoscope for a given day and for a given user\nIf you don\'t specify a user or sign, then it will check for yourself. If you don\'t mention anything and have a sign saved, it shows for today.\n**horoscope list** shows a list of all users on the server who has saved their horoscope.\n**horoscope search <query>** makes you able to search for users who has a specific horoscope.',
+    website: 'https://www.bentobot.xyz/commands#horoscope',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
             return horoToday(message);
@@ -240,7 +241,7 @@ export const command: Command = {
                 let colour: string = res.color
                 const exampleEmbed = new MessageEmbed()
                     .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
-                    .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
+                    .setTitle(`${capitalize(sign)} horoscope for ${res.current_date}`)
                     .setDescription(res.description)
                     .setTimestamp()
                     .addFields(
@@ -290,7 +291,7 @@ export const command: Command = {
                 let colour: string = res.color
                 const exampleEmbed = new MessageEmbed()
                     .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
-                    .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
+                    .setTitle(`${capitalize(sign)} horoscope for ${res.current_date}`)
                     .setDescription(res.description)
                     .setTimestamp()
                     .addFields(
@@ -340,7 +341,7 @@ export const command: Command = {
                 let colour: string = res.color
                 const exampleEmbed = new MessageEmbed()
                     .setAuthor(`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`, userID ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true}) : message.author.avatarURL({format: 'png', dynamic: true}))
-                    .setTitle(`${capitalize(sign)}'s horoscope for ${res.current_date}`)
+                    .setTitle(`${capitalize(sign)} horoscope for ${res.current_date}`)
                     .setDescription(res.description)
                     .setTimestamp()
                     .addFields(

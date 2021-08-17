@@ -9,6 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Set an auto role that users get assigned automatically when they join. You can add multiple roles.',
     usage: 'autorole <status>\nautorole set <roleID or role mention>\nautorole delete <roleID>\nautorole list',
+    website: 'https://www.bentobot.xyz/commands#autorole',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_ROLES')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

@@ -22,6 +22,7 @@ export const command: Command = {
     category: 'features',
     description: 'Displays info about the weather at the city saved for the user, or at the specified city.\nIf it shows a city from another country than the one you expected, try to add a country code (e.g. US, GB, DE) beside the city (remember a comma after city), as shown below\nIf it does not show up either, it may not be included in the OpenWeather API.',
     usage: 'weather [save] <city>, [country code]',
+    website: 'https://www.bentobot.xyz/commands#weather',
     run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'save') {
             return saveWeather (message, args.slice(1).join(" "))

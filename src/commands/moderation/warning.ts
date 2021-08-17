@@ -10,6 +10,7 @@ export const command: Command = {
     category: 'moderation',
     description: 'Warns the mentioned user.',
     usage: 'warning <user id or mention user> [reason]',
+    website: 'https://www.bentobot.xyz/commands#warning',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('BAN_MEMBERS')) {
             return message.channel.send('You do not have permission to use this command.\nYou are not a mod.').then(m => m.delete({timeout: 5000}));

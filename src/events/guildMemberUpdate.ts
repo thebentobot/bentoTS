@@ -24,18 +24,18 @@ export const event: Event = {
             }
         }
 
-        if (oldMember.user.avatarURL() !== newMember.user.avatarURL()) {
+        if (oldMember.user.avatarURL({dynamic: true, format: "png", size: 1024}) !== newMember.user.avatarURL({dynamic: true, format: "png", size: 1024})) {
             try {
                 const log = await memberLog.findOne({where: { guildID: oldMember.guild.id}})
                 const memberLogChannel: TextChannel = client.channels.cache.get(`${log.channel}`) as TextChannel;
                 const embed = new MessageEmbed()
-                .setAuthor(`${oldMember.user.username + '#' + oldMember.user.discriminator} (userID: ${oldMember.id})`, oldMember.user.displayAvatarURL())
-                .setThumbnail(newMember.user.avatarURL())
+                .setAuthor(`${oldMember.user.username + '#' + oldMember.user.discriminator} (userID: ${oldMember.id})`, oldMember.user.displayAvatarURL({dynamic: true, format: "png", size: 1024}))
+                .setThumbnail(newMember.user.avatarURL({dynamic: true, format: "png", size: 1024}))
                 .setColor('#39FF14')
-                .setDescription(`Avatar updated for this user.\n**Previous avatar:**\n${oldMember.user.avatarURL()}\n**New avatar:**\n${newMember.user.avatarURL()}`)
+                .setDescription(`Avatar updated for this user.\n**Previous avatar:**\n${oldMember.user.avatarURL({dynamic: true, format: "png", size: 1024})}\n**New avatar:**\n${newMember.user.avatarURL({dynamic: true, format: "png", size: 1024})}`)
                 .setFooter('Updated at')
                 .setTimestamp()
-                await user.update({avatarURL: newMember.user.avatarURL()}, {where: {userID: oldMember.id}})
+                await user.update({avatarURL: newMember.user.avatarURL({dynamic: true, format: "png", size: 1024})}, {where: {userID: oldMember.id}})
                 await guildMember.update({avatarURL: newMember.user.avatarURL()}, {where: {userID: oldMember.id, guildID: oldMember.guild.id}})
                 await memberLogChannel.send(embed)
             } catch {

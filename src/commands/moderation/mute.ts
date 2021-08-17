@@ -22,6 +22,7 @@ export const command: Command = {
     category: 'moderation',
     description: 'Mutes a user until unmute or for a specific time.\nPossible timeframes: millisecond/milliseconds/ms, second/seconds/s, minute/minutes/m, hour/hours/h, day/days/d, month/months/M, year/years/y.',
     usage: 'mute <user id or mention user> [reason]\nmute time <amount of time> <timeframe> <user id or mention user> [reason]',
+    website: 'https://www.bentobot.xyz/commands#mute',
     run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'time') {
             return timedMute (message, args[1], args[2], args[3], args.slice(4).join(' '))

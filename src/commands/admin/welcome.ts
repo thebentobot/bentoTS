@@ -9,6 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'welcome message settings, for when a member joins.\nDisabled by default and only works by assigning <channel> and <content>.\n{user} or {usertag} - mention user\n{username} - mention username\n{discriminator} - mention the #0000 for the user\n{server} - mention server\n{memberCount} - the member count\n{space} - adds a new line\nUse reverse / (slash) in front of a channel e.g. for linking to a rules channel.',
     usage: 'welcome status\nwelcome channel <channelID>\nwelcome msg/message <content>\nwelcome delete',
+    website: 'https://www.bentobot.xyz/commands#welcome',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_MESSAGES')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

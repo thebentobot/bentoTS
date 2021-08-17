@@ -9,6 +9,7 @@ export const command: Command = {
     category: 'admin',
     description: 'Enable or disable server name and reasons for global cases.\nIf you disable them, the moderation cases\'s server info and reasons from this server will be classified, and if enabled, other server can see the server name and reasons for cases from this server.',
     usage: 'caseglobal server <enable/disable/status>\ncaseglobal reasons <enable/disable/status>',
+    website: 'https://www.bentobot.xyz/commands#caseglobal',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_GUILD')) {
             return message.channel.send('You do not have permission to use this command!').then(m => m.delete({timeout: 10000}));

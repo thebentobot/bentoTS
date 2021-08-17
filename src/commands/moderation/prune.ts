@@ -8,6 +8,7 @@ export const command: Command = {
     category: 'moderation',
     description: 'Removes messages',
     usage: 'prune <1-100> [mention a user or a user id] [all channels or mention a channel or a channel id]',
+    website: 'https://www.bentobot.xyz/commands#prune',
     run: async (client, message, args): Promise<Message> => {
         if (!message.member.hasPermission('MANAGE_MESSAGES'))
             return message.channel.send('You do not have permission to use this command.').then(m => m.delete({timeout: 5000}));

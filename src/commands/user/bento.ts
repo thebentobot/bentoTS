@@ -11,6 +11,7 @@ export const command: Command = {
     category: 'user',
     description: 'Give a Bento Box 🍱 to your friend every 12th hour :D.',
     usage: 'bento [<user>]. If you just write the command, it shows when you can give a Bento Box 🍱 again.',
+    website: 'https://www.bentobot.xyz/commands#bento',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {
             return giveBento (message)

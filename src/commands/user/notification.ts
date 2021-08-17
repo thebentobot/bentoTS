@@ -10,6 +10,7 @@ export const command: Command = {
     category: 'user',
     description: 'Get a notification when someone mentions a specific word or sentence. You can enable it for the server you write the command from, or enable it globally to get it from all servers who has Bento.',
     usage: ' is the prefix.\n**notification add <content>** to add content to be notified by. Add \'\'--global\'\' if you want to get notified when someone mentions the word on all Bento servers.\n**notification delete <content>** to delete the saved notification.\n**notification list** to get a DM with a list of all your saved notifications.\n**notification global <content>** to enable/disable global notifications for a saved notification.',
+    website: 'https://www.bentobot.xyz/commands#notification',
     run: async (client, message, args): Promise<Message> => {
         if (args[0] === 'add') {
             return addNoti (message, args.slice(1).join(' '))
@@ -75,10 +76,10 @@ export const command: Command = {
                     .setColor(`${await urlToColours(client.user.avatarURL({ format: "png" }))}`)
                     .setTimestamp()
                     .setDescription(`Your notification \`${createNoti[0].content}\` has been saved!\n${createNoti[0].global ? `You have enabled global and will be notified when your notification content are mentioned on any server you are on, who has Bento.` : `You will be notified when your notification content are mentioned on the server you saved it on. Use the global argument for the notification command to enable global notifications.`}`)
-                    return await message.author.send(embed).catch(error => { console.error(`Could not send noti DM`, error), message.channel.send(`Notification hasn't been saved, because I can't send DM's to you ${message.author}.\nPlease check your privacy settings and try again.`)}) as Message
+                    return await message.author.send(embed).catch(error => { console.error(`Could not send noti DM`, error), message.channel.send(`The notification has not been saved because I can't send DM's to you ${message.author}.\nPlease check your privacy settings and try again.`)}) as Message
                 } catch {
                     await notificationMessage.destroy({where: {userID: message.author.id, content: createNoti[0].content, id: createNoti[0].id}})
-                    return await message.channel.send(`Notification hasn't been saved, because I can't send DM's to you ${message.author}.\nPlease check your privacy settings and try again.`)
+                    return await message.channel.send(`The notification has not been saved because I can't send DM's to you ${message.author}.\nPlease check your privacy settings and try again.`)
                 }
             }
         }

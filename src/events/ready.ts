@@ -27,12 +27,16 @@ export const event: Event = {
         // get user pfps, used when integrating avatarurls into the db for the website
         /*
         initModels(database);
-        const userData = await guild.findAll({raw: true})
-        for (let i = 0; userData.length; i++) {
-            await guild.update({memberCount: (await client.guilds.fetch(`${userData[i].guildID}`)).memberCount, guildName: (await client.guilds.fetch(`${userData[i].guildID}`)).name, icon: ((await client.guilds.fetch(`${userData[i].guildID}`)).iconURL() ? (await client.guilds.fetch(`${userData[i].guildID}`)).iconURL() : 'https://cdn.discordapp.com/icons/714496317522444352/ebfb32b4ee4b60ed457d36c03654b260.png?size=1024')}, {where: {guildID: userData[i].guildID}})
+        const userData = await user.findAll({raw: true})
+        const filter1 = userData.filter(first => first.avatarURL.includes('.webp'))
+        console.log(filter1)
+        for (let i = 0; filter1.length; i++) {
+            await user.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) ? (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) : `https://cdn.discordapp.com/embed/avatars/${Number((await client.users.fetch(`${userData[i].userID}`)).discriminator) % 5}.png`}, {where: {userID: userData[i].userID}})
+            await guildMember.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) ? (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) : `https://cdn.discordapp.com/embed/avatars/${Number((await client.users.fetch(`${userData[i].userID}`)).discriminator) % 5}.png`}, {where: {userID: userData[i].userID}})
         }
         console.log('done')
         */
+        
 
         async function checkMutes() {
             interface muteDataTypes {
