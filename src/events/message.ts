@@ -19,6 +19,7 @@ export const event: Event = {
     name: 'message',
     run: async (client, message: Message): Promise<any> => {
         if (message.author.bot) return;
+        if (!message.guild) return;
         
         initModels(database); //imports models into sequelize instance
 
@@ -112,10 +113,12 @@ export const event: Event = {
         })
 
         if (notificationData) {
+            const guildMemberData = await guildMember.findAll({raw: true, where: {userID: message.author.id}})
+            const guildCheck = guildMemberData.map(guild => guild.guildID)
             const newNotiArr: Array<notificationValues> = []
             for (const notiCheck of notificationData) {
                 if (`${notiCheck.guildID}` !== message.guild.id) {
-                    if (notiCheck.global === true && `${notiCheck.userID}` !== message.author.id) {
+                    if (notiCheck.global === true && `${notiCheck.userID}` !== message.author.id && guildCheck.includes(notiCheck.guildID)) {
                         newNotiArr.push(notiCheck)
                     }
                 } else if (`${notiCheck.userID}` !== message.author.id) {
@@ -151,8 +154,6 @@ export const event: Event = {
         .slice(prefix.length)
         .trim()
         .split(/ +/g);
-
-        if (!message.guild) return;
 
         const cmd = args.shift().toLowerCase();
 
