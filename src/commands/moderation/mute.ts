@@ -73,7 +73,7 @@ export const command: Command = {
             let mutedUserID: string;
     
             try {
-                mutedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                mutedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
                 mutedUserID = mutedUser.id
             } catch {
                 return message.channel.send('I cannot find the specified member. Please mention a valid member in this Discord server.')
@@ -164,7 +164,7 @@ export const command: Command = {
             let mutedUserID: string;
     
             try {
-                mutedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                mutedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
                 mutedUserID = mutedUser.id
             } catch {
                 return message.channel.send('I cannot find the specified member. Please mention a valid member in this Discord server.')

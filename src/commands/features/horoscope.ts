@@ -44,12 +44,16 @@ export const command: Command = {
             return horoList (message);
         }
 
-        if (args[0]) {
-            return horoToday(message, args[0]);
+        if (args[0] === 'sign') {
+            return message.channel.send('https://i.pinimg.com/736x/43/aa/50/43aa50c918f3bd03abb71b6d4aaf93c7--new-zodiac-signs-zodiac-signs-and-dates.jpg')
         }
 
-        if (args[0] === 'sign' || 'signs') {
+        if (args[0] === 'signs') {
             return message.channel.send('https://i.pinimg.com/736x/43/aa/50/43aa50c918f3bd03abb71b6d4aaf93c7--new-zodiac-signs-zodiac-signs-and-dates.jpg')
+        }
+
+        if (args[0]) {
+            return horoToday(message, args[0]);
         }
 
         async function horoSave (message: Message, input?: GuildMember | any) {
@@ -221,7 +225,7 @@ export const command: Command = {
                 sign = input
             } else {
                 try {
-                const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
+                const mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(input);
                 if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
                 const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
@@ -271,8 +275,8 @@ export const command: Command = {
                 sign = input
             } else {
                 try {
-                const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
-                if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
+                    const mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(input);
+                    if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
                 const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
                 sign = horoData.horoscope
@@ -321,8 +325,8 @@ export const command: Command = {
                 sign = input
             } else {
                 try {
-                const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(input);
-                if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
+                    const mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(input);
+                    if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
                 const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
                 sign = horoData.horoscope

@@ -45,7 +45,7 @@ export const command: Command = {
             } else {
                 let mentionedUser: GuildMember;
                 try {
-                    mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                    mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
                 } catch {
                     return message.channel.send(`Your input was invalid. Please specify a user.`)
                 }

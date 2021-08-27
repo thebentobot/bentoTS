@@ -28,7 +28,7 @@ export const command: Command = {
 
             if (user) {
                 try {
-                    const mentionedUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                    const mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
                     if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a rank. That would be unfair for users ;-)`)
                     userID = mentionedUser.id
                 } catch {
@@ -104,14 +104,14 @@ export const command: Command = {
             .setThumbnail(message.guild.members.cache.get(userID).user.displayAvatarURL({ format: 'png', dynamic: true }))
             .setTimestamp()
             .addFields(
-                { name: 'Total Bento 🍱', value: bentoRankUser[0].bento, inline: true},
-                { name: 'Bento Box 🍱 rank', value: `${bentoRankUser[0].rank}/${bentoRank[bentoRank.length - 1].rank} users`, inline: true},
-                { name: 'Server rank', value: `${serverRankUser[0].rank}/${message.guild.members.cache.get(userID).guild.memberCount} users`},
-                { name: 'Server Level', value: serverRankUser[0].level, inline: true},
-                { name: 'Server XP', value: trim(`${serverRankUser[0].xp} XP\n${(serverRankUser[0].level * serverRankUser[0].level * 100) - serverRankUser[0].xp} XP ⬆️`, 1024), inline: true},
-                { name: 'Global rank', value: `${globalRankUser[0].rank}/${globalRank[globalRank.length - 1].rank} users`},
-                { name: 'Global level', value: globalRankUser[0].level, inline: true},
-                { name: 'Global XP', value: trim(`${globalRankUser[0].xp} XP\n${(globalRankUser[0].level * globalRankUser[0].level * 100) - globalRankUser[0].xp} XP ⬆️`, 1024), inline: true},
+                { name: 'Total Bento 🍱', value: bentoRankUser[0] ? bentoRankUser[0].bento : '0', inline: true},
+                { name: 'Bento Box 🍱 rank', value: `${bentoRankUser[0] ? bentoRankUser[0].rank : 'You don\'t have any Bento 🍱 yet 😭'}/${bentoRank[bentoRank.length - 1].rank} users`, inline: true},
+                { name: 'Server rank', value: `${serverRankUser[0] ? serverRankUser[0].rank : '0'}/${message.guild.members.cache.get(userID).guild.memberCount} users`},
+                { name: 'Server Level', value: serverRankUser[0] ? serverRankUser[0].level : '0', inline: true},
+                { name: 'Server XP', value: trim(`${serverRankUser[0] ? serverRankUser[0].xp : '0'} XP\n${serverRankUser[0] ? ((serverRankUser[0].level * serverRankUser[0].level * 100) - serverRankUser[0].xp) : '0'} XP ⬆️`, 1024), inline: true},
+                { name: 'Global rank', value: `${globalRankUser[0] ? globalRankUser[0].rank : '0'}/${globalRank[globalRank.length - 1].rank} users`},
+                { name: 'Global level', value: globalRankUser[0] ? globalRankUser[0].level : '0', inline: true},
+                { name: 'Server XP', value: trim(`${globalRankUser[0] ? globalRankUser[0].xp : '0'} XP\n${globalRankUser[0] ? ((globalRankUser[0].level * globalRankUser[0].level * 100) - globalRankUser[0].xp) : '0'} XP ⬆️`, 1024), inline: true},
             )
             embeds.push(embed);
             return embeds

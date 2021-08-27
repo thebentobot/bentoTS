@@ -35,7 +35,7 @@ export const command: Command = {
         if (args[1]) {
             let userID;
             try {
-                const theUser = message.mentions.members.first() || await client.users.fetch(args[1]);
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(args[1]);
                 userID = theUser.id
             } catch {
                 return message.channel.send('Specify a valid user please.')

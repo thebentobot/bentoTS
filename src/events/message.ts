@@ -40,10 +40,8 @@ export const event: Event = {
             avatarURL: message.author.avatarURL({format: 'png', dynamic: true, size: 1024})
         }
 
-        if (message.author.bot === false) {
-            await user.findOrCreate({where: {userID: message.author.id}, defaults: userAttr})
-            await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
-        }
+        await user.findOrCreate({where: {userID: message.author.id}, defaults: userAttr})
+        await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
 
         const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
 
@@ -102,7 +100,7 @@ export const event: Event = {
             global: boolean
         }
 
-        let notiMessage = message.content.replace('%', '').replace('_', '').replace('__', '').split(' ')
+        let notiMessage = message.content.replace('%', '').replace('_', '').replace(/\\/g,"\\\\").replace('__', '').split(' ')
         
         const notificationData: Array<notificationValues> = await database.query(`
         SELECT *
@@ -145,8 +143,19 @@ export const event: Event = {
                 }
             }
         }
+        const hasEmoteRegex = /<a?:.+:\d+>/gm
+        const emoteRegex = /<:.+:(\d+)>/gm
+        const animatedEmoteRegex = /<a:.+:(\d+)>/gm
 
-        const prefix = messageGuild.prefix
+        const argsSplit = message.content
+        .slice()
+        .trim()
+        .split(/ +/g);
+
+        if (argsSplit.length === 1 && message.mentions.users.has(client.user.id)) return message.channel.send(`The Bento 🍱 prefix on this server is: \`${messageGuild.prefix}\`.`)
+        
+        const prefixMention = new RegExp(`^<@!?${client.user.id}> `);
+        const prefix = message.content.match(prefixMention) ? message.content.match(prefixMention)[0] : messageGuild.prefix;
 
         if (!message.content.startsWith(prefix)) return
 
@@ -154,6 +163,19 @@ export const event: Event = {
         .slice(prefix.length)
         .trim()
         .split(/ +/g);
+
+        if (args.length === 1 && message.content.match(hasEmoteRegex)) {
+            let emoji;
+            
+            if (emoji = emoteRegex.exec(message.content)) {
+                const url = "https://cdn.discordapp.com/emojis/" + emoji[1] + ".png?v=1"
+                message.channel.send(url)
+            }
+            else if (emoji = animatedEmoteRegex.exec(message.content)) {
+                const url = "https://cdn.discordapp.com/emojis/" + emoji[1] + ".gif?v=1"
+                message.channel.send(url)
+            }
+        }
 
         const cmd = args.shift().toLowerCase();
 

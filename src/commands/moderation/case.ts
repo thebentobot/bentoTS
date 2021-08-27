@@ -65,7 +65,7 @@ export const command: Command = {
 
             if (!global) {
                 try {
-                    const theUser = message.mentions.members.first() || await message.guild.members.fetch(user);
+                    const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
                     if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have any cases.`)
                     userID = theUser.id
                 } catch {
@@ -73,8 +73,8 @@ export const command: Command = {
                 }
             } else {
                 try {
-                    const theUser = client.users.cache.get(user);
-                if (theUser.bot === true) return message.channel.send(`A bot doesn't have any cases.`)
+                    const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
+                    if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have any cases.`)
                 userID = theUser.id
                 initModels(database)
                 const userExists = await guildMember.findOne({raw: true, where: {userID: userID, guildID: message.guild.id}})

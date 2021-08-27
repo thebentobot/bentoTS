@@ -25,7 +25,7 @@ export const command: Command = {
         let bannedUserID: string;
 
         try {
-            bannedUser = message.mentions.members.first() || await message.guild.members.fetch(args[0]);
+            bannedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(args[0]);
             bannedUserID = bannedUser.id
         } catch {
             return message.channel.send('I cannot find the specified member. Please mention a valid member in this Discord server.')

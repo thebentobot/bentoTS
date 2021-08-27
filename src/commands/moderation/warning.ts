@@ -24,7 +24,7 @@ export const command: Command = {
         let warningUserID: string;
 
         try {
-            warningUser = message.mentions.members.first() || await message.guild.members.fetch(args[0]);
+            warningUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(args[0]);
             warningUserID = warningUser.id
         } catch {
             return message.channel.send('I cannot find the specified member. Please mention a valid member in this Discord server.')

@@ -8,8 +8,8 @@ import * as dotenv from "dotenv";
 import SpotifyWebApi from 'spotify-web-api-node';
 import moment from 'moment';
 import { flag } from 'country-emoji';
-import { QueryTypes } from 'sequelize';
-import { urlToColours } from '../../utils';
+//import { QueryTypes } from 'sequelize';
+//import { urlToColours } from '../../utils';
 dotenv.config();
 
 const api_key = process.env.lastfm
@@ -49,7 +49,7 @@ export const command: Command = {
     aliases: ['fm', 'lf'],
     category: 'features',
     description: 'last.fm feature. If you don\'t mention a user with an argument, it searches for your last.fm. If you only mention a user and no time period, it checks for overall.\n**The possible time period arguments:** overall, 7day, 1month, 3month, 6month, 12month.',
-    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.\n**lastfm wkt [artist - song]** shows top 10 users on the server in terms of plays of a song.\n**lastfm wka [artist - album]** shows top 10 users on the server in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 users on the server in terms of plays of an artist.\n**lastfm gwkt [artist - song]** shows top 10 global Bento users in terms of plays of a song.\n**lastfm gwka [artist - album]** shows top 10 global Bento users in terms of plays of an album.\n**lastfm wk [artist]** shows top 10 Bento users in terms of plays of an artist.',
+    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.',
     website: 'https://www.bentobot.xyz/commands#lastfm',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
@@ -99,7 +99,7 @@ export const command: Command = {
         if (args[0] === 'profile') {
             return lastfmProfile (message, args[1]);
         }
-
+        /*
         if (args[0] === 'wkt') {
             return lastfmWkt (message, args.slice(1).join(" "));
         }
@@ -123,6 +123,7 @@ export const command: Command = {
         if (args[0] === 'gwk') {
             return lastfmGwk (message, args.slice(1).join(" "));
         }
+        */
 
         /*
         Space for more commands, perhaps combining with the spotify API to look for songs?
@@ -140,7 +141,7 @@ export const command: Command = {
             let user: string;
 
             try {
-                const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
                 user = theUser.id
                 const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
                 if (!lastfmData) {
@@ -263,8 +264,23 @@ export const command: Command = {
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
+            } else if (secondArg === 'all') {
+                period = ['overall', 'ALL']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
             } else if (secondArg === '7day') {
                 period = ['7day', 'LAST_7_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
+            } else if (secondArg === 'week') {
+                period = ['7day', 'LAST_7_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
+            } else if (secondArg === 'month') {
+                period = ['1month', 'LAST_30_DAYS']
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
@@ -283,6 +299,11 @@ export const command: Command = {
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
+            } else if (secondArg === 'year') {
+                period = ['12month', 'LAST_365_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
             } else if (secondArg === '12month') {
                 period = ['12month', 'LAST_365_DAYS']
                 if (thirdArg) {
@@ -294,7 +315,7 @@ export const command: Command = {
             }
 
             try {
-                const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
                 if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 userID = theUser.id
                 try {
@@ -323,6 +344,8 @@ export const command: Command = {
                 const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
                 return message.channel.send(`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
             }
+
+            console.log(usernameEmbed)
 
             let currentPage = 0;
             const embeds = generateTopTracksEmbed(usernameEmbed, message, period, userID)
@@ -398,8 +421,23 @@ export const command: Command = {
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
+            } else if (secondArg === 'all') {
+                period = ['overall', 'ALL']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
             } else if (secondArg === '7day') {
                 period = ['7day', 'LAST_7_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
+            } else if (secondArg === 'week') {
+                period = ['7day', 'LAST_7_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
+            } else if (secondArg === 'month') {
+                period = ['1month', 'LAST_30_DAYS']
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
@@ -418,6 +456,11 @@ export const command: Command = {
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
+            } else if (secondArg === 'year') {
+                period = ['12month', 'LAST_365_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
             } else if (secondArg === '12month') {
                 period = ['12month', 'LAST_365_DAYS']
                 if (thirdArg) {
@@ -429,7 +472,7 @@ export const command: Command = {
             }
 
             try {
-                const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
                 if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 userID = theUser.id
                 try {
@@ -527,8 +570,23 @@ export const command: Command = {
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
+            } else if (secondArg === 'all') {
+                period = ['overall', 'ALL']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
             } else if (secondArg === '7day') {
                 period = ['7day', 'LAST_7_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
+            } else if (secondArg === 'week') {
+                period = ['7day', 'LAST_7_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
+            } else if (secondArg === 'month') {
+                period = ['1month', 'LAST_30_DAYS']
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
@@ -547,6 +605,11 @@ export const command: Command = {
                 if (thirdArg) {
                     userIDInsert = thirdArg
                 }
+            } else if (secondArg === 'year') {
+                period = ['12month', 'LAST_365_DAYS']
+                if (thirdArg) {
+                    userIDInsert = thirdArg
+                }
             } else if (secondArg === '12month') {
                 period = ['12month', 'LAST_365_DAYS']
                 if (thirdArg) {
@@ -558,7 +621,7 @@ export const command: Command = {
             }
 
             try {
-                const theUser = message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
                 if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 userID = theUser.id
                 try {
@@ -656,7 +719,7 @@ export const command: Command = {
             let user: string;
 
             try {
-                const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
                 if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 user = theUser.id
                 try {
@@ -750,7 +813,7 @@ export const command: Command = {
             let user: string;
 
             try {
-                const theUser = message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
                 if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
                 user = theUser.id
                 try {
@@ -794,7 +857,7 @@ export const command: Command = {
             
             return message.channel.send(embed)
         }
-
+        /*
         async function lastfmWkt (message: Message, song?: string) {
             interface lastfmUsers {
                 userid: bigint,
@@ -1427,5 +1490,6 @@ export const command: Command = {
                 return embeds;
             }
         }
+        */
     }
 }
