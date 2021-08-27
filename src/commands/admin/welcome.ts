@@ -78,11 +78,7 @@ export const command: Command = {
                 }
                 const createwelcomeChannelData = await welcome.create(attr);
 
-                if (welcomeData.message === null) {
-                    return message.channel.send(`Your welcome channel was assigned! It is: <#${createwelcomeChannelData.channel}> You need to specify a message to be sent in the channel\nCreate a welcome message for when members join the server by the following command: ${guildData.prefix}welcome message <welcome message>`);
-                } else {
-                    return message.channel.send(`Your welcome channel was assigned! It is: <#${createwelcomeChannelData.channel}>\nThe message: "${welcomeData.message}" will now be sent in the assigned channel.`);
-                };
+                return message.channel.send(`Your welcome channel was assigned! It is: <#${createwelcomeChannelData.channel}> You need to specify a message to be sent in the channel\nCreate a welcome message for when members join the server by the following command: ${guildData.prefix}welcome message <welcome message>`);
 
             } else {
                 await welcome.update({channel: BigInt(channel)}, {where: {guildID: message.guild.id}});
