@@ -21,54 +21,60 @@ export const event: Event = {
         client.user.setActivity(`🍱 - Feeding in ${client.channels.cache.size} channels, serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
         
         const app = express()
+        app.use(express.urlencoded({extended: true}))
+        app.use(express.json())
         // top.gg
         const webhook = new Webhook(process.env.topgg)
-
+        
         app.post("/dblwebhook", webhook.listener(async vote => {
             // vote will be your vote object, e.g
-            console.log(vote)
-            console.log(vote.user + ' has voted on top.gg') // 395526710101278721 < user who voted\
-            
+            const userID: string = vote.user
+            console.log(userID + ' has voted on top.gg') 
+            initModels(database);
             const now: Date = new Date()
             const newUserDate = moment(now).add(-12, 'hour').toDate()
             const bentoAttrTarget: bentoCreationAttributes = {
-                userID: BigInt(vote.user),
+                userID: BigInt(userID),
                 bento: 0,
                 bentoDate: new Date(newUserDate)
             }
-            const bentoDataTarget = await bento.findOrCreate({raw: true, where: {userID: vote.user}, defaults: bentoAttrTarget})
+            const bentoDataTarget = await bento.findOrCreate({raw: true, where: {userID: userID}, defaults: bentoAttrTarget})
             if (vote.isWeekend === true) {
                 await bento.increment('bento', {by: 10, where: { userID: bentoDataTarget[0].userID}});
             } else {
                 await bento.increment('bento', {by: 5, where: { userID: bentoDataTarget[0].userID}});
             }
             const webhookChannel: TextChannel = client.channels.cache.get(`881566124993544232`) as TextChannel;
-            webhookChannel.send(`<@${vote.user}> has voted on top.gg 👏`)
+            webhookChannel.send(`<@${userID}> has voted on top.gg 👏\nYou have now received ${vote.isWeekend === true ? `**10 Bento** 🍱 as a thanks for your support 🥺💖` : `**5 Bento** 🍱 as a thanks for your support 🥺💖`}`)
+            
             // You can also throw an error to the listener callback in order to resend the webhook after a few seconds
         }))
 
         // ko-fi
         app.post("/kofi", (req, res, next) => {
-            const data = req.body.data;
+            const data = req.body.data
             if (!data) return;
-
             try {
                 const obj = JSON.parse(data);
                 console.log(obj)
                 if (obj.is_public === false) return
                 const webhookChannel: TextChannel = client.channels.cache.get(`881566124993544232`) as TextChannel;
-                webhookChannel.send(`"${obj.message}"\nI have received a **${obj.amount}$** **Ko-fi ☕ tip** from **${obj.from_name}**. Thank you so much! 🥺\nIn return, you will ASAP receive ${parseInt(obj.amount)} Bento 🍱 in returns, as a huge thanks 💖`)
+                webhookChannel.send(`"${obj.message}"\nI have received a **${obj.amount}$** **Ko-fi ☕ tip** from **${obj.from_name}**. Thank you so much! 🥺\nIn return, you will ASAP receive **${parseInt(obj.amount)} Bento** 🍱 in return, as a huge thanks 💖`)
             } catch (err) {
                 console.error(err);
                 return res.json({success: false, error: err});
             }
+            
             return res.json({success: true});
         })
 
-        const httpServer = http.createServer(app); //Setting up the server
-        httpServer.listen(6969, function() {
-            console.log(`Bento Webhook Server online on port ${6969}`);
-        });
+        app.get('/', (req, res) => {
+            res.send('Hello World!')
+          })
+
+        app.listen(process.env.webhookport, () => {
+        console.log(`Bento Webhooks listening on port ${process.env.webhookport}`)
+        })
 
         async function checkMutes() {
             interface muteDataTypes {
