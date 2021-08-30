@@ -7,7 +7,7 @@ import { tiktokEmbedding } from '../utils/tiktok';
 import { addXpServer, addXpGlobal } from '../utils/xp'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
-import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember, roleChannel, role as roleDB, notificationMessage } from '../database/models/init-models';
+import { initModels, guild, tag, user, userCreationAttributes, guildMemberCreationAttributes, guildMember, roleChannel, role as roleDB, notificationMessage, patreon } from '../database/models/init-models';
 import { QueryTypes } from 'sequelize';
 import { trim, urlToColours } from '../utils';
 import moment from 'moment';
@@ -44,10 +44,27 @@ export const event: Event = {
         await guildMember.findOrCreate({where: {userID: message.author.id, guildID: message.guild.id}, defaults: guildMemberAttr})
 
         const messageGuild = await guild.findOne({raw: true, where: {guildID: message.guild.id}}); //raw: true returns only the dataValues
+        const patreonUser = await patreon.findOne({raw: true, where: {userID: message.author.id}})
 
         if (messageGuild.leaderboard === true) {
-            await addXpServer(message.guild.id, message.author.id, 23).catch();
-            await addXpGlobal(message.author.id, 23).catch();
+            if (patreonUser) {
+                if (patreonUser.follower === true) {
+                    await addXpServer(message.guild.id, message.author.id, 46).catch();
+                    await addXpGlobal(message.author.id, 46).catch();
+                } else if (patreonUser.enthusiast === true) {
+                    await addXpServer(message.guild.id, message.author.id, 69).catch();
+                    await addXpGlobal(message.author.id, 69).catch();
+                } else if (patreonUser.disciple === true) {
+                    await addXpServer(message.guild.id, message.author.id, 92).catch();
+                    await addXpGlobal(message.author.id, 92).catch();
+                } else if (patreonUser.sponsor === true) {
+                    await addXpServer(message.guild.id, message.author.id, 115).catch();
+                    await addXpGlobal(message.author.id, 115).catch();
+                }
+            } else if (!patreonUser) {
+                await addXpServer(message.guild.id, message.author.id, 23).catch();
+                await addXpGlobal(message.author.id, 23).catch();
+            }
         }
 
         if (!guildUpdate.has(message.guild.id)) {

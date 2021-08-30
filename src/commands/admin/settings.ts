@@ -40,7 +40,6 @@ export const command: Command = {
         .setTitle(`Server settings for ${message.guild.name}`)
         .setTimestamp()
         .setColor(`${message.guild.iconURL() ? await urlToColours(message.guild.iconURL({ format: 'png'})) : await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
-        //.addField('NSFW', `${guildData.nsfw ? 'Enabled' : 'Disabled'}`, true)
         .addField('Tiktok', `${guildData.tiktok ? 'Enabled' : 'Disabled'}`, true)
         .addField('Media', `${guildData.media ? 'Enabled' : 'Disabled'}`, true)
         .addField('Leaderboard', `${guildData.leaderboard ? 'Enabled' : 'Disabled'}`, true)

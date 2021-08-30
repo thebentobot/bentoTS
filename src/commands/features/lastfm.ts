@@ -345,8 +345,6 @@ export const command: Command = {
                 return message.channel.send(`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
             }
 
-            console.log(usernameEmbed)
-
             let currentPage = 0;
             const embeds = generateTopTracksEmbed(usernameEmbed, message, period, userID)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${(await embeds).length}`, (await embeds)[currentPage]);

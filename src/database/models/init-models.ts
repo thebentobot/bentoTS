@@ -33,6 +33,8 @@ import { muteRole } from "./muteRole";
 import type { muteRoleAttributes, muteRoleCreationAttributes } from "./muteRole";
 import { notificationMessage } from "./notificationMessage";
 import type { notificationMessageAttributes, notificationMessageCreationAttributes } from "./notificationMessage";
+import { patreon } from "./patreon";
+import type { patreonAttributes, patreonCreationAttributes } from "./patreon";
 import { reminder } from "./reminder";
 import type { reminderAttributes, reminderCreationAttributes } from "./reminder";
 import { role } from "./role";
@@ -70,6 +72,7 @@ export {
   mute,
   muteRole,
   notificationMessage,
+  patreon,
   reminder,
   role,
   roleChannel,
@@ -116,6 +119,8 @@ export type {
   muteRoleCreationAttributes,
   notificationMessageAttributes,
   notificationMessageCreationAttributes,
+  patreonAttributes,
+  patreonCreationAttributes,
   reminderAttributes,
   reminderCreationAttributes,
   roleAttributes,
@@ -154,6 +159,7 @@ export function initModels(sequelize: Sequelize) {
   mute.initModel(sequelize);
   muteRole.initModel(sequelize);
   notificationMessage.initModel(sequelize);
+  patreon.initModel(sequelize);
   reminder.initModel(sequelize);
   role.initModel(sequelize);
   roleChannel.initModel(sequelize);
@@ -208,6 +214,8 @@ export function initModels(sequelize: Sequelize) {
   user.hasOne(lastfm, { as: "lastfm", foreignKey: "userID"});
   notificationMessage.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(notificationMessage, { as: "notificationMessages", foreignKey: "userID"});
+  patreon.belongsTo(user, { as: "user", foreignKey: "userID"});
+  user.hasMany(patreon, { as: "patreons", foreignKey: "userID"});
   reminder.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(reminder, { as: "reminders", foreignKey: "userID"});
   tag.belongsTo(user, { as: "user", foreignKey: "userID"});
@@ -233,6 +241,7 @@ export function initModels(sequelize: Sequelize) {
     mute: mute,
     muteRole: muteRole,
     notificationMessage: notificationMessage,
+    patreon: patreon,
     reminder: reminder,
     role: role,
     roleChannel: roleChannel,

@@ -5,6 +5,7 @@ import type { guildMember, guildMemberId } from './guildMember';
 import type { horoscope, horoscopeCreationAttributes, horoscopeId } from './horoscope';
 import type { lastfm, lastfmCreationAttributes, lastfmId } from './lastfm';
 import type { notificationMessage, notificationMessageId } from './notificationMessage';
+import type { patreon, patreonId } from './patreon';
 import type { reminder, reminderId } from './reminder';
 import type { tag, tagId } from './tag';
 import type { weather, weatherCreationAttributes, weatherId } from './weather';
@@ -69,6 +70,18 @@ export class user extends Model<userAttributes, userCreationAttributes> implemen
   hasNotificationMessage!: Sequelize.HasManyHasAssociationMixin<notificationMessage, notificationMessageId>;
   hasNotificationMessages!: Sequelize.HasManyHasAssociationsMixin<notificationMessage, notificationMessageId>;
   countNotificationMessages!: Sequelize.HasManyCountAssociationsMixin;
+  // user hasMany patreon via userID
+  patreons!: patreon[];
+  getPatreons!: Sequelize.HasManyGetAssociationsMixin<patreon>;
+  setPatreons!: Sequelize.HasManySetAssociationsMixin<patreon, patreonId>;
+  addPatreon!: Sequelize.HasManyAddAssociationMixin<patreon, patreonId>;
+  addPatreons!: Sequelize.HasManyAddAssociationsMixin<patreon, patreonId>;
+  createPatreon!: Sequelize.HasManyCreateAssociationMixin<patreon>;
+  removePatreon!: Sequelize.HasManyRemoveAssociationMixin<patreon, patreonId>;
+  removePatreons!: Sequelize.HasManyRemoveAssociationsMixin<patreon, patreonId>;
+  hasPatreon!: Sequelize.HasManyHasAssociationMixin<patreon, patreonId>;
+  hasPatreons!: Sequelize.HasManyHasAssociationsMixin<patreon, patreonId>;
+  countPatreons!: Sequelize.HasManyCountAssociationsMixin;
   // user hasMany reminder via userID
   reminders!: reminder[];
   getReminders!: Sequelize.HasManyGetAssociationsMixin<reminder>;

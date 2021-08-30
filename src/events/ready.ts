@@ -2,10 +2,16 @@ import { GuildMember, MessageEmbed, TextChannel, User } from "discord.js";
 import moment from "moment";
 import { QueryTypes } from "sequelize";
 import database from "../database/database";
-import { initModels, modLog, reminder, user, guildMember, guild } from "../database/models/init-models";
+import { initModels, modLog, reminder, user, guildMember, guild, } from "../database/models/init-models";
 import { mute } from "../database/models/mute";
 import { muteRole } from "../database/models/muteRole";
 import { Event } from "../interfaces";
+import { Webhook } from '@top-gg/sdk'
+import express from 'express'
+import * as dotenv from "dotenv";
+import http from 'http'
+import { bento, bentoCreationAttributes } from '../database/models/bento';
+dotenv.config();
 //import fs from 'fs'
 
 export const event: Event = {
@@ -14,29 +20,55 @@ export const event: Event = {
         console.log(`${client.user.tag} is online! Let\'s get this bread!`);
         client.user.setActivity(`🍱 - Feeding in ${client.channels.cache.size} channels, serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
         
-        // get a json of all commands. Used for website
-        // https://jsonformatter.curiousconcept.com/# use this website for formatting
-        /*
-        const commands = JSON.stringify(client.commands)
-        fs.writeFile('commands.json', commands, 'utf8', function (err) {
-            if (err) throw err;
-            console.log('commands complete')
-        })
-        */
+        const app = express()
+        // top.gg
+        const webhook = new Webhook(process.env.topgg)
 
-        // get user pfps, used when integrating avatarurls into the db for the website
-        /*
-        initModels(database);
-        const userData = await user.findAll({raw: true})
-        const filter1 = userData.filter(first => first.avatarURL.includes('.webp'))
-        console.log(filter1)
-        for (let i = 0; filter1.length; i++) {
-            await user.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) ? (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) : `https://cdn.discordapp.com/embed/avatars/${Number((await client.users.fetch(`${userData[i].userID}`)).discriminator) % 5}.png`}, {where: {userID: userData[i].userID}})
-            await guildMember.update({avatarURL: (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) ? (await client.users.fetch(`${userData[i].userID}`)).avatarURL({size: 1024, dynamic: true, format: "png"}) : `https://cdn.discordapp.com/embed/avatars/${Number((await client.users.fetch(`${userData[i].userID}`)).discriminator) % 5}.png`}, {where: {userID: userData[i].userID}})
-        }
-        console.log('done')
-        */
-        
+        app.post("/dblwebhook", webhook.listener(async vote => {
+            // vote will be your vote object, e.g
+            console.log(vote)
+            console.log(vote.user + ' has voted on top.gg') // 395526710101278721 < user who voted\
+            
+            const now: Date = new Date()
+            const newUserDate = moment(now).add(-12, 'hour').toDate()
+            const bentoAttrTarget: bentoCreationAttributes = {
+                userID: BigInt(vote.user),
+                bento: 0,
+                bentoDate: new Date(newUserDate)
+            }
+            const bentoDataTarget = await bento.findOrCreate({raw: true, where: {userID: vote.user}, defaults: bentoAttrTarget})
+            if (vote.isWeekend === true) {
+                await bento.increment('bento', {by: 10, where: { userID: bentoDataTarget[0].userID}});
+            } else {
+                await bento.increment('bento', {by: 5, where: { userID: bentoDataTarget[0].userID}});
+            }
+            const webhookChannel: TextChannel = client.channels.cache.get(`881566124993544232`) as TextChannel;
+            webhookChannel.send(`<@${vote.user}> has voted on top.gg 👏`)
+            // You can also throw an error to the listener callback in order to resend the webhook after a few seconds
+        }))
+
+        // ko-fi
+        app.post("/kofi", (req, res, next) => {
+            const data = req.body.data;
+            if (!data) return;
+
+            try {
+                const obj = JSON.parse(data);
+                console.log(obj)
+                if (obj.is_public === false) return
+                const webhookChannel: TextChannel = client.channels.cache.get(`881566124993544232`) as TextChannel;
+                webhookChannel.send(`"${obj.message}"\nI have received a **${obj.amount}$** **Ko-fi ☕ tip** from **${obj.from_name}**. Thank you so much! 🥺\nIn return, you will ASAP receive ${parseInt(obj.amount)} Bento 🍱 in returns, as a huge thanks 💖`)
+            } catch (err) {
+                console.error(err);
+                return res.json({success: false, error: err});
+            }
+            return res.json({success: true});
+        })
+
+        const httpServer = http.createServer(app); //Setting up the server
+        httpServer.listen(6969, function() {
+            console.log(`Bento Webhook Server online on port ${6969}`);
+        });
 
         async function checkMutes() {
             interface muteDataTypes {
