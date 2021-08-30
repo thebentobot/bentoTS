@@ -14,5 +14,7 @@ RUN ./node_modules/.bin/pm2 install typescript ts-node
 # Copy the app code
 COPY . .
 
+EXPOSE 6969
+
 # Run the application
 CMD [ "npm", "run", "start:pm2" ]
