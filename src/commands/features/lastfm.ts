@@ -18,7 +18,7 @@ const lastfmAPI = axios.create({
     baseURL: "https://ws.audioscrobbler.com/2.0",
     params: { api_key: api_key, format: 'json' }
 });
-
+/*
 let spotifyCred = new SpotifyWebApi({
     clientId: process.env.spotifyClientID,
     clientSecret: process.env.spotifyClientSecret,
@@ -43,7 +43,7 @@ async function newToken () {
 newToken()
 
 setInterval(newToken, 3600000)
-
+*/
 export const command: Command = {
     name: 'lastfm',
     aliases: ['fm', 'lf'],
