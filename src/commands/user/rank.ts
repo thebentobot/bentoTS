@@ -2,11 +2,22 @@
 import { Command } from '../../interfaces';
 import { trim, urlToColours } from '../../utils/index';
 import database from '../../database/database';
-import { initModels } from '../../database/models/init-models';
+import { initModels, guild, lastfm } from '../../database/models/init-models';
 import { Message, MessageEmbed, GuildMember, User, MessageAttachment } from 'discord.js';
 import { QueryTypes } from 'sequelize';
 import { stringify } from 'qs';
 import { getHTMLImage } from '../../utils/sushii-html';
+import axios from 'axios';
+import moment from 'moment';
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const api_key = process.env.lastfm
+
+const lastfmAPI = axios.create({
+    baseURL: "https://ws.audioscrobbler.com/2.0",
+    params: { api_key: api_key, format: 'json' }
+});
 
 export const command: Command = {
     name: 'rank',
@@ -20,13 +31,98 @@ export const command: Command = {
             return userFunction(message)
         // rank og profile merges sammen, hvor den anden bruges til at se user info, ligesom robyul gør med userinfo
 
-        async function userFunction (message: Message, user?: GuildMember | User) {
+        async function userFunction (message: Message) {
+            // we need to make it possible to add users as an argument and then make it adjust the userid
             function usernameSizeFunction (username: string) {
                 if (username.length < 15) return "24px"
                 if (username.length < 20) return "18px"
                 if (username.length < 25) return "15px"
                 return "11px"
             }
+            interface Rankings {
+                rank: string,
+                level?: number,
+                xp?: number,
+                bento?: number,
+                userID: string
+            }
+
+            const serverRank: Array<Rankings> = await database.query(`
+            SELECT row_number() over () as rank, t.level, t.xp, t."userID"
+            FROM "guildMember" AS t
+            WHERE t."guildID" = :guild
+            GROUP BY t.level, t.xp, t."userID"
+            ORDER BY t.level DESC, t.xp DESC`, {
+                replacements: { guild: message.guild.id },
+                type: QueryTypes.SELECT
+            });
+            
+            const globalRank: Array<Rankings> = await database.query(`
+            SELECT row_number() over (ORDER BY t.level DESC, t.xp DESC) AS rank, t.level, t.xp, t."userID"
+            FROM "user" AS t
+            GROUP BY t.level, t.xp, t."userID"
+            ORDER BY t.level DESC, t.xp DESC`, {type: QueryTypes.SELECT});
+
+            const bentoRank: Array<Rankings> = await database.query(`
+            SELECT row_number() over (ORDER BY t.bento DESC) AS rank, t.bento, t."userID"
+            FROM bento AS t
+            GROUP BY t."userID"
+            ORDER BY t.bento DESC`, {type: QueryTypes.SELECT});
+
+            initModels(database)
+            const userData = await guild.sum('memberCount')
+
+            let userID = message.author.id
+
+            let serverRankUser: object[] = [];
+            let globalRankUser: object[] = [];
+            let bentoRankUser: object[] = [];
+
+            for (let serverUser of serverRank) {
+                if (serverUser.userID == userID) {
+                    serverRankUser.push(serverUser)
+                }
+            }
+
+            for (let globalUser of globalRank) {
+                if (globalUser.userID == userID) {
+                    globalRankUser.push(globalUser)
+                }
+            }
+
+            for (let bentoUser of bentoRank) {
+                if (bentoUser.userID == userID) {
+                    bentoRankUser.push(bentoUser)
+                }
+            }
+
+            let username: string;
+            let usernameEmbed: any;
+            let user: string;
+
+            try {
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
+                user = theUser.id
+                const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
+                if (!lastfmData) {
+                }
+                username = lastfmData.lastfm
+            } catch {
+                try {
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    username = lastFmName.lastfm
+                } catch {
+                }
+            }
+
+            try {
+                let response = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
+                usernameEmbed = response.data
+            } catch {
+            }
+
+            const lastfmStatus = usernameEmbed.recenttracks.track[0]['@attr'] ? `Currently listening to ${usernameEmbed.recenttracks.track[0].name} by ${usernameEmbed.recenttracks.track[0].artist['#text']}.` : `Listened to ${usernameEmbed.recenttracks.track[0].name} by ${usernameEmbed.recenttracks.track[0].artist['#text']} ${moment.unix(usernameEmbed.recenttracks.track[0].date.uts).fromNow()}`
+
             // vi skal gøre mange af elementerne customisable
             // kinda prøve at holde i hvert fald standard stilen (indtil folk har customised) det samme som hjemmesiden
             // indsæt bento, lastfm (toggable), timezone, horoscope (toggable)
@@ -38,6 +134,14 @@ export const command: Command = {
             // vælge en random emote fra et emote array
             // unicode.
             // gøre så man kan ændre skriftfarve også
+
+            // we need to disable the bento ranking if the user isn't to be found in the Bento table
+            // we need to make it possible to disable and enable the xp board thing
+            // we need to error handle lastfm and make it possible to enable/disable
+
+            // in the future if the css ever gets better LOL we could do cover and like a separate div for the lastfm
+            // or use the xp div?
+
             const bg = ""
             // colour needs to validate that it's hex somehow, look up on google
             const usernameColour = '#ffffff'
@@ -46,10 +150,10 @@ export const command: Command = {
             const backgroundColor = "#1F2937"
             const avatar = message.author.avatarURL({size: 128, format: 'png'}) ? message.author.avatarURL({size: 128, format: 'png'}) : `https://cdn.discordapp.com/embed/avatars/${Number(message.author.discriminator) % 5}.png`
             const usernameSlot = message.member.nickname ? message.member.nickname : message.author.username
-            const discriminatorSlot = message.member.nickname ? `${message.author.username}#${message.author.discriminator}` : message.author.discriminator
+            const discriminatorSlot = message.member.nickname ? `${message.author.username}#${message.author.discriminator}` : `#${message.author.discriminator}`
             const usernameSize = usernameSizeFunction(usernameSlot)
-            const xpServer = 3795
-            const xpGlobal = 3795
+            const xpServer = serverRankUser[0].xp
+            const xpGlobal = globalRankUser[0].xp
             const sidebarBlur = '3'
             // rgba colours
             // 0, 0, 0, 0.3
@@ -65,9 +169,9 @@ export const command: Command = {
                 "AVATAR_URL": avatar,
                 "USERNAME": usernameSlot,
                 "DISCRIMINATOR": discriminatorSlot,
-                "DESCRIPTION": "insert command to update text here lmao",
-                "SERVER_LEVEL": 17,
-                "GLOBAL_LEVEL": 22,
+                "DESCRIPTION": "fuck you adam",
+                "SERVER_LEVEL": `Rank ${serverRankUser[0] ? serverRankUser[0].rank : '0'}`,
+                "GLOBAL_LEVEL": `Rank ${globalRankUser[0] ? globalRankUser[0].rank : '0'}`,
                 "USERNAME_SIZE": usernameSize,
                 "DESCRIPTION_HEIGHT": "350px",
             }
@@ -77,6 +181,8 @@ export const command: Command = {
             // vi mangler at indsætte noget af det planlagte data
             // vi skal reformatere koden samt lave commands, så man kan assign shit.
             // + lave db
+
+            let xpBoard = false
 
             const css = `:root {
                 --bgimage: url('${replacements.BACKGROUND_IMAGE}');
@@ -330,12 +436,12 @@ export const command: Command = {
             <div class="inner-wrapper ${replacements.OVERLAY_CLASS}">
 
                 <ul class="badges">
-                    br
+                    😎
                 </ul>
     
                 <div class="center-area">
                     <div class="description">
-                        <p class="description-text">${replacements.DESCRIPTION}</p>
+                        <p class="description-text">${replacements.DESCRIPTION} <br /> <br />  ${lastfmStatus}</p>
                     </div>
                 </div>
     
@@ -354,39 +460,39 @@ export const command: Command = {
                     </div>
     
                     <ul class='sidebar-list'>
-                        <li class='sidebar-item'><span class="sidebar-value">${replacements.SERVER_LEVEL}</span><br>Server level</li>
-                        <li class='sidebar-item'><span class="sidebar-value">${replacements.GLOBAL_LEVEL}</span><br>Global level</li>
-                        <li class='sidebar-item'><span class="sidebar-value">${replacements.GLOBAL_LEVEL}</span><br>Bento 🍱</li>
+                        <li class='sidebar-item'><span class="sidebar-value">${replacements.SERVER_LEVEL}</span><br>Of ${message.guild.members.cache.get(userID).guild.memberCount} Users</li>
+                        <li class='sidebar-item'><span class="sidebar-value">${replacements.GLOBAL_LEVEL}</span><br>Of ${Math.floor(userData / 100) / 10.0 + "k"} Users</li>
+                        ${bentoRankUser[0] ? `<li class='sidebar-item'><span class="sidebar-value">Rank ${bentoRankUser[0].rank}</span><br>Of ${bentoRank[bentoRank.length - 1].rank} 🍱 Users</li>` : ''}
                     </ul>
     
                 </div>
                 <div class="footer">
-                    <div class="xpDivBGBGBG">
-                        <div class="xpDivBGBG">
-                            <div class="xpDivBG">
-                                <div class="xpDiv">
-                                    <div class="xpText">
-                                        ${Math.round(((replacements.SERVER_LEVEL * replacements.SERVER_LEVEL * 100) - xpServer) / 46)} messages to level ${replacements.SERVER_LEVEL + 1}
-                                    </div>
-                                    <div class="xpBar">
-                                        <div class ="xpDoneServer"
-                                        </div>
+                    ${xpBoard ? `<div class="xpDivBGBGBG">
+                    <div class="xpDivBGBG">
+                        <div class="xpDivBG">
+                            <div class="xpDiv">
+                                <div class="xpText">
+                                    ${Math.round(((serverRankUser[0].level * serverRankUser[0].level * 100) - xpServer) / 46)} messages to level ${serverRankUser[0].level + 1}
+                                </div>
+                                <div class="xpBar">
+                                    <div class ="xpDoneServer"
                                     </div>
                                 </div>
                             </div>
-                            <div class="xpDivBG">
-                                <div class="xpDiv">
-                                    <div class="xpText">
-                                        ${Math.round(((replacements.GLOBAL_LEVEL * replacements.GLOBAL_LEVEL * 100) - xpGlobal) / 46)} messages to level ${replacements.GLOBAL_LEVEL + 1}
-                                    </div>
-                                    <div class="xpBar">
-                                        <div class ="xpDoneGlobal"
-                                        </div>
+                        </div>
+                        <div class="xpDivBG">
+                            <div class="xpDiv">
+                                <div class="xpText">
+                                    ${Math.round(((globalRankUser[0].level * globalRankUser[0].level * 100) - xpGlobal) / 46)} messages to level ${globalRankUser[0].level + 1}
+                                </div>
+                                <div class="xpBar">
+                                    <div class ="xpDoneGlobal"
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>` : ''}
                 </div>
             </div>
         </div>`
