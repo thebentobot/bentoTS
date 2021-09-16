@@ -9,6 +9,7 @@ import { stringify } from 'qs';
 import { getHTMLImage } from '../../utils/sushii-html';
 import axios from 'axios';
 import moment from 'moment';
+import { tz } from 'moment-timezone';
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -28,10 +29,10 @@ export const command: Command = {
     website: 'https://www.bentobot.xyz/commands#rank',
     run: async (client, message, args): Promise<Message> => {
         
-            return userFunction(message)
+        return userFunction(message, args[0])
         // rank og profile merges sammen, hvor den anden bruges til at se user info, ligesom robyul gør med userinfo
 
-        async function userFunction (message: Message) {
+        async function userFunction (message: Message, user: User | GuildMember) {
             // we need to make it possible to add users as an argument and then make it adjust the userid
             function usernameSizeFunction (username: string) {
                 if (username.length < 15) return "24px"
@@ -39,6 +40,7 @@ export const command: Command = {
                 if (username.length < 25) return "15px"
                 return "11px"
             }
+
             interface Rankings {
                 rank: string,
                 level?: number,
@@ -57,6 +59,7 @@ export const command: Command = {
                 type: QueryTypes.SELECT
             });
             
+            // does this database fetch cost too much?
             const globalRank: Array<Rankings> = await database.query(`
             SELECT row_number() over (ORDER BY t.level DESC, t.xp DESC) AS rank, t.level, t.xp, t."userID"
             FROM "user" AS t
@@ -72,7 +75,26 @@ export const command: Command = {
             initModels(database)
             const userData = await guild.sum('memberCount')
 
-            let userID = message.author.id
+            let userID: string;
+            let username: string;
+            let usernameEmbed: any;
+            let lastfmStatus: string;
+
+            try {
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a profile.`)
+                userID = theUser.id
+                const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
+                if (lastfmData) {
+                    username = lastfmData.lastfm
+                }
+            } catch {
+                userID = message.author.id
+                let lastFmName = await lastfm.findOne({raw:true, where: {userID: userID}});
+                if (lastFmName) {
+                    username = lastFmName.lastfm
+                }
+            }
 
             let serverRankUser: object[] = [];
             let globalRankUser: object[] = [];
@@ -96,33 +118,11 @@ export const command: Command = {
                 }
             }
 
-            let username: string;
-            let usernameEmbed: any;
-            let user: string;
-
-            try {
-                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(mentionedUser);
-                user = theUser.id
-                const lastfmData = await lastfm.findOne({raw: true, where : {userID: user}})
-                if (!lastfmData) {
-                }
-                username = lastfmData.lastfm
-            } catch {
-                try {
-                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
-                    username = lastFmName.lastfm
-                } catch {
-                }
-            }
-
-            try {
+            if (username) {
                 let response = await lastfmAPI.get('/', {params: { method: "user.getrecenttracks", user: username, limit: 2, page: 1}});
                 usernameEmbed = response.data
-            } catch {
+                lastfmStatus = usernameEmbed.recenttracks.track[0]['@attr'] ? `Currently listening to ${usernameEmbed.recenttracks.track[0].name} by ${usernameEmbed.recenttracks.track[0].artist['#text']}.` : `Listened to ${usernameEmbed.recenttracks.track[0].name} by ${usernameEmbed.recenttracks.track[0].artist['#text']} ${moment.unix(usernameEmbed.recenttracks.track[0].date.uts).fromNow()}`
             }
-
-            const lastfmStatus = usernameEmbed.recenttracks.track[0]['@attr'] ? `Currently listening to ${usernameEmbed.recenttracks.track[0].name} by ${usernameEmbed.recenttracks.track[0].artist['#text']}.` : `Listened to ${usernameEmbed.recenttracks.track[0].name} by ${usernameEmbed.recenttracks.track[0].artist['#text']} ${moment.unix(usernameEmbed.recenttracks.track[0].date.uts).fromNow()}`
-
             // vi skal gøre mange af elementerne customisable
             // kinda prøve at holde i hvert fald standard stilen (indtil folk har customised) det samme som hjemmesiden
             // indsæt bento, lastfm (toggable), timezone, horoscope (toggable)
@@ -142,24 +142,31 @@ export const command: Command = {
             // in the future if the css ever gets better LOL we could do cover and like a separate div for the lastfm
             // or use the xp div?
 
+            const discordUser = await message.guild.members.fetch(userID)
+
             const bg = ""
             // colour needs to validate that it's hex somehow, look up on google
             const usernameColour = '#ffffff'
             const descriptionColour = '#ffffff'
             const discriminatorColour ='#9CA3AF'
             const backgroundColor = "#1F2937"
-            const avatar = message.author.avatarURL({size: 128, format: 'png'}) ? message.author.avatarURL({size: 128, format: 'png'}) : `https://cdn.discordapp.com/embed/avatars/${Number(message.author.discriminator) % 5}.png`
-            const usernameSlot = message.member.nickname ? message.member.nickname : message.author.username
-            const discriminatorSlot = message.member.nickname ? `${message.author.username}#${message.author.discriminator}` : `#${message.author.discriminator}`
+            const avatar = discordUser.user.avatarURL({size: 128, format: 'png'}) ? discordUser.user.avatarURL({size: 128, format: 'png'}) : `https://cdn.discordapp.com/embed/avatars/${Number(discordUser.user.discriminator) % 5}.png`
+            const usernameSlot = discordUser.nickname ? discordUser.nickname : discordUser.user.username
+            const discriminatorSlot = discordUser.nickname ? `${discordUser.user.username}#${discordUser.user.discriminator}` : `#${discordUser.user.discriminator}`
             const usernameSize = usernameSizeFunction(usernameSlot)
-            const xpServer = serverRankUser[0].xp
-            const xpGlobal = globalRankUser[0].xp
+            const xpServer = serverRankUser[0].xp as number
+            const xpGlobal = globalRankUser[0].xp as number
             const sidebarBlur = '3'
+            const userTimezone = moment().tz('Europe/Copenhagen').format('ddd, h:mmA')
+            const userBirthdayDate: Date = new Date('25 Nov')
+            const userBirthday = userTimezone ? `, ${moment(userBirthdayDate).format('MMM D')} 🎂` : `${moment(userBirthdayDate).format('MMM D')} 🎂`
             // rgba colours
             // 0, 0, 0, 0.3
             const sidebarOpacity = Math.round(0.3 * 255).toString(16);
             // #000000 is fully transparent
             const sidebarColour = `#000000${sidebarOpacity}`
+            const overlayOpacity = Math.round(0.2 * 255).toString(16);
+            const overlayColour = `#000000${overlayOpacity}`
             const replacements = {
                 "BACKGROUND_IMAGE": bg,
                 "WRAPPER_CLASS": bg.length > 0 ? "custom-bg" : '',
@@ -169,9 +176,9 @@ export const command: Command = {
                 "AVATAR_URL": avatar,
                 "USERNAME": usernameSlot,
                 "DISCRIMINATOR": discriminatorSlot,
-                "DESCRIPTION": "fuck you adam",
-                "SERVER_LEVEL": `Rank ${serverRankUser[0] ? serverRankUser[0].rank : '0'}`,
-                "GLOBAL_LEVEL": `Rank ${globalRankUser[0] ? globalRankUser[0].rank : '0'}`,
+                "DESCRIPTION": "Close to being done with the design, for now 👀",
+                "SERVER_LEVEL": serverRankUser[0] ? serverRankUser[0].rank as number : 0,
+                "GLOBAL_LEVEL": globalRankUser[0] ? globalRankUser[0].rank as number : 0,
                 "USERNAME_SIZE": usernameSize,
                 "DESCRIPTION_HEIGHT": "350px",
             }
@@ -182,7 +189,25 @@ export const command: Command = {
             // vi skal reformatere koden samt lave commands, så man kan assign shit.
             // + lave db
 
-            let xpBoard = false
+            /*
+            UPDATE from 16th of sep:
+            Design should be mostly done.
+            - We need to somehow make the text adjust upwards, so it starts at the bottom line and goes up
+            We need to make a lot of colours customisable (including the xp/fm boards)
+            We need to make it possible to disable the boards without shit fucking up, either by
+            - turning opacity down in total
+            - replacing lastfm with the xp board if xp board is disabled and lastfm is enabled
+            - somehow adjust the margin of the description according to the boards (it's the first px value of the margin in the description css class)
+            We need to add ways of adding badges
+            - first badge is based on a random value from an array of emotes (or pictures? hmm)
+            - Then add a badge if the person is in the bento support server (is this possible to do? check in the guildmember table?)
+            - then add a badge if the person is a patreon
+            Make all the customisation organised in variables
+            - Both so it's a good overview in the code, but also so it's easier to make the database tables
+            Make a placeholder for lastfm if the person hasn't assigned lastfm
+            */
+
+            let xpBoard = true
 
             const css = `:root {
                 --bgimage: url('${replacements.BACKGROUND_IMAGE}');
@@ -192,7 +217,7 @@ export const command: Command = {
             body {
                 margin: 0;
                 padding: 0;
-                font-family: "Segoe UI";
+                font-family: 'Urbanist', sans-serif;
             }
             
             .wrapper {
@@ -219,6 +244,7 @@ export const command: Command = {
                 width: 200px;
                 height: inherit;
                 border-radius: 0 10px 10px 0;
+                font-family: 'Urbanist', sans-serif;
             }
             
             .blur {
@@ -253,8 +279,9 @@ export const command: Command = {
                 right: 0px;
                 width: 200px;
                 color: white;
-                line-height: 1;
+                line-height: 1.1;
                 margin: auto;
+                font-family: 'Urbanist', sans-serif;
             }
             
             /* e.g. level text */
@@ -262,23 +289,27 @@ export const command: Command = {
                 padding-top: 13px;
                 height: auto;
                 color: lightgray;
+                font-family: 'Urbanist', sans-serif;
             }
             /* e.g. level value */
             .sidebar-value {
                 font-size: 24px;
                 color: white;
+                font-family: 'Urbanist', sans-serif;
             }
             
             .name-container {
                 position: absolute;
                 top: 120px;
                 width: 200px;
+                font-family: 'Urbanist', sans-serif;
             }
             
             .badges {
                 list-style: none;
-                padding: 5px 0 0 7px;
-                margin: 0;
+                padding: 0;
+                margin: 10px 10px 5px 20px;
+                color: ${descriptionColour};
             }
             
             .badge-container {
@@ -301,13 +332,13 @@ export const command: Command = {
             }
             
             .username {
-                font-family: "Segoe UI";
+                font-family: 'Urbanist', sans-serif;
                 font-size: ${replacements.USERNAME_SIZE};
                 fill: ${usernameColour};
             }
             
             .discriminator {
-                font-family: "Segoe UI";
+                font-family: 'Urbanist', sans-serif;
                 font-size: 17px;
                 fill: ${discriminatorColour};
             }
@@ -322,26 +353,29 @@ export const command: Command = {
             
             .center-area {
                 position: absolute;
-                top: 40px;
+                top: 20px;
                 width: 400px;
                 height: ${replacements.DESCRIPTION_HEIGHT};
                 margin: 0;
                 padding: 0;
                 overflow: hidden;
                 color: ${descriptionColour};
+                font-family: 'Urbanist', sans-serif;
             }
             
             .description {
-                margin: 10px 10px 5px 20px;
+                margin: 195px 40px 20px;
                 font-size: 20px;
                 height: auto;
                 max-height: 95%;
-                width: 350px;
+                width: 300px;
                 word-wrap: break-word;
+                font-family: 'Urbanist', sans-serif;
             }
             
             .description-text {
                 margin: 0;
+                font-family: 'Urbanist', sans-serif;
             }
             
             .inner-wrapper {
@@ -351,12 +385,12 @@ export const command: Command = {
             }
 
             .xpDivBGBGBG {
-                margin-left: auto;
-                margin-right: auto;
-                padding-left: 0.75rem/* 12px */;
-                padding-right: 0.75rem/* 12px */;
-                padding-top: 0.5rem/* 8px */;
-                width: 100%;
+                padding-top: 5px;
+            }
+
+            .xpDivBGBGBG2 {
+                padding-left: 20px;
+                padding-top: 32.5px;
             }
 
             .xpDivBGBG {
@@ -365,22 +399,28 @@ export const command: Command = {
 
             /* rgba(17, 24, 39, var(--tw-bg-opacity)) */
             .xpDivBG {
-                flex-grow: 1;
-                padding: 1rem/* 16px */;
+                flex-grow: 0.5;
                 width: 85%;
                 overflow: hidden;
                 display: flex;
                 align-items: center;
-                padding: 0.5rem/* 8px */;
                 background-color: #111827;
-                padding-left: 1rem/* 16px */;
-                padding-right: 1rem/* 16px */;
                 border-radius: 0.5rem/* 8px */;
+                padding-left: 25px;
+                padding-right: 15px;
             }
 
             .xpDiv {
                 flex-grow: 1;
-                padding: 1rem/* 16px */;
+                padding: 0.5rem/* 16px */;
+                width: 75%;
+                overflow: hidden;
+
+            }
+
+            .fmDiv {
+                flex-grow: 1;
+                padding: 0.5rem/* 16px */;
                 width: 75%;
                 overflow: hidden;
             }
@@ -388,8 +428,43 @@ export const command: Command = {
             .xpText {
                 --tw-text-opacity: 1;
                 color: rgba(255, 255, 255, var(--tw-text-opacity));
+                text-align: right;
+                overflow: hidden;
+                font-family: 'Urbanist', sans-serif;
+                font-size: medium;
+            }
+
+            .fmText {
+                --tw-text-opacity: 1;
+                color: rgba(255, 255, 255, var(--tw-text-opacity));
                 text-align: left;
                 overflow: hidden;
+                font-family: 'Urbanist', sans-serif;
+                font-size: medium;
+                padding-left: 10px;
+                display: flex;
+                align-items: center;
+            }
+
+            .fmBar {
+                width: 100%;
+                --tw-bg-opacity: 1;
+                background-color: rgba(55, 65, 81, var(--tw-bg-opacity));
+                overflow: hidden;
+                opacity: 0%;
+            }
+
+            .fmDoneServer {
+                background: linear-gradient(to left, #FCD34D, #F59E0B, #EF4444);
+                box-shadow: 0 3px 3px -5px #EF4444, 0 2px 5px #EF4444;
+                border-radius: 20px;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                width: 100%;
+                opacity: 0%;
             }
 
             .xpBar {
@@ -412,7 +487,7 @@ export const command: Command = {
                 align-items: center;
                 justify-content: center;
                 height: 100%;
-                width: ${(xpServer / (replacements.SERVER_LEVEL * replacements.SERVER_LEVEL * 100)) * 100}%;
+                width: ${(xpServer / (serverRankUser[0].level as number * serverRankUser[0].level as number * 100)) * 100}%;
             }
 
             .xpDoneGlobal {
@@ -424,24 +499,20 @@ export const command: Command = {
                 align-items: center;
                 justify-content: center;
                 height: 100%;
-                width: ${(xpGlobal / (replacements.GLOBAL_LEVEL * replacements.GLOBAL_LEVEL * 100)) * 100}%;
+                width: ${(xpGlobal / (globalRankUser[0].level as number * globalRankUser[0].level as number * 100)) * 100}%;
             }
-            
+
             .overlay {
-                background-color: rgba(0, 0, 0, 0.2);
+                background-color: ${overlayColour};
             }`
 
             let htmlString: string = ''
             htmlString = `<div class="wrapper ${replacements.WRAPPER_CLASS}">
             <div class="inner-wrapper ${replacements.OVERLAY_CLASS}">
 
-                <ul class="badges">
-                    😎
-                </ul>
-    
                 <div class="center-area">
                     <div class="description">
-                        <p class="description-text">${replacements.DESCRIPTION} <br /> <br />  ${lastfmStatus}</p>
+                        <p class="description-text">${replacements.DESCRIPTION}</p>
                     </div>
                 </div>
     
@@ -460,19 +531,36 @@ export const command: Command = {
                     </div>
     
                     <ul class='sidebar-list'>
-                        <li class='sidebar-item'><span class="sidebar-value">${replacements.SERVER_LEVEL}</span><br>Of ${message.guild.members.cache.get(userID).guild.memberCount} Users</li>
-                        <li class='sidebar-item'><span class="sidebar-value">${replacements.GLOBAL_LEVEL}</span><br>Of ${Math.floor(userData / 100) / 10.0 + "k"} Users</li>
+                        <li class='sidebar-item'><span class="sidebar-value">Rank ${replacements.SERVER_LEVEL}</span><br>Of ${message.guild.members.cache.get(userID).guild.memberCount} Users</li>
+                        <li class='sidebar-item'><span class="sidebar-value">Rank ${replacements.GLOBAL_LEVEL}</span><br>Of ${Math.floor(userData / 100) / 10.0 + "k"} Users</li>
                         ${bentoRankUser[0] ? `<li class='sidebar-item'><span class="sidebar-value">Rank ${bentoRankUser[0].rank}</span><br>Of ${bentoRank[bentoRank.length - 1].rank} 🍱 Users</li>` : ''}
+                        <li class='sidebar-item'><span class="sidebar-value">😎 <img src="https://cdn.discordapp.com/emojis/864322844342222858.gif?v=1" width="24" height="24"></span><br>${userTimezone}${userBirthday}</li>
                     </ul>
     
                 </div>
                 <div class="footer">
+                <div class="xpDivBGBGBG2">
+                    <div class="xpDivBGBG">
+                        <div class="xpDivBG">
+                            <div class="fmDiv">
+                                <img src="${usernameEmbed.recenttracks.track[0].image[0]['#text']}" width="36" height="36" style="float:left">
+                                <div class="fmText">
+                                ${usernameEmbed.recenttracks.track[0].name} <br /> ${usernameEmbed.recenttracks.track[0].artist['#text']}
+                                </div>
+                                <div class="fmBar">
+                                    <div class ="fmDoneServer"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                     ${xpBoard ? `<div class="xpDivBGBGBG">
                     <div class="xpDivBGBG">
                         <div class="xpDivBG">
                             <div class="xpDiv">
                                 <div class="xpText">
-                                    ${Math.round(((serverRankUser[0].level * serverRankUser[0].level * 100) - xpServer) / 46)} messages to level ${serverRankUser[0].level + 1}
+                                🏠 Level ${serverRankUser[0].level}
                                 </div>
                                 <div class="xpBar">
                                     <div class ="xpDoneServer"
@@ -483,7 +571,7 @@ export const command: Command = {
                         <div class="xpDivBG">
                             <div class="xpDiv">
                                 <div class="xpText">
-                                    ${Math.round(((globalRankUser[0].level * globalRankUser[0].level * 100) - xpGlobal) / 46)} messages to level ${globalRankUser[0].level + 1}
+                                🌍 Level ${globalRankUser[0].level}
                                 </div>
                                 <div class="xpBar">
                                     <div class ="xpDoneGlobal"
@@ -499,7 +587,8 @@ export const command: Command = {
             htmlString = [
                 `<html>\n`,
                 `<head>\n`,
-                `    <meta charset="UTF-8">\n`,
+                `<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700&display=swap" rel="stylesheet">\n`,
+                `<meta charset="UTF-8">\n`,
                 `</head>\n\n`,
                 `<style>\n`,
                 `${css}\n`,
@@ -510,7 +599,7 @@ export const command: Command = {
                 `</html>\n`
             ].join(``);
             const image = await getHTMLImage(htmlString, '600', '400').catch(console.error);
-            const imageAttachment = new MessageAttachment(image, `${message.author.username}_profile.png`)
+            const imageAttachment = new MessageAttachment(image, `${discordUser.user.username}_profile.png`)
             return await message.channel.send(imageAttachment)
         }
 
