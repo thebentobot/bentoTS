@@ -35,6 +35,8 @@ import { notificationMessage } from "./notificationMessage";
 import type { notificationMessageAttributes, notificationMessageCreationAttributes } from "./notificationMessage";
 import { patreon } from "./patreon";
 import type { patreonAttributes, patreonCreationAttributes } from "./patreon";
+import { profile } from "./profile";
+import type { profileAttributes, profileCreationAttributes } from "./profile";
 import { reminder } from "./reminder";
 import type { reminderAttributes, reminderCreationAttributes } from "./reminder";
 import { role } from "./role";
@@ -73,6 +75,7 @@ export {
   muteRole,
   notificationMessage,
   patreon,
+  profile,
   reminder,
   role,
   roleChannel,
@@ -121,6 +124,8 @@ export type {
   notificationMessageCreationAttributes,
   patreonAttributes,
   patreonCreationAttributes,
+  profileAttributes,
+  profileCreationAttributes,
   reminderAttributes,
   reminderCreationAttributes,
   roleAttributes,
@@ -160,6 +165,7 @@ export function initModels(sequelize: Sequelize) {
   muteRole.initModel(sequelize);
   notificationMessage.initModel(sequelize);
   patreon.initModel(sequelize);
+  profile.initModel(sequelize);
   reminder.initModel(sequelize);
   role.initModel(sequelize);
   roleChannel.initModel(sequelize);
@@ -216,6 +222,8 @@ export function initModels(sequelize: Sequelize) {
   user.hasMany(notificationMessage, { as: "notificationMessages", foreignKey: "userID"});
   patreon.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(patreon, { as: "patreons", foreignKey: "userID"});
+  profile.belongsTo(user, { as: "user", foreignKey: "userID"});
+  user.hasOne(profile, { as: "profile", foreignKey: "userID"});
   reminder.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(reminder, { as: "reminders", foreignKey: "userID"});
   tag.belongsTo(user, { as: "user", foreignKey: "userID"});
@@ -242,6 +250,7 @@ export function initModels(sequelize: Sequelize) {
     muteRole: muteRole,
     notificationMessage: notificationMessage,
     patreon: patreon,
+    profile: profile,
     reminder: reminder,
     role: role,
     roleChannel: roleChannel,

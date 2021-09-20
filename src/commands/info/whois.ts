@@ -4,7 +4,7 @@ import { trim, urlToColours } from '../../utils/index';
 
 export const command: Command = {
     name: 'whois',
-    aliases: ['profile', 'user'],
+    aliases: ['user', 'userinfo'],
     category: 'info',
     description: 'Displays info about the mentioned user or the user who uses the command.',
     usage: 'whois <@user/userID> to find a user. If no user is specified it shows your own profile',

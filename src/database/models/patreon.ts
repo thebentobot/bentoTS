@@ -12,6 +12,10 @@ export interface patreonAttributes {
   enthusiast: boolean;
   disciple: boolean;
   sponsor: boolean;
+  emoteSlot1?: string;
+  emoteSlot2?: string;
+  emoteSlot3?: string;
+  emoteSlot4?: string;
 }
 
 export type patreonPk = "id";
@@ -28,6 +32,10 @@ export class patreon extends Model<patreonAttributes, patreonCreationAttributes>
   enthusiast!: boolean;
   disciple!: boolean;
   sponsor!: boolean;
+  emoteSlot1?: string;
+  emoteSlot2?: string;
+  emoteSlot3?: string;
+  emoteSlot4?: string;
 
   // patreon belongsTo user via userID
   user!: user;
@@ -78,6 +86,22 @@ export class patreon extends Model<patreonAttributes, patreonCreationAttributes>
     sponsor: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    emoteSlot1: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    emoteSlot2: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    emoteSlot3: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    emoteSlot4: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
