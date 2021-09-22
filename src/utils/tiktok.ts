@@ -19,6 +19,7 @@ export async function tiktokEmbedding(URL: string): Promise<any> {
         }
     });
     const buffer = await response.buffer()
+    console.log(buffer)
     try {
         const embed = new MessageEmbed()
         .setTitle(`${Util.escapeMarkdown(video.text)}`)

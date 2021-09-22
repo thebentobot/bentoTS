@@ -31,7 +31,17 @@ export const command: Command = {
                 case 'color': await setBackgroundColour(message, args[2])
                 break;
                 case 'opacity': await setBackgroundColourOpacity(message, args[2])
+                // case 'status' that returns an embed of how it currently is
             }
+            break;
+            case 'fmboard':
+            case 'lastfmboard':
+            case 'lfmboard': switch (args[1]) {
+                case 'toggle': await setLastFMBoard(message, args[2])
+            }
+            break;
+            case 'xpboard':
+            case 'levelboard': await setXPBoard(message, args[1])
         }
 
         // check the list in ./rank.ts when adding arguments
@@ -47,6 +57,16 @@ export const command: Command = {
 
         async function setBackgroundColourOpacity (message: Message, opacity: string) {
             // remember to validate that opacity value is bigger than 0 and lower than 1.
+            return message.channel.send('https://github.com/thebentobot')
+        }
+
+        async function setLastFMBoard (message: Message, status: string) {
+            // enable/disable
+            return message.channel.send('https://github.com/thebentobot')
+        }
+
+        async function setXPBoard (message: Message, status: string) {
+            // enable/disable
             return message.channel.send('https://github.com/thebentobot')
         }
     }
