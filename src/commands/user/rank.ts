@@ -203,7 +203,7 @@ export const command: Command = {
                             <div class="xpText2">
                             <img src="${client.user.avatarURL()}" width="20" height="20"> Level ${globalRankUser[0].level}
                             </div>
-                            <div class="xpBar">
+                            <div class="xpBar2">
                                 <div class ="xpDoneGlobal"
                                 </div>
                             </div>
@@ -289,6 +289,14 @@ export const command: Command = {
             const xpText2Opacity = Math.round((userProfileData ? (userProfileData.xpText2Opacity !== null ? userProfileData.xpText2Opacity/100 : 1) : 1) * 255).toString(16);
             const xpText2ColourData = userProfileData ? (userProfileData.xpText2Colour !== null ? userProfileData.xpText2Colour : '#ffffff') : '#ffffff'
             const xpText2Colour = `${xpText2ColourData}${xpText2Opacity}`
+
+            // xp bars (background)
+            const xpBarOpacity = Math.round((userProfileData ? (userProfileData.xpBarOpacity !== null ? userProfileData.xpBarOpacity/100 : 1) : 1) * 255).toString(16);
+            const xpBarColourData = userProfileData ? (userProfileData.xpBarColour !== null ? userProfileData.xpBarColour : "#374151") : "#374151"
+            const xpBarColour = `${xpBarColourData}${xpBarOpacity}`
+            const xpBar2Opacity = Math.round((userProfileData ? (userProfileData.xpBar2Opacity !== null ? userProfileData.xpBar2Opacity/100 : 1) : 1) * 255).toString(16);
+            const xpBar2ColourData = userProfileData ? (userProfileData.xpBar2Colour !== null ? userProfileData.xpBar2Colour : "#374151") : "#374151"
+            const xpBar2Colour = `${xpBar2ColourData}${xpBar2Opacity}`
             
             const xpDoneServerColour1Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour1Opacity !== null ? userProfileData.xpDoneServerColour1Opacity/100 : 1) : 1) * 255).toString(16);
             const xpDoneServerColour2Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour2Opacity !== null ? userProfileData.xpDoneServerColour2Opacity/100 : 1) : 1) * 255).toString(16);
@@ -747,8 +755,17 @@ export const command: Command = {
                 margin-bottom: 0.25rem/* 4px */;
                 width: 100%;
                 height: 0.25rem/* 4px */;
-                --tw-bg-opacity: 1;
-                background-color: rgba(55, 65, 81, var(--tw-bg-opacity));
+                background-color: ${xpBarColour};
+                border-radius: 0.25rem/* 4px */;
+                overflow: hidden;
+            }
+
+            .xpBar2 {
+                margin-top: 0.25rem/* 4px */;
+                margin-bottom: 0.25rem/* 4px */;
+                width: 100%;
+                height: 0.25rem/* 4px */;
+                background-color: ${xpBar2Colour};
                 border-radius: 0.25rem/* 4px */;
                 overflow: hidden;
             }

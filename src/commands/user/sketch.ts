@@ -116,6 +116,7 @@ export const command: Command = {
                     case 'color': 
                     case 'colour': await setXPText2Colour(message, args[3])
                 }
+                break;
                 case 'bar':
                 case 'xpbar': switch (args[2]) {
                     case 'opacity': await setXPBarBothOpacity(message, args[3], args[4], args[5])
@@ -142,6 +143,34 @@ export const command: Command = {
                     break;
                     case 'color': 
                     case 'colour': await setXPBar2Colour(message, args[3], args[4], args[5])
+                }
+                break;
+                case 'barbg':
+                case 'xpbarbg': switch (args[2]) {
+                    case 'opacity': await setXPBarBgBothOpacity(message, args[3])
+                    break;
+                    case 'color': 
+                    case 'colour': await setXPBarBgBothColour(message, args[3])
+                }
+                break;
+                case 'bar1bg':
+                case 'xpbar1bg':
+                case 'xpbarserverbg':
+                case 'xpbarleftbg': switch (args[2]) {
+                    case 'opacity': await setXPBarBgOpacity(message, args[3])
+                    break;
+                    case 'color': 
+                    case 'colour': await setXPBarBgColour(message, args[3])
+                }
+                break;
+                case 'bar2bg':
+                case 'xpbar2bg':
+                case 'xpbarglobalbg':
+                case 'xpbarrightbg': switch (args[2]) {
+                    case 'opacity': await setXPBarBg2Opacity(message, args[3])
+                    break;
+                    case 'color': 
+                    case 'colour': await setXPBarBg2Colour(message, args[3])
                 }
             }
             break;
@@ -601,7 +630,7 @@ export const command: Command = {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
                     await profile.update({xpTextOpacity: parseOpacity}, {where: {userID: userData[0].userID}})
-                    return message.channel.send(`${message.author} both your xp board text (1/left) colour opacity has been successfully set.`)
+                    return message.channel.send(`${message.author} your xp board text (1/left) colour opacity has been successfully set.`)
                 }
             }
         }
@@ -620,7 +649,7 @@ export const command: Command = {
                     return message.channel.send(`Your hex color is invalid. Try another one.`)
                 } else {
                     await profile.update({xpTextColour: colour}, {where: {userID: userData[0].userID}})
-                    return message.channel.send(`${message.author} both your xp board text (1/left) colour has been set.`)
+                    return message.channel.send(`${message.author} your xp board text (1/left) colour has been set.`)
                 }
             }
         }
@@ -641,7 +670,7 @@ export const command: Command = {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
                     await profile.update({xpText2Opacity: parseOpacity}, {where: {userID: userData[0].userID}})
-                    return message.channel.send(`${message.author} both your xp board text (2/right) colour opacity has been successfully set.`)
+                    return message.channel.send(`${message.author} your xp board text (2/right) colour opacity has been successfully set.`)
                 }
             }
         }
@@ -660,7 +689,7 @@ export const command: Command = {
                     return message.channel.send(`Your hex color is invalid. Try another one.`)
                 } else {
                     await profile.update({xpText2Colour: colour}, {where: {userID: userData[0].userID}})
-                    return message.channel.send(`${message.author} both your xp board text (2/right) colour has been set.`)
+                    return message.channel.send(`${message.author} your xp board text (2/right) colour has been set.`)
                 }
             }
         }
@@ -913,6 +942,126 @@ export const command: Command = {
                     xpDoneGlobalColour3: colour3
                 }, {where: {userID: userData[0].userID}})
                 return message.channel.send(`${message.author} your xp bar (2/right) colours has been set.`)
+            }
+        }
+
+        async function setXPBarBgBothOpacity(message: Message, opacity: string) {
+            if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+            initModels(database);
+            
+            const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
+            if (opacity === 'reset') {
+                await profile.update({xpBarOpacity: null, xpBar2Opacity: null}, {where: {userID: userData[0].userID}})
+                return message.channel.send(`${message.author} both your xp bar bg colour opacity values has been successfully reset.`)
+            } else {
+                let validOpacityValue: boolean;
+                let parseOpacity = Math.round(parseFloat(opacity))
+                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                if (validOpacityValue === false) {
+                    return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+                } else {
+                    await profile.update({xpBarOpacity: parseOpacity, xpBar2Opacity: parseOpacity}, {where: {userID: userData[0].userID}})
+                    return message.channel.send(`${message.author} both your xp bar bg colour opacity values has been successfully set.`)
+                }
+            }
+        }
+
+        async function setXPBarBgBothColour(message: Message, colour: string) {
+            if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+            initModels(database);
+            
+            const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
+            if (colour === 'reset') {
+                await profile.update({xpBarColour: null, xpBar2Colour: null}, {where: {userID: userData[0].userID}})
+                return message.channel.send(`${message.author} both your xp bar bg colours has been successfully reset.`)
+            } else {
+                const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+                if (hexTest !== true) {
+                    return message.channel.send(`Your hex color is invalid. Try another one.`)
+                } else {
+                    await profile.update({xpBarColour: colour, xpBar2Colour: colour}, {where: {userID: userData[0].userID}})
+                    return message.channel.send(`${message.author} both your xp bar bg colours has been set.`)
+                }
+            }
+        }
+
+        async function setXPBarBgOpacity(message: Message, opacity: string) {
+            if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+            initModels(database);
+            
+            const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
+            if (opacity === 'reset') {
+                await profile.update({xpBarOpacity: null}, {where: {userID: userData[0].userID}})
+                return message.channel.send(`${message.author} your xp bar bg(1/left) colour opacity has been successfully reset.`)
+            } else {
+                let validOpacityValue: boolean;
+                let parseOpacity = Math.round(parseFloat(opacity))
+                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                if (validOpacityValue === false) {
+                    return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+                } else {
+                    await profile.update({xpBarOpacity: parseOpacity}, {where: {userID: userData[0].userID}})
+                    return message.channel.send(`${message.author} your xp bar bg (1/left) colour opacity has been successfully set.`)
+                }
+            }
+        }
+
+        async function setXPBarBgColour(message: Message, colour: string) {
+            if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+            initModels(database);
+            
+            const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
+            if (colour === 'reset') {
+                await profile.update({xpBarColour: null}, {where: {userID: userData[0].userID}})
+                return message.channel.send(`${message.author} your xp bar bg (1/left) colour has been successfully reset.`)
+            } else {
+                const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+                if (hexTest !== true) {
+                    return message.channel.send(`Your hex color is invalid. Try another one.`)
+                } else {
+                    await profile.update({xpBarColour: colour}, {where: {userID: userData[0].userID}})
+                    return message.channel.send(`${message.author} your xp bar bg (1/left) colour has been set.`)
+                }
+            }
+        }
+
+        async function setXPBarBg2Opacity(message: Message, opacity: string) {
+            if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+            initModels(database);
+            
+            const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
+            if (opacity === 'reset') {
+                await profile.update({xpBar2Opacity: null}, {where: {userID: userData[0].userID}})
+                return message.channel.send(`${message.author} your xp bar bg (2/right) colour opacity has been successfully reset.`)
+            } else {
+                let validOpacityValue: boolean;
+                let parseOpacity = Math.round(parseFloat(opacity))
+                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                if (validOpacityValue === false) {
+                    return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+                } else {
+                    await profile.update({xpBar2Opacity: parseOpacity}, {where: {userID: userData[0].userID}})
+                    return message.channel.send(`${message.author} your xp bar bg (2/right) colour opacity has been successfully set.`)
+                }
+            }
+        }
+
+        async function setXPBarBg2Colour(message: Message, colour: string) {
+            if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+            initModels(database);
+            
+            const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
+            if (colour === 'reset') {
+                await profile.update({xpBar2Colour: null}, {where: {userID: userData[0].userID}})
+                return message.channel.send(`${message.author} your xp bar bg (2/right) colour has been successfully reset.`)
+            } else {
+                const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+                if (hexTest !== true) {
+                    return message.channel.send(`Your hex color is invalid. Try another one.`)
+                } else {
+                    await profile.update({xpBar2Colour: colour}, {where: {userID: userData[0].userID}})
+                    return message.channel.send(`${message.author} your xp bar bg (2/right) colour has been set.`)
+                }
             }
         }
 
