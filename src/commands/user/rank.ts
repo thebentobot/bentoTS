@@ -148,7 +148,7 @@ export const command: Command = {
 
             let lastfmHTMLString = `
             <div class="xpDivBGBGBG2">
-                <div class="xpDivBGBG">
+                <div class="fmDivBGBG">
                     <div class="fmDivBG">
                         <div class="fmDiv">
                             <img src="${usernameEmbed ? (usernameEmbed.recenttracks ? usernameEmbed.recenttracks.track[0].image[0]['#text'] : 'https://cdn.discordapp.com/avatars/787041583580184609/fb64cda098372e05fc6945b9d17386dc.png?size=1024') : 'https://cdn.discordapp.com/avatars/787041583580184609/fb64cda098372e05fc6945b9d17386dc.png?size=1024'}" width="36" height="36" style="float:left">
@@ -190,7 +190,7 @@ export const command: Command = {
                     <div class="xpDivBG">
                         <div class="xpDiv">
                             <div class="xpText">
-                            🏠 Level ${serverRankUser[0].level}
+                            ${message.guild.iconURL() ? `<img src="${message.guild.iconURL()}" width="20" height="20">` : `🏠`} Level ${serverRankUser[0].level}
                             </div>
                             <div class="xpBar">
                                 <div class ="xpDoneServer"
@@ -198,10 +198,10 @@ export const command: Command = {
                             </div>
                         </div>
                     </div>
-                    <div class="xpDivBG">
+                    <div class="xpDivBG2">
                         <div class="xpDiv">
                             <div class="xpText2">
-                            🌍 Level ${globalRankUser[0].level}
+                            <img src="${client.user.avatarURL()}" width="20" height="20"> Level ${globalRankUser[0].level}
                             </div>
                             <div class="xpBar">
                                 <div class ="xpDoneGlobal"
@@ -239,14 +239,14 @@ export const command: Command = {
             }
 
             const bg = userProfileData ? (userProfileData.backgroundUrl !== null ? userProfileData.backgroundUrl : "") : "" //empty as default
-            const backgroundOpacity = Math.round((userProfileData ? (userProfileData.BackgroundColourOpacity !== null ? userProfileData.BackgroundColourOpacity : 1) : 1) * 255).toString(16); // default opacity is 1 === 100%
+            const backgroundOpacity = Math.round((userProfileData ? (userProfileData.BackgroundColourOpacity !== null ? (userProfileData.BackgroundColourOpacity/100) : 1) : 1) * 255).toString(16); // default opacity is 1 === 100%
             const backgroundColourData = userProfileData ? (userProfileData.backgroundColour !== null ? userProfileData.backgroundColour : "#1F2937") : "#1F2937"
             const backgroundColor = `${backgroundColourData}${backgroundOpacity}`
-            const descriptionOpacity = Math.round((userProfileData ? (userProfileData.descriptionColourOpacity !== null ? userProfileData.descriptionColourOpacity : 1) : 1) * 255).toString(16);
+            const descriptionOpacity = Math.round((userProfileData ? (userProfileData.descriptionColourOpacity !== null ? userProfileData.descriptionColourOpacity/100 : 1) : 1) * 255).toString(16);
             const descriptionColourData = userProfileData ? (userProfileData.descriptionColour !== null ? userProfileData.descriptionColour : '#ffffff') : '#ffffff'
             const descriptionColour = `${descriptionColourData}${descriptionOpacity}` // for the text that is
             // background overlay, so a potential bg isn't as ''bright''
-            const overlayOpacity = Math.round((userProfileData ? (userProfileData.overlayOpacity !== null ? userProfileData.overlayOpacity : 0.2) : 0.2) * 255).toString(16);
+            const overlayOpacity = Math.round((userProfileData ? (userProfileData.overlayOpacity !== null ? userProfileData.overlayOpacity/100 : 0.2) : 0.2) * 255).toString(16);
             const overlayColourData = userProfileData ? (userProfileData.overlayColour !== null ? userProfileData.overlayColour : `#000000`) : `#000000` //#000000 (transparent) as the default value, if nothing is specified in the database
             const overlayColour = `${overlayColourData}${overlayOpacity}`
             
@@ -263,39 +263,39 @@ export const command: Command = {
             const sidebarValueBentoColour = userProfileData ? (userProfileData.sidebarValueBentoColour !== null ? userProfileData.sidebarValueBentoColour : '#ffffff') : "#ffffff"
             const sidebarValueEmoteColour = "#ffffff"
             
-            const sidebarOpacity = Math.round((userProfileData ? (userProfileData.sidebarOpacity !== null ? userProfileData.sidebarOpacity : 0.3) : 0.3) * 255).toString(16);
+            const sidebarOpacity = Math.round((userProfileData ? (userProfileData.sidebarOpacity !== null ? userProfileData.sidebarOpacity/100 : 0.3) : 0.3) * 255).toString(16);
             const sidebarColourData = userProfileData ? (userProfileData.sidebarColour !== null ? userProfileData.sidebarColour : `#000000`) : `#000000`
             const sidebarColour = `${sidebarColourData}${sidebarOpacity}`
             const sidebarBlur = userProfileData ? (userProfileData.sidebarBlur !== null ? userProfileData.sidebarBlur : 3) : 3
 
             // fm board
-            const fmDivBGOpacity = Math.round((userProfileData ? (userProfileData.fmDivBGOpacity !== null ? userProfileData.fmDivBGOpacity : 1) : 1) * 255).toString(16);
+            const fmDivBGOpacity = Math.round((userProfileData ? (userProfileData.fmDivBGOpacity !== null ? userProfileData.fmDivBGOpacity/100 : 1) : 1) * 255).toString(16);
             const fmDivBGColourData = userProfileData ? (userProfileData.fmDivBGColour !== null ? userProfileData.fmDivBGColour : "#111827") : "#111827"
             const fmDivBGColour = `${fmDivBGColourData}${fmDivBGOpacity}`
-            const fmSongTextOpacity = Math.round((userProfileData ? (userProfileData.fmSongTextOpacity !== null ? userProfileData.fmSongTextOpacity : 1) : 1) * 255).toString(16);
+            const fmSongTextOpacity = Math.round((userProfileData ? (userProfileData.fmSongTextOpacity !== null ? userProfileData.fmSongTextOpacity/100 : 1) : 1) * 255).toString(16);
             const fmSongTextColourData = userProfileData ? (userProfileData.fmSongTextColour !== null ? userProfileData.fmSongTextColour : '#ffffff') : '#ffffff'
             const fmSongTextColour = `${fmSongTextColourData}${fmSongTextOpacity}`
-            const fmArtistTextOpacity = Math.round((userProfileData ? (userProfileData.fmArtistTextOpacity !== null ? userProfileData.fmArtistTextOpacity : 1) : 1) * 255).toString(16);
+            const fmArtistTextOpacity = Math.round((userProfileData ? (userProfileData.fmArtistTextOpacity !== null ? userProfileData.fmArtistTextOpacity/100 : 1) : 1) * 255).toString(16);
             const fmArtistTextColourData = userProfileData ? (userProfileData.fmArtistTextColour !== null ? userProfileData.fmArtistTextColour : '#ffffff') : '#ffffff'
             const fmArtistTextColour = `${fmArtistTextColourData}${fmArtistTextOpacity}`
 
             // xp board
-            const xpDivBGOpacity = Math.round((userProfileData ? (userProfileData.xpDivBGOpacity !== null ? userProfileData.xpDivBGOpacity : 1) : 1) * 255).toString(16);
+            const xpDivBGOpacity = Math.round((userProfileData ? (userProfileData.xpDivBGOpacity !== null ? userProfileData.xpDivBGOpacity/100 : 1) : 1) * 255).toString(16);
             const xpDivBGColourData = userProfileData ? (userProfileData.xpDivBGColour !== null ? userProfileData.xpDivBGColour : "#111827") : "#111827"
             const xpDivBGColour = `${xpDivBGColourData}${xpDivBGOpacity}`
-            const xpTextOpacity = Math.round((userProfileData ? (userProfileData.xpTextOpacity !== null ? userProfileData.xpTextOpacity : 1) : 1) * 255).toString(16);
+            const xpTextOpacity = Math.round((userProfileData ? (userProfileData.xpTextOpacity !== null ? userProfileData.xpTextOpacity/100 : 1) : 1) * 255).toString(16);
             const xpTextColourData = userProfileData ? (userProfileData.xpTextColour !== null ? userProfileData.xpTextColour : '#ffffff') : '#ffffff'
             const xpTextColour = `${xpTextColourData}${xpTextOpacity}`
-            const xpText2Opacity = Math.round((userProfileData ? (userProfileData.xpText2Opacity !== null ? userProfileData.xpText2Opacity : 1) : 1) * 255).toString(16);
+            const xpText2Opacity = Math.round((userProfileData ? (userProfileData.xpText2Opacity !== null ? userProfileData.xpText2Opacity/100 : 1) : 1) * 255).toString(16);
             const xpText2ColourData = userProfileData ? (userProfileData.xpText2Colour !== null ? userProfileData.xpText2Colour : '#ffffff') : '#ffffff'
             const xpText2Colour = `${xpText2ColourData}${xpText2Opacity}`
             
-            const xpDoneServerColour1Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour1Opacity !== null ? userProfileData.xpDoneServerColour1Opacity : 1) : 1) * 255).toString(16);
-            const xpDoneServerColour2Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour2Opacity !== null ? userProfileData.xpDoneServerColour2Opacity : 1) : 1) * 255).toString(16);
-            const xpDoneServerColour3Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour3Opacity !== null ? userProfileData.xpDoneServerColour3Opacity : 1) : 1) * 255).toString(16);
-            const xpDoneGlobalColour1Opacity = Math.round((userProfileData ? (userProfileData.xpDoneGlobalColour1Opacity !== null ? userProfileData.xpDoneGlobalColour1Opacity : 1) : 1) * 255).toString(16);
-            const xpDoneGlobalColour2Opacity = Math.round((userProfileData ? (userProfileData.xpDoneGlobalColour2Opacity !== null ? userProfileData.xpDoneGlobalColour2Opacity : 1) : 1) * 255).toString(16);
-            const xpDoneGlobalColour3Opacity = Math.round((userProfileData ? (userProfileData.xpDoneGlobalColour3Opacity !== null ? userProfileData.xpDoneGlobalColour3Opacity : 1) : 1) * 255).toString(16);
+            const xpDoneServerColour1Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour1Opacity !== null ? userProfileData.xpDoneServerColour1Opacity/100 : 1) : 1) * 255).toString(16);
+            const xpDoneServerColour2Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour2Opacity !== null ? userProfileData.xpDoneServerColour2Opacity/100 : 1) : 1) * 255).toString(16);
+            const xpDoneServerColour3Opacity = Math.round((userProfileData ? (userProfileData.xpDoneServerColour3Opacity !== null ? userProfileData.xpDoneServerColour3Opacity/100 : 1) : 1) * 255).toString(16);
+            const xpDoneGlobalColour1Opacity = Math.round((userProfileData ? (userProfileData.xpDoneGlobalColour1Opacity !== null ? userProfileData.xpDoneGlobalColour1Opacity/100 : 1) : 1) * 255).toString(16);
+            const xpDoneGlobalColour2Opacity = Math.round((userProfileData ? (userProfileData.xpDoneGlobalColour2Opacity !== null ? userProfileData.xpDoneGlobalColour2Opacity/100 : 1) : 1) * 255).toString(16);
+            const xpDoneGlobalColour3Opacity = Math.round((userProfileData ? (userProfileData.xpDoneGlobalColour3Opacity !== null ? userProfileData.xpDoneGlobalColour3Opacity/100 : 1) : 1) * 255).toString(16);
 
             const xpDoneServerColour1Data = userProfileData ? (userProfileData.xpDoneServerColour1 !== null ? userProfileData.xpDoneServerColour1 : "#FCD34D") : "#FCD34D"
             const xpDoneServerColour2Data = userProfileData ? (userProfileData.xpDoneServerColour2 !== null ? userProfileData.xpDoneServerColour2 : "#F59E0B") : "#F59E0B"
@@ -344,6 +344,10 @@ export const command: Command = {
             emoteArray.push(randomEmotes[Math.floor(Math.random()*randomEmotes.length)])
 
             let bentoServerMemberData = await guildMemberDB.findAll({raw: true, where: {guildID: '714496317522444352'}})
+
+            if (message.guild.iconURL()) {
+                emoteArray.push(emoteFunction(message.guild.iconURL({format: 'png'})))
+            }
             
             if (bentoServerMemberData.some(user => user.userID == userID)) {
                 emoteArray.push('🍱')
@@ -603,6 +607,10 @@ export const command: Command = {
                 position: relative;
             }
 
+            .fmDivBGBG {
+                position: relative;
+            }
+
             /* rgba(17, 24, 39, var(--tw-bg-opacity)) */
             .xpDivBG {
                 flex-grow: 0.5;
@@ -611,6 +619,19 @@ export const command: Command = {
                 display: flex;
                 align-items: center;
                 background-color: ${xpDivBGColour};
+                border-radius: 0.5rem/* 8px */;
+                padding-left: 25px;
+                padding-right: 15px;
+                opacity: ${xpOpacity};
+            }
+
+            .xpDivBG2 {
+                flex-grow: 0.5;
+                width: 85%;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                background-color: #ffffff00;
                 border-radius: 0.5rem/* 8px */;
                 padding-left: 25px;
                 padding-right: 15px;
