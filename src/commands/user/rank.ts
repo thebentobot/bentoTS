@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { Command } from '../../interfaces';
 import database from '../../database/database';
-import { initModels, guild, lastfm, guildMember as guildMemberDB, profile, patreon } from '../../database/models/init-models';
+import { initModels, guild, lastfm, guildMember as guildMemberDB, profile, patreon, user as userDB } from '../../database/models/init-models';
 import { Message, GuildMember, User, MessageAttachment } from 'discord.js';
 import { QueryTypes } from 'sequelize';
 import { stringify } from 'qs';
@@ -92,6 +92,8 @@ export const command: Command = {
                 const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
                 if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a profile.`)
                 userID = theUser.id
+                await userDB.findOrCreate({where: {userID: userID}})
+                await guildMemberDB.findOrCreate({where: {userID: userID, guildID: message.guild.id}})
                 userProfileData = await profile.findOne({raw: true, where: {userID: userID}})
                 if (userProfileData) {
                     if (userProfileData.lastfmBoard === true) {
@@ -103,6 +105,8 @@ export const command: Command = {
                 }
             } catch {
                 userID = message.author.id
+                await userDB.findOrCreate({where: {userID: userID}})
+                await guildMemberDB.findOrCreate({where: {userID: userID, guildID: message.guild.id}})
                 userProfileData = await profile.findOne({raw: true, where: {userID: userID}})
                 if (userProfileData) {
                     if (userProfileData.lastfmBoard === true) {

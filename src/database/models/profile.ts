@@ -52,6 +52,10 @@ export interface profileAttributes {
   description?: string;
   timezone?: string;
   birthday?: string;
+  xpBarOpacity?: number;
+  xpBarColour?: string;
+  xpBar2Opacity?: number;
+  xpBar2Colour?: string;
 }
 
 export type profilePk = "userID";
@@ -108,6 +112,10 @@ export class profile extends Model<profileAttributes, profileCreationAttributes>
   description?: string;
   timezone?: string;
   birthday?: string;
+  xpBarOpacity?: number;
+  xpBarColour?: string;
+  xpBar2Opacity?: number;
+  xpBar2Colour?: string;
 
   // profile belongsTo user via userID
   user!: user;
@@ -315,6 +323,22 @@ export class profile extends Model<profileAttributes, profileCreationAttributes>
       allowNull: true
     },
     birthday: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    xpBarOpacity: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    xpBarColour: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    xpBar2Opacity: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    xpBar2Colour: {
       type: DataTypes.STRING,
       allowNull: true
     }

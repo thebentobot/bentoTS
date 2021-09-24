@@ -18,7 +18,13 @@ export const event: Event = {
     name: 'ready',
     run: async (client): Promise<any> => {
         console.log(`${client.user.tag} is online! Let\'s get this bread!`);
-        client.user.setActivity(`🍱 - Feeding in ${client.channels.cache.size} channels, serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
+        async function clientStatus  () {
+            client.user.setActivity(`🍱 - Feeding ${client.users.cache.size} users on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
+        }
+
+        clientStatus()
+
+        setInterval(clientStatus, 3600000 *24)
         
         const app = express()
         app.use(express.urlencoded({extended: true}))
@@ -45,7 +51,8 @@ export const event: Event = {
                 await bento.increment('bento', {by: 5, where: { userID: bentoDataTarget[0].userID}});
             }
             const webhookChannel: TextChannel = client.channels.cache.get(`881566124993544232`) as TextChannel;
-            webhookChannel.send(`<@${userID}> has voted on top.gg 👏\nYou have now received ${vote.isWeekend === true ? `**10 Bento** 🍱 as a thanks for your support 🥺💖` : `**5 Bento** 🍱 as a thanks for your support 🥺💖`}`)
+            webhookChannel.send(`<@${userID}> has voted on top.gg 👏\nYou have now received ${vote.isWeekend === true ? `**10 Bento** 🍱 as a thanks for your support 🥺💖` : `**5 Bento** 🍱 as a thanks for your support 🥺💖`}`);
+            (await client.users.fetch(userID)).send(`Thank you so much for voting on me 🍱 on top.gg 👏\nYou have now received ${vote.isWeekend === true ? `**10 Bento** 🍱 as a thanks for your support 🥺💖` : `**5 Bento** 🍱 as a thanks for your support 🥺💖`}`).catch(error => { console.error(`Could not send top.gg DM`, error)})
             
             // You can also throw an error to the listener callback in order to resend the webhook after a few seconds
         }))

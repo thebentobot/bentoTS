@@ -36,7 +36,7 @@ export const event: Event = {
                 .setFooter('Updated at')
                 .setTimestamp()
                 await user.update({avatarURL: newMember.user.avatarURL({dynamic: true, format: "png", size: 1024})}, {where: {userID: oldMember.id}})
-                await guildMember.update({avatarURL: newMember.user.avatarURL()}, {where: {userID: oldMember.id, guildID: oldMember.guild.id}})
+                await guildMember.update({avatarURL: newMember.user.avatarURL({dynamic: true, format: "png", size: 1024})}, {where: {userID: oldMember.id, guildID: oldMember.guild.id}})
                 await memberLogChannel.send(embed)
             } catch {
                 return
