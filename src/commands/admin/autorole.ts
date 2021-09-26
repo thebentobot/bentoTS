@@ -41,7 +41,11 @@ export const command: Command = {
                     roleID: BigInt(roleID.id)
                 }
                 await autoRole.create(attr);
-                return message.channel.send(`Your role <@&${roleID.id}> was set as an auto role.\nTo see a list of your auto roles use ${guildData.prefix}autorole list`, {disableMentions: 'everyone'});
+                if (roleID.position > message.guild.members.resolve(client.user).roles.highest.position) {
+                    return message.channel.send(`Your role <@&${roleID.id}> was set as an auto role.\n**PLEASE hierarchically position the highest role for ${client.user} higher than <@&${roleID.id}> or else the auto role won't be assigned for joining users.\nTo see a list of your auto roles use ${guildData.prefix}autorole list`, {disableMentions: 'everyone'});
+                } else {
+                    return message.channel.send(`Your role <@&${roleID.id}> was set as an auto role.\nTo see a list of your auto roles use ${guildData.prefix}autorole list`, {disableMentions: 'everyone'});
+                }
             } catch {
                 return message.channel.send(`Your role id ${args[1]} was invalid.\nPlease use a valid role id.`);
             } 
