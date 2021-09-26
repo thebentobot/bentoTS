@@ -12,7 +12,7 @@ export const command: Command = {
     description: 'Bans the mentioned user from your server.',
     usage: 'ban <user id or mention user> [reason]',
     website: 'https://www.bentobot.xyz/commands#ban',
-    run: async (client, message, args): Promise<Message> => {
+    run: async (client, message, args): Promise<any> => {
         if (!message.member.hasPermission('BAN_MEMBERS')) {
             return message.channel.send('You do not have permission to use this command.\nYou are not a mod.').then(m => m.delete({timeout: 5000}));
         }
@@ -87,11 +87,11 @@ export const command: Command = {
             } catch {
                 try {
                     (await client.users.fetch(bannedUserID)).send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`).catch(error => { console.error(`Could not send ban DM`, error)})
-                    await bannedUser.ban({reason: reason, days: 7});
-                    return await message.channel.send(`**${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
+                    await message.channel.send(`**${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
+                    return await bannedUser.ban({reason: reason, days: 7});
                 } catch {
-                    await bannedUser.ban({reason: reason, days: 7});
-                    return await message.channel.send(`**${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
+                    await message.channel.send(`**${message.guild.members.cache.get(`${bannedUserID}`).nickname ? `${message.guild.members.cache.get(`${bannedUserID}`).nickname} (${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator})` : `${message.guild.members.cache.get(`${bannedUserID}`).user.username + '#' + message.guild.members.cache.get(`${bannedUserID}`).user.discriminator}`}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${banned[0].reason}\nYou can add notes for this ban by using the case command, together with the case number.`)
+                    return await bannedUser.ban({reason: reason, days: 7});
                 }
             }
         }

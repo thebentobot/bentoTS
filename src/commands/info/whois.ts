@@ -4,10 +4,10 @@ import { trim, urlToColours } from '../../utils/index';
 
 export const command: Command = {
     name: 'whois',
-    aliases: ['profile', 'user'],
+    aliases: ['user', 'userinfo'],
     category: 'info',
     description: 'Displays info about the mentioned user or the user who uses the command.',
-    usage: 'whois <@user/userID> to find a user. If no user is specified it shows your own profile',
+    usage: 'whois <@user/userID> to find a user. If no user is specified it shows info for you',
     website: 'https://www.bentobot.xyz/commands#whois',
     run: async (client, message, args): Promise<Message> => {
         if (!args.length) {

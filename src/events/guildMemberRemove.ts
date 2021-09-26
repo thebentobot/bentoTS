@@ -25,7 +25,7 @@ export const event: Event = {
             .setColor(`#FF0000	`)
             .setFooter(`UserID: ${member.user.id}`)
             .setTimestamp()
-            .setDescription(`${currentMuteData.MuteStatus === true ? `The user was **muted** when the user left the server.\n` : ``}**Account created:** ${moment(member.user.createdAt).format(`D/M/YYYY HH:mm:ss Z`)}\n**Bans on other servers:** \`${banData.rows}\`.\n**Kicks from other servers:** \`${kickData.rows}\`.\n**Mutes on other servers:** \`${muteData.rows}\`.\n**Warnings on other servers:** \`${warningData.rows}\`.`)
+            .setDescription(`${currentMuteData ? `The user was **muted** when the user left the server.\n` : ``}**Account created:** ${moment(member.user.createdAt).format(`D/M/YYYY HH:mm:ss Z`)}\n**Bans on other servers:** \`${banData.rows}\`.\n**Kicks from other servers:** \`${kickData.rows}\`.\n**Mutes on other servers:** \`${muteData.rows}\`.\n**Warnings on other servers:** \`${warningData.rows}\`.`)
             await channel.send(embed)
         }
 

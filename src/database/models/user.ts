@@ -6,6 +6,7 @@ import type { horoscope, horoscopeCreationAttributes, horoscopeId } from './horo
 import type { lastfm, lastfmCreationAttributes, lastfmId } from './lastfm';
 import type { notificationMessage, notificationMessageId } from './notificationMessage';
 import type { patreon, patreonId } from './patreon';
+import type { profile, profileCreationAttributes, profileId } from './profile';
 import type { reminder, reminderId } from './reminder';
 import type { tag, tagId } from './tag';
 import type { weather, weatherCreationAttributes, weatherId } from './weather';
@@ -82,6 +83,11 @@ export class user extends Model<userAttributes, userCreationAttributes> implemen
   hasPatreon!: Sequelize.HasManyHasAssociationMixin<patreon, patreonId>;
   hasPatreons!: Sequelize.HasManyHasAssociationsMixin<patreon, patreonId>;
   countPatreons!: Sequelize.HasManyCountAssociationsMixin;
+  // user hasOne profile via userID
+  profile!: profile;
+  getProfile!: Sequelize.HasOneGetAssociationMixin<profile>;
+  setProfile!: Sequelize.HasOneSetAssociationMixin<profile, profileId>;
+  createProfile!: Sequelize.HasOneCreateAssociationMixin<profileCreationAttributes>;
   // user hasMany reminder via userID
   reminders!: reminder[];
   getReminders!: Sequelize.HasManyGetAssociationsMixin<reminder>;
