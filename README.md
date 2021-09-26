@@ -13,6 +13,7 @@ Want to give feedback or got any questions? Join the support server [here](https
 - TikTok embedding
 - LastFM API features
 - Advanced moderation tools that include a comprehensive case-based logging system.
+- Custom user profiles
 - Database that saves server info such as feature settings and welcome message, and user data such as XP/Levels and command info
 - Unlimited custom commands (for the server only) that saves name for recall and content
 - Horoscope
