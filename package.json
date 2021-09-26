@@ -35,7 +35,7 @@
     "@types/sequelize": "^4.28.10",
     "@types/spotify-web-api-node": "^5.0.2",
     "ascii-table": "^0.0.9",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "aztro-js": "^0.1.5",
     "base-64": "^1.0.0",
     "chroma-js": "^2.1.2",
