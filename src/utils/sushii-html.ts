@@ -3,7 +3,7 @@ import axios from "axios";
 export async function getHTMLImage (html: string, width: string, height: string, type="png"): Promise<Buffer> {
     return await axios({
         method: 'post',
-        url: "http://localhost:3000/html",
+        url: "http://sushii-image-server:3000/html",
         data: {
             html: html, 
             width: width, 
