@@ -19,7 +19,8 @@ export const event: Event = {
     run: async (client): Promise<any> => {
         console.log(`${client.user.tag} is online! Let\'s get this bread!`);
         async function clientStatus  () {
-            client.user.setActivity(`🍱 - Feeding ${client.users.cache.size} users on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
+            const userData = await guild.sum('memberCount')
+            client.user.setActivity(`🍱 - Feeding ${userData} users on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
         }
 
         clientStatus()
