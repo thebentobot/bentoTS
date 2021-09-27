@@ -854,7 +854,7 @@ export const command: Command = {
                 `</body>\n\n`,
                 `</html>\n`
             ].join(``);
-            const image = await getHTMLImage(htmlString, '600', '400').catch(console.error);
+            const image: Buffer = await getHTMLImage(htmlString, '600', '400').catch(console.error);
             const imageAttachment = new MessageAttachment(image, `${discordUser.user.username}_profile.png`)
             return await message.channel.send(imageAttachment)
         }

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export async function getHTMLImage (html: string, width: string, height: string, type="png") {
-    let image = await axios({
+export async function getHTMLImage (html: string, width: string, height: string, type="png"): Promise<Buffer> {
+    return await axios({
         method: 'post',
         url: "http://localhost:3000/html",
         data: {
@@ -11,8 +11,7 @@ export async function getHTMLImage (html: string, width: string, height: string,
             imageFormat: type,
             quality: 100
         },
-        responseType: "stream"
-    })
+        responseType: "arraybuffer"
+    }).then(res => Buffer.from(res.data))
     
-    return image.data;
 } 
