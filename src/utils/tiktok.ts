@@ -33,12 +33,10 @@ export async function tiktokEmbedding(URL: string): Promise<any> {
         .setAuthor(video.authorMeta.name, video.authorMeta.avatar, `https://www.tiktok.com/@${video.authorMeta.name}?`)
         let finalVideo = new MessageAttachment(buffer, 'video.mp4')
         return [finalVideo, embed];
-    } catch (err) {
-        console.log(err)
+    } catch {
         return;
     };
-    } catch (err) {
-        console.log(err)
+    } catch {
         return
     }
 };

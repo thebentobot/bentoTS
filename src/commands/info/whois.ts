@@ -18,7 +18,6 @@ export const command: Command = {
             .setTimestamp()
             .addFields(
               { name: 'Nickname on the server', value: message.member.displayName},
-              { name: 'Status', value: message.member.presence.status, inline: true},
               { name: 'Last message', value: message.author.lastMessage, inline: true},
               { name: 'User ID', value: message.author.id},
               { name: 'Account created at', value: message.author.createdAt},
@@ -43,7 +42,6 @@ export const command: Command = {
                 .setTimestamp()
                 .addFields(
                     { name: 'Nickname on the server', value: user.displayName},
-                    { name: 'Status', value: user.presence.status, inline: true},
                     { name: 'Last message', value: user.lastMessage, inline: true},
                     { name: 'User ID', value: user.id},
                     { name: 'Account created at', value: user.user.createdAt},
@@ -62,7 +60,6 @@ export const command: Command = {
                     .setThumbnail(globalUser.avatarURL({ format: 'png', dynamic: true }))
                     .setTimestamp()
                     .addFields(
-                        { name: 'Status', value: globalUser.presence.status, inline: true},
                         { name: 'User ID', value: globalUser},
                         { name: 'Account created at', value: globalUser.createdAt},
                     )
