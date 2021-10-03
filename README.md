@@ -10,7 +10,6 @@ Want to give feedback or got any questions? Join the support server [here](https
 
 ## List of notable features
 
-- TikTok embedding
 - LastFM API features
 - Advanced moderation tools that include a comprehensive case-based logging system.
 - Custom user profiles
