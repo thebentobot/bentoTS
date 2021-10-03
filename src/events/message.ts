@@ -3,7 +3,7 @@ import { GuildMember, Message, MessageAttachment, MessageEmbed, Role, TextChanne
 import database from '../database/database';
 
 import { checkURL } from '../utils/checkURL';
-import { tiktokEmbedding } from '../utils/tiktok';
+import { ttEmbedding } from '../utils/tt';
 import { addXpServer, addXpGlobal } from '../utils/xp'
 // [table] Attributes is the interface defining the fields
 // [table] CreationAttributes is the interface defining the fields when creating a new record
@@ -96,16 +96,15 @@ export const event: Event = {
         }
 
         if (message.content.includes('tiktok.com')) {
-            if (messageGuild.tiktok == false) {
-                return
-            }
-            const url = checkURL(message.content);
-            const tiktok = await tiktokEmbedding(url);
-            try {
-                await message.channel.send(tiktok[0])
-                await message.channel.send(tiktok[1])
-            } catch {
-                return
+            if (messageGuild.tiktok !== false) {
+                const url = checkURL(message.content);
+                const tt = await ttEmbedding(url);   
+                try {
+                    await message.channel.send(tt[0])
+                    await message.channel.send(tt[1])
+                } catch {
+                    return
+                }
             }
         }
 

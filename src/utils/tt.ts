@@ -7,7 +7,7 @@ dotenv.config();
 
 const proxyArray: string[] = [`${process.env.tiktokproxy1}`, `${process.env.tiktokproxy2}`, `${process.env.tiktokproxy3}`, `${process.env.tiktokproxy4}`, `${process.env.tiktokproxy5}`]
 
-export async function tiktokEmbedding(URL: string): Promise<any> {
+export async function ttEmbedding(URL: string): Promise<any> {
     try {
     const query: RegExpMatchArray = URL.match(/\bhttps?:\/\/\S+/gi);
     const finalQuery: string = query.toString();
