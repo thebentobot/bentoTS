@@ -168,6 +168,9 @@ export const event: Event = {
         .trim()
         .split(/ +/g);
 
+        // the line below causes the bot to reply to mentions which in reality is a reply.
+        // https://discord.js.org/#/docs/main/stable/typedef/MessageType it's possible to check if it's a reply
+        // in discord.js v13
         if (argsSplit.length === 1 && message.mentions.users.has(client.user.id)) return message.channel.send(`The Bento 🍱 prefix on this server is: \`${messageGuild.prefix}\`.`)
         
         const prefixMention = new RegExp(`^<@!?${client.user.id}> `);

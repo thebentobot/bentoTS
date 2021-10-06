@@ -18,13 +18,10 @@ export const event: Event = {
     name: 'ready',
     run: async (client): Promise<any> => {
         console.log(`${client.user.tag} is online! Let\'s get this bread!`);
-        async function clientStatus  () {
-            client.user.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'});
-        }
 
-        clientStatus()
-
-        setInterval(clientStatus, 3600000 *24)
+        setInterval(() => {
+            client.user.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'})
+        }, 3600000);
         
         const app = express()
         app.use(express.urlencoded({extended: true}))

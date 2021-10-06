@@ -83,9 +83,9 @@ export const command: Command = {
                 await bye.update({channel: BigInt(channel)}, {where: {guildID: message.guild.id}});
 
                 if (byeData.message === null) {
-                    return message.channel.send(`Your bye channel was updated! It is now: <#${channel} You need to specify a message to be sent in the channel\nCreate a bye message for when members leave the server by the following command: ${guildData.prefix}bye message <bye message>`);
+                    return message.channel.send(`Your bye channel was updated! It is now: <#${channel}> You need to specify a message to be sent in the channel\nCreate a bye message for when members leave the server by the following command: ${guildData.prefix}bye message <bye message>`);
                 } else {
-                    return message.channel.send(`Your bye channel was updated! It is now: <#${channel}\nThe bye message: "${byeData.message}" will now be sent in the newly assigned channel.`);
+                    return message.channel.send(`Your bye channel was updated! It is now: <#${channel}>\nThe bye message: "${byeData.message}" will now be sent in the newly assigned channel.`);
                 };
 
             }

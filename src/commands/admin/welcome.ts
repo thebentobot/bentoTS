@@ -84,9 +84,9 @@ export const command: Command = {
                 await welcome.update({channel: BigInt(channel)}, {where: {guildID: message.guild.id}});
 
                 if (welcomeData.message === null) {
-                    return message.channel.send(`Your welcome channel was updated! It is now: <#${channel} You need to specify a message to be sent in the channel\nCreate a welcome message for when members join the server by the following command: ${guildData.prefix}welcome message <welcome message>`);
+                    return message.channel.send(`Your welcome channel was updated! It is now: <#${channel}> You need to specify a message to be sent in the channel\nCreate a welcome message for when members join the server by the following command: ${guildData.prefix}welcome message <welcome message>`);
                 } else {
-                    return message.channel.send(`Your welcome channel was updated! It is now: <#${channel}\nThe welcome message: "${welcomeData.message}" will now be sent in the newly assigned channel.`);
+                    return message.channel.send(`Your welcome channel was updated! It is now: <#${channel}>\nThe welcome message: "${welcomeData.message}" will now be sent in the newly assigned channel.`);
                 };
 
             }
