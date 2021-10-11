@@ -269,7 +269,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -354,7 +354,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -394,7 +394,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -434,7 +434,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -535,7 +535,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -575,7 +575,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -615,7 +615,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -655,7 +655,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -707,9 +707,9 @@ export const command: Command = {
                 let parseOpacity1 = Math.round(parseFloat(opacity1))
                 let parseOpacity2 = Math.round(parseFloat(opacity2))
                 let parseOpacity3 = Math.round(parseFloat(opacity3))
-                parseOpacity1 > 0 && parseOpacity1 < 100 ? validOpacityValue1 = true : validOpacityValue1 = false
-                parseOpacity2 > 0 && parseOpacity2 < 100 ? validOpacityValue2 = true : validOpacityValue2 = false
-                parseOpacity3 > 0 && parseOpacity3 < 100 ? validOpacityValue3 = true : validOpacityValue3 = false
+                parseOpacity1 >= 0 && parseOpacity1 <= 100 ? validOpacityValue1 = true : validOpacityValue1 = false
+                parseOpacity2 >= 0 && parseOpacity2 <= 100 ? validOpacityValue2 = true : validOpacityValue2 = false
+                parseOpacity3 >= 0 && parseOpacity3 <= 100 ? validOpacityValue3 = true : validOpacityValue3 = false
 
                 if (validOpacityValue1 === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
@@ -795,9 +795,9 @@ export const command: Command = {
                 let parseOpacity1 = Math.round(parseFloat(opacity1))
                 let parseOpacity2 = Math.round(parseFloat(opacity2))
                 let parseOpacity3 = Math.round(parseFloat(opacity3))
-                parseOpacity1 > 0 && parseOpacity1 < 100 ? validOpacityValue1 = true : validOpacityValue1 = false
-                parseOpacity2 > 0 && parseOpacity2 < 100 ? validOpacityValue2 = true : validOpacityValue2 = false
-                parseOpacity3 > 0 && parseOpacity3 < 100 ? validOpacityValue3 = true : validOpacityValue3 = false
+                parseOpacity1 >= 0 && parseOpacity1 <= 100 ? validOpacityValue1 = true : validOpacityValue1 = false
+                parseOpacity2 >= 0 && parseOpacity2 <= 100 ? validOpacityValue2 = true : validOpacityValue2 = false
+                parseOpacity3 >= 0 && parseOpacity3 <= 100 ? validOpacityValue3 = true : validOpacityValue3 = false
 
                 if (validOpacityValue1 === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
@@ -875,9 +875,9 @@ export const command: Command = {
                 let parseOpacity1 = Math.round(parseFloat(opacity1))
                 let parseOpacity2 = Math.round(parseFloat(opacity2))
                 let parseOpacity3 = Math.round(parseFloat(opacity3))
-                parseOpacity1 > 0 && parseOpacity1 < 100 ? validOpacityValue1 = true : validOpacityValue1 = false
-                parseOpacity2 > 0 && parseOpacity2 < 100 ? validOpacityValue2 = true : validOpacityValue2 = false
-                parseOpacity3 > 0 && parseOpacity3 < 100 ? validOpacityValue3 = true : validOpacityValue3 = false
+                parseOpacity1 >= 0 && parseOpacity1 <= 100 ? validOpacityValue1 = true : validOpacityValue1 = false
+                parseOpacity2 >= 0 && parseOpacity2 <= 100 ? validOpacityValue2 = true : validOpacityValue2 = false
+                parseOpacity3 >= 0 && parseOpacity3 <= 100 ? validOpacityValue3 = true : validOpacityValue3 = false
 
                 if (validOpacityValue1 === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
@@ -946,7 +946,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -986,7 +986,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -1026,7 +1026,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -1068,7 +1068,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -1142,7 +1142,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
@@ -1236,7 +1236,7 @@ export const command: Command = {
             } else {
                 let validOpacityValue: boolean;
                 let parseOpacity = Math.round(parseFloat(opacity))
-                parseOpacity > 0 && parseOpacity < 100 ? validOpacityValue = true : validOpacityValue = false
+                parseOpacity >= 0 && parseOpacity <= 100 ? validOpacityValue = true : validOpacityValue = false
                 if (validOpacityValue === false) {
                     return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
                 } else {
