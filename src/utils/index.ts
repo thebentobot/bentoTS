@@ -6,3 +6,5 @@ export { addXpGlobal, addXpServer} from './xp';
 export { horoSigns, horoSignsLow } from './horoSigns';
 export { getTimeRemaining } from './getTimeRemaining';
 export { urlToColours } from './urlToColours';
+export { answers } from './8ballAnswers';
+export { getHTMLImage } from './sushii-html';

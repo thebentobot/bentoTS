@@ -194,18 +194,18 @@ export const command: Command = {
             break;
             case 'sidebar':
             case 'profile': switch (args[1]) {
-                case 'opacity': await setSidebarOpacity(message, args[1]) // args[1] = sidebar opacity (0-100)
+                case 'opacity': await setSidebarOpacity(message, args[2]) // args[2] = sidebar opacity (0-100)
                 break;
                 case 'colour':
-                case 'color': await setSidebarColour(message, args[1]) // args[1] = sidebar colour (hex colour)
+                case 'color': await setSidebarColour(message, args[2]) // args[2] = sidebar colour (hex colour)
                 break;
-                case 'blur': await setSidebarBlur(message, args[1]) // args[1] = sidebar blur (0-100?)
+                case 'blur': await setSidebarBlur(message, args[2]) // args[2] = sidebar blur (0-100?)
                 break;
                 case 'value':
-                case 'rank': await setSidebarValueColour(message, args[1], args[2]) // args[1] = row (server, global or bento), args[2] = hex colour
+                case 'rank': await setSidebarValueColour(message, args[2], args[3]) // args[2] = row (server, global or bento), args[3] = hex colour
                 break;
                 case 'item':
-                case 'users': await setSidebarItemColour(message, args[1], args[2]) // args[1] = row (server, global, bento or timezone), args[2] = hex colour
+                case 'users': await setSidebarItemColour(message, args[2], args[3]) // args[2] = row (server, global, bento or timezone), args[3] = hex colour
                 break;
                 case 'status': await sidebarStatus(message) // shows settings for sidebar
             }

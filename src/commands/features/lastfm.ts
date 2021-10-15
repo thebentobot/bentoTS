@@ -391,13 +391,14 @@ export const command: Command = {
                     const info = current.map(track => `**${track['@attr'].rank}. ${Util.escapeMarkdown(track.name, {bold: false})}** by [${Util.escapeMarkdown(track.artist.name, {bold: false})}](${track.url}) - ${track.playcount > 1 ? `${track.playcount} plays` : `${track.playcount} play`}`).join(`\n`)
                     embed.setDescription(`${info}`)
                     embed.setTitle(`Top tracks for ${userID ? `${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}` : `${message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator}`}`}`)
-                    let cover;
+                    let cover: string;
                     await spotifyCred.searchArtists(current[0].artist.name, {limit: 1}).then(function(data) {
-                        cover = data
+                        cover = data.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                     }, function (err) {
+                        cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                         console.error(err);
                     })
-                    embed.setThumbnail(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}));
+                    embed.setThumbnail(cover);
                     embed.setFooter(`Time period - ${period[0]} | Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
                     embeds.push(embed)
                 }
@@ -695,13 +696,14 @@ export const command: Command = {
                     const info = current.map(artist => `**${artist['@attr'].rank}. ${Util.escapeMarkdown(artist.name, {bold: false})}** - [${artist.playcount > 1 ? `${artist.playcount} plays` : `${artist.playcount} play`}](${artist.url})`).join(`\n`)
                     embed.setDescription(`${info}`)
                     embed.setTitle(`Top artists for ${userID ? `${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}` : `${message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator}`}`}`)
-                    let cover;
+                    let cover: string;
                     await spotifyCred.searchArtists(current[0].name, {limit: 1}).then(function(data) {
-                        cover = data
+                        cover = data.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                     }, function (err) {
+                        cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                         console.error(err);
                     })
-                    embed.setThumbnail(cover.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}));
+                    embed.setThumbnail(cover);
                     embed.setFooter(`Time period - ${period[0]} | Powered by last.fm`, 'https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png')
                     embeds.push(embed)
                 }
@@ -855,6 +857,17 @@ export const command: Command = {
             
             return message.channel.send(embed)
         }
+        /*
+        async function collage (message: Message, data: any) {
+            it takes an array of lastfm data.
+            we can just use the album pictures, but it needs to check if it's album or track/artists
+            if track/artists, it needs to fetch from Spotify instead
+
+            collage gets called from the topTracks, TopAlbums, TopArtists and recentTracks as a --collage argument
+            we could make optional sizes, where if people write e.g. --64 it uses 64
+            though we need to limit test this shit LOL.
+        }
+        */
         /*
         async function lastfmWkt (message: Message, song?: string) {
             interface lastfmUsers {
