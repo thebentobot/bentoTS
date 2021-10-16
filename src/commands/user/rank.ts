@@ -92,8 +92,24 @@ export const command: Command = {
                 const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
                 if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a profile.`)
                 userID = theUser.id
-                await userDB.findOrCreate({where: {userID: userID}})
-                await guildMemberDB.findOrCreate({where: {userID: userID, guildID: message.guild.id}})
+                const userAttr: userCreationAttributes = {
+                    userID: BigInt(theUser.id),
+                    discriminator: theUser.user.discriminator,
+                    username: theUser.user.username,
+                    xp: 0,
+                    level: 1,
+                    avatarURL: theUser.user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                }
+        
+                const guildMemberAttr: guildMemberCreationAttributes = {
+                    userID: BigInt(theUser.id),
+                    guildID: BigInt(message.guild.id),
+                    xp: 0,
+                    level: 1,
+                    avatarURL: theUser.user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                }
+                await userDB.findOrCreate({where: {userID: userID}, defaults: userAttr})
+                await guildMemberDB.findOrCreate({where: {userID: userID, guildID: message.guild.id}, defaults: guildMemberAttr})
                 userProfileData = await profile.findOne({raw: true, where: {userID: userID}})
                 if (userProfileData) {
                     if (userProfileData.lastfmBoard === true) {
@@ -105,8 +121,24 @@ export const command: Command = {
                 }
             } catch {
                 userID = message.author.id
-                await userDB.findOrCreate({where: {userID: userID}})
-                await guildMemberDB.findOrCreate({where: {userID: userID, guildID: message.guild.id}})
+                const userAttr: userCreationAttributes = {
+                    userID: BigInt(message.author.id),
+                    discriminator: message.author.discriminator,
+                    username: message.author.username,
+                    xp: 0,
+                    level: 1,
+                    avatarURL: message.author.avatarURL({format: 'png', dynamic: true, size: 1024})
+                }
+        
+                const guildMemberAttr: guildMemberCreationAttributes = {
+                    userID: BigInt(message.author.id),
+                    guildID: BigInt(message.guild.id),
+                    xp: 0,
+                    level: 1,
+                    avatarURL: message.author.avatarURL({format: 'png', dynamic: true, size: 1024})
+                }
+                await userDB.findOrCreate({where: {userID: userID}, defaults: userAttr})
+                await guildMemberDB.findOrCreate({where: {userID: userID, guildID: message.guild.id}, defaults: guildMemberAttr})
                 userProfileData = await profile.findOne({raw: true, where: {userID: userID}})
                 if (userProfileData) {
                     if (userProfileData.lastfmBoard === true) {
@@ -117,6 +149,10 @@ export const command: Command = {
                     }
                 }
             }
+
+            let waitingMessage = await message.channel.send('Waiting for rank profile to process... ⌛')
+
+            let loadingStatus: boolean = false
 
             let serverRankUser: object[] = [];
             let globalRankUser: object[] = [];
@@ -829,7 +865,7 @@ export const command: Command = {
                     <ul class='sidebar-list'>
                         <li class='sidebar-itemServer'><span class="sidebar-valueServer">Rank ${replacements.SERVER_LEVEL}</span><br>Of ${message.guild.members.cache.get(userID).guild.memberCount} Users</li>
                         <li class='sidebar-itemGlobal'><span class="sidebar-valueGlobal">Rank ${replacements.GLOBAL_LEVEL}</span><br>Of ${Math.floor(userData / 100) / 10.0 + "k"} Users</li>
-                        ${bentoRankUser[0] ? `<li class='sidebar-itemBento'><span class="sidebar-valueBento">Rank ${bentoRankUser[0].rank}</span><br>Of ${bentoRank[bentoRank.length - 1].rank} 🍱 Users</li>` : ''}
+                        ${bentoRankUser[0] ? `<li class='sidebar-itemBento'><span class="sidebar-valueBento">${bentoRankUser[0].bento} 🍱</span><br>Rank ${bentoRankUser[0].rank}/${bentoRank[bentoRank.length - 1].rank} 🍱 Users</li>` : ''}
                         <li class='sidebar-itemTimezone'><span class="sidebar-valueEmote">${emoteArray.map(emote => emote).join('')}</span><br>${userTimezone}${userBirthday}</li>
                     </ul>
     
@@ -856,7 +892,12 @@ export const command: Command = {
             ].join(``);
             const image: Buffer = await getHTMLImage(htmlString, '600', '400').catch(console.error);
             const imageAttachment = new MessageAttachment(image, `${discordUser.user.username}_profile.png`)
-            return await message.channel.send(imageAttachment)
+            loadingStatus = true
+
+            if (loadingStatus === true) {
+                waitingMessage.delete()
+                return await message.channel.send(imageAttachment)
+            }
         }
     }
 }

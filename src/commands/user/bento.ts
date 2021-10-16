@@ -1,6 +1,6 @@
 import { Command } from '../../interfaces';
 import database from '../../database/database';
-import { initModels, bento, bentoCreationAttributes, guildMember, patreon, user as userDB } from '../../database/models/init-models';
+import { initModels, bento, bentoCreationAttributes, guildMember, patreon, user as userDB, userCreationAttributes, guildMemberCreationAttributes } from '../../database/models/init-models';
 import { GuildMember, Message, Util } from 'discord.js';
 import moment from 'moment';
 import { getTimeRemaining } from '../../utils/getTimeRemaining';
@@ -45,9 +45,26 @@ export const command: Command = {
             } else {
                 let mentionedUser: GuildMember;
                 try {
-                    mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
-                    await userDB.findOrCreate({where: {userID: mentionedUser.user.id}})
-                    await guildMember.findOrCreate({where: {userID: mentionedUser.user.id, guildID: message.guild.id}})
+                    const getUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(user);
+                    mentionedUser = getUser
+                    const userAttr: userCreationAttributes = {
+                        userID: BigInt(getUser.id),
+                        discriminator: getUser.user.discriminator,
+                        username: getUser.user.username,
+                        xp: 0,
+                        level: 1,
+                        avatarURL: getUser.user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                    }
+            
+                    const guildMemberAttr: guildMemberCreationAttributes = {
+                        userID: BigInt(getUser.id),
+                        guildID: BigInt(message.guild.id),
+                        xp: 0,
+                        level: 1,
+                        avatarURL: getUser.user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                    }
+                    await userDB.findOrCreate({where: {userID: getUser.id}, defaults: userAttr})
+                    await guildMember.findOrCreate({where: {userID: getUser.id, guildID: message.guild.id}, defaults: guildMemberAttr})
                 } catch {
                     return message.channel.send(`Your input was invalid. Please specify a user.`)
                 }

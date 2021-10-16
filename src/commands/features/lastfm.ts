@@ -1,13 +1,14 @@
 // @ts-nocheck
-import { Message, MessageEmbed, Util } from 'discord.js';
+import { Message, MessageAttachment, MessageEmbed, Util } from 'discord.js';
 import { Command } from '../../interfaces';
 import database from '../../database/database';
 import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import * as dotenv from "dotenv";
 import SpotifyWebApi from 'spotify-web-api-node';
 import moment from 'moment';
 import { flag } from 'country-emoji';
+import { getHTMLImage } from '../../utils';
 //import { QueryTypes } from 'sequelize';
 //import { urlToColours } from '../../utils';
 dotenv.config();
@@ -28,7 +29,7 @@ let spotifyCred = new SpotifyWebApi({
 async function newToken () {
     await spotifyCred.clientCredentialsGrant().then(
         async function(data) {
-          console.log('The access token expires in ' + data.body['expires_in']);
+          console.log('The Spotify Access Token expires in ' + data.body['expires_in']);
           //console.log('The access token is ' + data.body['access_token']);
       
           // Save the access token so that it's used in future calls
@@ -49,7 +50,7 @@ export const command: Command = {
     aliases: ['fm', 'lf'],
     category: 'features',
     description: 'last.fm feature. If you don\'t mention a user with an argument, it searches for your last.fm. If you only mention a user and no time period, it checks for overall.\n**The possible time period arguments:** overall, 7day, 1month, 3month, 6month, 12month.',
-    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.',
+    usage: ' is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user\'s last.fm account.\nlastfm collage <topalbums, toptracks or topartists> [time period or user or collage size] [user or collage size] [collage size]',
     website: 'https://www.bentobot.xyz/commands#lastfm',
     run: async (client, message, args): Promise<any> => {
         if (!args.length) {
@@ -98,6 +99,10 @@ export const command: Command = {
 
         if (args[0] === 'profile') {
             return lastfmProfile (message, args[1]);
+        }
+
+        if (args[0] === 'collage') {
+            return collage (message, args[1], args[2], args[3], args[4], args[5]);
         }
         /*
         if (args[0] === 'wkt') {
@@ -329,6 +334,7 @@ export const command: Command = {
                 }
             } catch {
                 try {
+                    userID = message.author.id
                     let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
                     username = lastFmName.lastfm
                 } catch {
@@ -393,7 +399,7 @@ export const command: Command = {
                     embed.setTitle(`Top tracks for ${userID ? `${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}` : `${message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator}`}`}`)
                     let cover: string;
                     await spotifyCred.searchArtists(current[0].artist.name, {limit: 1}).then(function(data) {
-                        cover = data.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                        cover = data.body.artists.items.length ? data.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                     }, function (err) {
                         cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                         console.error(err);
@@ -485,6 +491,7 @@ export const command: Command = {
                 }
                 } catch {
                     try {
+                        userID = message.author.id
                         let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
                         username = lastFmName.lastfm
                     } catch {
@@ -634,6 +641,7 @@ export const command: Command = {
                 }
                 } catch {
                     try {
+                        userID = message.author.id
                         let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
                         username = lastFmName.lastfm
                     } catch {
@@ -698,7 +706,7 @@ export const command: Command = {
                     embed.setTitle(`Top artists for ${userID ? `${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}` : `${message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator}`}`}`)
                     let cover: string;
                     await spotifyCred.searchArtists(current[0].name, {limit: 1}).then(function(data) {
-                        cover = data.body.artists.items.length ? cover.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                        cover = data.body.artists.items.length ? data.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                     }, function (err) {
                         cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                         console.error(err);
@@ -733,6 +741,7 @@ export const command: Command = {
                 }
                 } catch {
                     try {
+                        user = message.author.id
                         let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
                         username = lastFmName.lastfm
                     } catch {
@@ -857,17 +866,286 @@ export const command: Command = {
             
             return message.channel.send(embed)
         }
-        /*
-        async function collage (message: Message, data: any) {
-            it takes an array of lastfm data.
-            we can just use the album pictures, but it needs to check if it's album or track/artists
-            if track/artists, it needs to fetch from Spotify instead
+        
+        async function collage (message: Message, secondArg?: string, thirdArg?: string, fourthArg?: string, fifthArg?: string) {
+            initModels(database);
 
-            collage gets called from the topTracks, TopAlbums, TopArtists and recentTracks as a --collage argument
-            we could make optional sizes, where if people write e.g. --64 it uses 64
-            though we need to limit test this shit LOL.
+            let username: string;
+            let userID: string;
+            let userIDInsert: string;
+            let topType: string
+            let period: string[];
+            let grid: string;
+
+            if (secondArg === 'toptracks') {
+                topType = 'track'
+            } else if (secondArg === 'tt') {
+                topType = 'track'
+            } else if (secondArg === 'topalbums') {
+                topType = 'album'
+            } else if (secondArg === 'tal') {
+                topType = 'album'
+            } else if (secondArg === 'topartists') {
+                topType = 'artist'
+            } else if (secondArg === 'ta') {
+                topType = 'artist'
+            } else {
+                return message.channel.send(`Please specify if it's topalbums, toptracks or topartists.`)
+            }
+
+            if (thirdArg === 'overall') {
+                period = ['overall', 'ALL']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === 'all') {
+                period = ['overall', 'ALL']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === '7day') {
+                period = ['7day', 'LAST_7_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === 'week') {
+                period = ['7day', 'LAST_7_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === 'month') {
+                period = ['1month', 'LAST_30_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === '1month') {
+                period = ['1month', 'LAST_30_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === '3month') {
+                period = ['3month', 'LAST_90_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === '6month') {
+                period = ['6month', 'LAST_180_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === 'year') {
+                period = ['12month', 'LAST_365_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else if (thirdArg === '12month') {
+                period = ['12month', 'LAST_365_DAYS']
+                if (fourthArg) {
+                    userIDInsert = fourthArg
+                }
+            } else {
+                userIDInsert = thirdArg
+                period = ['overall', 'ALL']
+            }
+
+            if (typeof fourthArg === 'undefined') {
+                grid = "3x3"
+            }
+
+            try {
+                const theUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(userIDInsert);
+                if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
+                userID = theUser.id
+                try {
+                    const lastfmData = await lastfm.findOne({raw: true, where : {userID: userID}})
+                    if (!lastfmData) {
+                        return message.channel.send(`This user doesn't have a last.fm account saved.`)
+                    }
+                    username = lastfmData.lastfm
+                    if (fourthArg) {
+                        let gridMatch = fourthArg.match(/\d+x\d+/i);
+                        grid = gridMatch ? fourthArg : "3x3";
+                    } 
+                    
+                    if (fifthArg) {
+                        let gridMatch = fifthArg.match(/\d+x\d+/i);
+                        grid = gridMatch ? fifthArg : "3x3";
+                    }
+                } catch {
+                    return message.channel.send(`The mentioned user doesn't have a lastfm account saved.`)
+                }
+            } catch {
+                try {
+                    userID = message.author.id
+                    let lastFmName = await lastfm.findOne({raw:true, where: {userID: message.author.id}});
+                    username = lastFmName.lastfm
+                    if (thirdArg) {
+                        let gridMatch = thirdArg.match(/\d+x\d+/i);
+                        grid = gridMatch ? thirdArg : "3x3";
+                    } 
+                    
+                    if (fourthArg) {
+                        let gridMatch = fourthArg.match(/\d+x\d+/i);
+                        grid = gridMatch ? fourthArg : "3x3";
+                    }
+                } catch {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                    return message.channel.send(`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+                }
+            }
+
+            let dims = grid.split('x');
+            let dimension = Math.round(Math.sqrt(+dims[0]*+dims[1])) || 3;
+            if (dimension > 10) dimension = 10;
+            let itemCount = dimension ** 2;
+
+            if (itemCount > 36) return message.channel.send(`Invalid collage size.\nWrite either \`1x1\`, \`2x2\`, \`3x3\`, \`4x4\`, \`5x5\` or \`6x6\``)
+
+            let collection: any;
+            let response: AxiosResponse<any>
+            try {
+                response = await lastfmAPI.get('/', {params: { method: `user.gettop${topType}s`, user: username, period: period[0], limit: itemCount, page: 1}});
+                collection = response.data[`top${topType}s`][topType];
+            } catch {
+                const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                return message.channel.send(`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`)
+            }
+            
+            if (!collection || collection.length < 1) {
+                message.channel.send(`${(await message.member.fetch(userID)).user.username}#${(await message.member.fetch(userID)).user.discriminator} hasn't listened to any music during this period.`);
+                return;
+            }
+
+            let waitingMessage = await message.channel.send('Waiting for collage to process... ⌛')
+
+            let loadingStatus: boolean = false
+
+            while (Math.sqrt(collection.length) <= dimension-1) dimension--;
+            let screen_width = (collection.length < dimension ? collection.length : dimension) * 300;
+            let screen_height = (Math.ceil(collection.length / dimension)) * 300;
+        
+            let css = `div {
+                font-size: 0px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            body {
+                display: block;
+                margin: 0px;
+            }
+            
+            .grid {
+                background-color: black;
+            }
+            
+            .container {
+                width: 300px;
+                display: inline-block;
+                position: relative;
+            }
+            
+            .text {
+                width: 296px;
+                position: absolute;
+                text-align: left;
+                line-height: 1;
+                
+                font-family: 'Roboto Mono', 'Noto Sans CJK KR', 'Noto Sans CJK JP', 'Noto Sans CJK SC', 'Noto Sans CJK TC', monospace, sans-serif, serif;
+                font-size: 16px;
+                font-weight: medium;
+                color: white;
+                text-shadow: 
+                    1px 1px black;
+                
+                top: 2px;
+                 left: 2px;
+                right:2px;
+            }`
+            let htmlString = "";
+            
+            htmlString += `<div class="grid">\n    `;
+            for (let i=0; i<dimension; i++) {
+
+                htmlString += `<div class="row">\n    `;
+                for (let i=0; i<dimension; i++) {
+                    if (collection.length < 1) break;
+                    let item = collection.shift();
+
+                    if (topType == "album") {
+                        let image = item.image[item.image.length-1]["#text"] || (topType == "artist" ? 
+                        "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png" :
+                        "https://lastfm.freetls.fastly.net/i/u/300x300/c6f59c1e5e7240a4c0d427abd71f3dbb.png");
+
+                        htmlString += [
+                            `    <div class="container">\n    `,
+                            `        <img src="${image}" width="${300}" height="${300}">\n    `,
+                            `        <div class="text">${item.artist.name}<br>${item.name}<br>Plays: ${item.playcount}</div>\n    `,
+                            `    </div>\n    `
+                        ].join(``);
+                    }   
+                    if (topType == "track") {
+                        let image: string
+                        await spotifyCred.searchArtists(item.artist.name, {limit: 1}).then(function(data) {
+                            image = data.body.artists.items.length ? data.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', size: 512})
+                        }, function (err) {
+                            image = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', size: 512})
+                            console.error(err);
+                        })
+
+                        htmlString += [
+                            `    <div class="container">\n    `,
+                            `        <img src="${image}" width="${300}" height="${300}">\n    `,
+                            `        <div class="text">${item.artist.name}<br>${item.name}<br>Plays: ${item.playcount}</div>\n    `,
+                            `    </div>\n    `
+                        ].join(``);
+                    }   
+                    if (topType == "artist") {
+                        let image: string
+                        await spotifyCred.searchArtists(item.name, {limit: 1}).then(function(data) {
+                            image = data.body.artists.items.length ? data.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', size: 512})
+                        }, function (err) {
+                            image = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', size: 512})
+                            console.error(err);
+                        })
+                        htmlString += [ 
+                            `    <div class="container">\n    `,
+                            `        <img src="${image}" width="${300}" height="${300}">\n    `,
+                            `        <div class="text">${item.name}<br>Plays: ${item.playcount}</div>\n    `,
+                            `    </div>\n    `
+                        ].join(``);
+                    }
+                }
+                htmlString += `</div>\n`;
+
+            }
+            htmlString += `</div>`;
+
+            htmlString = [
+                `<html>\n`,
+                `<head>\n`,
+                `    <meta charset="UTF-8">\n`,
+                `</head>\n\n`,
+                `<style>\n`,
+                `${css}\n`,
+                `</style>\n\n`,
+                `<body>\n`,
+                `${htmlString}\n`,
+                `</body>\n\n`,
+                `</html>\n`
+            ].join(``);
+        
+            let image = await getHTMLImage(htmlString, `${screen_width}`, `${screen_height}`).catch(console.error);
+            let imageAttachment = new MessageAttachment(image, `${username}-${period[0]}-${new Date(Date.now()).toISOString()}.png`);
+            loadingStatus = true
+
+            if (loadingStatus === true) {
+                waitingMessage.delete()
+                return message.channel.send(imageAttachment);
+            }
         }
-        */
+        
         /*
         async function lastfmWkt (message: Message, song?: string) {
             interface lastfmUsers {
