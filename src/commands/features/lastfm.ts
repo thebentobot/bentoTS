@@ -399,7 +399,15 @@ export const command: Command = {
                     embed.setTitle(`Top tracks for ${userID ? `${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}` : `${message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator}`}`}`)
                     let cover: string;
                     await spotifyCred.searchArtists(current[0].artist.name, {limit: 1}).then(function(data) {
-                        cover = data.body.artists.items.length ? data.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                        if (data.body.artists.items[0].length < 0) {
+                            cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                        } else {
+                            if (typeof data.body.artists.items[0].images[0]?.url === 'undefined') {
+                                cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                            } else {
+                                cover = data.body.artists.items[0].images[0]?.length < 0 ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}) : data.body.artists.items[0].images[0].url
+                            }
+                        }
                     }, function (err) {
                         cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                         console.error(err);
@@ -706,7 +714,15 @@ export const command: Command = {
                     embed.setTitle(`Top artists for ${userID ? `${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}` : `${message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username + '#' + message.guild.members.cache.get(message.author.id).user.discriminator}`}`}`)
                     let cover: string;
                     await spotifyCred.searchArtists(current[0].name, {limit: 1}).then(function(data) {
-                        cover = data.body.artists.items.length ? data.body.artists.items[0].images[0].url : message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                        if (data.body.artists.items[0].length < 0) {
+                            cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                        } else {
+                            if (typeof data.body.artists.items[0].images[0]?.url === 'undefined') {
+                                cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
+                            } else {
+                                cover = data.body.artists.items[0].images[0]?.length < 0 ? message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024}) : data.body.artists.items[0].images[0].url
+                            }
+                        }
                     }, function (err) {
                         cover = message.guild.members.cache.get(userID).user.avatarURL({format: 'png', dynamic: true, size: 1024})
                         console.error(err);
