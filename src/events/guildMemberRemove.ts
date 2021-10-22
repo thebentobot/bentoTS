@@ -1,6 +1,6 @@
 import { Event } from "../interfaces";
 import database from '../database/database';
-import { initModels, guildMember, user, bye, bento, horoscope, lastfm, weather, memberLog, ban, kick, mute, warning, reminder, notificationMessage } from '../database/models/init-models';
+import { initModels, guildMember, user, bye, bento, horoscope, lastfm, weather, memberLog, ban, kick, mute, warning, reminder, notificationMessage, profile } from '../database/models/init-models';
 import { GuildMember, MessageEmbed, TextChannel } from "discord.js"
 import moment from "moment";
 
@@ -40,6 +40,7 @@ export const event: Event = {
             await weather.destroy({where: {userID: member.user.id}});
             await reminder.destroy({where: {userID: member.user.id}});
             await notificationMessage.destroy({where: {userID: member.user.id}});
+            await profile.destroy({where: {userID: member.user.id}});
             await user.destroy({where: {userID: member.user.id}});
         }
 

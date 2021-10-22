@@ -178,13 +178,13 @@ export const command: Command = {
                 return message.channel.send(`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData.prefix}tag [query]\` or get help with tags by using \`${guildData.prefix}help tag\``);
             }
 
-            if (message.author.id !== `${tagData.userID}` || !message.member.permissions.has('BAN_MEMBERS')) {
+            if (message.author.id === `${tagData.userID}` || message.member.permissions.has('BAN_MEMBERS')) {
+                await tag.destroy({where: {guildID: tagData.guildID, userID: tagData.userID, command: tagData.command, content: tagData.content}})
+                return message.channel.send(`Successfully deleted the tag \`${tagName}\``)
+            } else {
                 const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}}) 
-                return message.channel.send(`You are not authorised to delete this tag.\nCheck who owns this tag by using the command ${guildData.prefix}tag info ${tagName}`);
+                return message.channel.send(`You are not authorised to delete this tag.\nCheck who owns this tag by using the command \´${guildData.prefix}tag info ${tagName}\´`);
             }
-
-            await tag.destroy({where: {guildID: tagData.guildID, userID: tagData.userID, command: tagData.command, content: tagData.content}})
-            return message.channel.send(`Successfully deleted the tag \`${tagName}\``)
         }
 
         async function editTag (message: Message, tagName?: string) {

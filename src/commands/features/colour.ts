@@ -69,10 +69,6 @@ export const command: Command = {
             red   /= 255;
             green /= 255;
             blue  /= 255;
-
-            console.log(red)
-            console.log(green)
-            console.log(blue)
             
             let max = Math.max(red, green, blue);
             let min = Math.min(red, green, blue);

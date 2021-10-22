@@ -11,25 +11,27 @@ export const command: Command = {
     usage: 'ping',
     website: 'https://www.bentobot.xyz/commands#ping',
     run: async (client, message, args): Promise<Message> => {
-        const msg = await message.channel.send('🏓 Pinging...');
+        let msgTimeStart = new Date().getTime();
+        await message.channel.send('🏓 Pinging...');
+        let msgTimeEnd = new Date().getTime();
 
-        let dbTimeStart = new Date().getTime();
         try {
-            await database.authenticate();
+            let dbTimeStart = new Date().getTime();
+            await database.query(`select 1 + 1`)
             let dbTimeEnd = new Date().getTime();
             const dbTime = dbTimeEnd - dbTimeStart;
 
             const embed = new MessageEmbed()
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTitle('🏓 Pong!')
-            .setDescription(`Bot Latency is **${Math.floor(msg.createdTimestamp - message.createdTimestamp)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL Latency is **${dbTime} ms**`);
+            .setDescription(`Bot Latency is **${Math.floor(msgTimeEnd - msgTimeStart)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL Latency is **${dbTime} ms**`);
 
             return message.channel.send(embed);
         } catch (error) {
             const embed = new MessageEmbed()
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTitle('🏓 Pong!')
-            .setDescription(`Bot Latency is **${Math.floor(msg.createdTimestamp - message.createdTimestamp)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL connection was not established, error: ${error}`);
+            .setDescription(`Bot Latency is **${Math.floor(msgTimeEnd - msgTimeStart)} ms** \nAPI Latency is **${Math.round(client.ws.ping)} ms**\nPostgreSQL connection was not established, error: ${error}`);
 
             return message.channel.send(embed);
         }
