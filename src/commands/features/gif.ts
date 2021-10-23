@@ -101,11 +101,18 @@ export const command: Command = {
             let index = Math.floor(Math.random() * gfycatData.length);
 
             if (returnMultipleGifs === false) {
-                let gfyTest = await axios.get(gfycatData[index].mobileUrl)
+                let gfyTest
+                await axios.get(gfycatData[index].mobileUrl).then(res => {
+                    gfyTest = res
+                }).catch(error => {
+                })
                 while (gfyTest.status !== 200) {
                     gfycatData = gfycatData.filter(gfy => gfy.userData.username !== gfycatData[index].userData.username)
                     index = Math.floor(Math.random() * gfycatData.length);
-                    gfyTest = await axios.get(gfycatData[index].mobileUrl)
+                    gfyTest = await axios.get(gfycatData[index].mobileUrl).then(res => {
+                        gfyTest = res
+                    }).catch(error => {
+                    })
                 }
                 return message.channel.send(`https://gfycat.com/${gfycatData[index].gfyName}`);
             } else {
