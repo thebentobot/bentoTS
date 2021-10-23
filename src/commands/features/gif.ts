@@ -88,7 +88,7 @@ export const command: Command = {
 
         let query: string = messageParse.join(" ");
 
-        const response = await gfycatAPI.get<gfycatSearchInterface>('gfycats/search', {params: {search_text: utf8.encode(query), count: count}, headers: {Authorization: `Bearer ${gfycatToken}`}})
+        const response = await gfycatAPI.get<gfycatSearchInterface>('gfycats/search', {params: {search_text: utf8.encode(query), count: returnMultipleGifs === true ? count : 50}, headers: {Authorization: `Bearer ${gfycatToken}`}})
         if (!response.data.gfycats.length) {
             return message.channel.send(`No GIFs found based on your search input \`${query}\`.`);
         } else {
