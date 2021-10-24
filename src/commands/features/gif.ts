@@ -17,12 +17,13 @@ const tenorAPI = axios.create({
     baseURL: "https://api.tenor.com/v1",
 });
 
-export let gfycatToken: string
+export let gfycatToken: string = ''
 
 async function newToken () {
     const gfycatAuthData = await axios.post(`https://api.gfycat.com/v1/oauth/token`, {"client_id":`${process.env.gfycatclientID}`, "client_secret": `${process.env.gfycatsecret}`, "grant_type": "client_credentials"})
     console.log('The Gfycat Access Token expires in 1 hour')
     gfycatToken = gfycatAuthData.data.access_token
+    console.log(gfycatToken)
 }
 
 newToken()
