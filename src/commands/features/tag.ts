@@ -103,8 +103,8 @@ export const command: Command = {
             }
         }
 
-        async function addTag (message: Message, tagName?: string) {
-            tagName.toLowerCase().trim()
+        async function addTag (message: Message, nameOfTag?: string) {
+            let tagName = nameOfTag.toLowerCase()
             if (regex.test(tagName) === true) {
                 return message.channel.send(`You can't add special characters to your tag name \`${tagName}\``);
             }
@@ -167,8 +167,8 @@ export const command: Command = {
 
         }
 
-        async function removeTag (message: Message, tagName?: string) {
-            tagName.toLowerCase()
+        async function removeTag (message: Message, nameOfTag?: string) {
+            let tagName = nameOfTag.toLowerCase()
             initModels(database);
 
             const tagData = await tag.findOne({raw: true, where: {guildID: message.guild.id, command: tagName}})
@@ -187,8 +187,8 @@ export const command: Command = {
             }
         }
 
-        async function editTag (message: Message, tagName?: string) {
-            tagName.toLowerCase()
+        async function editTag (message: Message, nameOfTag?: string) {
+            let tagName = nameOfTag.toLowerCase()
             initModels(database);
 
             const tagData = await tag.findOne({raw: true, where: {guildID: message.guild.id, command: tagName}})
@@ -230,8 +230,8 @@ export const command: Command = {
             return message.channel.send(`The tag \`${tagData.command}\` got updated!\nThe content is now: \`${tagContent}\``)
         }
 
-        async function infoTag (message: Message, tagName?: string) {
-            tagName.toLowerCase()
+        async function infoTag (message: Message, nameOfTag?: string) {
+            let tagName = nameOfTag.toLowerCase()
             initModels(database);
 
             const tagData = await tag.findOne({raw: true, where: {guildID: message.guild.id, command: tagName}})
@@ -345,9 +345,9 @@ export const command: Command = {
             }
         }
 
-        async function renameTag (message: Message, oldTagName?: string, newTagName?: string) {
-            oldTagName.toLowerCase()
-            newTagName.toLowerCase()
+        async function renameTag (message: Message, oldTagNameInsert?: string, newTagNameInsert?: string) {
+            let oldTagName = oldTagNameInsert.toLowerCase()
+            let newTagName = newTagNameInsert.toLowerCase()
 
             if (regex.test(newTagName) === true) {
                 return message.channel.send(`You can't add special characters to your new tag name \`${newTagName}\``);
@@ -391,8 +391,8 @@ export const command: Command = {
             }
         }
 
-        async function searchTag (message: Message, query?: string) {
-            query.toLowerCase()
+        async function searchTag (message: Message, queryInsert?: string) {
+            let query = queryInsert.toLowerCase()
 
             const queryData = await database.query(`
             SELECT *
