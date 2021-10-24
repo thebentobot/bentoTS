@@ -6,6 +6,7 @@ import { initModels, guild } from '../../database/models/init-models';
 import * as dotenv from "dotenv";
 import { Message, TextChannel } from 'discord.js';
 import moment from 'moment';
+import naughtyWords from 'naughty-words/en.json'
 dotenv.config();
 
 const gfycatAPI = axios.create({
@@ -16,7 +17,7 @@ const tenorAPI = axios.create({
     baseURL: "https://api.tenor.com/v1",
 });
 
-let gfycatToken: string
+export let gfycatToken: string
 
 async function newToken () {
     const gfycatAuthData = await axios.post(`https://api.gfycat.com/v1/oauth/token`, {"client_id":`${process.env.gfycatclientID}`, "client_secret": `${process.env.gfycatsecret}`, "grant_type": "client_credentials"})
@@ -87,6 +88,7 @@ export const command: Command = {
         }
 
         let query: string = messageParse.join(" ");
+        if (naughtyWords.includes(query)) return message.channel.send(`No GIFs found based on your search input \`${query}\`.`);
 
         const response = await gfycatAPI.get<gfycatSearchInterface>('gfycats/search', {params: {search_text: utf8.encode(query), count: returnMultipleGifs === true ? count : 50}, headers: {Authorization: `Bearer ${gfycatToken}`}})
         if (!response.data.gfycats.length) {
@@ -98,26 +100,29 @@ export const command: Command = {
                 gfycatData = gfycatData.filter(gfy => gfy.nsfw === '0')
             }
 
-            let index = Math.floor(Math.random() * gfycatData.length);
-
             if (returnMultipleGifs === false) {
+                let waitingMessage = await message.channel.send(`Loading a random Gfycat Post related to \`${query}\` ... ⌛🐱`)
+                let index = Math.floor(Math.random() * gfycatData.length);
                 let gfyTest
                 await axios.get(gfycatData[index].mobileUrl).then(res => {
                     gfyTest = res
                 }).catch(error => {
+
                 })
-                while (gfyTest.status !== 200) {
+                while (gfyTest?.status !== 200) {
                     gfycatData = gfycatData.filter(gfy => gfy.userData.username !== gfycatData[index].userData.username)
                     index = Math.floor(Math.random() * gfycatData.length);
-                    gfyTest = await axios.get(gfycatData[index].mobileUrl).then(res => {
+                    await axios.get(gfycatData[index].mobileUrl).then(res => {
                         gfyTest = res
                     }).catch(error => {
+    
                     })
                 }
+                waitingMessage.delete()
                 return message.channel.send(`https://gfycat.com/${gfycatData[index].gfyName}`);
             } else {
                 let currentPage = 0;
-                let waitingMessage = await message.channel.send('Loading the multiple Gfycat Posts... ⌛🐱')
+                let waitingMessage = await message.channel.send(`Loading the multiple Gfycat Posts related to \`${query}\` ... ⌛🐱`)
                 const embeds = await generateGfyCatEmbed(gfycatData)
                 if (!embeds.length) return message.channel.send('No results based on your specifications')
                 waitingMessage.delete()

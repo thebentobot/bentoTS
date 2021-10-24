@@ -48,6 +48,7 @@
     "get-image-colors": "^4.0.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
+    "naughty-words": "^1.2.0",
     "ngrok": "^4.1.0",
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.4",
