@@ -1,7 +1,13 @@
-import axios from 'axios';
-import { Message } from 'discord.js';
-import { Command } from '../../interfaces';
+import axios, { AxiosResponse } from 'axios';
+import { Message, MessageAttachment, MessageEmbed, TextChannel } from 'discord.js';
+import database from '../../database/database';
+import { initModels, guild } from '../../database/models/init-models';
+import { Command, gfycatInterface, gfycatSearchInterface } from '../../interfaces';
 import { gfycatToken } from './gif';
+import naughtyWords from 'naughty-words/en.json'
+import utf8 from 'utf8';
+import moment from 'moment';
+import { getHTMLImage, nFormatter, urlToColours } from '../../utils';
 
 const gfycatAPI = axios.create({
     baseURL: "https://api.gfycat.com/v1/",
@@ -15,6 +21,8 @@ export const command: Command = {
     usage: 'gfycat',
     website: 'https://www.bentobot.xyz/commands#gfycat',
     run: async (client, message, args): Promise<any> => {
+        if (message.channel.type !== 'text') return
+
         switch (args[0]) {
             case 'upload':
             case 'create':
@@ -27,10 +35,7 @@ export const command: Command = {
                 case 'feed':
                 case 'gfycats':
                 case 'gfys':
-                    await userFeed(message, args[2])
-                break;
-                case 'album':
-                    await userAlbum(message, args[2], args.slice(3).join(" "))
+                    await userFeed(message, args[2], args[3])
                 break;
             }
             break;
@@ -39,8 +44,129 @@ export const command: Command = {
                 await getGfycat(message, args[1])
             break;
             case 'trending':
-                await trendingGfycats(message)
+                await trendingGfycats(message, args.slice(1).join(" "))
             break;
+            case 'search':
+                await searchGfycat(message, args)
+            break;
+        }
+
+        initModels(database);
+
+        const guildDB = await guild.findOne({raw: true, where: {guildID: message.guild.id}});
+
+        if (guildDB.media === false) return
+
+        async function searchGfycat(message: Message, search: string[]) {
+            if (!search) {
+                return message.channel.send('You need to provide a search input!').then(m => m.delete({timeout: 5000}));
+            }
+
+            if (message.channel.type !== 'text') return
+
+            const channelObject = message.channel as TextChannel
+
+            let messageParse: string[] = search
+
+            let returnMultipleGifs: boolean = false
+
+            let count = 15
+
+            if (args.includes('--multi')) {
+                let getNumber = args.join(" ");
+                if (args.includes('--count')) {
+                    getNumber = getNumber.match(/\d+/).pop()
+                    count = parseInt(getNumber)
+                    if (count > 30) return message.channel.send('Sorry, 30 posts is the max.')
+                }
+                messageParse = args.filter(msg => msg !== '--multi' && msg !== '--count' && msg !== getNumber)
+                returnMultipleGifs = true
+            }
+
+            let query: string = messageParse.join(" ");
+            if (naughtyWords.includes(query)) return message.channel.send(`No GIFs found based on your search input \`${query}\`.`);
+
+            const response = await gfycatAPI.get<gfycatSearchInterface>('gfycats/search', {params: {search_text: utf8.encode(query), count: returnMultipleGifs === true ? count : 50}, headers: {Authorization: `Bearer ${gfycatToken}`}})
+            if (!response.data.gfycats.length) {
+                return message.channel.send(`No GIFs found based on your search input \`${query}\`.`);
+            } else {
+                let gfycatData = response.data.gfycats
+                
+                if (channelObject.nsfw !== true) {
+                    gfycatData = gfycatData.filter(gfy => gfy.nsfw === '0')
+                }
+
+                if (returnMultipleGifs === false) {
+                    let waitingMessage = await message.channel.send(`Loading a random Gfycat Post related to \`${query}\` ... ⌛🐱`)
+                    let index = Math.floor(Math.random() * gfycatData.length);
+                    let gfyTest
+                    await axios.get(gfycatData[index].mobileUrl).then(res => {
+                        gfyTest = res
+                    }).catch(error => {
+
+                    })
+                    while (gfyTest?.status !== 200) {
+                        gfycatData = gfycatData.filter(gfy => gfy.userData.username !== gfycatData[index].userData.username)
+                        index = Math.floor(Math.random() * gfycatData.length);
+                        await axios.get(gfycatData[index].mobileUrl).then(res => {
+                            gfyTest = res
+                        }).catch(error => {
+        
+                        })
+                    }
+                    waitingMessage.delete()
+                    return message.channel.send(`https://gfycat.com/${gfycatData[index].gfyName}`);
+                } else {
+                    let currentPage = 0;
+                    let waitingMessage = await message.channel.send(`Loading the multiple Gfycat Posts related to \`${query}\` ... ⌛🐱`)
+                    const embeds = await generateGfyCatEmbed(gfycatData)
+                    if (!embeds.length) return message.channel.send('No results based on your specifications')
+                    waitingMessage.delete()
+                    const queueEmbed = await message.channel.send(`Current Gfycat: ${currentPage+1}/${embeds.length}\n${embeds[currentPage]}`);
+                    await queueEmbed.react('⬅️');
+                    await queueEmbed.react('➡️');
+                    await queueEmbed.react('❌');
+                    const filter = (reaction, user) => ['⬅️', '➡️', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
+                    const collector = queueEmbed.createReactionCollector(filter);
+
+                    collector.on('collect', async (reaction, user) => {
+                        if (reaction.emoji.name === '➡️') {
+                            if (currentPage < embeds.length-1) {
+                            currentPage++;
+                            reaction.users.remove(user);
+                            queueEmbed.edit(`Current Gfycat: ${currentPage+1}/${embeds.length}\n${embeds[currentPage]}`);
+                            } 
+                        } else if (reaction.emoji.name === '⬅️') {
+                            if (currentPage !== 0) {
+                            --currentPage;
+                            reaction.users.remove(user);
+                            queueEmbed.edit(`Current Gfycat: ${currentPage+1}/${embeds.length}\n${embeds[currentPage]}`);
+                            }
+                        } else {
+                            collector.stop();
+                            await queueEmbed.delete();
+                        }
+                    })
+
+                    async function generateGfyCatEmbed (gfycat: gfycatInterface[]) {
+                        const embeds = [];
+                        let k = 1;
+                        for(let i =0; i < gfycat.length; i += 1) {
+                            const current = gfycat[i];
+                            let j = i;
+                            k += 1;
+
+                            const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ''}${current.views} Views\n${moment.unix(current.createDate).format('dddd, MMMM Do YYYY, h:mm A Z')}\nhttps://gfycat.com/${current.gfyName}`
+                            await axios.get(current.mobileUrl).then(res => {
+                                embeds.push(embed)
+                            }).catch(error => {
+
+                            })
+                        }
+                        return embeds;
+                    }
+                }
+            }
         }
         
         async function createGfycat(message: Message) {
@@ -104,30 +230,166 @@ export const command: Command = {
         }
 
         async function userProfile(message: Message, user: string) {
-            return message.channel.send(`You didn't attach any content to create a gfycat`)
+            if (!user) {
+                return message.channel.send('You need to specify a user')
+            }
+            let response: AxiosResponse
+            await gfycatAPI.get(`users/${user}`, {headers: {Authorization: `Bearer ${gfycatToken}`, 'Content-Type': 'application/json'}}).then(res => {
+                response = res
+            }).catch(error => {
+            })
 
+            try {
+            const profilePicture = await axios({
+                method: 'post',
+                url: "http://sushii-image-server:3000/url",
+                data: {
+                    url: response.data.profileImageUrl, 
+                    width: 200, 
+                    height: 200,
+                    imageFormat: 'png',
+                    quality: 100
+                },
+                responseType: "arraybuffer"
+            }).then(res => Buffer.from(res.data))
+
+            const embed = new MessageEmbed()
+            .setAuthor(await response.data.verified ? `${await response.data.username} ✔️` : await response.data.username, await response.data.profileImageUrl, await response.data.url)
+            .setColor(`${await urlToColours(response.data.profileImageUrl)}`)
+            .setTitle(await response.data.name)
+            .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
+            .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
+            .setDescription(`${await response.data.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.views, 1)}\nPublished Gfycats: ${nFormatter(await response.data.publishedGfycats, 1)}\nPublished Gfycat Albums: ${nFormatter(await response.data.publishedAlbums, 1)}\nFollowers: ${nFormatter(await response.data.followers, 1)}\nFollowing: ${nFormatter(await response.data.following, 1)}\nProfile URL: ${await response.data.profileUrl}`)
+            .setTimestamp(moment.unix(await response.data.createDate).toDate())
+            return await message.channel.send(embed)
+            } catch {
+                return message.channel.send(`Error - couldn't find \`${user}\``)
+            }
         }
 
-        async function userFeed(message: Message, user: string) {
-            return message.channel.send(`You didn't attach any content to create a gfycat`)
+        async function userFeed(message: Message, user: string, count: string) {
+            if (!user) {
+                return message.channel.send('You need to specify a user')
+            }
 
-        }
+            let insertCount = 15
 
-        async function userAlbum(message: Message, user: string, albumTitle: string) {
-            return message.channel.send(`You didn't attach any content to create a gfycat`)
+            if (count) {
+                let getNumber = count.match(/\d+/).pop()
+                insertCount = parseInt(getNumber)
+                if (insertCount > 30) return message.channel.send('Sorry, 30 posts is the max.')
+            }
+            let response: AxiosResponse
+            await gfycatAPI.get(`users/${user}/gfycats`, {params: {count: insertCount}, headers: {Authorization: `Bearer ${gfycatToken}`, 'Content-Type': 'application/json'}}).then(res => {
+                response = res
+            }).catch(error => {
+            })
 
+            let waitingMessage: Message = await message.channel.send(`Loading the multiple Gfycat Posts from \`${user}\` ... ⌛🐱`)
+
+            try {
+                let gfycatData = response.data.gfycats
+
+                const channelObject = message.channel as TextChannel
+                
+                if (channelObject.nsfw !== true) {
+                    gfycatData = gfycatData.filter(gfy => gfy.nsfw === 0)
+                }
+
+                let currentPage = 0;
+                const embeds = await generateGfyCatEmbed(gfycatData)
+                waitingMessage.delete()
+                if (!embeds.length) return message.channel.send('No results based on your specifications')
+                const queueEmbed = await message.channel.send(`Current Gfycat: ${currentPage+1}/${embeds.length}\n${embeds[currentPage]}`);
+                await queueEmbed.react('⬅️');
+                await queueEmbed.react('➡️');
+                await queueEmbed.react('❌');
+                const filter = (reaction, user) => ['⬅️', '➡️', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
+                const collector = queueEmbed.createReactionCollector(filter);
+
+                collector.on('collect', async (reaction, user) => {
+                    if (reaction.emoji.name === '➡️') {
+                        if (currentPage < embeds.length-1) {
+                        currentPage++;
+                        reaction.users.remove(user);
+                        queueEmbed.edit(`Current Gfycat: ${currentPage+1}/${embeds.length}\n${embeds[currentPage]}`);
+                        } 
+                    } else if (reaction.emoji.name === '⬅️') {
+                        if (currentPage !== 0) {
+                        --currentPage;
+                        reaction.users.remove(user);
+                        queueEmbed.edit(`Current Gfycat: ${currentPage+1}/${embeds.length}\n${embeds[currentPage]}`);
+                        }
+                    } else {
+                        collector.stop();
+                        await queueEmbed.delete();
+                    }
+                })
+
+                async function generateGfyCatEmbed (gfycat: any) {
+                    const embeds = [];
+                    let k = 1;
+                    for(let i =0; i < gfycat.length; i += 1) {
+                        const current = gfycat[i];
+                        let j = i;
+                        k += 1;
+
+                        const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${`Made by <https://gfycat.com/@${current.username}>`}\n${current.views} Views\n${moment.unix(current.createDate).format('dddd, MMMM Do YYYY, h:mm A Z')}\nhttps://gfycat.com/${current.gfyName}`
+                        await axios.get(current.mobileUrl).then(res => {
+                            embeds.push(embed)
+                        }).catch(error => {
+
+                        })
+                    }
+                    return embeds;
+                }
+            } catch {
+                waitingMessage.delete()
+                return message.channel.send(`Error - couldn't find \`${user}\``)
+            }
         }
 
         async function getGfycat(message: Message, gfyID: string) {
-            return message.channel.send(`You didn't attach any content to create a gfycat`)
+            if (!gfyID) {
+                return message.channel.send('You need to specify a gfyID')
+            }
+            let response: AxiosResponse
+            await gfycatAPI.get(`gfycats/${gfyID}`, {headers: {Authorization: `Bearer ${gfycatToken}`, 'Content-Type': 'application/json'}}).then(res => {
+                response = res
+            }).catch(error => {
+            })
 
+            try {
+            const profilePicture = await axios({
+                method: 'post',
+                url: "http://sushii-image-server:3000/url",
+                data: {
+                    url: response.data.userData.profileImageUrl, 
+                    width: 200, 
+                    height: 200,
+                    imageFormat: 'png',
+                    quality: 100
+                },
+                responseType: "arraybuffer"
+            }).then(res => Buffer.from(res.data))
+
+            const embed = new MessageEmbed()
+            .setAuthor(await response.data.verified ? `${await response.data.username} ✔️` : await response.data.username, await response.data.profileImageUrl, await response.data.url)
+            .setColor(`${await urlToColours(response.data.profileImageUrl)}`)
+            .setTitle(await response.data.name)
+            .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
+            .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
+            .setDescription(`${await response.data.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.views, 1)}\nPublished Gfycats: ${nFormatter(await response.data.publishedGfycats, 1)}\nPublished Gfycat Albums: ${nFormatter(await response.data.publishedAlbums, 1)}\nFollowers: ${nFormatter(await response.data.followers, 1)}\nFollowing: ${nFormatter(await response.data.following, 1)}\nProfile URL: ${await response.data.profileUrl}`)
+            .setTimestamp(moment.unix(await response.data.createDate).toDate())
+            return await message.channel.send(embed)
+            } catch {
+                return message.channel.send(`Error - couldn't find \`${gfyID}\``)
+            }
             // click on a button to switch between info embed and gfycat embed
         }
 
-        async function trendingGfycats(message: Message) {
-            return message.channel.send(`You didn't attach any content to create a gfycat`)
-
-            // click on a button to switch between info embed and gfycat embed
+        async function trendingGfycats(message: Message, tag: string) {
+            
         }
     }
 }
