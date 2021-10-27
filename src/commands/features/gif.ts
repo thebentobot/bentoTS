@@ -2,7 +2,7 @@ import { Command, gfycatInterface, gfycatSearchInterface } from '../../interface
 import axios from 'axios'
 import utf8 from 'utf8'
 import database from '../../database/database';
-import { initModels, guild } from '../../database/models/init-models';
+import { initModels, guild, gfycatBlacklist } from '../../database/models/init-models';
 import * as dotenv from "dotenv";
 import { Message, TextChannel } from 'discord.js';
 import moment from 'moment';
@@ -17,18 +17,19 @@ const tenorAPI = axios.create({
     baseURL: "https://api.tenor.com/v1",
 });
 
-export let gfycatToken: string
-
+export let gfycatToken: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzUzNjc4NDAsImlzcyI6IjJfNm8yTVN5Iiwicm9sZXMiOlsiQ29udGVudF9SZWFkZXIiXX0.WvEkL1aL80REFayySWEjV-LSUSedfWWNbYDcWtYtVpg'
+/*
 async function newToken () {
     const gfycatAuthData = await axios.post(`https://api.gfycat.com/v1/oauth/token`, {"client_id":`${process.env.gfycatclientID}`, "client_secret": `${process.env.gfycatsecret}`, "grant_type": "client_credentials"})
     console.log('The Gfycat Access Token expires in 1 hour')
     gfycatToken = gfycatAuthData.data.access_token
+    console.log(gfycatToken)
 }
 
 newToken()
 
 setInterval(newToken, 3600000)
-
+*/
 export const command: Command = {
     name: 'gif',
     aliases: [],
@@ -76,6 +77,8 @@ export const command: Command = {
 
         let count = 15
 
+        const blacklistData = await gfycatBlacklist.findAll()
+
         if (args.includes('--multi')) {
             let getNumber = args.join(" ");
             if (args.includes('--count')) {
@@ -98,6 +101,9 @@ export const command: Command = {
             
             if (channelObject.nsfw !== true) {
                 gfycatData = gfycatData.filter(gfy => gfy.nsfw === '0')
+                gfycatData = gfycatData.filter(gfyUser => {
+                    return !blacklistData.some(user => user.username === `${gfyUser.userData?.username}`)
+                })
             }
 
             if (returnMultipleGifs === false) {

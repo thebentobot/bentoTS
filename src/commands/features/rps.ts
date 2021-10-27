@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Message } from 'discord.js';
 import { guild } from '../../database/models/guild';
+import { rpsGame, rpsGameCreationAttributes } from '../../database/models/rpsGame';
 import { Command } from '../../interfaces';
 
 export const command: Command = {
@@ -29,18 +30,52 @@ export const command: Command = {
 
         if (result === choice) return message.channel.send(`**${username}** Its a tie 👔! We had the same choice 😂`);
         
+        const userDefault: rpsGameCreationAttributes = {
+            userID: BigInt(message.author.id),
+            paperLosses: 0,
+            paperWins: 0,
+            rockLosses: 0,
+            rockWins: 0,
+            scissorWins: 0,
+            scissorsLosses: 0
+        }
+
         switch (choice) {
             case 'rock': {
-                if (result === 'paper') return message.channel.send(`**${username}** I won! 🤣`);
-                else return message.channel.send(`**${username}** You won! 😔`);
+                if (result === 'paper') {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({rockLosses: userData[0].rockLosses +1}, {where: {userID: message.author.id}})
+                    return message.channel.send(`**${username}** I won! 🤣`);
+                }
+                else {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({rockWins: userData[0].rockWins +1}, {where: {userID: message.author.id}})
+                    return message.channel.send(`**${username}** You won! 😔`);
+                }
             }
             case 'paper': {
-                if (result === 'scissors') return message.channel.send(`**${username}** I won! 🤣`);
-                else return message.channel.send(`**${username}** You won! 😔`);        
+                if (result === 'scissors') {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({paperLosses: userData[0].paperLosses +1}, {where: {userID: message.author.id}})
+                    return message.channel.send(`**${username}** I won! 🤣`);
+                }
+                else {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({paperWins: userData[0].paperWins +1}, {where: {userID: message.author.id}})
+                    return message.channel.send(`**${username}** You won! 😔`);
+                }        
             }
             case 'scissors': {
-                if (result === 'rock') return message.channel.send(`**${username}** I won! 🤣`);
-                else return message.channel.send(`**${username}** You won! 😔`);
+                if (result === 'rock') {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({scissorsLosses: userData[0].scissorsLosses +1}, {where: {userID: message.author.id}})
+                    return message.channel.send(`**${username}** I won! 🤣`);
+                }
+                else {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({scissorWins: userData[0].scissorWins +1}, {where: {userID: message.author.id}})
+                    return message.channel.send(`**${username}** You won! 😔`);
+                }
             }
             default: {
                 return message.channel.send(`Only these responses are accepted: \`${acceptedReplies.join(', ')}\``);

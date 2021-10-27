@@ -1,3 +1,4 @@
+export { nFormatter } from './nFormatter';
 export { capitalize } from './capitalize';
 export { checkURL } from './checkURL';
 export { ttEmbedding } from './tt';
