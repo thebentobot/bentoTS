@@ -17,8 +17,8 @@ export const command: Command = {
     name: 'gfycat',
     aliases: ['gfy'],
     category: 'features',
-    description: 'Link to the Bento 🍱 GitHub organisation',
-    usage: 'gfycat',
+    description: 'Various Gfycat features. Create GIFs with video URLs or video attachments, get gfycat user profiles or feeds, get info about a gfycat post, or search for gfycat posts just like the gif command.',
+    usage: 'gfycat create <video url, or attachment> [--full if you want the whole video as a gif. If this is added, no need to specify start seconds and duration] <seconds to start at> <duration of the gif> [title of your gfycat post]\ngfycat user profile <gfycat username>\ngfycat user feed <gfycat username> [count number between 1-30]\ngfycat info <gfycat post name e.g. naiveamusingfritillarybutterfly>\ngfycat search <search input> [--multi [--count <number between 1-30>]]',
     website: 'https://www.bentobot.xyz/commands#gfycat',
     run: async (client, message, args): Promise<any> => {
         if (message.channel.type !== 'text') return
