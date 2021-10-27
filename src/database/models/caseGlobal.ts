@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { guild, guildId } from './guild';
 
 export interface caseGlobalAttributes {
   guildID: bigint;
@@ -9,20 +10,30 @@ export interface caseGlobalAttributes {
 
 export type caseGlobalPk = "guildID";
 export type caseGlobalId = caseGlobal[caseGlobalPk];
-export type caseGlobalCreationAttributes = Optional<caseGlobalAttributes, caseGlobalPk>;
+export type caseGlobalOptionalAttributes = "guildID";
+export type caseGlobalCreationAttributes = Optional<caseGlobalAttributes, caseGlobalOptionalAttributes>;
 
 export class caseGlobal extends Model<caseGlobalAttributes, caseGlobalCreationAttributes> implements caseGlobalAttributes {
   guildID!: bigint;
   serverName!: boolean;
   reason!: boolean;
 
+  // caseGlobal belongsTo guild via guildID
+  guild!: guild;
+  getGuild!: Sequelize.BelongsToGetAssociationMixin<guild>;
+  setGuild!: Sequelize.BelongsToSetAssociationMixin<guild, guildId>;
+  createGuild!: Sequelize.BelongsToCreateAssociationMixin<guild>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof caseGlobal {
     caseGlobal.init({
     guildID: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      references: {
+        model: 'guild',
+        key: 'guildID'
+      }
     },
     serverName: {
       type: DataTypes.BOOLEAN,

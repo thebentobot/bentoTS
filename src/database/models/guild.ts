@@ -4,6 +4,7 @@ import type { autoRole, autoRoleId } from './autoRole';
 import type { availableRolesGuild, availableRolesGuildId } from './availableRolesGuild';
 import type { ban, banId } from './ban';
 import type { bye, byeCreationAttributes, byeId } from './bye';
+import type { caseGlobal, caseGlobalCreationAttributes, caseGlobalId } from './caseGlobal';
 import type { guildMember, guildMemberId } from './guildMember';
 import type { kick, kickId } from './kick';
 import type { memberLog, memberLogCreationAttributes, memberLogId } from './memberLog';
@@ -31,7 +32,8 @@ export interface guildAttributes {
 
 export type guildPk = "guildID";
 export type guildId = guild[guildPk];
-export type guildCreationAttributes = Optional<guildAttributes, guildPk>;
+export type guildOptionalAttributes = "guildID" | "icon" | "memberCount";
+export type guildCreationAttributes = Optional<guildAttributes, guildOptionalAttributes>;
 
 export class guild extends Model<guildAttributes, guildCreationAttributes> implements guildAttributes {
   guildID!: bigint;
@@ -84,6 +86,11 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
   getBye!: Sequelize.HasOneGetAssociationMixin<bye>;
   setBye!: Sequelize.HasOneSetAssociationMixin<bye, byeId>;
   createBye!: Sequelize.HasOneCreateAssociationMixin<byeCreationAttributes>;
+  // guild hasOne caseGlobal via guildID
+  caseGlobal!: caseGlobal;
+  getCaseGlobal!: Sequelize.HasOneGetAssociationMixin<caseGlobal>;
+  setCaseGlobal!: Sequelize.HasOneSetAssociationMixin<caseGlobal, caseGlobalId>;
+  createCaseGlobal!: Sequelize.HasOneCreateAssociationMixin<caseGlobalCreationAttributes>;
   // guild hasMany guildMember via guildID
   guildMembers!: guildMember[];
   getGuildMembers!: Sequelize.HasManyGetAssociationsMixin<guildMember>;

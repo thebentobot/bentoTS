@@ -1,4 +1,4 @@
-import type { Sequelize, Model } from "sequelize";
+import type { Sequelize } from "sequelize";
 import { autoRole } from "./autoRole";
 import type { autoRoleAttributes, autoRoleCreationAttributes } from "./autoRole";
 import { availableRolesGuild } from "./availableRolesGuild";
@@ -11,6 +11,8 @@ import { bye } from "./bye";
 import type { byeAttributes, byeCreationAttributes } from "./bye";
 import { caseGlobal } from "./caseGlobal";
 import type { caseGlobalAttributes, caseGlobalCreationAttributes } from "./caseGlobal";
+import { gfycatBlacklist } from "./gfycatBlacklist";
+import type { gfycatBlacklistAttributes, gfycatBlacklistCreationAttributes } from "./gfycatBlacklist";
 import { guild } from "./guild";
 import type { guildAttributes, guildCreationAttributes } from "./guild";
 import { guildMember } from "./guildMember";
@@ -45,6 +47,8 @@ import { roleChannel } from "./roleChannel";
 import type { roleChannelAttributes, roleChannelCreationAttributes } from "./roleChannel";
 import { roleMessages } from "./roleMessages";
 import type { roleMessagesAttributes, roleMessagesCreationAttributes } from "./roleMessages";
+import { rpsGame } from "./rpsGame";
+import type { rpsGameAttributes, rpsGameCreationAttributes } from "./rpsGame";
 import { tag } from "./tag";
 import type { tagAttributes, tagCreationAttributes } from "./tag";
 import { user } from "./user";
@@ -63,6 +67,7 @@ export {
   bento,
   bye,
   caseGlobal,
+  gfycatBlacklist,
   guild,
   guildMember,
   horoscope,
@@ -80,6 +85,7 @@ export {
   role,
   roleChannel,
   roleMessages,
+  rpsGame,
   tag,
   user,
   warning,
@@ -100,6 +106,8 @@ export type {
   byeCreationAttributes,
   caseGlobalAttributes,
   caseGlobalCreationAttributes,
+  gfycatBlacklistAttributes,
+  gfycatBlacklistCreationAttributes,
   guildAttributes,
   guildCreationAttributes,
   guildMemberAttributes,
@@ -134,6 +142,8 @@ export type {
   roleChannelCreationAttributes,
   roleMessagesAttributes,
   roleMessagesCreationAttributes,
+  rpsGameAttributes,
+  rpsGameCreationAttributes,
   tagAttributes,
   tagCreationAttributes,
   userAttributes,
@@ -153,6 +163,7 @@ export function initModels(sequelize: Sequelize) {
   bento.initModel(sequelize);
   bye.initModel(sequelize);
   caseGlobal.initModel(sequelize);
+  gfycatBlacklist.initModel(sequelize);
   guild.initModel(sequelize);
   guildMember.initModel(sequelize);
   horoscope.initModel(sequelize);
@@ -170,6 +181,7 @@ export function initModels(sequelize: Sequelize) {
   role.initModel(sequelize);
   roleChannel.initModel(sequelize);
   roleMessages.initModel(sequelize);
+  rpsGame.initModel(sequelize);
   tag.initModel(sequelize);
   user.initModel(sequelize);
   warning.initModel(sequelize);
@@ -184,6 +196,8 @@ export function initModels(sequelize: Sequelize) {
   guild.hasMany(ban, { as: "bans", foreignKey: "guildID"});
   bye.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasOne(bye, { as: "bye", foreignKey: "guildID"});
+  caseGlobal.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
+  guild.hasOne(caseGlobal, { as: "caseGlobal", foreignKey: "guildID"});
   guildMember.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
   guild.hasMany(guildMember, { as: "guildMembers", foreignKey: "guildID"});
   kick.belongsTo(guild, { as: "guild", foreignKey: "guildID"});
@@ -226,6 +240,8 @@ export function initModels(sequelize: Sequelize) {
   user.hasOne(profile, { as: "profile", foreignKey: "userID"});
   reminder.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(reminder, { as: "reminders", foreignKey: "userID"});
+  rpsGame.belongsTo(user, { as: "user", foreignKey: "userID"});
+  user.hasMany(rpsGame, { as: "rpsGames", foreignKey: "userID"});
   tag.belongsTo(user, { as: "user", foreignKey: "userID"});
   user.hasMany(tag, { as: "tags", foreignKey: "userID"});
   weather.belongsTo(user, { as: "user", foreignKey: "userID"});
@@ -238,6 +254,7 @@ export function initModels(sequelize: Sequelize) {
     bento: bento,
     bye: bye,
     caseGlobal: caseGlobal,
+    gfycatBlacklist: gfycatBlacklist,
     guild: guild,
     guildMember: guildMember,
     horoscope: horoscope,
@@ -255,6 +272,7 @@ export function initModels(sequelize: Sequelize) {
     role: role,
     roleChannel: roleChannel,
     roleMessages: roleMessages,
+    rpsGame: rpsGame,
     tag: tag,
     user: user,
     warning: warning,

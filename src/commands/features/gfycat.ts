@@ -1,13 +1,13 @@
 import axios, { AxiosResponse } from 'axios';
 import { Message, MessageAttachment, MessageEmbed, TextChannel } from 'discord.js';
 import database from '../../database/database';
-import { initModels, guild } from '../../database/models/init-models';
+import { initModels, guild, gfycatBlacklist } from '../../database/models/init-models';
 import { Command, gfycatInterface, gfycatSearchInterface } from '../../interfaces';
 import { gfycatToken } from './gif';
 import naughtyWords from 'naughty-words/en.json'
 import utf8 from 'utf8';
 import moment from 'moment';
-import { getHTMLImage, nFormatter, urlToColours } from '../../utils';
+import { nFormatter, urlToColours } from '../../utils';
 
 const gfycatAPI = axios.create({
     baseURL: "https://api.gfycat.com/v1/",
@@ -43,9 +43,6 @@ export const command: Command = {
             case 'info':
                 await getGfycat(message, args[1])
             break;
-            case 'trending':
-                await trendingGfycats(message, args.slice(1).join(" "))
-            break;
             case 'search':
                 await searchGfycat(message, args)
             break;
@@ -79,9 +76,11 @@ export const command: Command = {
                     count = parseInt(getNumber)
                     if (count > 30) return message.channel.send('Sorry, 30 posts is the max.')
                 }
-                messageParse = args.filter(msg => msg !== '--multi' && msg !== '--count' && msg !== getNumber)
+                messageParse = args.filter(msg => msg !== '--multi' && msg !== '--count' && msg !== getNumber && msg !== 'search')
                 returnMultipleGifs = true
             }
+
+            const blacklistData = await gfycatBlacklist.findAll()
 
             let query: string = messageParse.join(" ");
             if (naughtyWords.includes(query)) return message.channel.send(`No GIFs found based on your search input \`${query}\`.`);
@@ -94,6 +93,9 @@ export const command: Command = {
                 
                 if (channelObject.nsfw !== true) {
                     gfycatData = gfycatData.filter(gfy => gfy.nsfw === '0')
+                    gfycatData = gfycatData.filter(gfyUser => {
+                        return !blacklistData.some(user => user.username === `${gfyUser.userData?.username}`)
+                    })
                 }
 
                 if (returnMultipleGifs === false) {
@@ -120,8 +122,8 @@ export const command: Command = {
                     let currentPage = 0;
                     let waitingMessage = await message.channel.send(`Loading the multiple Gfycat Posts related to \`${query}\` ... ⌛🐱`)
                     const embeds = await generateGfyCatEmbed(gfycatData)
-                    if (!embeds.length) return message.channel.send('No results based on your specifications')
                     waitingMessage.delete()
+                    if (!embeds.length) return message.channel.send('No results based on your specifications')
                     const queueEmbed = await message.channel.send(`Current Gfycat: ${currentPage+1}/${embeds.length}\n${embeds[currentPage]}`);
                     await queueEmbed.react('⬅️');
                     await queueEmbed.react('➡️');
@@ -233,6 +235,13 @@ export const command: Command = {
             if (!user) {
                 return message.channel.send('You need to specify a user')
             }
+
+            const blacklistData = await gfycatBlacklist.findAll()
+
+            if (blacklistData.some(user => user.username === `${user}`)) {
+                return message.channel.send(`Error - couldn't find \`${user}\``)
+            }
+
             let response: AxiosResponse
             await gfycatAPI.get(`users/${user}`, {headers: {Authorization: `Bearer ${gfycatToken}`, 'Content-Type': 'application/json'}}).then(res => {
                 response = res
@@ -270,6 +279,12 @@ export const command: Command = {
         async function userFeed(message: Message, user: string, count: string) {
             if (!user) {
                 return message.channel.send('You need to specify a user')
+            }
+
+            const blacklistData = await gfycatBlacklist.findAll()
+
+            if (blacklistData.some(user => user.username === `${user}`)) {
+                return message.channel.send(`Error - couldn't find \`${user}\``)
             }
 
             let insertCount = 15
@@ -359,37 +374,74 @@ export const command: Command = {
             }).catch(error => {
             })
 
-            try {
-            const profilePicture = await axios({
-                method: 'post',
-                url: "http://sushii-image-server:3000/url",
-                data: {
-                    url: response.data.userData.profileImageUrl, 
-                    width: 200, 
-                    height: 200,
-                    imageFormat: 'png',
-                    quality: 100
-                },
-                responseType: "arraybuffer"
-            }).then(res => Buffer.from(res.data))
+            const blacklistData = await gfycatBlacklist.findAll()
 
-            const embed = new MessageEmbed()
-            .setAuthor(await response.data.verified ? `${await response.data.username} ✔️` : await response.data.username, await response.data.profileImageUrl, await response.data.url)
-            .setColor(`${await urlToColours(response.data.profileImageUrl)}`)
-            .setTitle(await response.data.name)
-            .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
-            .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
-            .setDescription(`${await response.data.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.views, 1)}\nPublished Gfycats: ${nFormatter(await response.data.publishedGfycats, 1)}\nPublished Gfycat Albums: ${nFormatter(await response.data.publishedAlbums, 1)}\nFollowers: ${nFormatter(await response.data.followers, 1)}\nFollowing: ${nFormatter(await response.data.following, 1)}\nProfile URL: ${await response.data.profileUrl}`)
-            .setTimestamp(moment.unix(await response.data.createDate).toDate())
-            return await message.channel.send(embed)
+            if (blacklistData.some(user => user.username === `${response.data.gfyItem.username}`)) {
+                return message.channel.send(`Error - couldn't find \`${gfyID}\``)
+            }
+
+            try {
+                
+                let profilePicture
+                if (response.data.gfyItem.userData?.profileImageUrl) {
+                    profilePicture = await axios({
+                        method: 'post',
+                        url: "http://sushii-image-server:3000/url",
+                        data: {
+                            url: response.data.gfyItem.userData.profileImageUrl, 
+                            width: 200, 
+                            height: 200,
+                            imageFormat: 'png',
+                            quality: 100
+                        },
+                        responseType: "arraybuffer"
+                    }).then(res => Buffer.from(res.data))
+                }
+
+                const embeds = [];
+                
+                const gfycatEmbed = `https://gfycat.com/${response.data.gfyItem.gfyName}`
+                embeds.push(gfycatEmbed)
+
+                const profileEmbed = new MessageEmbed()
+                .setColor(response.data.gfyItem.avgColor)
+                .setTitle(await response.data.gfyItem.gfyName)
+                .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
+                .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
+                .setDescription(`${await response.data.gfyItem.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.gfyItem.views, 1)}\n${response.data.gfyItem.likes} Likes ❤️ \nFrame rate: ${response.data.gfyItem.frameRate}\nWidth & Height: ${response.data.gfyItem.width}x${response.data.gfyItem.height}${response.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response.data.gfyItem.tags.join(', ')}` : ''}`)
+                .setTimestamp(moment.unix(await response.data.gfyItem.createDate).toDate())
+                if (response.data.gfyItem.userData?.username) {
+                    profileEmbed.setAuthor(await response.data.gfyItem.userData.verified ? `${await response.data.gfyItem.userData.username} ✔️` : await response.data.gfyItem.userData.username, await response.data.gfyItem.userData?.profileImageUrl ? response.data.gfyItem.userData?.profileImageUrl : '', `https://gfycat.com/@${response.data.gfyItem.userData.username}`)
+                }
+                embeds.push(profileEmbed)
+                
+                let currentPage = 0
+                const queueEmbed = await message.channel.send(gfycatEmbed);
+                await queueEmbed.react('🔄');
+                await queueEmbed.react('❌');
+                const filter = (reaction, user) => ['🔄', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
+                const collector = queueEmbed.createReactionCollector(filter);
+
+                collector.on('collect', async (reaction, user) => {
+                    if (reaction.emoji.name === '🔄') {
+                        if (currentPage < embeds.length-1) {
+                        currentPage++;
+                        reaction.users.remove(user);
+                        queueEmbed.edit(profileEmbed);
+                        } else {
+                            currentPage--;
+                            reaction.users.remove(user);
+                            queueEmbed.edit(gfycatEmbed);
+                        }
+                    }  else {
+                        collector.stop();
+                        await queueEmbed.delete();
+                    }
+                })
             } catch {
                 return message.channel.send(`Error - couldn't find \`${gfyID}\``)
             }
             // click on a button to switch between info embed and gfycat embed
-        }
-
-        async function trendingGfycats(message: Message, tag: string) {
-            
         }
     }
 }
