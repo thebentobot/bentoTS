@@ -226,7 +226,7 @@ export const command: Command = {
 
                 if (checkStatus.data.task === 'complete') {
                     waitingMessage.delete()
-                    return message.channel.send(`https://gfycat.com/${checkStatus.data.gfyname}`)
+                    return message.channel.send(`${message.author} your Gfycat Post is ready! 👏\nhttps://gfycat.com/${checkStatus.data.gfyname}`)
                 }
             }
         }
