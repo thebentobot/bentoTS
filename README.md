@@ -10,16 +10,18 @@ Want to give feedback or got any questions? Join the support server [here](https
 
 ## List of notable features
 
+- Gfycat API features such as create, check user feeds etc.
 - LastFM API features
 - Advanced moderation tools that include a comprehensive case-based logging system.
 - Custom user profiles
+- Create Streamables
+- Fun features such as rock paper scissors, 8ball, roll a number or pick an option
 - Database that saves server info such as feature settings and welcome message, and user data such as XP/Levels and command info
 - Unlimited custom commands (for the server only) that saves name for recall and content
 - Horoscope
 - Weather and time at a specific city, provided by [OpenWeather](https://openweathermap.org/)
 - Chat XP/levels and "bento" leaderboard
 - Custom welcome and goodbye messages, customisable by server
-- GIF and Google Image search
 - Urban Dictionary search
 
 ## Getting Started
@@ -45,6 +47,39 @@ Want to give feedback or got any questions? Join the support server [here](https
 
 * ```docker build -t [NAME] .```
 * ```docker run [NAME]```
+
+#### Executing Bento 🍱 with Docker Compose (to support profiles and lastfm collages)
+```
+version: '3.8'
+
+services:
+  bot:
+    image: your-docker-name/image-name:latest
+    container_name: bento
+    restart: unless-stopped
+    ports:
+      - '6969:6969'
+    networks: 
+      - bento_net
+      - web
+  sushii-image-server:
+    image: ghcr.io/sushiibot/sushii-image-server:latest
+    container_name: sushii-image-server
+    restart: unless-stopped
+    init: true
+    cap_add:
+        - SYS_ADMIN
+    expose:
+        - "3000"
+    networks:
+        - bento_net 
+
+networks:
+  web:
+    internal: false
+  bento_net:
+    external: false
+```
 
 ### Executing Bento 🍱 without Docker
 
