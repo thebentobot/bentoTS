@@ -11,11 +11,14 @@ export interface rpsGameAttributes {
   rockLosses?: number;
   scissorWins?: number;
   scissorsLosses?: number;
+  paperTies?: number;
+  rockTies?: number;
+  scissorsTies?: number;
 }
 
 export type rpsGamePk = "id";
 export type rpsGameId = rpsGame[rpsGamePk];
-export type rpsGameOptionalAttributes = "id" | "paperWins" | "paperLosses" | "rockWins" | "rockLosses" | "scissorWins" | "scissorsLosses";
+export type rpsGameOptionalAttributes = "id" | "paperWins" | "paperLosses" | "rockWins" | "rockLosses" | "scissorWins" | "scissorsLosses" | "paperTies" | "rockTies" | "scissorsTies";
 export type rpsGameCreationAttributes = Optional<rpsGameAttributes, rpsGameOptionalAttributes>;
 
 export class rpsGame extends Model<rpsGameAttributes, rpsGameCreationAttributes> implements rpsGameAttributes {
@@ -27,6 +30,9 @@ export class rpsGame extends Model<rpsGameAttributes, rpsGameCreationAttributes>
   rockLosses?: number;
   scissorWins?: number;
   scissorsLosses?: number;
+  paperTies?: number;
+  rockTies?: number;
+  scissorsTies?: number;
 
   // rpsGame belongsTo user via userID
   user!: user;
@@ -71,6 +77,18 @@ export class rpsGame extends Model<rpsGameAttributes, rpsGameCreationAttributes>
       allowNull: true
     },
     scissorsLosses: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    paperTies: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    rockTies: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    scissorsTies: {
       type: DataTypes.INTEGER,
       allowNull: true
     }

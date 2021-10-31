@@ -127,26 +127,9 @@ export const command: Command = {
                 .setTitle(`${response.weather[0].main} ${await weatherEmote(response.weather[0].id)} in ${response.name}, ${codeToName(response.sys.country)} ${flag(response.sys.country)}`)
                 .setURL(`https://openweathermap.org/city/${response.id}`)
                 .setThumbnail(`http://openweathermap.org/img/w/${response.weather[0].icon}.png`)
-                .setFooter(userID ? `Powered by OpenWeather` : '', userID ? `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg` : null)
+                .setFooter(`Last updated at ${await toTimeZone((moment.unix(response.dt)), await location((response.coord.lat), (response.coord.lon)))}`, userID ? `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg` : null)
+                .setDescription(`Currently **${capitalize(response.weather[0].description)}** ${await weatherEmote(response.weather[0].id)}\n🌡 ${Math.round(response.main.temp)}°C (${Math.round(response.main.temp * 9/5 + 32)}°F), feels like ${Math.round(response.main.feels_like)}°C (${Math.round(response.main.feels_like * 9/5 + 32)}°F)\n⚖️ Min. ${Math.round(response.main.temp_min)}°C (${Math.round(response.main.temp_min * 9/5 + 32)}°F), Max. ${Math.round(response.main.temp_max)}°C (${Math.round(response.main.temp_max * 9/5 + 32)}°F)\n☁️ ${response.clouds.all}% Cloudiness 🥵 ${response.main.humidity}% Humidity\n💨 ${response.wind.speed} m/s ${await windDirection(response.wind.deg)}\n\n🕒 ${await localTime(response.timezone)} ${flag(response.sys.country)}\n🌅 ${await toTimeZone((moment.unix(response.sys.sunrise)), await location((response.coord.lat), (response.coord.lon)))}\n🌇 ${await toTimeZone((moment.unix(response.sys.sunset)), await location((response.coord.lat), (response.coord.lon)))}`)
                 .setTimestamp()
-                .addFields(
-                { name: 'Currently', value: `${capitalize(response.weather[0].description)} ${await weatherEmote(response.weather[0].id)}`},
-                { name: 'Temperature', value: `${Math.round(response.main.temp)}°C (${Math.round(response.main.temp * 9/5 + 32)}°F)\n Feels like ${Math.round(response.main.feels_like)}°C (${Math.round(response.main.feels_like * 9/5 + 32)}°F)`, inline: true },
-                { name: 'Minimum Temperature.', value: `${Math.round(response.main.temp_min)}°C (${Math.round(response.main.temp_min * 9/5 + 32)}°F)`, inline: true },
-                { name: 'Maximum Temperature.', value: `${Math.round(response.main.temp_max)}°C (${Math.round(response.main.temp_max * 9/5 + 32)}°F)`, inline: true },
-    
-                { name: 'Cloudiness', value: `${response.clouds.all}%`, inline: true },
-                { name: 'Humidity', value: `${response.main.humidity}%`, inline: true },
-                { name: 'Last updated at', value: await toTimeZone((moment.unix(response.dt)), await location((response.coord.lat), (response.coord.lon))), inline: true },
-    
-                { name: 'Local time', value: await localTime(response.timezone), inline: true },
-                { name: 'Sunrise', value: await toTimeZone((moment.unix(response.sys.sunrise)), await location((response.coord.lat), (response.coord.lon))), inline: true },
-                { name: 'Sunset', value: await toTimeZone((moment.unix(response.sys.sunset)), await location((response.coord.lat), (response.coord.lon))), inline: true },
-    
-                { name: 'Pressure', value: `${response.main.pressure} hPa`, inline: true },
-                { name: 'Wind Speed', value: `${response.wind.speed} m/s`, inline: true },
-                { name: 'Wind Direction', value: await windDirection(response.wind.deg), inline: true },
-                )
             return await message.channel.send(Embed)
         }
 
@@ -173,28 +156,28 @@ export const command: Command = {
 
         async function windDirection (degree: number) {
             if (degree == 90) {
-                return `⬆️ (${degree}°)`
+                return `⬆️`
               }
               else if  (degree == 270) {
-                return `⬇️ (${degree}°)`
+                return `⬇️`
               }
               else if  (degree == 180) {
-                return `⬅️ (${degree}°)`
+                return `⬅️`
               }
               else if  (degree == 360 || 0) {
-                return `➡️ (${degree}°)`
+                return `➡️`
               }
               else if  (degree > 0 && degree < 90) {
-                return `↗️ (${degree}°)`
+                return `↗️`
               }
               else if  (degree > 270 && degree < 360) {
-                return `↘️ (${degree}°)`
+                return `↘️`
               }
               else if  (degree > 180 && degree < 270) {
-                return `↙️ (${degree}°)`
+                return `↙️`
               }
               else if  (degree > 90 && degree < 180) {
-                return `↖️ (${degree}°)`
+                return `↖️`
               }
         }
 

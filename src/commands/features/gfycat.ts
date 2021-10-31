@@ -129,7 +129,7 @@ export const command: Command = {
                     await queueEmbed.react('➡️');
                     await queueEmbed.react('❌');
                     const filter = (reaction, user) => ['⬅️', '➡️', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
-                    const collector = queueEmbed.createReactionCollector(filter);
+                    const collector = queueEmbed.createReactionCollector(filter, {idle: 900000, dispose: true});
 
                     collector.on('collect', async (reaction, user) => {
                         if (reaction.emoji.name === '➡️') {
@@ -195,7 +195,6 @@ export const command: Command = {
             }
 
             const response = await gfycatAPI.post('gfycats', {fetchUrl: gfyContent, noMd5: true, cut: {start: startSeconds.length > 0 ? startSeconds : 0, duration: duration.length > 0 ? duration : 0}, title: caption.length > 0 ? caption : ''}, {headers: {Authorization: `Bearer ${gfycatToken}`, 'Content-Type': 'application/json'}})
-            console.log(response.config.data)
             if (response.status !== 200) return message.channel.send(`Gfycat error.`)
             
             if (response.data.isOk === false) {
@@ -203,7 +202,6 @@ export const command: Command = {
             } else {
                 let waitingMessage = await message.channel.send(`Encoding your Gfycat Post... ⌛🐱`)
                 let checkStatus = await gfycatAPI.get(`gfycats/fetch/status/${response.data.gfyname}`, {headers: {Authorization: `Bearer ${gfycatToken}`, 'Content-Type': 'application/json'}})
-                console.log(checkStatus.data)
                 while (checkStatus.data.task === 'encoding') {
                     function sleep(ms: number) {
                         return new Promise((resolve) => {
@@ -320,7 +318,7 @@ export const command: Command = {
                 await queueEmbed.react('➡️');
                 await queueEmbed.react('❌');
                 const filter = (reaction, user) => ['⬅️', '➡️', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
-                const collector = queueEmbed.createReactionCollector(filter);
+                const collector = queueEmbed.createReactionCollector(filter, {idle: 900000, dispose: true});
 
                 collector.on('collect', async (reaction, user) => {
                     if (reaction.emoji.name === '➡️') {
@@ -420,7 +418,7 @@ export const command: Command = {
                 await queueEmbed.react('🔄');
                 await queueEmbed.react('❌');
                 const filter = (reaction, user) => ['🔄', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
-                const collector = queueEmbed.createReactionCollector(filter);
+                const collector = queueEmbed.createReactionCollector(filter, {idle: 300000, dispose: true});
 
                 collector.on('collect', async (reaction, user) => {
                     if (reaction.emoji.name === '🔄') {

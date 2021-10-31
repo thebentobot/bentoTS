@@ -136,7 +136,7 @@ export const command: Command = {
                 await queueEmbed.react('➡️');
                 await queueEmbed.react('❌');
                 const filter = (reaction, user) => ['⬅️', '➡️', '❌'].includes(reaction.emoji.name) && (message.author.id === user.id);
-                const collector = queueEmbed.createReactionCollector(filter);
+                const collector = queueEmbed.createReactionCollector(filter, {idle: 900000, dispose: true});
 
                 collector.on('collect', async (reaction, user) => {
                     if (reaction.emoji.name === '➡️') {

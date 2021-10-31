@@ -28,8 +28,6 @@ export const command: Command = {
 
         message.channel.send(bentoResult)
 
-        if (result === choice) return message.channel.send(`**${username}** Its a tie 👔! We had the same choice 😂`);
-        
         const userDefault: rpsGameCreationAttributes = {
             userID: BigInt(message.author.id),
             paperLosses: 0,
@@ -37,7 +35,28 @@ export const command: Command = {
             rockLosses: 0,
             rockWins: 0,
             scissorWins: 0,
-            scissorsLosses: 0
+            scissorsLosses: 0,
+            paperTies: 0,
+            rockTies: 0,
+            scissorsTies: 0
+        }
+
+        if (result === choice) {
+            switch (choice) {
+                case 'rock': {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({rockTies: userData[0].rockTies +1}, {where: {userID: message.author.id}})                    
+                }
+                case 'paper': {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({paperTies: userData[0].paperTies +1}, {where: {userID: message.author.id}})        
+                }
+                case 'scissors': {
+                    const userData = await rpsGame.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: userDefault})
+                    await rpsGame.update({scissorsTies: userData[0].scissorsTies +1}, {where: {userID: message.author.id}})  
+                }
+            }
+            return message.channel.send(`**${username}** Its a tie 👔! We had the same choice 😂`);
         }
 
         switch (choice) {
