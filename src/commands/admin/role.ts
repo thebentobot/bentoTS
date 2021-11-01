@@ -287,21 +287,21 @@ export const command: Command = {
                     errors.push(roleCommand);
                 } else {
                     const roleData = await role.findOne({where: {roleCommand: roleCommand, guildID: message.guild.id, type: type}})
-                    if (roleData === null) {
+                    if (!roleData) {
                         rolesNotExisting.push(roleCommand)
                     }
                     const removed = await role.destroy({where: {roleCommand: roleCommand, guildID: message.guild.id, type: type}})
                     if (removed > 0) {
                         rolesRemoved.push(roleCommand);
                     }
-                    const roleCheck = await role.findAndCountAll({raw: true, where: {guildID: message.guild.id, roleName: roleData.roleName, type: roleData.type}})
-                    if (roleCheck.count === 0) {
-                        const availableRoleData = await availableRolesGuild.findOne({raw: true, where: {guildID: message.guild.id, role: roleData.roleName, type: roleData.type}})
-                        if (availableRoleData === null) {
-                            availableRolesNotExisting.push(roleData.roleName)
+                    const roleCheck = await role.findAndCountAll({raw: true, where: {guildID: message.guild.id, roleName: roleData?.roleName, type: roleData?.type}})
+                    if (roleCheck?.count === 0) {
+                        const availableRoleData = await availableRolesGuild.findOne({raw: true, where: {guildID: message.guild.id, role: roleData?.roleName, type: roleData?.type}})
+                        if (!availableRoleData) {
+                            availableRolesNotExisting.push(roleData?.roleName)
                         } else {
-                            await availableRolesGuild.destroy({where: {guildID: message.guild.id, role: roleData.roleName, type: roleData.type}})
-                            availableRolesRemoved.push(roleData.roleName)
+                            await availableRolesGuild.destroy({where: {guildID: message.guild.id, role: roleData?.roleName, type: roleData?.type}})
+                            availableRolesRemoved.push(roleData?.roleName)
                         }
                     }
                 }
