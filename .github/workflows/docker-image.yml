@@ -36,5 +36,4 @@ jobs:
       -
         name: Push Image to ghcr
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner}}/bentots:${{ github.run_id }}
-          docker push $IMAGE_ID
+          docker push ghcr.io/${{ github.repository_owner}}/bentots:${{ github.run_id }}
