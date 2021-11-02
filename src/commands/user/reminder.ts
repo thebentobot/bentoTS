@@ -85,7 +85,7 @@ export const command: Command = {
             }
 
             try {
-                await client.users.cache.get(message.author.id).send(`Your reminder has been set!\n${capitalize(moment(now).to(remindDate))} you will be reminded to \`${reminder}\`.\nDate for reminder: approx. ${moment(remindDate).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}`)
+                await client.users.cache.get(message.author.id).send(`Your reminder has been set!\n${capitalize(moment(now).to(remindDate))} you will be reminded to \`${reminder}\`.\nDate for reminder: approx. <t:${moment(remindDate).format('X')}:F>`)
                 return await message.channel.send(`Your reminder has been set.`)
             } catch {
                 await remindDB.destroy({where: {userID: message.author.id, reminder: reminder, date: remindDate}})
@@ -140,7 +140,7 @@ export const command: Command = {
             }
 
             try {
-                await client.users.cache.get(message.author.id).send(`Your reminder has been set!\n${capitalize(moment(now).to(remindDate))} you will be reminded to \`${reminder}\`.\nDate for reminder: approx. ${moment(remindDate).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}`)
+                await client.users.cache.get(message.author.id).send(`Your reminder has been set!\n${capitalize(moment(now).to(remindDate))} you will be reminded to \`${reminder}\`.\nDate for reminder: approx. <t:${moment(remindDate).format('X')}:F>`)
                 return await message.channel.send(`Your reminder has been set.`)
             } catch {
                 await remindDB.destroy({where: {userID: message.author.id, reminder: reminder, date: remindDate}})
@@ -173,7 +173,7 @@ export const command: Command = {
                     embed.setAuthor('Reminder', client.user.avatarURL({format: 'png'}))
                     embed.setColor(`${await urlToColours(message.author.avatarURL({format:'png'}))}`)
                     embed.setDescription(`${current.reminder}`)
-                    embed.setFooter(`Remind Date: ${moment(current.date).format('dddd, MMMM Do YYYY, HH:mm:ss A Z')}`)
+                    embed.setFooter(`Remind Date: <t:${moment(current.date).format('X')}:R>`)
                     embed.setTitle(`${capitalize(moment(now).to(current.date))}`)
                     embed.setThumbnail(message.author.avatarURL({format: 'png', size: 1024, dynamic: true}));
                     embeds.push(embed)

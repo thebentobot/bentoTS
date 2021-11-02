@@ -23,7 +23,7 @@ let spotifyCred = new SpotifyWebApi({
     clientSecret: process.env.spotifyClientSecret,
     redirectUri: 'http://localhost:3000/auth/spotify/success'
 })
-
+/*
 async function newToken () {
     await spotifyCred.clientCredentialsGrant().then(
         async function(data) {
@@ -42,7 +42,7 @@ async function newToken () {
 newToken()
 
 setInterval(newToken, 3600000)
-
+*/
 export const command: Command = {
     name: 'lastfm',
     aliases: ['fm', 'lf'],

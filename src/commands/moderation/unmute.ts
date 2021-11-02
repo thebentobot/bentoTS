@@ -22,7 +22,7 @@ export const command: Command = {
 
         const muteRoleData = await muteRole.findOne({raw: true, where: {guildID: message.guild.id}})
 
-        if (!muteRoleData.roleID) {
+        if (muteRoleData === null) {
             return message.channel.send(`You haven't set a mute role.\nPlease use the muterole command.\nIf you need help, use the help command with muterole.`)
         }
 
@@ -74,8 +74,8 @@ export const command: Command = {
                 .addField('Username', unmutedUserObject.username + '#' + unmutedUserObject.discriminator)
                 .addField('User ID', unmutedUser.id)
                 .addField('Muted by', message.guild.members.cache.get(`${muted.actor}`).nickname ? `${message.guild.members.cache.get(`${muted.actor}`).nickname} (${message.guild.members.cache.get(`${muted.actor}`).user.username}#${message.guild.members.cache.get(`${muted.actor}`).user.discriminator})` : `${(await client.users.fetch(`${muted.actor}`)).username}#${(await client.users.fetch(`${muted.actor}`)).discriminator}`)
-                .addField('Mute date', moment(muted.date).format('dddd, MMMM Do YYYY, HH:mm:ss A z'))
-                .addField('Original mute end date', muted.muteEnd != null ? moment(muted.muteEnd).format('dddd, MMMM Do YYYY, HH:mm:ss A z') : 'The mute was on indefinite time')
+                .addField('Mute date', `<t:${moment(muted.date).format('X')}:F>`)
+                .addField('Original mute end date', muted.muteEnd != null ? `<t:${moment(muted.muteEnd).format('X')}:F>` : 'The mute was on indefinite time')
                 .addField('Reason for mute', muted.reason != null ? 'No reason specified for mute' : muted.reason)
                 .addField('Unmuted by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
                 .addField('Notes about the mute case', muted.note ? muted.note : 'No notes made for this mute case')

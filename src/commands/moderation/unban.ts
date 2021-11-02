@@ -58,7 +58,7 @@ export const command: Command = {
                 .addField('Username', unbannedUser.username + '#' + unbannedUser.discriminator)
                 .addField('User ID', unbannedUser.id)
                 .addField('Banned by', message.guild.members.cache.get(`${banned.actor}`).nickname ? `${message.guild.members.cache.get(`${banned.actor}`).nickname} (${message.guild.members.cache.get(`${banned.actor}`).user.username}#${message.guild.members.cache.get(`${banned.actor}`).user.discriminator})` : `${(await client.users.fetch(`${banned.actor}`)).username}#${(await client.users.fetch(`${banned.actor}`)).discriminator}`)
-                .addField('Ban date', moment(banned.date).format('dddd, MMMM Do YYYY, HH:mm:ss A z'))
+                .addField('Ban date', `<t:${moment(banned.date).format('X')}:F>`)
                 .addField('Reason for ban', banned.reason != null ? 'No reason specified for ban' : banned.reason)
                 .addField('Unbanned by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
                 .addField('Notes about the ban case', banned.note ? banned.note : 'No notes made for this ban case')

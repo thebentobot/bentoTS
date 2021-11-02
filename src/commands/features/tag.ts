@@ -248,7 +248,7 @@ export const command: Command = {
             .setColor(`${await urlToColours(message.guild.members.cache.get(`${tagData.userID}`).user.displayAvatarURL({ format: 'png'}))}`)
             .addField('Author of the tag', message.guild.members.cache.get(`${tagData.userID}`).nickname ? `${message.guild.members.cache.get(`${tagData.userID}`).nickname} (${message.guild.members.cache.get(`${tagData.userID}`).user.username + '#' + message.guild.members.cache.get(`${tagData.userID}`).user.discriminator})` : `${message.guild.members.cache.get(`${tagData.userID}`).user.username + '#' + message.guild.members.cache.get(`${tagData.userID}`).user.discriminator}`)
             .addField('Content', trim(tagData.content, 1024))
-            .addField('Date made', moment(tagData.date).utc().format('dddd, MMMM Do YYYY, hh:mm:ss A z'))
+            .addField('Date made', `<t:${moment(tagData.date).format("X")}:F>`)
             .addField('Usage count', tagData.count > 1 ? `${tagData.count} times` : `${tagData.count} time`)
 
             return message.channel.send(embed)

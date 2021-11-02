@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import { Message, MessageEmbed, User } from 'discord.js';
 import { trim, urlToColours } from '../../utils/index';
+import moment from 'moment';
 
 export const command: Command = {
     name: 'whois',
@@ -20,8 +21,8 @@ export const command: Command = {
               { name: 'Nickname on the server', value: message.member.displayName},
               { name: 'Last message', value: message.author.lastMessage, inline: true},
               { name: 'User ID', value: message.author.id},
-              { name: 'Account created at', value: message.author.createdAt},
-              { name: 'Joined server at', value: message.member.joinedAt, inline: true},
+              { name: 'Account created on', value: `<t:${moment(message.author.createdAt).format("X")}:F>`},
+              { name: 'Joined server at', value: `<t:${moment(message.member.joinedAt).format("X")}:F>`, inline: true},
               { name: 'Highest role', value: message.member.roles.highest},
               { name: 'All roles', value: trim(message.member.roles.cache.map(r => `${r}`).join(' | '), 1024), inline: true},
             )
@@ -44,8 +45,8 @@ export const command: Command = {
                     { name: 'Nickname on the server', value: user.displayName},
                     { name: 'Last message', value: user.lastMessage, inline: true},
                     { name: 'User ID', value: user.id},
-                    { name: 'Account created at', value: user.user.createdAt},
-                    { name: 'Joined server at', value: user.joinedAt, inline: true},
+                    { name: 'Account created on', value: `<t:${moment(user.user.createdAt).format("X")}:F>`},
+                    { name: 'Joined server at', value: `<t:${moment(user.joinedAt).format("X")}:F>`, inline: true},
                     { name: 'Highest role', value: user.roles.highest},
                     { name: 'All roles', value: trim(user.roles.cache.map(r => `${r}`).join(' | '), 1024), inline: true},
                 )
@@ -61,7 +62,7 @@ export const command: Command = {
                     .setTimestamp()
                     .addFields(
                         { name: 'User ID', value: globalUser},
-                        { name: 'Account created at', value: globalUser.createdAt},
+                        { name: 'Account created on', value: `<t:${moment(globalUser.createdAt).format("X")}:F>`},
                     )
                     return message.channel.send(embed)
                 } catch {

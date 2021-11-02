@@ -18,7 +18,7 @@ const tenorAPI = axios.create({
 });
 
 export let gfycatToken: string
-
+/*
 async function newToken () {
     const gfycatAuthData = await axios.post(`https://api.gfycat.com/v1/oauth/token`, {"client_id":`${process.env.gfycatclientID}`, "client_secret": `${process.env.gfycatsecret}`, "grant_type": "client_credentials"})
     console.log('The Gfycat Access Token expires in 1 hour')
@@ -28,7 +28,7 @@ async function newToken () {
 newToken()
 
 setInterval(newToken, 3600000)
-
+*/
 export const command: Command = {
     name: 'gif',
     aliases: [],
@@ -165,7 +165,7 @@ export const command: Command = {
                         let j = i;
                         k += 1;
 
-                        const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ''}${current.views} Views\n${moment.unix(current.createDate).format('dddd, MMMM Do YYYY, h:mm A Z')}\nhttps://gfycat.com/${current.gfyName}`
+                        const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ''}${current.views} Views\n<t:${current.createDate}:F>\nhttps://gfycat.com/${current.gfyName}`
                         await axios.get(current.mobileUrl).then(res => {
                             embeds.push(embed)
                         }).catch(error => {

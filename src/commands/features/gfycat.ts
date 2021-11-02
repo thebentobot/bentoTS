@@ -158,7 +158,7 @@ export const command: Command = {
                             let j = i;
                             k += 1;
 
-                            const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ''}${current.views} Views\n${moment.unix(current.createDate).format('dddd, MMMM Do YYYY, h:mm A Z')}\nhttps://gfycat.com/${current.gfyName}`
+                            const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ''}${current.views} Views\n<t:${current.createDate}:F>\nhttps://gfycat.com/${current.gfyName}`
                             await axios.get(current.mobileUrl).then(res => {
                                 embeds.push(embed)
                             }).catch(error => {
@@ -267,7 +267,7 @@ export const command: Command = {
             .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
             .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
             .setDescription(`${await response.data.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.views, 1)}\nPublished Gfycats: ${nFormatter(await response.data.publishedGfycats, 1)}\nPublished Gfycat Albums: ${nFormatter(await response.data.publishedAlbums, 1)}\nFollowers: ${nFormatter(await response.data.followers, 1)}\nFollowing: ${nFormatter(await response.data.following, 1)}\nProfile URL: ${await response.data.profileUrl}`)
-            .setTimestamp(moment.unix(await response.data.createDate).toDate())
+            .setFooter(`Account made on <t:${await response.data.createDate}:F>`)
             return await message.channel.send(embed)
             } catch {
                 return message.channel.send(`Error - couldn't find \`${user}\``)
@@ -347,7 +347,7 @@ export const command: Command = {
                         let j = i;
                         k += 1;
 
-                        const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${`Made by <https://gfycat.com/@${current.username}>`}\n${current.views} Views\n${moment.unix(current.createDate).format('dddd, MMMM Do YYYY, h:mm A Z')}\nhttps://gfycat.com/${current.gfyName}`
+                        const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ''}${`Made by <https://gfycat.com/@${current.username}>`}\n${current.views} Views\n<t:${current.createDate}:F>\nhttps://gfycat.com/${current.gfyName}`
                         await axios.get(current.mobileUrl).then(res => {
                             embeds.push(embed)
                         }).catch(error => {
@@ -407,7 +407,7 @@ export const command: Command = {
                 .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
                 .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
                 .setDescription(`${await response.data.gfyItem.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.gfyItem.views, 1)}\n${response.data.gfyItem.likes} Likes ❤️ \nFrame rate: ${response.data.gfyItem.frameRate}\nWidth & Height: ${response.data.gfyItem.width}x${response.data.gfyItem.height}${response.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response.data.gfyItem.tags.join(', ')}` : ''}`)
-                .setTimestamp(moment.unix(await response.data.gfyItem.createDate).toDate())
+                .setFooter(`Gfycat Post made on <t:${await response.data.gfyItem.createDate}:F>`)
                 if (response.data.gfyItem.userData?.username) {
                     profileEmbed.setAuthor(await response.data.gfyItem.userData.verified ? `${await response.data.gfyItem.userData.username} ✔️` : await response.data.gfyItem.userData.username, await response.data.gfyItem.userData?.profileImageUrl ? response.data.gfyItem.userData?.profileImageUrl : '', `https://gfycat.com/@${response.data.gfyItem.userData.username}`)
                 }

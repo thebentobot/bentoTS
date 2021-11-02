@@ -1,6 +1,7 @@
 import { Command } from '../../interfaces';
 import { Message, MessageEmbed } from 'discord.js';
 import { capitalize, urlToColours } from '../../utils/index';
+import moment from 'moment';
 
 export const command: Command = {
     name: 'serverinfo',
@@ -23,7 +24,7 @@ export const command: Command = {
         .addField('Server boosters', message.guild.premiumSubscriptionCount, true)
         .addField('Text channels | Voice channels', `${message.guild.channels.cache.filter(channel => channel.type === 'text').size} | ${message.guild.channels.cache.filter(channel => channel.type === 'voice').size}`)
         .addField('Amount of roles', message.guild.roles.cache.size)
-        .addField('Created at', message.guild.createdAt)
+        .addField('Created at', `<t:${moment(message.guild.createdAt).format("X")}:F>`)
         .addField('Emotes', `${message.guild.emojis.cache.size} in total.\n${message.guild.emojis.cache.array().filter(e=>e.animated).length} animated emotes.`);
         return message.channel.send(embed)
     }
