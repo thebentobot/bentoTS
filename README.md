@@ -43,20 +43,22 @@ Want to give feedback or got any questions? Join the support server [here](https
 * Either locally run/install [PostgreSQL](https://www.postgresql.org/) or get a PostgreSQL database elsewhere. Other SQL databases may be possible considering Bento uses [Sequelize](https://sequelize.org/), but is not tested and isn't recommended because the code may use PostgreSQL specific features, and it requires additional changes to the code.
 * The creation of the database tabels. An SQL schema file will be provided in the future, but it is possible to recreate the tables by looking through the [Sequelize-auto](https://github.com/sequelize/sequelize-auto) generated models [here](https://github.com/thebentobot/bentoTS/tree/master/src/database/models) 
 
-### Executing Bento 🍱 with Docker
+### Executing Bento 🍱 with Docker locally
 
 * ```docker build -t [NAME] .```
 * ```docker run [NAME]```
 
-#### Executing Bento 🍱 with Docker Compose (to support profiles and lastfm collages)
+#### Executing Bento 🍱 with Docker Compose (to support rank/profile, gfycat, and lastfm collages)
 ```
 version: '3.8'
 
 services:
   bot:
-    image: your-docker-name/image-name:latest
+    image: ghcr.io/thebentobot/bentots:master
     container_name: bento
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - '6969:6969'
     networks: 
