@@ -49,8 +49,6 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/thebentobot/bentots:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: |
             ${{ steps.meta.outputs.labels }}
-            org.opencontainers.image.title="BentoTS"
-            org.opencontainers.image.description="Docker Container for Bento Bot"
