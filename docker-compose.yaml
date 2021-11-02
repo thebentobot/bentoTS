@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   bot:
-    image: eh
+    image: ghcr.io/thebentobot/bentots:master
     container_name: bento
     restart: unless-stopped
     env_file:
