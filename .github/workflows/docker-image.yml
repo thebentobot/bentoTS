@@ -31,7 +31,7 @@ jobs:
       -
         name: Build
         run: |
-          docker build . --file Dockerfile --tag ghcr.io/thebentobot/bentoTS:latest
+          docker build . --file Dockerfile --tag ghcr.io/thebentobot/bentots:latest
       -
         name: Build and push
         id: docker_build
