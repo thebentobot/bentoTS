@@ -9,8 +9,6 @@ import SpotifyWebApi from 'spotify-web-api-node';
 import moment from 'moment';
 import { flag } from 'country-emoji';
 import { getHTMLImage } from '../../utils';
-//import { QueryTypes } from 'sequelize';
-//import { urlToColours } from '../../utils';
 dotenv.config();
 
 const api_key = process.env.lastfm
@@ -25,7 +23,7 @@ let spotifyCred = new SpotifyWebApi({
     clientSecret: process.env.spotifyClientSecret,
     redirectUri: 'http://localhost:3000/auth/spotify/success'
 })
-
+/*
 async function newToken () {
     await spotifyCred.clientCredentialsGrant().then(
         async function(data) {
@@ -44,7 +42,7 @@ async function newToken () {
 newToken()
 
 setInterval(newToken, 3600000)
-
+*/
 export const command: Command = {
     name: 'lastfm',
     aliases: ['fm', 'lf'],

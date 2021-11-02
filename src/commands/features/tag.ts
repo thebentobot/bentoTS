@@ -258,7 +258,7 @@ export const command: Command = {
             initModels(database);
 
             const tagData = await tag.findAndCountAll({raw: true, where: {guildID: message.guild.id}, order: [['command', 'DESC'], ['count', 'DESC']]})
-
+            if (tagData.count === 0) return message.channel.send('This server does not have any tags.')
             let currentPage: number = 0;
             const embeds = await generateTagListEmbed(tagData)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${embeds.length}`, embeds[currentPage]);
@@ -340,6 +340,7 @@ export const command: Command = {
                 initModels(database);
 
                 const randomTag = await tag.findAll({raw: true, where: {guildID: message.guild.id}, order: Sequelize.literal('random()'), limit: 1})
+                if (!randomTag.length) return message.channel.send('No tags found for this server.')
 
                 return message.channel.send(`\`${randomTag[0].command}\`\n${randomTag[0].content}`)
             }
@@ -470,7 +471,7 @@ export const command: Command = {
                 const tagData = await tag.findAndCountAll({raw: true, where : {userID: userID, guildID: message.guild.id}, order: [['command', 'DESC'], ['count', 'DESC']]})
                 commands = tagData.rows
                 commandCount = tagData.count
-                if (tagData === null) {
+                if (tagData?.count === 0) {
                     return message.channel.send(`Your mentioned user ${Util.removeMentions(mentionedUser.nickname) ? `${Util.removeMentions(mentionedUser.nickname)} (${mentionedUser.user.username + '#' + mentionedUser.user.discriminator})` : mentionedUser.user.username + '#' + mentionedUser.user.discriminator} hasn't created any tags.`)
                 }
             } catch {
@@ -479,6 +480,10 @@ export const command: Command = {
                     const tagData = await tag.findAndCountAll({raw: true, where : {userID: userID, guildID: message.guild.id}, order: [['command', 'DESC'], ['count', 'DESC']]})
                     commands = tagData.rows
                     commandCount = tagData.count
+                    if (tagData?.count === 0) {
+                        const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                        return message.channel.send(`You haven't made any tags\nUse \`${guildData.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData.prefix}help tag\` for help with your request.`)
+                    }
                 } catch {
                     const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
                     return message.channel.send(`You haven't made any tags\nUse \`${guildData.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData.prefix}help tag\` for help with your request.`)
@@ -548,6 +553,10 @@ export const command: Command = {
                 const tagData = await tag.findAndCountAll({raw: true, where : {guildID: message.guild.id}, order: [['count', 'DESC']]})
                 commands = tagData.rows
                 commandCount = tagData.count
+                if (tagData?.count === 0) {
+                    const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
+                return message.channel.send(`This server hasn't made any tags\nUse \`${guildData.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData.prefix}help tag\` for help with your request.`)
+                }
             } catch {
                 const guildData = await guild.findOne({raw: true, where : {guildID: message.guild.id}})
                 return message.channel.send(`This server hasn't made any tags\nUse \`${guildData.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData.prefix}help tag\` for help with your request.`)

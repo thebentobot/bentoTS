@@ -28,7 +28,7 @@ export const command: Command = {
         // deletes the messages in the same channel as where it's casted 
         if (!args[1]) {
             await message.channel.messages.fetch({ limit: amount }).then(messages => { // Fetches the messages
-                currentchannel.bulkDelete(messages) // Bulk deletes all messages that have been fetched and are not older than 14 days (due to the Discord API)
+                currentchannel.bulkDelete(messages).catch(() => console.error('bulkdelete past 14 days error')) // Bulk deletes all messages that have been fetched and are not older than 14 days (due to the Discord API)
             });
         }
 
@@ -50,7 +50,7 @@ export const command: Command = {
                         channel.messages.fetch({limit: amount}).then(messages => {
                             messages.filter(m => m.author.id === userID).forEach(msg => deleteMessages.push(msg))
                         })
-                        channel.bulkDelete(deleteMessages)
+                        channel.bulkDelete(deleteMessages).catch(() => console.error('bulkdelete past 14 days error'))
                     }
                 })
                 return message.channel.send(`The messages for ${(await message.guild.members.fetch(userID)).user.username}#${(await message.guild.members.fetch(userID)).user.discriminator} was deleted`)
@@ -64,7 +64,7 @@ export const command: Command = {
                     channel.messages.fetch({limit: amount}).then(messages => {
                         messages.filter(m => m.author.id === userID).forEach(msg => deleteMessages.push(msg))
                     })
-                    channel.bulkDelete(deleteMessages)
+                    channel.bulkDelete(deleteMessages).catch(() => console.error('bulkdelete past 14 days error'))
                     return message.channel.send(`The messages for ${(await message.guild.members.fetch(userID)).user.username}#${(await message.guild.members.fetch(userID)).user.discriminator} was deleted`)
                 } catch {
                     return message.channel.send('Specify a valid channel please.')
@@ -73,7 +73,7 @@ export const command: Command = {
                 const pruneMessages = []
                 await message.channel.messages.fetch({ limit: amount }).then(messages => {
                 messages.filter(m => m.author.id === userID).forEach(msg => pruneMessages.push(msg))
-                currentchannel.bulkDelete(pruneMessages) // Bulk deletes all messages that have been fetched and are not older than 14 days (due to the Discord API)
+                currentchannel.bulkDelete(pruneMessages).catch(() => console.error('bulkdelete past 14 days error')) // Bulk deletes all messages that have been fetched and are not older than 14 days (due to the Discord API)
             });
             return message.channel.send(`The messages for ${(await message.guild.members.fetch(userID)).user.username}#${(await message.guild.members.fetch(userID)).user.discriminator} was deleted`)
             }

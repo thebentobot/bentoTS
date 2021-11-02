@@ -11,7 +11,7 @@ export const command: Command = {
     usage: "say [embed] <input>",
     website: 'https://www.bentobot.xyz/commands#say',
     run: async (client, message, args): Promise<Message> => {
-        await message.delete();
+        await message.delete().catch(() => console.error('bot could not delete message'))
 
         if (!message.member.hasPermission("MANAGE_MESSAGES"))
           return message.channel.send("You do not have permission to use this command.").then((m) => m.delete({ timeout: 5000 }));

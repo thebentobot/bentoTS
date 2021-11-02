@@ -287,12 +287,14 @@ export const command: Command = {
                     errors.push(roleCommand);
                 } else {
                     const roleData = await role.findOne({where: {roleCommand: roleCommand, guildID: message.guild.id, type: type}})
-                    if (!roleData) {
+                    if (roleData === null) {
                         rolesNotExisting.push(roleCommand)
+                        break;
                     }
                     const removed = await role.destroy({where: {roleCommand: roleCommand, guildID: message.guild.id, type: type}})
                     if (removed > 0) {
                         rolesRemoved.push(roleCommand);
+                        break;
                     }
                     const roleCheck = await role.findAndCountAll({raw: true, where: {guildID: message.guild.id, roleName: roleData?.roleName, type: roleData?.type}})
                     if (roleCheck?.count === 0) {

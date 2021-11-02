@@ -62,16 +62,13 @@ export const command: Command = {
         }
 
         if (args[0] == 'list') {
-            try {
-                const roles = await autoRole.findAll({where: { guildID: message.guild.id}});
-                const iterator = roles.values();
+            const roles = await autoRole.findAll({where: { guildID: message.guild.id}});
+            if (!roles.length) return message.channel.send(`You don't have any auto roles saved.`)
+            const iterator = roles.values();
 
-                for (const value of iterator) {
-                    message.channel.send(`<@&${value.roleID}>`)
-                }
-            } catch {
-                return message.channel.send(`You don't have any auto roles saved.`)
-            }
+            for (const value of iterator) {
+                message.channel.send(`<@&${value.roleID}>`)
+            } 
         }
     }
 }

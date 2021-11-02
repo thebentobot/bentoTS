@@ -51,6 +51,7 @@ export const command: Command = {
                 replacements: { guild: message.guild.id },
                 type: QueryTypes.SELECT
             });
+            if (!serverRank.length) return message.channel.send('error')
             let currentPage = 0;
             const embeds = generateServerLBembed(serverRank, message)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${(await embeds).length}`, (await embeds)[currentPage]);
@@ -138,6 +139,7 @@ export const command: Command = {
             GROUP BY t.bento, u.username, u.discriminator
             ORDER BY t.bento DESC
             LIMIT 50;`, {type: QueryTypes.SELECT});
+            if (!bentoRank.length) return message.channel.send('error')
             let currentPage = 0;
             const embeds = generateGlobalBentoEmbed(bentoRank, message)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${(await embeds).length}`, (await embeds)[currentPage]);
@@ -187,6 +189,7 @@ export const command: Command = {
                 replacements: { guild: message.guild.id },
                 type: QueryTypes.SELECT
             });
+            if (!serverRank.length) return message.channel.send('error')
             let currentPage = 0;
             const embeds = generateServerBentoEmbed(serverRank, message)
             const queueEmbed = await message.channel.send(`Current Page: ${currentPage+1}/${(await embeds).length}`, (await embeds)[currentPage]);

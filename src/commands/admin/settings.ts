@@ -30,8 +30,8 @@ export const command: Command = {
 
         const modLogText = modLogData ? `<#${modLogData.channel}>`: 'Not configured';
         const msgLogText = messageLogData ? `<#${messageLogData.channel}>`: 'Not configured';
-        const byeDataText = byeData ? `Enabled in <#${byeData.channel}>`: 'Disabled';
-        const welcomeDataText = welcomeData ? `Enabled in <#${welcomeData.channel}>`: 'Disabled';
+        const byeDataText = byeData?.channel && byeData?.message ? `Enabled in <#${byeData.channel}>`: 'Disabled';
+        const welcomeDataText = welcomeData?.channel && welcomeData?.message ? `Enabled in <#${welcomeData.channel}>`: 'Disabled';
         const muteRoleDataText = muteRoleData ? `<@&${muteRoleData.roleID}>`: 'Not configured';
 
         const Embed = new MessageEmbed()
@@ -45,8 +45,8 @@ export const command: Command = {
         .addField('Leaderboard', `${guildData.leaderboard ? 'Enabled' : 'Disabled'}`, true)
         .addField('Server name enabled for global cases', `${caseGlobalData.serverName ? 'Enabled' : 'Disabled'}`, true)
         .addField('Case reasons enabled for global cases', `${caseGlobalData.reason ? 'Enabled' : 'Disabled'}`, true)
-        .addField('Welcome Messages', `${byeDataText}`, true)
-        .addField('Bye Messages', `${welcomeDataText}`, true)
+        .addField('Welcome Messages', `${welcomeDataText}`, true)
+        .addField('Bye Messages', `${byeDataText}`, true)
         .addField('Mod log channel', `${modLogText}`, true)
         .addField('Message log channel', `${msgLogText}`, true)
         .addField('Mute role', `${muteRoleDataText}`, true)

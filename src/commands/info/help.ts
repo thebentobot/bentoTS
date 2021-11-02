@@ -46,7 +46,7 @@ export const command: Command = {
         
             const embed = new MessageEmbed()
         
-            const cmd = client.commands.get(input.toLowerCase()) || client.commands.get(`${client.aliases.get(input.toLowerCase()).name}`);
+            const cmd = client.commands.get(input.toLowerCase()) || client.commands.get(`${client.aliases.get(input.toLowerCase())?.name}`);
         
             let info = `No information found for command **${input.toLowerCase()}**`;
         

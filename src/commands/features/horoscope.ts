@@ -220,6 +220,7 @@ export const command: Command = {
 
             let userID: string;
             let sign: string;
+            let horoscopeUserLookUp: boolean = false
 
             if (horoSigns.includes(input) || horoSignsLow.includes(input)) {
                 sign = input
@@ -228,8 +229,12 @@ export const command: Command = {
                 const mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(input);
                 if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
-                const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
-                sign = horoData.horoscope
+                try {
+                    const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
+                    sign = horoData.horoscope
+                } catch {
+                    return message.channel.send(`${mentionedUser.user.username}#${mentionedUser.user.discriminator} hasn't saved their horoscope.`)
+                }
                 } catch {
                     try {
                         const horoData = await horoscope.findOne({raw: true, where : {userID: message.author.id}})
@@ -278,8 +283,12 @@ export const command: Command = {
                     const mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(input);
                     if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
-                const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
-                sign = horoData.horoscope
+                try {
+                    const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
+                    sign = horoData.horoscope
+                } catch {
+                    return message.channel.send(`${mentionedUser.user.username}#${mentionedUser.user.discriminator} hasn't saved their horoscope.`)
+                }
                 } catch {
                     try {
                         const horoData = await horoscope.findOne({raw: true, where : {userID: message.author.id}})
@@ -328,8 +337,12 @@ export const command: Command = {
                     const mentionedUser = message.mentions.members.has(client.user.id) ? (message.mentions.members.size > 1 ? message.mentions.members.last() : message.member) : message.mentions.members.first() || await message.guild.members.fetch(input);
                     if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
                 userID = mentionedUser.id
-                const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
-                sign = horoData.horoscope
+                try {
+                    const horoData = await horoscope.findOne({raw: true, where : {userID: userID}})
+                    sign = horoData.horoscope
+                } catch {
+                    return message.channel.send(`${mentionedUser.user.username}#${mentionedUser.user.discriminator} hasn't saved their horoscope.`)
+                }
                 } catch {
                     try {
                         const horoData = await horoscope.findOne({raw: true, where : {userID: message.author.id}})

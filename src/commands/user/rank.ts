@@ -392,10 +392,6 @@ export const command: Command = {
             emoteArray.push(randomEmotes[Math.floor(Math.random()*randomEmotes.length)])
 
             let bentoServerMemberData = await guildMemberDB.findAll({raw: true, where: {guildID: '714496317522444352'}})
-
-            if (message.guild.iconURL()) {
-                emoteArray.push(emoteFunction(message.guild.iconURL({format: 'png'})))
-            }
             
             if (bentoServerMemberData.some(user => user.userID == userID)) {
                 emoteArray.push('🍱')

@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  bot:
+    image: eh
+    container_name: bento
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - '6969:6969'
+    networks: 
+      - bento_net
+      - web
+  sushii-image-server:
+    image: ghcr.io/sushiibot/sushii-image-server:latest
+    container_name: sushii-image-server
+    restart: unless-stopped
+    init: true
+    cap_add:
+        - SYS_ADMIN
+    expose:
+        - "3000"
+    networks:
+        - bento_net 
+
+networks:
+  web:
+    internal: false
+  bento_net:
+    external: false

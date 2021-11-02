@@ -135,7 +135,7 @@ export const event: Event = {
                         .setTimestamp();
                         await logChannel.send(embed);
                         try {
-                            (await client.users.fetch(`${unmute.userID}`)).send(`🙏You were automatically \`unmuted\` from **${guild.name}**`).catch(error => { console.error(`Could not send unmute DM`, error)})
+                            (await client.users.fetch(`${unmute.userID}`)).send(`🙏You were automatically \`unmuted\` from **${guild.name}**`).catch(() => console.error('Could not send unmute DM'))
                             await member.roles.remove(role)
                             await mute.update({MuteStatus: false}, {where: {userID: unmute.userID, guildID: unmute.guildID, MuteStatus: true}})
                         } catch {
@@ -144,7 +144,7 @@ export const event: Event = {
                         }
                     } catch {
                         try {
-                            (await client.users.fetch(`${unmute.userID}`)).send(`🙏You were automatically \`unmuted\` from **${guild.name}**`).catch(error => { console.error(`Could not send unmute DM`, error)})
+                            (await client.users.fetch(`${unmute.userID}`)).send(`🙏You were automatically \`unmuted\` from **${guild.name}**`).catch(() => console.error('Could not send unmute DM'))
                             await member.roles.remove(role)
                             await mute.update({MuteStatus: false}, {where: {userID: unmute.userID, guildID: unmute.guildID, MuteStatus: true}})
                         } catch {
@@ -182,7 +182,7 @@ export const event: Event = {
                     let user: User;
                     try {
                         user = client.users.cache.get(`${remind.userID}`)
-                        await user.send(`**Reminder!** ${remind.reminder}`).catch(error => { console.error(`Could not send unmute DM`, error)})
+                        await user.send(`**Reminder!** ${remind.reminder}`).catch(() => console.error('Could not send reminder DM'))
                         await reminder.destroy({where: {id: remind.id, userID: remind.userID, reminder: remind.reminder, date: remind.date}})
                     } catch {
                         return
