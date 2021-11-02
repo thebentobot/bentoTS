@@ -13,12 +13,13 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
-      -
-        name: Login to DockerHub
-        uses: docker/login-action@v1 
+      - 
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.PAT }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -30,7 +31,7 @@ jobs:
       -
         name: Build
         run: |
-          docker build . --file Dockerfile --tag bentobot:$(date +%s) # will run buildx
+          docker build . --file Dockerfile --tag ghcr.io/thebentobot/bentoTS:latest
       -
         name: Build and push
         id: docker_build
@@ -38,4 +39,4 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: user/app:latest
+          tags: ghcr.io/thebentobot/bentoTS:latest
