@@ -134,7 +134,7 @@ export const command: Command = {
             })
 
             if (!caseQuery.length) {
-                return message.channel.send(!global ? `${message.guild.members.cache.get(userID).nickname ? `${message.guild.members.cache.get(userID).nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}(userID: ${userID}) does not have any ${caseType} cases.` : `${client.users.cache.get(`${userID}`).username}#${client.users.cache.get(`${userID}`).discriminator}(userID: ${userID}) does not have any ${caseType} cases.`)
+                return message.channel.send(!global ? `${message.guild.members.cache.get(userID)?.nickname ? `${message.guild.members.cache.get(userID)?.nickname} (${message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator})` : message.guild.members.cache.get(userID).user.username + '#' + message.guild.members.cache.get(userID).user.discriminator}(userID: ${userID}) does not have any ${caseType} cases.` : `${client.users.cache.get(`${userID}`).username}#${client.users.cache.get(`${userID}`).discriminator}(userID: ${userID}) does not have any ${caseType} cases.`)
             }
 
             let caseWording: string
@@ -198,7 +198,7 @@ export const command: Command = {
 
                     try {
                         const data = message.guild.members.cache.get(`${current.actor}`) as GuildMember
-                        actorNickname = data.nickname ? data.nickname : ``
+                        actorNickname = data?.nickname ? data?.nickname : ``
                         actorUsername = data.user.username
                         actorDiscri = data.user.discriminator
                         //actorPfp = data.user.avatarURL({format: 'png', dynamic: true})
@@ -216,7 +216,7 @@ export const command: Command = {
                     }
                     try {
                         const data = message.guild.members.cache.get(`${current.userID}`) as GuildMember
-                        caseUserNickname = data.nickname ? data.nickname : ``
+                        caseUserNickname = data?.nickname ? data?.nickname : ``
                         caseUsername = data.user.username
                         caseUserDiscri = data.user.discriminator
                         caseUserPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})
@@ -302,7 +302,7 @@ export const command: Command = {
                 let caseUserPfp;
                 try {
                     const data = message.guild.members.cache.get(`${userID}`) as GuildMember
-                    caseUserNickname = data.nickname ? data.nickname : ``
+                    caseUserNickname = data?.nickname ? data?.nickname : ``
                     caseUsername = data.user.username
                     caseUserDiscri = data.user.discriminator
                     caseUserPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})
@@ -392,7 +392,7 @@ export const command: Command = {
 
             try {
                 const data = message.guild.members.cache.get(`${caseQuery[0].actor}`) as GuildMember
-                actorNickname = data.nickname ? data.nickname : ``
+                actorNickname = data?.nickname ? data?.nickname : ``
                 actorUsername = data.user.username
                 actorDiscri = data.user.discriminator
                 actorPfp = data.user.avatarURL({format: 'png', dynamic: true})
@@ -410,7 +410,7 @@ export const command: Command = {
             }
             try {
                 const data = message.guild.members.cache.get(`${caseQuery[0].userID}`) as GuildMember
-                caseUserNickname = data.nickname ? data.nickname : ``
+                caseUserNickname = data?.nickname ? data?.nickname : ``
                 caseUsername = data.user.username
                 caseUserDiscri = data.user.discriminator
                 caseUserPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})
@@ -531,7 +531,7 @@ export const command: Command = {
 
             try {
                 const data = message.guild.members.cache.get(`${testCaseQuery[0].actor}`) as GuildMember
-                actorNickname = data.nickname ? data.nickname : ``
+                actorNickname = data?.nickname ? data?.nickname : ``
                 actorUsername = data.user.username
                 actorDiscri = data.user.discriminator
             } catch {
@@ -546,7 +546,7 @@ export const command: Command = {
             }
             try {
                 const data = message.guild.members.cache.get(`${testCaseQuery[0].userID}`) as GuildMember
-                caseUserNickname = data.nickname ? data.nickname : ``
+                caseUserNickname = data?.nickname ? data?.nickname : ``
                 caseUsername = data.user.username
                 caseUserDiscri = data.user.discriminator
                 caseUserPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})
@@ -915,7 +915,7 @@ export const command: Command = {
 
             try {
                 const data = message.guild.members.cache.get(`${testCaseQuery[0].actor}`) as GuildMember
-                actorNickname = data.nickname ? data.nickname : ``
+                actorNickname = data?.nickname ? data?.nickname : ``
                 actorUsername = data.user.username
                 actorDiscri = data.user.discriminator
                 actorPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})
@@ -933,7 +933,7 @@ export const command: Command = {
             }
             try {
                 const data = message.guild.members.cache.get(`${testCaseQuery[0].userID}`) as GuildMember
-                caseUserNickname = data.nickname ? data.nickname : ``
+                caseUserNickname = data?.nickname ? data?.nickname : ``
                 caseUsername = data.user.username
                 caseUserDiscri = data.user.discriminator
                 caseUserPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})
@@ -1062,9 +1062,9 @@ export const command: Command = {
                         logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel;
                         const deletedDataEmbed = new MessageEmbed()
                         deletedDataEmbed.setColor(`${await urlToColours(client.user.avatarURL({format: 'png'}))}`)
-                        deletedDataEmbed.setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
+                        deletedDataEmbed.setAuthor(message.guild.members.cache.get(message.author.id)?.nickname ? `${message.guild.members.cache.get(message.author.id)?.nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
                         deletedDataEmbed.setThumbnail(caseUserPfp)
-                        deletedDataEmbed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}: ${caseUserNickname ? `${caseUserNickname}(${caseUsername}#${caseUserDiscri})` : `${caseUsername}#${caseUserDiscri}`} was successfully deleted by ${message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`}`)
+                        deletedDataEmbed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}: ${caseUserNickname ? `${caseUserNickname}(${caseUsername}#${caseUserDiscri})` : `${caseUsername}#${caseUserDiscri}`} was successfully deleted by ${message.guild.members.cache.get(message.author.id)?.nickname ? `${message.guild.members.cache.get(message.author.id)?.nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`}`)
                         deletedDataEmbed.setDescription(`**Deleted information below**`)
                         deletedDataEmbed.addField('Username', caseUserNickname ? `${caseUserNickname}(${caseUsername}#${caseUserDiscri})` : `${caseUsername}#${caseUserDiscri}`)
                         deletedDataEmbed.addField('User ID', testCaseQuery[0].userID)
@@ -1217,7 +1217,7 @@ export const command: Command = {
 
                     try {
                         const data = message.guild.members.cache.get(`${current.actor}`) as GuildMember
-                        actorNickname = data.nickname ? data.nickname : ``
+                        actorNickname = data?.nickname ? data?.nickname : ``
                         actorUsername = data.user.username
                         actorDiscri = data.user.discriminator
                         //actorPfp = data.user.avatarURL({format: 'png', dynamic: true})
@@ -1235,7 +1235,7 @@ export const command: Command = {
                     }
                     try {
                         const data = message.guild.members.cache.get(`${current.userID}`) as GuildMember
-                        caseUserNickname = data.nickname ? data.nickname : ``
+                        caseUserNickname = data?.nickname ? data?.nickname : ``
                         caseUsername = data.user.username
                         caseUserDiscri = data.user.discriminator
                         caseUserPfp = data.user.avatarURL({format: 'png', size: 1024, dynamic: true})

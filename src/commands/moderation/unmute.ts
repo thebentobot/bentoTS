@@ -67,17 +67,17 @@ export const command: Command = {
                 logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel;
                 const embed = new MessageEmbed()
                 .setColor('#00ff4a')
-                .setAuthor(message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
+                .setAuthor(message.guild.members.cache.get(message.author.id)?.nickname ? `${message.guild.members.cache.get(message.author.id)?.nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`, message.author.avatarURL())
                 .setThumbnail(unmutedUser.user.avatarURL())
-                .setTitle(`${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`} was unmuted!`)
+                .setTitle(`${unmutedUser?.nickname ? `${unmutedUser?.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`} was unmuted!`)
                 .setDescription(`**Reason for unmute**\n${reason ? reason : 'No reason for the unmute specified'}`)
                 .addField('Username', unmutedUserObject.username + '#' + unmutedUserObject.discriminator)
                 .addField('User ID', unmutedUser.id)
-                .addField('Muted by', message.guild.members.cache.get(`${muted.actor}`).nickname ? `${message.guild.members.cache.get(`${muted.actor}`).nickname} (${message.guild.members.cache.get(`${muted.actor}`).user.username}#${message.guild.members.cache.get(`${muted.actor}`).user.discriminator})` : `${(await client.users.fetch(`${muted.actor}`)).username}#${(await client.users.fetch(`${muted.actor}`)).discriminator}`)
+                .addField('Muted by', message.guild.members.cache.get(`${muted.actor}`)?.nickname ? `${message.guild.members.cache.get(`${muted.actor}`)?.nickname} (${message.guild.members.cache.get(`${muted.actor}`).user.username}#${message.guild.members.cache.get(`${muted.actor}`).user.discriminator})` : `${(await client.users.fetch(`${muted.actor}`)).username}#${(await client.users.fetch(`${muted.actor}`)).discriminator}`)
                 .addField('Mute date', `<t:${moment(muted.date).format('X')}:F>`)
                 .addField('Original mute end date', muted.muteEnd != null ? `<t:${moment(muted.muteEnd).format('X')}:F>` : 'The mute was on indefinite time')
                 .addField('Reason for mute', muted.reason != null ? 'No reason specified for mute' : muted.reason)
-                .addField('Unmuted by', message.guild.members.cache.get(message.author.id).nickname ? `${message.guild.members.cache.get(message.author.id).nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
+                .addField('Unmuted by', message.guild.members.cache.get(message.author.id)?.nickname ? `${message.guild.members.cache.get(message.author.id)?.nickname} (${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator})` : `${message.guild.members.cache.get(message.author.id).user.username}#${message.guild.members.cache.get(message.author.id).user.discriminator}`)
                 .addField('Notes about the mute case', muted.note ? muted.note : 'No notes made for this mute case')
                 .setFooter(`Mute Case Number: ${muted.muteCase}`)
                 .setTimestamp();
@@ -86,22 +86,22 @@ export const command: Command = {
                     (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(() => console.error('Could not send unmute DM'))
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
-                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
+                    return await message.channel.send(`**${unmutedUser?.nickname ? `${unmutedUser?.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 } catch {
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
-                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
+                    return await message.channel.send(`**${unmutedUser?.nickname ? `${unmutedUser?.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 }
             } catch {
                 try {
                     (await client.users.fetch(unmutedUserID)).send(`🙏You were \`unmuted\` from **${message.guild.name}** \n**Reason**: ${reason ? reason : 'No reason for the unmute specified'}.`).catch(() => console.error('Could not send unmute DM'))
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
-                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
+                    return await message.channel.send(`**${unmutedUser?.nickname ? `${unmutedUser?.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 } catch {
                     await unmutedUser.roles.remove(role)
                     await mute.update({MuteStatus: false}, {where: {userID: unmutedUserID, guildID: message.guild.id, MuteStatus: true}})
-                    return await message.channel.send(`**${unmutedUser.nickname ? `${unmutedUser.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
+                    return await message.channel.send(`**${unmutedUser?.nickname ? `${unmutedUser?.nickname} (${unmutedUser.user.username}#${unmutedUser.user.discriminator})` : `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`}** was successfully **unmuted** on this server.\n**Reason:** ${reason ? reason : 'No reason for the unmuted specified'}.`)
                 }
             }
         }

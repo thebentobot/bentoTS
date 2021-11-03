@@ -266,8 +266,7 @@ export const command: Command = {
             .setTitle(await response.data.name)
             .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
             .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
-            .setDescription(`${await response.data.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.views, 1)}\nPublished Gfycats: ${nFormatter(await response.data.publishedGfycats, 1)}\nPublished Gfycat Albums: ${nFormatter(await response.data.publishedAlbums, 1)}\nFollowers: ${nFormatter(await response.data.followers, 1)}\nFollowing: ${nFormatter(await response.data.following, 1)}\nProfile URL: ${await response.data.profileUrl}`)
-            .setFooter(`Account made on <t:${await response.data.createDate}:F>`)
+            .setDescription(`${await response.data.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.views, 1)}\nPublished Gfycats: ${nFormatter(await response.data.publishedGfycats, 1)}\nPublished Gfycat Albums: ${nFormatter(await response.data.publishedAlbums, 1)}\nFollowers: ${nFormatter(await response.data.followers, 1)}\nFollowing: ${nFormatter(await response.data.following, 1)}\nAccount made on <t:${await response.data.createDate}:F>\nProfile URL: ${await response.data.profileUrl}`)
             return await message.channel.send(embed)
             } catch {
                 return message.channel.send(`Error - couldn't find \`${user}\``)
@@ -406,8 +405,7 @@ export const command: Command = {
                 .setTitle(await response.data.gfyItem.gfyName)
                 .attachFiles([{name: `${response.data.username}_gfypfp.png`, attachment: profilePicture}])
                 .setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
-                .setDescription(`${await response.data.gfyItem.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.gfyItem.views, 1)}\n${response.data.gfyItem.likes} Likes ❤️ \nFrame rate: ${response.data.gfyItem.frameRate}\nWidth & Height: ${response.data.gfyItem.width}x${response.data.gfyItem.height}${response.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response.data.gfyItem.tags.join(', ')}` : ''}`)
-                .setFooter(`Gfycat Post made on <t:${await response.data.gfyItem.createDate}:F>`)
+                .setDescription(`${await response.data.gfyItem.description.length > 0 ? `${await response.data.description}\n\n` : ``}Total Views: ${nFormatter(await response.data.gfyItem.views, 1)}\n${response.data.gfyItem.likes} Likes ❤️ \nGfycat Post made on <t:${await response.data.gfyItem.createDate}:F>\nFrame rate: ${response.data.gfyItem.frameRate}\nWidth & Height: ${response.data.gfyItem.width}x${response.data.gfyItem.height}${response.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response.data.gfyItem.tags.join(', ')}` : ''}`)
                 if (response.data.gfyItem.userData?.username) {
                     profileEmbed.setAuthor(await response.data.gfyItem.userData.verified ? `${await response.data.gfyItem.userData.username} ✔️` : await response.data.gfyItem.userData.username, await response.data.gfyItem.userData?.profileImageUrl ? response.data.gfyItem.userData?.profileImageUrl : '', `https://gfycat.com/@${response.data.gfyItem.userData.username}`)
                 }

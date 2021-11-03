@@ -38,7 +38,7 @@ export const command: Command = {
                 .addField('Want to check out the code for Bento 🍱?', 'https://github.com/thebentobot/bentoTS')
                 .addField('Need help? Or do you have some ideas or feedback to Bento 🍱? Feel free to join the support server', 'https://discord.gg/dd68WwP')
                 .setFooter('Bento 🍱 is created by Banner#1017', (await client.users.fetch('232584569289703424')).avatarURL({dynamic: true}))
-            await message.channel.send(embed);
+            await message.channel.send(embed).catch(error => { console.error(`Could not send message, missing permission`, error)})
         }
 
         async function getCMD(client: ExtendedClient, message: Message, input: any) {
@@ -64,7 +64,7 @@ export const command: Command = {
             }
             if (cmd.website) info += `\n**Website**: ${cmd.website}`;
         
-            return message.channel.send(embed.setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`).setDescription(info));
+            return message.channel.send(embed.setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`).setDescription(info)).catch(error => { console.error(`Could not send message, missing permission`, error)});
         }
     }
 }

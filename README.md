@@ -41,7 +41,7 @@ Want to give feedback or got any questions? Join the support server [here](https
 ### Installing the database side of Bento 🍱
 
 * Either locally run/install [PostgreSQL](https://www.postgresql.org/) or get a PostgreSQL database elsewhere. Other SQL databases may be possible considering Bento uses [Sequelize](https://sequelize.org/), but is not tested and isn't recommended because the code may use PostgreSQL specific features, and it requires additional changes to the code.
-* The creation of the database tabels. An SQL DDL schema file can be found [here](https://github.com/thebentobot/bentoTS/blob/master/src/database/DDL.sql)
+* The creation of the database tables. An SQL DDL schema file can be found [here](https://github.com/thebentobot/bentoTS/blob/master/src/database/DDL.sql)
 
 ### Executing Bento 🍱 with Docker locally
 

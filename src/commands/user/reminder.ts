@@ -172,8 +172,7 @@ export const command: Command = {
                     const embed = new MessageEmbed()
                     embed.setAuthor('Reminder', client.user.avatarURL({format: 'png'}))
                     embed.setColor(`${await urlToColours(message.author.avatarURL({format:'png'}))}`)
-                    embed.setDescription(`${current.reminder}`)
-                    embed.setFooter(`Remind Date: <t:${moment(current.date).format('X')}:R>`)
+                    embed.setDescription(`${current.reminder}\n\nRemind Date: <t:${moment(current.date).format('X')}:R>`)
                     embed.setTitle(`${capitalize(moment(now).to(current.date))}`)
                     embed.setThumbnail(message.author.avatarURL({format: 'png', size: 1024, dynamic: true}));
                     embeds.push(embed)

@@ -24,7 +24,7 @@ export const command: Command = {
         if (!choice) return message.channel.send(`How to play: \`${guildData.prefix}rps <rock|paper|scissors>\``);
         if (!acceptedReplies.includes(choice)) return message.channel.send(`Only these responses are accepted: \`${acceptedReplies.join(', ')}\``);
         
-        const username = message.member.nickname ? message.member.nickname : message.author.username
+        const username = message.member?.nickname ? message.member?.nickname : message.author.username
 
         message.channel.send(bentoResult)
 

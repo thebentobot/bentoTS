@@ -284,7 +284,7 @@ export const command: Command = {
             
             const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
             const statusEmbed = new MessageEmbed()
-            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTimestamp()
             .setDescription(`
@@ -329,7 +329,7 @@ export const command: Command = {
             
             const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
             const statusEmbed = new MessageEmbed()
-            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTimestamp()
             .setDescription(`
@@ -498,7 +498,7 @@ export const command: Command = {
             
             const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
             const statusEmbed = new MessageEmbed()
-            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTimestamp()
             .setDescription(`
@@ -1102,7 +1102,7 @@ export const command: Command = {
             
             const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
             const statusEmbed = new MessageEmbed()
-            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTimestamp()
             .setDescription(`
@@ -1176,7 +1176,7 @@ export const command: Command = {
             
             const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
             const statusEmbed = new MessageEmbed()
-            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTimestamp()
             .setDescription(`
@@ -1402,7 +1402,7 @@ export const command: Command = {
             
             const userData = await profile.findOrCreate({raw: true, where: {userID: message.author.id}, defaults: {userID: BigInt(message.author.id)}})
             const statusEmbed = new MessageEmbed()
-            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTimestamp()
             .setDescription(`
@@ -1465,7 +1465,7 @@ export const command: Command = {
             initModels(database);
 
             const statusEmbed = new MessageEmbed()
-            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
             .setTimestamp()
             .setTitle('Are you sure you want to delete your saved profile?')
@@ -1483,13 +1483,13 @@ export const command: Command = {
                         const profileDelete = await profile.destroy({where: {userID: message.author.id}})
                         if (profileDelete === 0) {
                             newEmbed = new MessageEmbed()
-                            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+                            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
                             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
                             .setTimestamp()
                             .setTitle(`Error deleting your profile.\nEither a Database problem or your profile not existing`)
                         } else {
                             newEmbed = new MessageEmbed()
-                            .setAuthor(message.member.nickname ? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
+                            .setAuthor(message.member?.nickname ? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})` : `${message.author.username}#${message.author.discriminator}`, message.author.avatarURL({dynamic: true}))
                             .setColor(`${await urlToColours(client.user.avatarURL({ format: 'png'}))}`)
                             .setTimestamp()
                             .setTitle(`Your profile was successfully deleted.`)

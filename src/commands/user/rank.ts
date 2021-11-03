@@ -194,7 +194,7 @@ export const command: Command = {
                             <img src="${usernameEmbed ? (usernameEmbed.recenttracks ? usernameEmbed.recenttracks.track[0].image[0]['#text'] : 'https://cdn.discordapp.com/avatars/787041583580184609/fb64cda098372e05fc6945b9d17386dc.png?size=1024') : 'https://cdn.discordapp.com/avatars/787041583580184609/fb64cda098372e05fc6945b9d17386dc.png?size=1024'}" width="36" height="36" style="float:left">
                             <div>
                                 <div class="fmSongText">
-                                ${usernameEmbed ? (usernameEmbed.recenttracks ? usernameEmbed.recenttracks.track[0].name : `${discordUser.nickname ? discordUser.nickname : `${discordUser.user.username}#${discordUser.user.discriminator}`} has not set their lastfm`) : `${discordUser.nickname ? discordUser.nickname : `${discordUser.user.username}#${discordUser.user.discriminator}`} has not set their lastfm`}
+                                ${usernameEmbed ? (usernameEmbed.recenttracks ? usernameEmbed.recenttracks.track[0].name : `${discordUser?.nickname ? discordUser?.nickname : `${discordUser.user.username}#${discordUser.user.discriminator}`} has not set their lastfm`) : `${discordUser?.nickname ? discordUser?.nickname : `${discordUser.user.username}#${discordUser.user.discriminator}`} has not set their lastfm`}
                                 </div>
                                 <div class="fmArtistText">
                                 ${usernameEmbed ? (usernameEmbed.recenttracks ? usernameEmbed.recenttracks.track[0].artist['#text'] : 'You can either set your lastfm or disable the lastfm board 😏') : 'You can either set your lastfm or disable the lastfm board 😏'}
@@ -361,8 +361,8 @@ export const command: Command = {
             // red for testing #FF0000
 
             const avatar = discordUser.user.avatarURL({size: 128, format: 'png'}) ? discordUser.user.avatarURL({size: 128, format: 'png'}) : `https://cdn.discordapp.com/embed/avatars/${Number(discordUser.user.discriminator) % 5}.png`
-            const usernameSlot = discordUser.nickname ? discordUser.nickname : discordUser.user.username
-            const discriminatorSlot = discordUser.nickname ? `${discordUser.user.username}#${discordUser.user.discriminator}` : `#${discordUser.user.discriminator}`
+            const usernameSlot = discordUser?.nickname ? discordUser?.nickname : discordUser.user.username
+            const discriminatorSlot = discordUser?.nickname ? `${discordUser.user.username}#${discordUser.user.discriminator}` : `#${discordUser.user.discriminator}`
             const usernameSize = usernameSizeFunction(usernameSlot)
             const xpServer = serverRankUser[0].xp as number
             const xpGlobal = globalRankUser[0].xp as number
