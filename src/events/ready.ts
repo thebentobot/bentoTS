@@ -11,6 +11,7 @@ import express from 'express'
 import * as dotenv from "dotenv";
 import http from 'http'
 import { bento, bentoCreationAttributes } from '../database/models/bento';
+import axios from "axios";
 dotenv.config();
 //import fs from 'fs'
 
@@ -25,7 +26,8 @@ export const event: Event = {
         }, 3600000);
         */
         async function clientStatus() {
-            client.user.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {type: 'PLAYING'})
+            await client.user.setActivity(`🍱 - Serving on ${await client.guilds.cache.size} servers`, {type: 'PLAYING'})
+            await axios.post(`https://top.gg/api/bots/${client.user.id}/stats`, {server_count: client.guilds.cache.size}, {headers: {"Authorization": `${process.env.topggToken}`}})
         }
 
         clientStatus()
