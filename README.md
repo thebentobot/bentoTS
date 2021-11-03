@@ -1,4 +1,5 @@
 [![Docker Image CI](https://github.com/thebentobot/bentoTS/actions/workflows/docker-image.yml/badge.svg?branch=master)](https://github.com/thebentobot/bentoTS/actions/workflows/docker-image.yml)
+[![Discord Bots](https://top.gg/api/widget/upvotes/787041583580184609.svg)](https://top.gg/bot/787041583580184609)
 # [Invite Bento 🍱 to your own server here!](https://discord.com/api/oauth2/authorize?client_id=787041583580184609&permissions=261926943991&scope=bot%20applications.commands)
 
 # Bento 🍱
