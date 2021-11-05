@@ -1,2 +1,28 @@
-export const horoSigns = ["Aries" , "Taurus" , "Gemini" , "Cancer" , "Leo" , "Virgo" , "Libra" , "Scorpio" , "Sagittarius" , "Capricorn" , "Aquarius" , "Pisces"]
-export const horoSignsLow = ["aries" , "taurus" , "gemini" , "cancer" , "leo" , "virgo" , "libra" , "scorpio" , "sagittarius" , "sapricorn" , "aquarius" , "pisces"]
+export const horoSigns = [
+	`Aries`,
+	`Taurus`,
+	`Gemini`,
+	`Cancer`,
+	`Leo`,
+	`Virgo`,
+	`Libra`,
+	`Scorpio`,
+	`Sagittarius`,
+	`Capricorn`,
+	`Aquarius`,
+	`Pisces`,
+]
+export const horoSignsLow = [
+	`aries`,
+	`taurus`,
+	`gemini`,
+	`cancer`,
+	`leo`,
+	`virgo`,
+	`libra`,
+	`scorpio`,
+	`sagittarius`,
+	`sapricorn`,
+	`aquarius`,
+	`pisces`,
+]

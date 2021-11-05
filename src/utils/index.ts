@@ -1,11 +1,11 @@
-export { nFormatter } from './nFormatter';
-export { capitalize } from './capitalize';
-export { checkURL } from './checkURL';
-export { ttEmbedding } from './tt';
-export { trim } from './trim';
-export { addXpGlobal, addXpServer} from './xp';
-export { horoSigns, horoSignsLow } from './horoSigns';
-export { getTimeRemaining } from './getTimeRemaining';
-export { urlToColours } from './urlToColours';
-export { answers } from './8ballAnswers';
-export { getHTMLImage } from './sushii-html';
+export { nFormatter } from './nFormatter'
+export { capitalize } from './capitalize'
+export { checkURL } from './checkURL'
+export { ttEmbedding } from './tt'
+export { trim } from './trim'
+export { addXpGlobal, addXpServer } from './xp'
+export { horoSigns, horoSignsLow } from './horoSigns'
+export { getTimeRemaining } from './getTimeRemaining'
+export { urlToColours } from './urlToColours'
+export { answers } from './8ballAnswers'
+export { getHTMLImage } from './sushii-html'
