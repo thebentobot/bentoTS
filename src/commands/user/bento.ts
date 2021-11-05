@@ -21,28 +21,28 @@ export const command: Command = {
 	description: `Give a Bento Box 🍱 to your friend every 12th hour :D.`,
 	usage: `bento [<user>]. If you just write the command, it shows when you can give a Bento Box 🍱 again.`,
 	website: `https://www.bentobot.xyz/commands#bento`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		if (!args.length) {
 			return giveBento(message)
 		} else {
 			return giveBento(message, args[0])
 		}
 
-		async function giveBento(message: Message, user?: guildMember | any) {
+		async function giveBento(message: Message, user?: string): Promise<Message | undefined> {
 			initModels(database)
 
 			if (!user) {
-				let bentoData: any
+				let bentoData: bento | null
 				let then: Date
 				try {
 					bentoData = await bento.findOne({ raw: true, where: { userID: message.author.id } })
-					then = new Date(bentoData.bentoDate)
+					then = new Date(bentoData?.bentoDate as Date)
 				} catch {
 					return message.channel.send(
 						Util.removeMentions(
 							`${
-								(await message.guild.members.fetch(message.author.id))?.nickname
-									? (await message.guild.members.fetch(message.author.id))?.nickname
+								(await message?.guild?.members.fetch(message.author.id))?.nickname
+									? (await message?.guild?.members.fetch(message.author.id))?.nickname
 									: message.author.username
 							} you haven't tried to give someone a Bento Box 🍱 before.\nPlease do the command again and mention a friend or a userID to give them a Bento 🍱!\nYou'll most likely get one back! 🥺`,
 						),
@@ -54,16 +54,19 @@ export const command: Command = {
 				const hours = 12
 				// to make it 12 hours, i assume it's just changing 24 to 12, and for the moment add days it's 12 hours instead of 1 day
 				if (diffHours < hours) {
+					// perhaps use the new discord time function?
 					return message.channel.send(
 						Util.removeMentions(
 							`${
-								(await message.guild.members.fetch(message.author.id))?.nickname
-									? (await message.guild.members.fetch(message.author.id))?.nickname
+								(await message?.guild?.members.fetch(message.author.id))?.nickname
+									? (await message?.guild?.members.fetch(message.author.id))?.nickname
 									: message.author.username
 							}, you can give someone a Bento Box 🍱 again in ${
-								getTimeRemaining(moment(bentoData.bentoDate).add(12, `hour`)).hours
-							} hours, ${getTimeRemaining(moment(bentoData.bentoDate).add(12, `hour`)).minutes} minutes and ${
-								getTimeRemaining(moment(bentoData.bentoDate).add(12, `hour`)).seconds
+								getTimeRemaining(moment(bentoData?.bentoDate as Date).add(12, `hour`) as unknown as string).hours
+							} hours, ${
+								getTimeRemaining(moment(bentoData?.bentoDate as Date).add(12, `hour`) as unknown as string).minutes
+							} minutes and ${
+								getTimeRemaining(moment(bentoData?.bentoDate as Date).add(12, `hour`) as unknown as string).seconds
 							} seconds`,
 						),
 					)
@@ -72,41 +75,41 @@ export const command: Command = {
 					return message.channel.send(`You didn't specify a user to give a Bento 🍱 to 🥺`)
 				}
 			} else {
-				let mentionedUser: GuildMember
+				let mentionedUser: GuildMember | null | undefined
 				try {
-					const getUser = message.mentions.members.has(client.user.id)
+					const getUser = message?.mentions?.members?.has(client?.user?.id as string)
 						? message.mentions.members.size > 1
 							? message.mentions.members.last()
 							: message.member
-						: message.mentions.members.first() || (await message.guild.members.fetch(user))
+						: message?.mentions?.members?.first() || (await message?.guild?.members.fetch(user))
 					mentionedUser = getUser
 					const userAttr: userCreationAttributes = {
-						userID: BigInt(getUser.id),
-						discriminator: getUser.user.discriminator,
-						username: getUser.user.username,
+						userID: BigInt(getUser?.id as string),
+						discriminator: getUser?.user.discriminator as string,
+						username: getUser?.user.username,
 						xp: 0,
 						level: 1,
-						avatarURL: getUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }),
+						avatarURL: getUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
 					}
 
 					const guildMemberAttr: guildMemberCreationAttributes = {
-						userID: BigInt(getUser.id),
-						guildID: BigInt(message.guild.id),
+						userID: BigInt(getUser?.id as string),
+						guildID: BigInt(message?.guild?.id as string),
 						xp: 0,
 						level: 1,
-						avatarURL: getUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }),
+						avatarURL: getUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
 					}
-					await userDB.findOrCreate({ where: { userID: getUser.id }, defaults: userAttr })
+					await userDB.findOrCreate({ where: { userID: getUser?.id }, defaults: userAttr })
 					await guildMember.findOrCreate({
-						where: { userID: getUser.id, guildID: message.guild.id },
+						where: { userID: getUser?.id, guildID: message?.guild?.id },
 						defaults: guildMemberAttr,
 					})
 				} catch {
 					return message.channel.send(`Your input was invalid. Please specify a user.`)
 				}
-				if (mentionedUser.id === message.author.id)
+				if (mentionedUser?.id === message.author.id)
 					return message.channel.send(`You can't give yourself a Bento 🍱 😠`)
-				if (mentionedUser.user.bot === true)
+				if (mentionedUser?.user.bot === true)
 					return message.channel.send(`You can't give a bot a Bento 🍱, don't feed bots food 😭`)
 
 				const bentoAttr: bentoCreationAttributes = {
@@ -120,7 +123,7 @@ export const command: Command = {
 					defaults: bentoAttr,
 				})
 				const now: Date = new Date()
-				const then: Date = new Date(bentoData[0].bentoDate)
+				const then: Date = new Date(bentoData[0].bentoDate as Date)
 
 				const diff = now.getTime() - then.getTime()
 				const diffHours = Math.round(diff / (1000 * 60 * 60))
@@ -130,13 +133,15 @@ export const command: Command = {
 					return message.channel.send(
 						Util.removeMentions(
 							`${
-								(await message.guild.members.fetch(message.author.id))?.nickname
-									? (await message.guild.members.fetch(message.author.id))?.nickname
+								(await message?.guild?.members.fetch(message.author.id))?.nickname
+									? (await message?.guild?.members.fetch(message.author.id))?.nickname
 									: message.author.username
 							}, you can give someone a Bento Box 🍱 again in ${
-								getTimeRemaining(moment(bentoData[0].bentoDate).add(12, `hour`)).hours
-							} hours, ${getTimeRemaining(moment(bentoData[0].bentoDate).add(12, `hour`)).minutes} minutes and ${
-								getTimeRemaining(moment(bentoData[0].bentoDate).add(12, `hour`)).seconds
+								getTimeRemaining(moment(bentoData[0].bentoDate).add(12, `hour`) as unknown as string).hours
+							} hours, ${
+								getTimeRemaining(moment(bentoData[0].bentoDate).add(12, `hour`) as unknown as string).minutes
+							} minutes and ${
+								getTimeRemaining(moment(bentoData[0].bentoDate).add(12, `hour`) as unknown as string).seconds
 							} seconds`,
 						),
 					)
@@ -144,7 +149,7 @@ export const command: Command = {
 					const newUserDate = moment(now).add(-12, `hour`).toDate()
 
 					const bentoAttrTarget: bentoCreationAttributes = {
-						userID: BigInt(mentionedUser.id),
+						userID: BigInt(mentionedUser?.id as string),
 						bento: 0,
 						bentoDate: new Date(newUserDate),
 					}
@@ -152,7 +157,7 @@ export const command: Command = {
 					await bento.update({ bentoDate: now }, { where: { userID: bentoData[0].userID } })
 					const bentoDataTarget = await bento.findOrCreate({
 						raw: true,
-						where: { userID: mentionedUser.id },
+						where: { userID: mentionedUser?.id },
 						defaults: bentoAttrTarget,
 					})
 					const patreonUser = await patreon.findOne({ raw: true, where: { userID: bentoDataTarget[0].userID } })
@@ -165,28 +170,28 @@ export const command: Command = {
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+										(await message?.guild?.members.fetch(message.author.id))?.nickname
+											? (await message?.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** just gave 2 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Follower 🌟 **${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message?.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
 									}**!\n**${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message?.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement[0][0][0].bento} Bento** 🍱 over time 😋\n**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+										(await message?.guild?.members.fetch(message.author.id))?.nickname
+											? (await message?.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** can give a Bento 🍱 again in 12 hours.`,
 								),
@@ -199,28 +204,28 @@ export const command: Command = {
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** just gave 3 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Enthusiast 🌟 **${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
 									}**!\n**${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement[0][0][0].bento} Bento** 🍱 over time 😋\n**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** can give a Bento 🍱 again in 12 hours.`,
 								),
@@ -233,28 +238,28 @@ export const command: Command = {
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** just gave 4 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Disciple 🌟 **${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
 									}**!\n**${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement[0][0][0].bento} Bento** 🍱 over time 😋\n**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** can give a Bento 🍱 again in 12 hours.`,
 								),
@@ -267,28 +272,28 @@ export const command: Command = {
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** just gave 5 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Sponsor 🌟 **${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
 									}**!\n**${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement[0][0][0].bento} Bento** 🍱 over time 😋\n**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** can give a Bento 🍱 again in 12 hours.`,
 								),
@@ -301,28 +306,28 @@ export const command: Command = {
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** just gave 1 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Supporter 🌟 **${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
 									}**!\n**${
-										(await message.guild.members.fetch(mentionedUser.id))?.nickname
-											? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-												(await message.guild.members.fetch(mentionedUser.id)).user.username
-											  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-											: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-												(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+											  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement[0][0][0].bento} Bento** 🍱 over time 😋\n**${
-										(await message.guild.members.fetch(message.author.id))?.nickname
-											? (await message.guild.members.fetch(message.author.id))?.nickname
+									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+										(await message.guild?.members.fetch(message.author.id))?.nickname
+											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
 									}** can give a Bento 🍱 again in 12 hours.`,
 								),
@@ -336,28 +341,28 @@ export const command: Command = {
 						return message.channel.send(
 							Util.removeMentions(
 								`**${
-									(await message.guild.members.fetch(message.author.id))?.nickname
-										? (await message.guild.members.fetch(message.author.id))?.nickname
+									(await message.guild?.members.fetch(message.author.id))?.nickname
+										? (await message.guild?.members.fetch(message.author.id))?.nickname
 										: message.author.username
 								}** just gave a Bento 🍱 to **${
-									(await message.guild.members.fetch(mentionedUser.id))?.nickname
-										? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-											(await message.guild.members.fetch(mentionedUser.id)).user.username
-										  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-										: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-											(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+									(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+										? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+												(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+										  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+										: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+												(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 										  }`
 								}**!\n**${
-									(await message.guild.members.fetch(mentionedUser.id))?.nickname
-										? `${(await message.guild.members.fetch(mentionedUser.id))?.nickname} (${
-											(await message.guild.members.fetch(mentionedUser.id)).user.username
-										  }#${(await message.guild.members.fetch(mentionedUser.id)).user.discriminator})`
-										: `${(await message.guild.members.fetch(mentionedUser.id)).user.username}#${
-											(await message.guild.members.fetch(mentionedUser.id)).user.discriminator
+									(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
+										? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
+												(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
+										  }#${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator})`
+										: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
+												(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 										  }`
-								}** has received **${targetIncrement[0][0][0].bento} Bento** 🍱 over time 😋\n**${
-									(await message.guild.members.fetch(message.author.id))?.nickname
-										? (await message.guild.members.fetch(message.author.id))?.nickname
+								}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+									(await message.guild?.members.fetch(message.author.id))?.nickname
+										? (await message.guild?.members.fetch(message.author.id))?.nickname
 										: message.author.username
 								}** can give a Bento 🍱 again in 12 hours.`,
 							),

@@ -12,7 +12,7 @@ export const command: Command = {
 	usage: `warning <user id or mention user> [reason]`,
 	website: `https://www.bentobot.xyz/commands#warning`,
 	run: async (client, message, args): Promise<Message> => {
-		if (!message.member.hasPermission(`BAN_MEMBERS`)) {
+		if (!message?.member?.hasPermission(`BAN_MEMBERS`)) {
 			return message.channel
 				.send(`You do not have permission to use this command.\nYou are not a mod.`)
 				.then((m) => m.delete({ timeout: 5000 }))
@@ -75,10 +75,10 @@ export const command: Command = {
 				.setAuthor(
 					message.guild.members.cache.get(message.author.id)?.nickname
 						? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-							message.guild.members.cache.get(message.author.id).user.username
+								message.guild.members.cache.get(message.author.id).user.username
 						  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
 						: `${message.guild.members.cache.get(message.author.id).user.username}#${
-							message.guild.members.cache.get(message.author.id).user.discriminator
+								message.guild.members.cache.get(message.author.id).user.discriminator
 						  }`,
 					message.author.avatarURL(),
 				)
@@ -99,17 +99,17 @@ export const command: Command = {
 					`Warned by`,
 					message.guild.members.cache.get(message.author.id)?.nickname
 						? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-							message.guild.members.cache.get(message.author.id).user.username
+								message.guild.members.cache.get(message.author.id).user.username
 						  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
 						: `${message.guild.members.cache.get(message.author.id).user.username}#${
-							message.guild.members.cache.get(message.author.id).user.discriminator
+								message.guild.members.cache.get(message.author.id).user.discriminator
 						  }`,
 				)
 				.setFooter(`Warning Case Number: ${warned.warningCase}`)
 				.setTimestamp()
 			await logChannel.send(embed)
 			try {
-				(await client.users.fetch(warningUserID))
+				;(await client.users.fetch(warningUserID))
 					.send(
 						`⚠ You have received a \`warning\` from **${message.guild.name}** ⚠\n**Reason**: ${reason}.\nThis is warning number ${warningCount.count} that you have received from this server.`,
 					)
@@ -120,12 +120,12 @@ export const command: Command = {
 					`**${
 						message.guild.members.cache.get(`${warningUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  })`
 							: `${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  }`
@@ -138,12 +138,12 @@ export const command: Command = {
 					`**${
 						message.guild.members.cache.get(`${warningUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  })`
 							: `${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  }`
@@ -154,7 +154,7 @@ export const command: Command = {
 			}
 		} catch {
 			try {
-				(await client.users.fetch(warningUserID))
+				;(await client.users.fetch(warningUserID))
 					.send(
 						`⚠ You have received a \`warning\` from **${message.guild.name}** ⚠\n**Reason**: ${reason}.\nThis is warning number ${warningCount.count} that you have received from this server.`,
 					)
@@ -165,12 +165,12 @@ export const command: Command = {
 					`**${
 						message.guild.members.cache.get(`${warningUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  })`
 							: `${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  }`
@@ -183,12 +183,12 @@ export const command: Command = {
 					`**${
 						message.guild.members.cache.get(`${warningUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  })`
 							: `${
-								message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild.members.cache.get(`${warningUserID}`).user.username +
 									`#` +
 									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
 							  }`
