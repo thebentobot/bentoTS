@@ -14,6 +14,7 @@ export const command: Command = {
 			return message.channel.send(
 				`${message.author} Well obviously the choice is **${args[0]}**, but perhaps you wanted me to choose between a few more options other than one? 🙄`,
 			)
+		if (args.length > 20) return message.channel.send(`${message.author} Too many choices 🤨`)
 		return message.channel.send(`${args[Math.floor(Math.random() * args.length)]}`)
 	},
 }

@@ -10,7 +10,7 @@ export const command: Command = {
 	description: `Shows the latency for Bento Bot, the Discord API and the bot's database in PostgreSQL`,
 	usage: `ping`,
 	website: `https://www.bentobot.xyz/commands#ping`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message): Promise<Message> => {
 		const msgTimeStart = new Date().getTime()
 		await message.channel.send(`🏓 Pinging...`)
 		const msgTimeEnd = new Date().getTime()
@@ -22,7 +22,7 @@ export const command: Command = {
 			const dbTime = dbTimeEnd - dbTimeStart
 
 			const embed = new MessageEmbed()
-				.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+				.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 				.setTitle(`🏓 Pong!`)
 				.setDescription(
 					`Bot Latency is **${Math.floor(msgTimeEnd - msgTimeStart)} ms** \nAPI Latency is **${Math.round(
@@ -33,7 +33,7 @@ export const command: Command = {
 			return message.channel.send(embed)
 		} catch (error) {
 			const embed = new MessageEmbed()
-				.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+				.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 				.setTitle(`🏓 Pong!`)
 				.setDescription(
 					`Bot Latency is **${Math.floor(msgTimeEnd - msgTimeStart)} ms** \nAPI Latency is **${Math.round(

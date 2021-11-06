@@ -9,10 +9,10 @@ export const command: Command = {
 	description: `Bento repeats your message. If embed is added as an argument, Bento shows the message as en embed`,
 	usage: `say [embed] <input>`,
 	website: `https://www.bentobot.xyz/commands#say`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		await message.delete().catch(() => console.error(`bot could not delete message`))
 
-		if (!message.member.hasPermission(`MANAGE_MESSAGES`))
+		if (!message.member?.hasPermission(`MANAGE_MESSAGES`))
 			return message.channel
 				.send(`You do not have permission to use this command.`)
 				.then((m) => m.delete({ timeout: 5000 }))
@@ -24,7 +24,7 @@ export const command: Command = {
 
 		if (args[0].toLowerCase() === `embed`) {
 			const embed = new MessageEmbed()
-				.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+				.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 				.setDescription(trim(args.slice(1).join(` `), 4096))
 
 			await message.channel.send(embed)

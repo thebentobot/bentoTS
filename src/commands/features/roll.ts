@@ -1,6 +1,5 @@
 import { Message } from 'discord.js'
 import { Command } from '../../interfaces'
-import { answers } from '../../utils'
 
 export const command: Command = {
 	name: `roll`,

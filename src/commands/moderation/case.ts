@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js'
+import { GuildMember, Message, MessageEmbed, MessageReaction, Role, TextChannel, User } from 'discord.js'
 import moment from 'moment'
 import { QueryTypes } from 'sequelize'
 import database from '../../database/database'
@@ -20,13 +20,11 @@ export const command: Command = {
 	name: `case`,
 	aliases: [],
 	category: `moderation`,
-	description:
-		`A Case-style logging system for bans, kicks, mutes and warnings. You can only check, search, list edit and delete individual cases from your own server, but you are able to check global cases for a user as long as they are on your server.`,
-	usage:
-		` is the prefix.\n**case user <userID or user mention> <ban/kick/mute/warning> [global]** shows all cases for a case type where the user has record. Global only shows server names and reasosn if the server has enabled it.\n**case check <ban/kick/mute/warning> <case number>** shows information for an individual case. Only works for your own server.\n**case edit <ban/kick/mute/warning> <case number> <reason/note/muteStatus> <content to edit>** Edit reason or note info for an existing case. You can only edit muteStatus if you are editing a mute case, and you can only edit with true and false with muteStatus.\n**case delete <ban/kick/mute/warning> <case number>** delete a case from your server. Confirmation appears before deleting.\n**case search <ban/kick/mute/warning> <note/reason/muteStatus/userID/date/muteEnd/actor> <your search input>** search for cases by choosing a column to search in and it will return as many that matches your query.\n**case list <ban/kick/mute/warning> [start date: YYYY-MM-DD] [end date: YYYY-MM-DD]** list all the type of cases on the server, with an option to list between a time period (time period needs to be YYYY-MM-DD)`,
+	description: `A Case-style logging system for bans, kicks, mutes and warnings. You can only check, search, list edit and delete individual cases from your own server, but you are able to check global cases for a user as long as they are on your server.`,
+	usage: ` is the prefix.\n**case user <userID or user mention> <ban/kick/mute/warning> [global]** shows all cases for a case type where the user has record. Global only shows server names and reasosn if the server has enabled it.\n**case check <ban/kick/mute/warning> <case number>** shows information for an individual case. Only works for your own server.\n**case edit <ban/kick/mute/warning> <case number> <reason/note/muteStatus> <content to edit>** Edit reason or note info for an existing case. You can only edit muteStatus if you are editing a mute case, and you can only edit with true and false with muteStatus.\n**case delete <ban/kick/mute/warning> <case number>** delete a case from your server. Confirmation appears before deleting.\n**case search <ban/kick/mute/warning> <note/reason/muteStatus/userID/date/muteEnd/actor> <your search input>** search for cases by choosing a column to search in and it will return as many that matches your query.\n**case list <ban/kick/mute/warning> [start date: YYYY-MM-DD] [end date: YYYY-MM-DD]** list all the type of cases on the server, with an option to list between a time period (time period needs to be YYYY-MM-DD)`,
 	website: `https://www.bentobot.xyz/commands#case`,
-	run: async (client, message, args): Promise<Message> => {
-		if (!message.member.hasPermission(`BAN_MEMBERS`)) {
+	run: async (client, message, args): Promise<Message | void> => {
+		if (!message.member?.hasPermission(`BAN_MEMBERS`)) {
 			return message.channel
 				.send(`You do not have permission to use this command.\nYou are not a mod.`)
 				.then((m) => m.delete({ timeout: 5000 }))
@@ -62,7 +60,12 @@ export const command: Command = {
 			)
 		}
 
-		async function userCheck(message: Message, user: string, caseType: string, global?: string): Promise<Message> {
+		async function userCheck(
+			message: Message,
+			user: string,
+			caseType: string,
+			global?: string,
+		): Promise<Message | void> {
 			if (!user) {
 				return message.channel.send(`You need to specify a user to check`)
 			}
@@ -77,33 +80,33 @@ export const command: Command = {
 				return message.channel.send(`You need to specify a valid case type to check`)
 			}
 
-			let userID: string
+			let userID: string | undefined
 
 			if (!global) {
 				try {
-					const theUser = message.mentions.members.has(client.user.id)
+					const theUser = message.mentions.members?.has(client.user?.id as string)
 						? message.mentions.members.size > 1
 							? message.mentions.members.last()
 							: message.member
-						: message.mentions.members.first() || (await message.guild.members.fetch(user))
-					if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have any cases.`)
-					userID = theUser.id
+						: message.mentions.members?.first() || (await message.guild?.members.fetch(user))
+					if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have any cases.`)
+					userID = theUser?.id
 				} catch {
 					return message.channel.send(`User mention or userID is invalid`)
 				}
 			} else {
 				try {
-					const theUser = message.mentions.members.has(client.user.id)
+					const theUser = message.mentions.members?.has(client.user?.id as string)
 						? message.mentions.members.size > 1
 							? message.mentions.members.last()
 							: message.member
-						: message.mentions.members.first() || (await message.guild.members.fetch(user))
-					if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have any cases.`)
-					userID = theUser.id
+						: message.mentions.members?.first() || (await message.guild?.members.fetch(user))
+					if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have any cases.`)
+					userID = theUser?.id
 					initModels(database)
 					const userExists = await guildMember.findOne({
 						raw: true,
-						where: { userID: userID, guildID: message.guild.id },
+						where: { userID: userID, guildID: message.guild?.id },
 					})
 					if (!userExists) {
 						// here we can implement servers or users who may be authorised to check for any user, by e.g. !userExists && message.guild.id !== ID
@@ -119,22 +122,22 @@ export const command: Command = {
 					initModels(database)
 					const bans = await ban.findAndCountAll({
 						raw: true,
-						where: { userID: userID, guildID: message.guild.id },
+						where: { userID: userID, guildID: message.guild?.id },
 						order: [[`date`, `DESC`]],
 					})
 					const kicks = await kick.findAndCountAll({
 						raw: true,
-						where: { userID: userID, guildID: message.guild.id },
+						where: { userID: userID, guildID: message.guild?.id },
 						order: [[`date`, `DESC`]],
 					})
 					const mutes = await mute.findAndCountAll({
 						raw: true,
-						where: { userID: userID, guildID: message.guild.id },
+						where: { userID: userID, guildID: message.guild?.id },
 						order: [[`date`, `DESC`]],
 					})
 					const warnings = await warning.findAndCountAll({
 						raw: true,
-						where: { userID: userID, guildID: message.guild.id },
+						where: { userID: userID, guildID: message.guild?.id },
 						order: [[`date`, `DESC`]],
 					})
 					const overviewObject = { bans: bans, kicks: kicks, mutes: mutes, warnings: warnings, status: `local` }
@@ -157,18 +160,18 @@ export const command: Command = {
 			}
 
 			interface caseTables {
-				muteCase?: number;
-				kickCase?: number;
-				banCase?: number;
-				warningCase?: number;
-				userID: bigint;
-				guildID: bigint;
-				date: Date;
-				muteEnd?: Date;
-				note: string;
-				actor: bigint;
-				reason: string;
-				muteStatus?: boolean;
+				muteCase?: number
+				kickCase?: number
+				banCase?: number
+				warningCase?: number
+				userID: bigint
+				guildID: bigint
+				date: Date
+				muteEnd?: Date
+				note: string
+				actor: bigint
+				reason: string
+				muteStatus?: boolean
 			}
 
 			const theCaseType: string = caseType
@@ -179,7 +182,7 @@ export const command: Command = {
             FROM ${caseType}
             WHERE ${caseType}."userID" = :user${!global ? ` AND ${caseType}."guildID" = :guild;` : `;`}`,
 				{
-					replacements: { case: theCaseType, user: userID, guild: message.guild.id },
+					replacements: { case: theCaseType, user: userID, guild: message.guild?.id },
 					type: QueryTypes.SELECT,
 				},
 			)
@@ -188,18 +191,18 @@ export const command: Command = {
 				return message.channel.send(
 					!global
 						? `${
-							message.guild.members.cache.get(userID)?.nickname
-								? `${message.guild.members.cache.get(userID)?.nickname} (${
-									message.guild.members.cache.get(userID).user.username +
+								message.guild?.members.cache.get(userID as string)?.nickname
+									? `${message.guild.members.cache.get(userID as string)?.nickname} (${
+											message.guild?.members.cache.get(userID as string)?.user.username +
 											`#` +
-											message.guild.members.cache.get(userID).user.discriminator
+											message.guild?.members.cache.get(userID as string)?.user.discriminator
 									  })`
-								: message.guild.members.cache.get(userID).user.username +
+									: message.guild?.members.cache.get(userID as string)?.user.username +
 									  `#` +
-									  message.guild.members.cache.get(userID).user.discriminator
+									  message.guild?.members.cache.get(userID as string)?.user.discriminator
 						  }(userID: ${userID}) does not have any ${caseType} cases.`
-						: `${client.users.cache.get(`${userID}`).username}#${
-							client.users.cache.get(`${userID}`).discriminator
+						: `${client.users.cache.get(`${userID}`)?.username}#${
+								client.users.cache.get(`${userID}`)?.discriminator
 						  }(userID: ${userID}) does not have any ${caseType} cases.`,
 				)
 			}
@@ -232,7 +235,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -261,7 +264,7 @@ export const command: Command = {
 				}
 			})
 
-			async function generateCaseEmbedding(input) {
+			async function generateCaseEmbedding(input: caseTables[]) {
 				const embeds = []
 				for (let i = 0; i < input.length; i += 1) {
 					const current = input[i]
@@ -276,7 +279,7 @@ export const command: Command = {
 					let caseUserPfp
 
 					try {
-						const data = message.guild.members.cache.get(`${current.actor}`) as GuildMember
+						const data = message.guild?.members.cache.get(`${current.actor}`) as GuildMember
 						actorNickname = data?.nickname ? data?.nickname : ``
 						actorUsername = data.user.username
 						actorDiscri = data.user.discriminator
@@ -294,7 +297,7 @@ export const command: Command = {
 						}
 					}
 					try {
-						const data = message.guild.members.cache.get(`${current.userID}`) as GuildMember
+						const data = message.guild?.members.cache.get(`${current.userID}`) as GuildMember
 						caseUserNickname = data?.nickname ? data?.nickname : ``
 						caseUsername = data.user.username
 						caseUserDiscri = data.user.discriminator
@@ -308,61 +311,60 @@ export const command: Command = {
 						} catch {
 							caseUsername = `Username`
 							caseUserDiscri = `Not in our system`
-							caseUserPfp = client.user.avatarURL({ format: `png` })
+							caseUserPfp = client.user?.avatarURL({ format: `png` })
 						}
 					}
 
-					if (message.guild.id == current.guildID) {
+					if (message.guild?.id === `${current.guildID}`) {
 						const embed = new MessageEmbed()
 						embed.setAuthor(
-							client.guilds.cache.get(`${current.guildID}`).name,
-							client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` }),
+							client.guilds.cache.get(`${current.guildID}`)?.name,
+							client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` }) as string,
 						)
 						embed.setColor(
 							`${await urlToColours(
-								client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` })
-									? client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` })
-									: client.user.avatarURL({ format: `png` }),
+								client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` })
+									? (client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` }) as string)
+									: (client.user?.avatarURL({ format: `png` }) as string),
 							)}`,
 						)
 						embed.setTimestamp()
 						embed.setDescription(`**Reason for ${capitalize(caseType)}**\n${current.reason}`)
 						embed.addField(`Date of occurence`, moment(current.date).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`))
 						embed.setTitle(
-							message.guild.id == current.guildID
+							message.guild?.id === `${current.guildID}`
 								? `${
-									caseUserNickname
-										? `${caseUserNickname} (${caseUsername + `#` + caseUserDiscri})`
-										: caseUsername + `#` + caseUserDiscri
+										caseUserNickname
+											? `${caseUserNickname} (${caseUsername + `#` + caseUserDiscri})`
+											: caseUsername + `#` + caseUserDiscri
 								  }`
 								: `${caseUsername}#${caseUserDiscri} was ${caseWording} in the server ${
-									client.guilds.cache.get(`${current.guildID}`).name
+										client.guilds.cache.get(`${current.guildID}`)?.name
 								  }`,
 						)
-						embed.setThumbnail(caseUserPfp)
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
 						if (caseType === `mute`) {
-							embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user.avatarURL())
+							embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user?.avatarURL() as string)
 							embed.addField(
 								`Date of unmute`,
-								current.muteEnd != null
+								current.muteEnd !== null
 									? moment(current.muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`)
 									: `The mute was on indefinite time`,
 							)
-							embed.addField(
-								`Mute activity`,
-								current.muteStatus === true ? `Currently muted for this case` : `Unmuted`,
-							)
+							embed.addField(`Mute activity`, current.muteStatus === true ? `Currently muted for this case` : `Unmuted`)
 						}
 						if (caseType === `kick`) {
-							embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user.avatarURL())
+							embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user?.avatarURL() as string)
 						}
 						if (caseType === `ban`) {
-							embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user.avatarURL())
+							embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user?.avatarURL() as string)
 						}
 						if (caseType === `warning`) {
-							embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user.avatarURL())
+							embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user?.avatarURL() as string)
 						}
-						if (message.guild.id == current.guildID) {
+						if (message.guild?.id === `${current.guildID}`) {
 							embed.addField(
 								`User who gave the ${caseType}`,
 								`${
@@ -378,64 +380,65 @@ export const command: Command = {
 						const caseGlobalData = await caseGlobal.findOne({ raw: true, where: { guildID: current.guildID } })
 						const embed = new MessageEmbed()
 						embed.setAuthor(
-							caseGlobalData.serverName === true
-								? client.guilds.cache.get(`${current.guildID}`).name
+							caseGlobalData?.serverName === true
+								? client.guilds.cache.get(`${current.guildID}`)?.name
 								: `Anonymous Server`,
-							caseGlobalData.serverName === true
-								? client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` })
-								: client.user.avatarURL({ format: `png` }),
+							caseGlobalData?.serverName === true
+								? (client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` }) as string)
+								: (client.user?.avatarURL({ format: `png` }) as string),
 						)
 						embed.setColor(
 							`${
-								caseGlobalData.serverName === true
-									? await urlToColours(client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` }))
-									: await urlToColours(client.user.avatarURL({ format: `png` }))
+								caseGlobalData?.serverName === true
+									? await urlToColours(
+											client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` }) as string,
+									  )
+									: await urlToColours(client.user?.avatarURL({ format: `png` }) as string)
 							}`,
 						)
 						embed.setTimestamp()
 						embed.setDescription(
 							`**Reason for ${capitalize(caseType)}**\n${
-								caseGlobalData.reason === true ? current.reason : `Reason not public`
+								caseGlobalData?.reason === true ? current.reason : `Reason not public`
 							}`,
 						)
 						embed.addField(`Date of occurence`, moment(current.date).format(`dddd, MMMM Do YYYY, HH:mm:ss A z`))
 						embed.setTitle(
-							message.guild.id == current.guildID
+							message.guild?.id === `${current.guildID}`
 								? `${
-									caseUserNickname
-										? `${caseUserNickname} (${caseUsername + `#` + caseUserDiscri})`
-										: caseUsername + `#` + caseUserDiscri
+										caseUserNickname
+											? `${caseUserNickname} (${caseUsername + `#` + caseUserDiscri})`
+											: caseUsername + `#` + caseUserDiscri
 								  }`
 								: `${caseUsername}#${caseUserDiscri} was ${caseWording} in the server ${
-									caseGlobalData.serverName === true
-										? client.guilds.cache.get(`${current.guildID}`).name
-										: `Anonymous Server`
+										caseGlobalData?.serverName === true
+											? client.guilds.cache.get(`${current.guildID}`)?.name
+											: `Anonymous Server`
 								  }`,
 						)
-						embed.setThumbnail(caseUserPfp)
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
 						if (caseType === `mute`) {
-							embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user.avatarURL())
+							embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user?.avatarURL() as string)
 							embed.addField(
 								`Date of unmute`,
-								current.muteEnd != null
+								current.muteEnd !== null
 									? moment(current.muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A z`)
 									: `The mute was on indefinite time`,
 							)
-							embed.addField(
-								`Mute activity`,
-								current.muteStatus === true ? `Currently muted for this case` : `Unmuted`,
-							)
+							embed.addField(`Mute activity`, current.muteStatus === true ? `Currently muted for this case` : `Unmuted`)
 						}
 						if (caseType === `kick`) {
-							embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user.avatarURL())
+							embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user?.avatarURL() as string)
 						}
 						if (caseType === `ban`) {
-							embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user.avatarURL())
+							embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user?.avatarURL() as string)
 						}
 						if (caseType === `warning`) {
-							embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user.avatarURL())
+							embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user?.avatarURL() as string)
 						}
-						if (message.guild.id == current.guildID) {
+						if (message.guild?.id === `${current.guildID}`) {
 							embed.addField(
 								`User who gave the ${caseType}`,
 								`${
@@ -452,42 +455,56 @@ export const command: Command = {
 				return embeds
 			}
 
-			async function generateOverviewEmbedding(input) {
+			async function generateOverviewEmbedding(input: {
+				bans: {
+					rows: ban[]
+					count: number
+				}
+				kicks: {
+					rows: kick[]
+					count: number
+				}
+				mutes: {
+					rows: mute[]
+					count: number
+				}
+				warnings: {
+					rows: warning[]
+					count: number
+				}
+				status: string
+			}) {
 				let caseUserNickname
 				let caseUsername
 				let caseUserDiscri
-				let caseUserPfp
 				try {
-					const data = message.guild.members.cache.get(`${userID}`) as GuildMember
+					const data = message.guild?.members.cache.get(`${userID}`) as GuildMember
 					caseUserNickname = data?.nickname ? data?.nickname : ``
 					caseUsername = data.user.username
 					caseUserDiscri = data.user.discriminator
-					caseUserPfp = data.user.avatarURL({ format: `png`, size: 1024, dynamic: true })
 				} catch {
 					try {
 						const data = client.users.cache.get(`${userID}`) as User
 						caseUsername = data.username
 						caseUserDiscri = data.discriminator
-						caseUserPfp = data.avatarURL({ format: `png`, size: 1024, dynamic: true })
 					} catch {
 						caseUsername = `Username`
 						caseUserDiscri = `Not in our system`
-						caseUserPfp = client.user.avatarURL({ format: `png` })
 					}
 				}
 
 				const embed = new MessageEmbed()
 				embed.setAuthor(
-					input.status === `local` ? client.guilds.cache.get(`${message.guild.id}`).name : client.user.username,
+					input.status === `local` ? client.guilds.cache.get(`${message.guild?.id}`)?.name : client.user?.username,
 					input.status === `local`
-						? client.guilds.cache.get(`${message.guild.id}`).iconURL()
-						: client.user.avatarURL({ format: `png` }),
+						? (client.guilds.cache.get(`${message.guild?.id}`)?.iconURL() as string)
+						: (client.user?.avatarURL({ format: `png` }) as string),
 				)
 				embed.setColor(
 					`${await urlToColours(
 						input.status === `local`
-							? client.guilds.cache.get(`${message.guild.id}`).iconURL({ format: `png` })
-							: client.user.avatarURL({ format: `png` }),
+							? (client.guilds.cache.get(`${message.guild?.id}`)?.iconURL({ format: `png` }) as string)
+							: (client.user?.avatarURL({ format: `png` }) as string),
 					)}`,
 				)
 				embed.setFooter(`UserID: ${userID}`)
@@ -541,13 +558,15 @@ export const command: Command = {
 				embed.setTitle(
 					input.status === `local`
 						? `Overview for ${
-							caseUserNickname
-								? `${caseUserNickname} (${caseUsername}#${caseUserDiscri})`
-								: `${caseUsername}#${caseUserDiscri}`
+								caseUserNickname
+									? `${caseUserNickname} (${caseUsername}#${caseUserDiscri})`
+									: `${caseUsername}#${caseUserDiscri}`
 						  }`
 						: `Global Overview for ${caseUsername}#${caseUserDiscri}`,
 				)
-				embed.setThumbnail(client.users.cache.get(`${userID}`).avatarURL({ size: 1024, format: `png`, dynamic: true }))
+				embed.setThumbnail(
+					client.users.cache.get(`${userID}`)?.avatarURL({ size: 1024, format: `png`, dynamic: true }) as string,
+				)
 				return embed
 			}
 		}
@@ -569,18 +588,18 @@ export const command: Command = {
 			const caseNumbered: number = parseInt(caseNumber)
 
 			interface caseTables {
-				muteCase?: number;
-				kickCase?: number;
-				banCase?: number;
-				warningCase?: number;
-				userID: bigint;
-				guildID: bigint;
-				date: Date;
-				muteEnd?: Date;
-				note: string;
-				actor: bigint;
-				reason: string;
-				muteStatus?: boolean;
+				muteCase?: number
+				kickCase?: number
+				banCase?: number
+				warningCase?: number
+				userID: bigint
+				guildID: bigint
+				date: Date
+				muteEnd?: Date
+				note: string
+				actor: bigint
+				reason: string
+				muteStatus?: boolean
 			}
 
 			const caseQuery: Array<caseTables> = await database.query(
@@ -595,12 +614,10 @@ export const command: Command = {
 			)
 
 			if (!caseQuery.length) {
-				return message.channel.send(
-					`Case number \`${caseNumbered}\` for the case type \`${caseType}\` does not exist.`,
-				)
+				return message.channel.send(`Case number \`${caseNumbered}\` for the case type \`${caseType}\` does not exist.`)
 			}
 
-			if (`${caseQuery[0].guildID}` !== message.guild.id) {
+			if (`${caseQuery[0].guildID}` !== message.guild?.id) {
 				return message.channel.send(
 					`Case number \`${caseNumbered}\` for the case type \`${caseType}\` is not a case from your server and therefore not available for you.`,
 				)
@@ -630,7 +647,7 @@ export const command: Command = {
 				} catch {
 					actorUsername = `Username`
 					actorDiscri = `Not in our system`
-					actorPfp = client.user.avatarURL({ format: `png`, dynamic: true })
+					actorPfp = client.user?.avatarURL({ format: `png`, dynamic: true })
 				}
 			}
 			try {
@@ -648,16 +665,16 @@ export const command: Command = {
 				} catch {
 					caseUsername = `Username`
 					caseUserDiscri = `Not in our system`
-					caseUserPfp = client.user.avatarURL({ format: `png` })
+					caseUserPfp = client.user?.avatarURL({ format: `png` })
 				}
 			}
 
 			const embed = new MessageEmbed()
 			embed.setAuthor(
 				actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`,
-				actorPfp,
+				actorPfp as string,
 			)
-			embed.setColor(`${await urlToColours(actorPfp)}`)
+			embed.setColor(`${await urlToColours(actorPfp as string)}`)
 			embed.setTimestamp()
 			embed.setDescription(`**Reason for ${capitalize(caseType)}**\n${caseQuery[0].reason}`)
 			embed.addField(`UserID`, caseQuery[0].userID)
@@ -669,27 +686,32 @@ export const command: Command = {
 						: `${caseUsername}#${caseUserDiscri}`
 				}`,
 			)
-			embed.setThumbnail(caseUserPfp)
+			if (caseUserPfp) {
+				embed.setThumbnail(caseUserPfp)
+			}
 			if (caseType === `mute`) {
-				embed.setFooter(`Mute Case Number: ${caseQuery[0].muteCase}`, client.user.avatarURL({ format: `png` }))
+				embed.setFooter(
+					`Mute Case Number: ${caseQuery[0].muteCase}`,
+					client.user?.avatarURL({ format: `png` }) as string,
+				)
 				embed.addField(
 					`Date of unmute`,
-					caseQuery[0].muteEnd != null
+					caseQuery[0].muteEnd !== null
 						? moment(caseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`)
 						: `The mute was on indefinite time`,
 				)
 				embed.addField(`Mute activity`, caseQuery[0].muteStatus === true ? `Currently muted for this case` : `Unmuted`)
 			}
 			if (caseType === `kick`) {
-				embed.setFooter(`Kick Case Number: ${caseQuery[0].kickCase}`, client.user.avatarURL())
+				embed.setFooter(`Kick Case Number: ${caseQuery[0].kickCase}`, client.user?.avatarURL() as string)
 			}
 			if (caseType === `ban`) {
-				embed.setFooter(`Ban Case Number: ${caseQuery[0].banCase}`, client.user.avatarURL())
+				embed.setFooter(`Ban Case Number: ${caseQuery[0].banCase}`, client.user?.avatarURL() as string)
 			}
 			if (caseType === `warning`) {
-				embed.setFooter(`Warning Case Number: ${caseQuery[0].warningCase}`, client.user.avatarURL())
+				embed.setFooter(`Warning Case Number: ${caseQuery[0].warningCase}`, client.user?.avatarURL() as string)
 			}
-			if (message.guild.id == `${caseQuery[0].guildID}`) {
+			if (message.guild.id === `${caseQuery[0].guildID}`) {
 				embed.addField(
 					`User who gave the ${caseType}`,
 					actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`,
@@ -706,7 +728,7 @@ export const command: Command = {
 			caseNumber: string,
 			column: string,
 			editedContent: string,
-		): Promise<Message> {
+		): Promise<Message | void> {
 			if (!caseType) {
 				return message.channel.send(`You need to specify a type of case to edit`)
 			}
@@ -738,18 +760,18 @@ export const command: Command = {
 			const caseNumbered: number = parseInt(caseNumber)
 
 			interface caseTables {
-				muteCase?: number;
-				kickCase?: number;
-				banCase?: number;
-				warningCase?: number;
-				userID: bigint;
-				guildID: bigint;
-				date: Date;
-				muteEnd?: Date;
-				note: string;
-				actor: bigint;
-				reason: string;
-				muteStatus?: boolean;
+				muteCase?: number
+				kickCase?: number
+				banCase?: number
+				warningCase?: number
+				userID: bigint
+				guildID: bigint
+				date: Date
+				muteEnd?: Date
+				note: string
+				actor: bigint
+				reason: string
+				muteStatus?: boolean
 			}
 
 			const testCaseQuery: Array<caseTables> = await database.query(
@@ -764,12 +786,10 @@ export const command: Command = {
 			)
 
 			if (!testCaseQuery.length) {
-				return message.channel.send(
-					`Case number \`${caseNumbered}\` for the case type \`${caseType}\` does not exist.`,
-				)
+				return message.channel.send(`Case number \`${caseNumbered}\` for the case type \`${caseType}\` does not exist.`)
 			}
 
-			if (`${testCaseQuery[0].guildID}` !== message.guild.id) {
+			if (`${testCaseQuery[0].guildID}` !== message.guild?.id) {
 				return message.channel.send(
 					`Case number \`${caseNumbered}\` for the case type \`${caseType}\` is not a case from your server and therefore not available for you.`,
 				)
@@ -813,7 +833,7 @@ export const command: Command = {
 				} catch {
 					caseUsername = `Username`
 					caseUserDiscri = `Not in our system`
-					caseUserPfp = client.user.avatarURL({ format: `png` })
+					caseUserPfp = client.user?.avatarURL({ format: `png` })
 				}
 			}
 
@@ -829,8 +849,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
 						embed.addField(
@@ -854,12 +874,16 @@ export const command: Command = {
 						)
 						embed.addField(`UserID for the user who banned`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
-						embed.setFooter(`Ban Case Number: ${testCaseQuery[0].banCase}`, client.user.avatarURL({ format: `png` }))
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
+						embed.setFooter(
+							`Ban Case Number: ${testCaseQuery[0].banCase}`,
+							client.user?.avatarURL({ format: `png` }) as string,
+						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -879,8 +903,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
 						embed.addField(
@@ -901,12 +925,16 @@ export const command: Command = {
 						)
 						embed.addField(`UserID for the user who banned`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
-						embed.setFooter(`Ban Case Number: ${testCaseQuery[0].banCase}`, client.user.avatarURL({ format: `png` }))
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
+						embed.setFooter(
+							`Ban Case Number: ${testCaseQuery[0].banCase}`,
+							client.user?.avatarURL({ format: `png` }) as string,
+						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -928,8 +956,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild?.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
 						embed.addField(
@@ -953,12 +981,16 @@ export const command: Command = {
 						)
 						embed.addField(`UserID for the user who kicked`, testCaseQuery[0].actor)
 						embed.setTitle(`${caseType} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
-						embed.setFooter(`Kick Case Number: ${testCaseQuery[0].kickCase}`, client.user.avatarURL({ format: `png` }))
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
+						embed.setFooter(
+							`Kick Case Number: ${testCaseQuery[0].kickCase}`,
+							client.user?.avatarURL({ format: `png` }) as string,
+						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -978,8 +1010,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
 						embed.addField(
@@ -1000,12 +1032,16 @@ export const command: Command = {
 						)
 						embed.addField(`UserID for the user who kicked`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
-						embed.setFooter(`Kick Case Number: ${testCaseQuery[0].kickCase}`, client.user.avatarURL({ format: `png` }))
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
+						embed.setFooter(
+							`Kick Case Number: ${testCaseQuery[0].kickCase}`,
+							client.user?.avatarURL({ format: `png` }) as string,
+						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -1027,8 +1063,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild?.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
 						embed.addField(
@@ -1050,22 +1086,23 @@ export const command: Command = {
 							`Mute Status`,
 							testCaseQuery[0].muteStatus ? `Currently muted for this case` : `Unmuted for this case`,
 						)
-						embed.addField(
-							`Mute end date`,
-							moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),
-						)
+						embed.addField(`Mute end date`, moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`))
 						embed.addField(
 							`User who muted`,
 							actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`,
 						)
 						embed.addField(`UserID for the user who muted`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
-						embed.setFooter(`Mute Case Number: ${testCaseQuery[0].muteCase}`, client.user.avatarURL({ format: `png` }))
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
+						embed.setFooter(
+							`Mute Case Number: ${testCaseQuery[0].muteCase}`,
+							client.user?.avatarURL({ format: `png` }) as string,
+						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -1085,8 +1122,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
 						embed.addField(
@@ -1105,22 +1142,23 @@ export const command: Command = {
 							`Mute Status`,
 							testCaseQuery[0].muteStatus ? `Currently muted for this case` : `Unmuted for this case`,
 						)
-						embed.addField(
-							`Mute end date`,
-							moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),
-						)
+						embed.addField(`Mute end date`, moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`))
 						embed.addField(
 							`User who muted`,
 							actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`,
 						)
 						embed.addField(`UserID for the user who muted`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
-						embed.setFooter(`Mute Case Number: ${testCaseQuery[0].muteCase}`, client.user.avatarURL({ format: `png` }))
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
+						embed.setFooter(
+							`Mute Case Number: ${testCaseQuery[0].muteCase}`,
+							client.user?.avatarURL({ format: `png` }) as string,
+						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -1130,7 +1168,7 @@ export const command: Command = {
 				}
 
 				if (column === `muteStatus`) {
-					let muteStatusConv: boolean
+					let muteStatusConv = false
 					if (editedContent === `true`) {
 						muteStatusConv = true
 					} else if (editedContent === `false`) {
@@ -1146,8 +1184,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(
 							`**Original muteStatus**\n${testCaseQuery[0].muteStatus}\n**New muteStatus**\n${editedContent}`,
@@ -1168,22 +1206,23 @@ export const command: Command = {
 							`Date of occurence`,
 							moment(testCaseQuery[0].date).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),
 						)
-						embed.addField(
-							`Mute end date`,
-							moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),
-						)
+						embed.addField(`Mute end date`, moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`))
 						embed.addField(
 							`User who muted`,
 							actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`,
 						)
 						embed.addField(`UserID for the user who muted`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
-						embed.setFooter(`Mute Case Number: ${testCaseQuery[0].muteCase}`, client.user.avatarURL({ format: `png` }))
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
+						embed.setFooter(
+							`Mute Case Number: ${testCaseQuery[0].muteCase}`,
+							client.user?.avatarURL({ format: `png` }) as string,
+						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -1205,8 +1244,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
 						embed.addField(
@@ -1230,15 +1269,16 @@ export const command: Command = {
 						)
 						embed.addField(`UserID for the user who warned`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
 						embed.setFooter(
 							`Warning Case Number: ${testCaseQuery[0].warningCase}`,
-							client.user.avatarURL({ format: `png` }),
+							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -1258,8 +1298,8 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }))
-						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }))}`)
+						embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
 						embed.addField(
@@ -1280,15 +1320,16 @@ export const command: Command = {
 						)
 						embed.addField(`UserID for the user who warned`, testCaseQuery[0].actor)
 						embed.setTitle(`${capitalize(caseType)} Case Number ${caseNumbered}'s ${column} was updated!`)
-						embed.setThumbnail(caseUserPfp)
+						if (caseUserPfp) {
+							embed.setThumbnail(caseUserPfp)
+						}
 						embed.setFooter(
 							`Warning Case Number: ${testCaseQuery[0].warningCase}`,
-							client.user.avatarURL({ format: `png` }),
+							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							let logChannel: TextChannel
 							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-							logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
 						} catch {
@@ -1299,7 +1340,7 @@ export const command: Command = {
 			}
 		}
 
-		async function caseDelete(message: Message, caseType: string, caseNumber: string): Promise<Message> {
+		async function caseDelete(message: Message, caseType: string, caseNumber: string): Promise<Message | void> {
 			if (!caseType) {
 				return message.channel.send(`You need to specify a type of case to delete`)
 			}
@@ -1317,18 +1358,18 @@ export const command: Command = {
 			const caseNumbered: number = parseInt(caseNumber)
 
 			interface caseTables {
-				muteCase?: number;
-				kickCase?: number;
-				banCase?: number;
-				warningCase?: number;
-				userID: bigint;
-				guildID: bigint;
-				date: Date;
-				muteEnd?: Date;
-				note: string;
-				actor: bigint;
-				reason: string;
-				muteStatus?: boolean;
+				muteCase?: number
+				kickCase?: number
+				banCase?: number
+				warningCase?: number
+				userID: bigint
+				guildID: bigint
+				date: Date
+				muteEnd?: Date
+				note: string
+				actor: bigint
+				reason: string
+				muteStatus?: boolean
 			}
 
 			const testCaseQuery: Array<caseTables> = await database.query(
@@ -1343,25 +1384,23 @@ export const command: Command = {
 			)
 
 			if (!testCaseQuery.length) {
-				return message.channel.send(
-					`Case number \`${caseNumbered}\` for the case type \`${caseType}\` does not exist.`,
-				)
+				return message.channel.send(`Case number \`${caseNumbered}\` for the case type \`${caseType}\` does not exist.`)
 			}
 
-			if (`${testCaseQuery[0].guildID}` !== message.guild.id) {
+			if (`${testCaseQuery[0].guildID}` !== message.guild?.id) {
 				return message.channel.send(
 					`Case number \`${caseNumbered}\` for the case type \`${caseType}\` is not a case from your server and therefore not available for you.`,
 				)
 			}
 
-			let actorNickname
-			let actorUsername
-			let actorDiscri
-			let actorPfp
-			let caseUserNickname
-			let caseUsername
-			let caseUserDiscri
-			let caseUserPfp
+			let actorNickname: string | undefined
+			let actorUsername: string
+			let actorDiscri: string
+			let actorPfp: string | null | undefined
+			let caseUserNickname: string | undefined
+			let caseUsername: string
+			let caseUserDiscri: string
+			let caseUserPfp: string | null | undefined
 
 			try {
 				const data = message.guild.members.cache.get(`${testCaseQuery[0].actor}`) as GuildMember
@@ -1378,7 +1417,7 @@ export const command: Command = {
 				} catch {
 					actorUsername = `Username`
 					actorDiscri = `Not in our system`
-					actorPfp = client.user.avatarURL({ format: `png` })
+					actorPfp = client.user?.avatarURL({ format: `png` })
 				}
 			}
 			try {
@@ -1396,16 +1435,16 @@ export const command: Command = {
 				} catch {
 					caseUsername = `Username`
 					caseUserDiscri = `Not in our system`
-					caseUserPfp = client.user.avatarURL({ format: `png` })
+					caseUserPfp = client.user?.avatarURL({ format: `png` })
 				}
 			}
 
 			const embed = new MessageEmbed()
 			embed.setAuthor(
 				actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`,
-				actorPfp,
+				actorPfp as string,
 			)
-			embed.setColor(`${await urlToColours(actorPfp)}`)
+			embed.setColor(`${await urlToColours(actorPfp as string)}`)
 			embed.setTimestamp()
 			embed.setDescription(
 				`**Reason for ${caseType}**\n${testCaseQuery[0].reason ? testCaseQuery[0].reason : `No reason specified`}`,
@@ -1419,12 +1458,17 @@ export const command: Command = {
 						: `${caseUsername}#${caseUserDiscri}`
 				}`,
 			)
-			embed.setThumbnail(caseUserPfp)
+			if (caseUserPfp) {
+				embed.setThumbnail(caseUserPfp)
+			}
 			if (caseType === `mute`) {
-				embed.setFooter(`Mute Case Number: ${testCaseQuery[0].muteCase}`, client.user.avatarURL({ format: `png` }))
+				embed.setFooter(
+					`Mute Case Number: ${testCaseQuery[0].muteCase}`,
+					client.user?.avatarURL({ format: `png` }) as string,
+				)
 				embed.addField(
 					`Date of unmute`,
-					testCaseQuery[0].muteEnd != null
+					testCaseQuery[0].muteEnd !== null
 						? moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`)
 						: `The mute was on indefinite time`,
 				)
@@ -1434,15 +1478,15 @@ export const command: Command = {
 				)
 			}
 			if (caseType === `kick`) {
-				embed.setFooter(`Kick Case Number: ${testCaseQuery[0].kickCase}`, client.user.avatarURL())
+				embed.setFooter(`Kick Case Number: ${testCaseQuery[0].kickCase}`, client.user?.avatarURL() as string)
 			}
 			if (caseType === `ban`) {
-				embed.setFooter(`Ban Case Number: ${testCaseQuery[0].banCase}`, client.user.avatarURL())
+				embed.setFooter(`Ban Case Number: ${testCaseQuery[0].banCase}`, client.user?.avatarURL() as string)
 			}
 			if (caseType === `warning`) {
-				embed.setFooter(`Warning Case Number: ${testCaseQuery[0].warningCase}`, client.user.avatarURL())
+				embed.setFooter(`Warning Case Number: ${testCaseQuery[0].warningCase}`, client.user?.avatarURL() as string)
 			}
-			if (message.guild.id == `${testCaseQuery[0].guildID}`) {
+			if (message.guild.id === `${testCaseQuery[0].guildID}`) {
 				embed.addField(
 					`User who gave the ${caseType}`,
 					actorNickname ? `${actorNickname} (${actorUsername}#${actorDiscri})` : `${actorUsername}#${actorDiscri}`,
@@ -1456,19 +1500,20 @@ export const command: Command = {
 			const confirmEmbed = await message.channel.send(embed)
 			await confirmEmbed.react(`✅`)
 			await confirmEmbed.react(`❌`)
-			const filter = (reaction, user) => [`✅`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+			const filter = (reaction: MessageReaction, user: User) =>
+				[`✅`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = confirmEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `✅`) {
 					reaction.users.remove(user)
-					let newEmbed: MessageEmbed
+					let newEmbed = new MessageEmbed()
 					if (caseType === `ban`) {
-						const banDelete = await ban.destroy({ where: { guildID: message.guild.id, banCase: caseNumbered } })
+						const banDelete = await ban.destroy({ where: { guildID: message.guild?.id, banCase: caseNumbered } })
 						if (banDelete === 0) {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`Error deleting ${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1479,8 +1524,8 @@ export const command: Command = {
 								)
 						} else {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1492,11 +1537,11 @@ export const command: Command = {
 						}
 					}
 					if (caseType === `kick`) {
-						const kickDelete = await kick.destroy({ where: { guildID: message.guild.id, kickCase: caseNumbered } })
+						const kickDelete = await kick.destroy({ where: { guildID: message.guild?.id, kickCase: caseNumbered } })
 						if (kickDelete === 0) {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`Error deleting ${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1507,8 +1552,8 @@ export const command: Command = {
 								)
 						} else {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1520,11 +1565,11 @@ export const command: Command = {
 						}
 					}
 					if (caseType === `mute`) {
-						const muteDelete = await mute.destroy({ where: { guildID: message.guild.id, muteCase: caseNumbered } })
+						const muteDelete = await mute.destroy({ where: { guildID: message.guild?.id, muteCase: caseNumbered } })
 						if (muteDelete === 0) {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`Error deleting ${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1535,8 +1580,8 @@ export const command: Command = {
 								)
 						} else {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1546,19 +1591,19 @@ export const command: Command = {
 									} was successfully deleted.`,
 								)
 						}
-						const unmutedUser = await message.guild.members.fetch(`${testCaseQuery[0].userID}`)
-						const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild.id } })
-						const role = message.guild.roles.cache.get(`${muteRoleData.roleID}`)
-						await unmutedUser.roles.remove(role)
+						const unmutedUser = await message.guild?.members.fetch(`${testCaseQuery[0].userID}`)
+						const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const role = message.guild?.roles.cache.get(`${muteRoleData?.roleID}`)
+						await unmutedUser?.roles.remove(role as Role)
 					}
 					if (caseType === `warning`) {
 						const warningDelete = await warning.destroy({
-							where: { guildID: message.guild.id, warningCase: caseNumbered },
+							where: { guildID: message.guild?.id, warningCase: caseNumbered },
 						})
 						if (warningDelete === 0) {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`Error deleting ${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1569,8 +1614,8 @@ export const command: Command = {
 								)
 						} else {
 							newEmbed = new MessageEmbed()
-								.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
-								.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
+								.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 								.setTimestamp()
 								.setTitle(
 									`${capitalize(caseType)} Case Number ${caseNumbered}: ${
@@ -1582,34 +1627,35 @@ export const command: Command = {
 						}
 					}
 					try {
-						let logChannel: TextChannel
-						const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-						logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+						const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 						const deletedDataEmbed = new MessageEmbed()
-						deletedDataEmbed.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+						deletedDataEmbed.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 						deletedDataEmbed.setAuthor(
-							message.guild.members.cache.get(message.author.id)?.nickname
+							message.guild?.members.cache.get(message.author.id)?.nickname
 								? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-									message.guild.members.cache.get(message.author.id).user.username
-								  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
-								: `${message.guild.members.cache.get(message.author.id).user.username}#${
-									message.guild.members.cache.get(message.author.id).user.discriminator
+										message.guild?.members.cache.get(message.author.id)?.user.username
+								  }#${message.guild?.members.cache.get(message.author.id)?.user.discriminator})`
+								: `${message.guild?.members.cache.get(message.author.id)?.user.username}#${
+										message.guild?.members.cache.get(message.author.id)?.user.discriminator
 								  }`,
-							message.author.avatarURL(),
+							message.author.avatarURL() as string,
 						)
-						deletedDataEmbed.setThumbnail(caseUserPfp)
+						if (caseUserPfp) {
+							deletedDataEmbed.setThumbnail(caseUserPfp)
+						}
 						deletedDataEmbed.setTitle(
 							`${capitalize(caseType)} Case Number ${caseNumbered}: ${
 								caseUserNickname
 									? `${caseUserNickname}(${caseUsername}#${caseUserDiscri})`
 									: `${caseUsername}#${caseUserDiscri}`
 							} was successfully deleted by ${
-								message.guild.members.cache.get(message.author.id)?.nickname
-									? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-										message.guild.members.cache.get(message.author.id).user.username
-									  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
-									: `${message.guild.members.cache.get(message.author.id).user.username}#${
-										message.guild.members.cache.get(message.author.id).user.discriminator
+								message.guild?.members.cache.get(message.author.id)?.nickname
+									? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+											message.guild?.members.cache.get(message.author.id)?.user.username
+									  }#${message.guild?.members.cache.get(message.author.id)?.user.discriminator})`
+									: `${message.guild?.members.cache.get(message.author.id)?.user.username}#${
+											message.guild?.members.cache.get(message.author.id)?.user.discriminator
 									  }`
 							}`,
 						)
@@ -1629,11 +1675,11 @@ export const command: Command = {
 						if (caseType === `mute`) {
 							deletedDataEmbed.setFooter(
 								`Mute Case Number: ${testCaseQuery[0].muteCase}`,
-								client.user.avatarURL({ format: `png` }),
+								client.user?.avatarURL({ format: `png` }) as string,
 							)
 							deletedDataEmbed.addField(
 								`Date of unmute`,
-								testCaseQuery[0].muteEnd != null
+								testCaseQuery[0].muteEnd !== null
 									? moment(testCaseQuery[0].muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`)
 									: `The mute was on indefinite time`,
 							)
@@ -1643,18 +1689,24 @@ export const command: Command = {
 							)
 						}
 						if (caseType === `kick`) {
-							deletedDataEmbed.setFooter(`Kick Case Number: ${testCaseQuery[0].kickCase}`, client.user.avatarURL())
+							deletedDataEmbed.setFooter(
+								`Kick Case Number: ${testCaseQuery[0].kickCase}`,
+								client.user?.avatarURL() as string,
+							)
 						}
 						if (caseType === `ban`) {
-							deletedDataEmbed.setFooter(`Ban Case Number: ${testCaseQuery[0].banCase}`, client.user.avatarURL())
+							deletedDataEmbed.setFooter(
+								`Ban Case Number: ${testCaseQuery[0].banCase}`,
+								client.user?.avatarURL() as string,
+							)
 						}
 						if (caseType === `warning`) {
 							deletedDataEmbed.setFooter(
 								`Warning Case Number: ${testCaseQuery[0].warningCase}`,
-								client.user.avatarURL(),
+								client.user?.avatarURL() as string,
 							)
 						}
-						if (message.guild.id == `${testCaseQuery[0].guildID}`) {
+						if (message.guild?.id === `${testCaseQuery[0].guildID}`) {
 							deletedDataEmbed.addField(
 								`User who gave the ${caseType}`,
 								actorNickname
@@ -1685,7 +1737,12 @@ export const command: Command = {
 			})
 		}
 
-		async function caseSearch(message: Message, caseType: string, column: string, query: string): Promise<Message> {
+		async function caseSearch(
+			message: Message,
+			caseType: string,
+			column: string,
+			query: string,
+		): Promise<Message | void> {
 			if (!caseType) {
 				return message.channel.send(`You need to specify a type of case to check`)
 			}
@@ -1711,18 +1768,18 @@ export const command: Command = {
 			}
 
 			interface caseTables {
-				muteCase?: number;
-				kickCase?: number;
-				banCase?: number;
-				warningCase?: number;
-				userID: bigint;
-				guildID: bigint;
-				date: Date;
-				muteEnd?: Date;
-				note: string;
-				actor: bigint;
-				reason: string;
-				muteStatus?: boolean;
+				muteCase?: number
+				kickCase?: number
+				banCase?: number
+				warningCase?: number
+				userID: bigint
+				guildID: bigint
+				date: Date
+				muteEnd?: Date
+				note: string
+				actor: bigint
+				reason: string
+				muteStatus?: boolean
 			}
 
 			const testCaseQuery: Array<caseTables> = await database.query(
@@ -1732,7 +1789,7 @@ export const command: Command = {
             WHERE "guildID" = :guild AND CAST(${column} AS varchar) ILIKE :query
             ORDER BY CAST(${column} AS varchar) ILIKE :query, date DESC;`,
 				{
-					replacements: { guild: message.guild.id, query: `%` + query + `%` },
+					replacements: { guild: message.guild?.id, query: `%` + query + `%` },
 					type: QueryTypes.SELECT,
 				},
 			)
@@ -1766,7 +1823,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -1789,7 +1846,7 @@ export const command: Command = {
 				}
 			})
 
-			async function generateCaseEmbedding(input) {
+			async function generateCaseEmbedding(input: caseTables[]) {
 				const embeds = []
 				for (let i = 0; i < input.length; i += 1) {
 					const current = input[i]
@@ -1804,7 +1861,7 @@ export const command: Command = {
 					let caseUserPfp
 
 					try {
-						const data = message.guild.members.cache.get(`${current.actor}`) as GuildMember
+						const data = message.guild?.members.cache.get(`${current.actor}`) as GuildMember
 						actorNickname = data?.nickname ? data?.nickname : ``
 						actorUsername = data.user.username
 						actorDiscri = data.user.discriminator
@@ -1822,7 +1879,7 @@ export const command: Command = {
 						}
 					}
 					try {
-						const data = message.guild.members.cache.get(`${current.userID}`) as GuildMember
+						const data = message.guild?.members.cache.get(`${current.userID}`) as GuildMember
 						caseUserNickname = data?.nickname ? data?.nickname : ``
 						caseUsername = data.user.username
 						caseUserDiscri = data.user.discriminator
@@ -1836,57 +1893,59 @@ export const command: Command = {
 						} catch {
 							caseUsername = `Username`
 							caseUserDiscri = `Not in our system`
-							caseUserPfp = client.user.avatarURL({ format: `png` })
+							caseUserPfp = client.user?.avatarURL({ format: `png` })
 						}
 					}
 
 					const embed = new MessageEmbed()
 					embed.setAuthor(
-						client.guilds.cache.get(`${current.guildID}`).name,
-						client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` }),
+						client.guilds.cache.get(`${current.guildID}`)?.name,
+						client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` }) as string,
 					)
 					embed.setColor(
 						`${await urlToColours(
-							client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` })
-								? client.guilds.cache.get(`${current.guildID}`).iconURL({ format: `png` })
-								: client.user.avatarURL({ format: `png` }),
+							client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` })
+								? (client.guilds.cache.get(`${current.guildID}`)?.iconURL({ format: `png` }) as string)
+								: (client.user?.avatarURL({ format: `png` }) as string),
 						)}`,
 					)
 					embed.setTimestamp()
 					embed.setDescription(`**Reason for ${capitalize(caseType)}**\n${current.reason}`)
 					embed.addField(`Date of occurence`, moment(current.date).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`))
 					embed.setTitle(
-						message.guild.id == current.guildID
+						message.guild?.id === `${current.guildID}`
 							? `${
-								caseUserNickname
-									? `${caseUserNickname} (${caseUsername + `#` + caseUserDiscri})`
-									: caseUsername + `#` + caseUserDiscri
+									caseUserNickname
+										? `${caseUserNickname} (${caseUsername + `#` + caseUserDiscri})`
+										: caseUsername + `#` + caseUserDiscri
 							  }`
 							: `${caseUsername}#${caseUserDiscri} was ${caseWording} in the server ${
-								client.guilds.cache.get(`${current.guildID}`).name
+									client.guilds.cache.get(`${current.guildID}`)?.name
 							  }`,
 					)
-					embed.setThumbnail(caseUserPfp)
+					if (caseUserPfp) {
+						embed.setThumbnail(caseUserPfp)
+					}
 					if (caseType === `mute`) {
-						embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user.avatarURL())
+						embed.setFooter(`Mute Case Number: ${current.muteCase}`, client.user?.avatarURL() as string)
 						embed.addField(
 							`Date of unmute`,
-							current.muteEnd != null
+							current.muteEnd !== null
 								? moment(current.muteEnd).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`)
 								: `The mute was on indefinite time`,
 						)
 						embed.addField(`Mute activity`, current.muteStatus === true ? `Currently muted for this case` : `Unmuted`)
 					}
 					if (caseType === `kick`) {
-						embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user.avatarURL())
+						embed.setFooter(`Kick Case Number: ${current.kickCase}`, client.user?.avatarURL() as string)
 					}
 					if (caseType === `ban`) {
-						embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user.avatarURL())
+						embed.setFooter(`Ban Case Number: ${current.banCase}`, client.user?.avatarURL() as string)
 					}
 					if (caseType === `warning`) {
-						embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user.avatarURL())
+						embed.setFooter(`Warning Case Number: ${current.warningCase}`, client.user?.avatarURL() as string)
 					}
-					if (message.guild.id == current.guildID) {
+					if (message.guild?.id === `${current.guildID}`) {
 						embed.addField(
 							`User who gave the ${caseType}`,
 							`${
@@ -1908,7 +1967,7 @@ export const command: Command = {
 			caseType: string,
 			firstDate?: string,
 			secondDate?: string,
-		): Promise<Message> {
+		): Promise<Message | void> {
 			if (!caseType) {
 				return message.channel.send(`You need to specify a type of case to check`)
 			}
@@ -1938,18 +1997,18 @@ export const command: Command = {
 			}
 
 			interface caseTables {
-				muteCase?: number;
-				kickCase?: number;
-				banCase?: number;
-				warningCase?: number;
-				userID: bigint;
-				guildID: bigint;
-				date: Date;
-				muteEnd?: Date;
-				note: string;
-				actor: bigint;
-				reason: string;
-				muteStatus?: boolean;
+				muteCase?: number
+				kickCase?: number
+				banCase?: number
+				warningCase?: number
+				userID: bigint
+				guildID: bigint
+				date: Date
+				muteEnd?: Date
+				note: string
+				actor: bigint
+				reason: string
+				muteStatus?: boolean
 			}
 
 			const testCaseQuery: Array<caseTables> = await database.query(
@@ -1959,7 +2018,7 @@ export const command: Command = {
             WHERE "guildID" = :guild${firstDate ? ` AND date >= :startDate AND date < :endDate` : ``}
             ORDER BY date DESC;`,
 				{
-					replacements: { guild: message.guild.id, startDate: firstDate, endDate: secondDate },
+					replacements: { guild: message.guild?.id, startDate: firstDate, endDate: secondDate },
 					type: QueryTypes.SELECT,
 				},
 			)
@@ -1979,7 +2038,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -2002,12 +2061,11 @@ export const command: Command = {
 				}
 			})
 
-			async function generateCaseListEmbed(data) {
+			async function generateCaseListEmbed(data: caseTables[]) {
 				const embeds = []
 				let k = 10
 				for (let i = 0; i < data.length; i += 10) {
 					const current = data.slice(i, k)
-					const j = i
 					k += 10
 					let info
 					if (caseType === `ban`) {
@@ -2015,9 +2073,9 @@ export const command: Command = {
 							.map(
 								(caseList) =>
 									`**Ban Case Number ${caseList.banCase}:** ${
-										client.users.cache.get(`${caseList.userID}`).username
-											? `${client.users.cache.get(`${caseList.userID}`).username}#${
-												client.users.cache.get(`${caseList.userID}`).discriminator
+										client.users.cache.get(`${caseList.userID}`)?.username
+											? `${client.users.cache.get(`${caseList.userID}`)?.username}#${
+													client.users.cache.get(`${caseList.userID}`)?.discriminator
 											  }`
 											: `Anonymous user`
 									}. ${moment(caseList.date).format(`MMMM Do YYYY`)}.`,
@@ -2029,9 +2087,9 @@ export const command: Command = {
 							.map(
 								(caseList) =>
 									`**Kick Case Number ${caseList.kickCase}:** ${
-										client.users.cache.get(`${caseList.userID}`).username
-											? `${client.users.cache.get(`${caseList.userID}`).username}#${
-												client.users.cache.get(`${caseList.userID}`).discriminator
+										client.users.cache.get(`${caseList.userID}`)?.username
+											? `${client.users.cache.get(`${caseList.userID}`)?.username}#${
+													client.users.cache.get(`${caseList.userID}`)?.discriminator
 											  }`
 											: `Anonymous user`
 									}. ${moment(caseList.date).format(`MMMM Do YYYY`)}.`,
@@ -2043,9 +2101,9 @@ export const command: Command = {
 							.map(
 								(caseList) =>
 									`**Mute Case Number ${caseList.muteCase}:** ${
-										client.users.cache.get(`${caseList.userID}`).username
-											? `${client.users.cache.get(`${caseList.userID}`).username}#${
-												client.users.cache.get(`${caseList.userID}`).discriminator
+										client.users.cache.get(`${caseList.userID}`)?.username
+											? `${client.users.cache.get(`${caseList.userID}`)?.username}#${
+													client.users.cache.get(`${caseList.userID}`)?.discriminator
 											  }`
 											: `Anonymous user`
 									}. ${moment(caseList.date).format(`MMMM Do YYYY`)}.`,
@@ -2057,9 +2115,9 @@ export const command: Command = {
 							.map(
 								(caseList) =>
 									`**Warning Case Number ${caseList.warningCase}:** ${
-										client.users.cache.get(`${caseList.userID}`).username
-											? `${client.users.cache.get(`${caseList.userID}`).username}#${
-												client.users.cache.get(`${caseList.userID}`).discriminator
+										client.users.cache.get(`${caseList.userID}`)?.username
+											? `${client.users.cache.get(`${caseList.userID}`)?.username}#${
+													client.users.cache.get(`${caseList.userID}`)?.discriminator
 											  }`
 											: `Anonymous user`
 									}. ${moment(caseList.date).format(`MMMM Do YYYY`)}.`,
@@ -2067,23 +2125,23 @@ export const command: Command = {
 							.join(`\n`)
 					}
 					const embed = new MessageEmbed()
-						.setDescription(`${await info}`)
+						.setDescription(`${info}`)
 						.setColor(
-							message.guild.iconURL()
-								? `${await urlToColours(message.guild.iconURL({ format: `png` }))}`
-								: `${await urlToColours(client.user.displayAvatarURL({ format: `png` }))}`,
+							message.guild?.iconURL()
+								? `${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`
+								: `${await urlToColours(client.user?.displayAvatarURL({ format: `png` }) as string)}`,
 						)
 						.setTitle(
-							`${capitalize(caseType)} Case List for ${message.guild.name}${
+							`${capitalize(caseType)} Case List for ${message.guild?.name}${
 								firstDate ? ` between ${firstDate} and ${secondDate}` : ``
 							}`,
 						)
 						.setThumbnail(
-							message.guild.iconURL({ format: `png`, dynamic: true, size: 1024 })
-								? message.guild.iconURL({ format: `png`, dynamic: true, size: 1024 })
+							message.guild?.iconURL({ format: `png`, dynamic: true, size: 1024 })
+								? (message.guild?.iconURL({ format: `png`, dynamic: true, size: 1024 }) as string)
 								: ``,
 						)
-						.setAuthor(client.user.username, client.user.avatarURL({ format: `png` }))
+						.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
 						.setFooter(`Amount of ${caseType} cases: ${data.length}`)
 						.setTimestamp()
 					embeds.push(embed)

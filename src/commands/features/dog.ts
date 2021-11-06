@@ -9,7 +9,7 @@ export const command: Command = {
 	description: `Make Bento send a random dog 🐶🥺`,
 	usage: `dog`,
 	website: `https://www.bentobot.xyz/commands#dog`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message): Promise<Message> => {
 		const dogData = await axios.get(`https://dog.ceo/api/breeds/image/random`)
 		return message.channel.send(dogData.data.message)
 	},

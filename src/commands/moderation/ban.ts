@@ -12,8 +12,8 @@ export const command: Command = {
 	description: `Bans the mentioned user from your server.`,
 	usage: `ban <user id or mention user> [reason]`,
 	website: `https://www.bentobot.xyz/commands#ban`,
-	run: async (client, message, args): Promise<any> => {
-		if (!message.member.hasPermission(`BAN_MEMBERS`)) {
+	run: async (client, message, args): Promise<Message | GuildMember> => {
+		if (!message.member?.hasPermission(`BAN_MEMBERS`)) {
 			return message.channel
 				.send(`You do not have permission to use this command.\nYou are not a mod.`)
 				.then((m) => m.delete({ timeout: 5000 }))
@@ -25,23 +25,23 @@ export const command: Command = {
 			)
 		}
 
-		let bannedUser: GuildMember
-		let bannedUserID: string
+		let bannedUser: GuildMember | undefined
+		let bannedUserID: string | undefined
 
 		try {
-			bannedUser = message.mentions.members.has(client.user.id)
+			bannedUser = message.mentions.members?.has(client.user?.id as string)
 				? message.mentions.members.size > 1
 					? message.mentions.members.last()
 					: message.member
-				: message.mentions.members.first() || (await message.guild.members.fetch(args[0]))
-			bannedUserID = bannedUser.id
+				: message.mentions.members?.first() || (await message.guild?.members.fetch(args[0]))
+			bannedUserID = bannedUser?.id
 		} catch {
 			return message.channel.send(
 				`I cannot find the specified member. Please mention a valid member in this Discord server.`,
 			)
 		}
 
-		if (!bannedUser.bannable) {
+		if (!bannedUser?.bannable) {
 			return message.channel.send(`This member is not bannable.`)
 		}
 
@@ -49,15 +49,15 @@ export const command: Command = {
 			return message.channel.send(`You cannot ban someone with a higher role than you.`)
 		}
 
-		let reason: string
+		let reason: string | undefined
 
 		if (args.length > 1) {
 			reason = args.slice(1).join(` `)
 		}
 
 		const banAttr: banCreationAttributes = {
-			userID: BigInt(bannedUserID),
-			guildID: BigInt(message.guild.id),
+			userID: BigInt(bannedUserID as string),
+			guildID: BigInt(message.guild?.id as string),
 			date: new Date(),
 			actor: BigInt(message.author.id),
 			reason: reason,
@@ -65,23 +65,23 @@ export const command: Command = {
 
 		initModels(database)
 
-		const banned = await ban
-			.findOrCreate({ raw: true, where: { userID: bannedUserID, guildID: message.guild.id }, defaults: banAttr })
-			.catch(console.error)
+		const banned = (await ban
+			.findOrCreate({ raw: true, where: { userID: bannedUserID, guildID: message.guild?.id }, defaults: banAttr })
+			.catch(console.error)) as [ban, boolean]
 
 		if (banned[1] === false) {
 			return message.channel.send(
 				`${
-					message.guild.members.cache.get(`${bannedUserID}`)?.nickname
+					message.guild?.members.cache.get(`${bannedUserID}`)?.nickname
 						? `${message.guild.members.cache.get(`${bannedUserID}`)?.nickname} (${
-							message.guild.members.cache.get(`${bannedUserID}`).user.username +
+								message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 								`#` +
-								message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+								message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 						  })`
 						: `${
-							message.guild.members.cache.get(`${bannedUserID}`).user.username +
+								message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 								`#` +
-								message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+								message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 						  }`
 				} is already banned on this server.\nThe case number for this ban is: \`${
 					banned[0].banCase
@@ -89,22 +89,21 @@ export const command: Command = {
 			)
 		} else {
 			try {
-				let logChannel: TextChannel
-				const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-				logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+				const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setColor(`#ff0000`)
 					.setAuthor(
-						message.guild.members.cache.get(message.author.id)?.nickname
+						message.guild?.members.cache.get(message.author.id)?.nickname
 							? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-								message.guild.members.cache.get(message.author.id).user.username
-							  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
-							: `${message.guild.members.cache.get(message.author.id).user.username}#${
-								message.guild.members.cache.get(message.author.id).user.discriminator
+									message.guild?.members.cache.get(message.author.id)?.user.username
+							  }#${message.guild?.members.cache.get(message.author.id)?.user.discriminator})`
+							: `${message.guild?.members.cache.get(message.author.id)?.user.username}#${
+									message.guild?.members.cache.get(message.author.id)?.user.discriminator
 							  }`,
-						message.author.avatarURL(),
+						message.author.avatarURL() as string,
 					)
-					.setThumbnail(bannedUser.user.avatarURL())
+					.setThumbnail(bannedUser.user.avatarURL() as string)
 					.setTitle(
 						`${
 							bannedUser?.nickname
@@ -117,36 +116,36 @@ export const command: Command = {
 					.addField(`User ID`, bannedUser.id)
 					.addField(
 						`Banned by`,
-						message.guild.members.cache.get(message.author.id)?.nickname
+						message.guild?.members.cache.get(message.author.id)?.nickname
 							? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-								message.guild.members.cache.get(message.author.id).user.username
-							  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
-							: `${message.guild.members.cache.get(message.author.id).user.username}#${
-								message.guild.members.cache.get(message.author.id).user.discriminator
+									message.guild?.members.cache.get(message.author.id)?.user.username
+							  }#${message.guild?.members.cache.get(message.author.id)?.user.discriminator})`
+							: `${message.guild?.members.cache.get(message.author.id)?.user.username}#${
+									message.guild?.members.cache.get(message.author.id)?.user.discriminator
 							  }`,
 					)
 					.setFooter(`Ban Case Number: ${banned[0].banCase}`)
 					.setTimestamp()
 				await logChannel.send(embed)
 				try {
-					(await client.users.fetch(bannedUserID))
-						.send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
+					;(await client.users.fetch(bannedUserID as string))
+						.send(`🔨You were \`banned\` from **${message.guild?.name}** 🔨 \n**Reason**: ${reason}.`)
 						.catch((error) => {
 							console.error(`Could not send ban DM`, error)
 						})
 					await bannedUser.ban({ reason: reason, days: 7 })
 					return await message.channel.send(
 						`**${
-							message.guild.members.cache.get(`${bannedUserID}`)?.nickname
+							message.guild?.members.cache.get(`${bannedUserID}`)?.nickname
 								? `${message.guild.members.cache.get(`${bannedUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  })`
 								: `${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  }`
 						}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${
 							banned[0].reason
@@ -156,16 +155,16 @@ export const command: Command = {
 					await bannedUser.ban({ reason: reason, days: 7 })
 					return await message.channel.send(
 						`**${
-							message.guild.members.cache.get(`${bannedUserID}`)?.nickname
+							message.guild?.members.cache.get(`${bannedUserID}`)?.nickname
 								? `${message.guild.members.cache.get(`${bannedUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  })`
 								: `${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  }`
 						}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${
 							banned[0].reason
@@ -174,23 +173,23 @@ export const command: Command = {
 				}
 			} catch {
 				try {
-					(await client.users.fetch(bannedUserID))
-						.send(`🔨You were \`banned\` from **${message.guild.name}** 🔨 \n**Reason**: ${reason}.`)
+					;(await client.users.fetch(bannedUserID as string))
+						.send(`🔨You were \`banned\` from **${message.guild?.name}** 🔨 \n**Reason**: ${reason}.`)
 						.catch((error) => {
 							console.error(`Could not send ban DM`, error)
 						})
 					await message.channel.send(
 						`**${
-							message.guild.members.cache.get(`${bannedUserID}`)?.nickname
+							message.guild?.members.cache.get(`${bannedUserID}`)?.nickname
 								? `${message.guild.members.cache.get(`${bannedUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  })`
 								: `${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  }`
 						}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${
 							banned[0].reason
@@ -200,16 +199,16 @@ export const command: Command = {
 				} catch {
 					await message.channel.send(
 						`**${
-							message.guild.members.cache.get(`${bannedUserID}`)?.nickname
+							message.guild?.members.cache.get(`${bannedUserID}`)?.nickname
 								? `${message.guild.members.cache.get(`${bannedUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  })`
 								: `${
-									message.guild.members.cache.get(`${bannedUserID}`).user.username +
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.username +
 										`#` +
-										message.guild.members.cache.get(`${bannedUserID}`).user.discriminator
+										message.guild?.members.cache.get(`${bannedUserID}`)?.user.discriminator
 								  }`
 						}** was successfully **banned** on this server.\n**Case number: ${banned[0].banCase}**.\n**Reason:** ${
 							banned[0].reason

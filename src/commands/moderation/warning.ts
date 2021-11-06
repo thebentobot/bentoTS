@@ -24,23 +24,23 @@ export const command: Command = {
 			)
 		}
 
-		let warningUser: GuildMember
-		let warningUserID: string
+		let warningUser: GuildMember | undefined
+		let warningUserID: string | undefined
 
 		try {
-			warningUser = message.mentions.members.has(client.user.id)
+			warningUser = message?.mentions?.members?.has(client?.user?.id as string)
 				? message.mentions.members.size > 1
 					? message.mentions.members.last()
 					: message.member
-				: message.mentions.members.first() || (await message.guild.members.fetch(args[0]))
-			warningUserID = warningUser.id
+				: message?.mentions?.members?.first() || (await message?.guild?.members.fetch(args[0]))
+			warningUserID = warningUser?.id
 		} catch {
 			return message.channel.send(
 				`I cannot find the specified member. Please mention a valid member in this Discord server.`,
 			)
 		}
 
-		if (!warningUser.bannable) {
+		if (!warningUser?.bannable) {
 			return message.channel.send(`This member is not warnable.`)
 		}
 
@@ -48,15 +48,15 @@ export const command: Command = {
 			return message.channel.send(`You cannot warn someone with a higher role than you.`)
 		}
 
-		let reason: string
+		let reason: string | undefined
 
 		if (args.length > 1) {
 			reason = args.slice(1).join(` `)
 		}
 
 		const warnAttr: warningCreationAttributes = {
-			userID: BigInt(warningUserID),
-			guildID: BigInt(message.guild.id),
+			userID: BigInt(warningUserID as string),
+			guildID: BigInt(message.guild?.id as string),
 			date: new Date(),
 			actor: BigInt(message.author.id),
 			reason: reason,
@@ -65,24 +65,23 @@ export const command: Command = {
 		initModels(database)
 
 		const warned = await warning.create(warnAttr)
-		const warningCount = await warning.findAndCountAll({ where: { guildID: message.guild.id, userID: warningUserID } })
+		const warningCount = await warning.findAndCountAll({ where: { guildID: message.guild?.id, userID: warningUserID } })
 		try {
-			let logChannel: TextChannel
-			const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
-			logChannel = client.channels.cache.get(`${channel.channel}`) as TextChannel
+			const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 			const embed = new MessageEmbed()
 				.setColor(`#22ff00`)
 				.setAuthor(
-					message.guild.members.cache.get(message.author.id)?.nickname
+					message.guild?.members.cache.get(message.author.id)?.nickname
 						? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-								message.guild.members.cache.get(message.author.id).user.username
-						  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
-						: `${message.guild.members.cache.get(message.author.id).user.username}#${
-								message.guild.members.cache.get(message.author.id).user.discriminator
+								message.guild?.members.cache.get(message.author.id)?.user.username
+						  }#${message.guild?.members.cache.get(message.author.id)?.user.discriminator})`
+						: `${message.guild?.members.cache.get(message.author.id)?.user.username}#${
+								message.guild?.members.cache.get(message.author.id)?.user.discriminator
 						  }`,
-					message.author.avatarURL(),
+					message.author.avatarURL() as string,
 				)
-				.setThumbnail(warningUser.user.avatarURL())
+				.setThumbnail(warningUser.user.avatarURL() as string)
 				.setTitle(
 					`${
 						warningUser?.nickname
@@ -97,37 +96,37 @@ export const command: Command = {
 				.addField(`User ID`, warningUser.id)
 				.addField(
 					`Warned by`,
-					message.guild.members.cache.get(message.author.id)?.nickname
+					message.guild?.members.cache.get(message.author.id)?.nickname
 						? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-								message.guild.members.cache.get(message.author.id).user.username
-						  }#${message.guild.members.cache.get(message.author.id).user.discriminator})`
-						: `${message.guild.members.cache.get(message.author.id).user.username}#${
-								message.guild.members.cache.get(message.author.id).user.discriminator
+								message.guild?.members.cache.get(message.author.id)?.user.username
+						  }#${message.guild?.members.cache.get(message.author.id)?.user.discriminator})`
+						: `${message.guild?.members.cache.get(message.author.id)?.user.username}#${
+								message.guild?.members.cache.get(message.author.id)?.user.discriminator
 						  }`,
 				)
 				.setFooter(`Warning Case Number: ${warned.warningCase}`)
 				.setTimestamp()
 			await logChannel.send(embed)
 			try {
-				;(await client.users.fetch(warningUserID))
+				;(await client.users.fetch(warningUserID as string))
 					.send(
-						`⚠ You have received a \`warning\` from **${message.guild.name}** ⚠\n**Reason**: ${reason}.\nThis is warning number ${warningCount.count} that you have received from this server.`,
+						`⚠ You have received a \`warning\` from **${message.guild?.name}** ⚠\n**Reason**: ${reason}.\nThis is warning number ${warningCount.count} that you have received from this server.`,
 					)
 					.catch((error) => {
 						console.error(`Could not send warning DM`, error)
 					})
 				return await message.channel.send(
 					`**${
-						message.guild.members.cache.get(`${warningUserID}`)?.nickname
+						message.guild?.members.cache.get(`${warningUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  })`
 							: `${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  }`
 					}** was successfully **warned**.\n**Case number: ${
 						warned.warningCase
@@ -136,16 +135,16 @@ export const command: Command = {
 			} catch {
 				return await message.channel.send(
 					`**${
-						message.guild.members.cache.get(`${warningUserID}`)?.nickname
-							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+						message.guild?.members.cache.get(`${warningUserID}`)?.nickname
+							? `${message.guild?.members.cache.get(`${warningUserID}`)?.nickname} (${
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  })`
 							: `${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  }`
 					}** was successfully **warned**.\n**Case number: ${
 						warned.warningCase
@@ -154,25 +153,25 @@ export const command: Command = {
 			}
 		} catch {
 			try {
-				;(await client.users.fetch(warningUserID))
+				;(await client.users.fetch(warningUserID as string))
 					.send(
-						`⚠ You have received a \`warning\` from **${message.guild.name}** ⚠\n**Reason**: ${reason}.\nThis is warning number ${warningCount.count} that you have received from this server.`,
+						`⚠ You have received a \`warning\` from **${message.guild?.name}** ⚠\n**Reason**: ${reason}.\nThis is warning number ${warningCount.count} that you have received from this server.`,
 					)
 					.catch((error) => {
 						console.error(`Could not send warning DM`, error)
 					})
 				return await message.channel.send(
 					`**${
-						message.guild.members.cache.get(`${warningUserID}`)?.nickname
-							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+						message.guild?.members.cache.get(`${warningUserID}`)?.nickname
+							? `${message.guild?.members.cache.get(`${warningUserID}`)?.nickname} (${
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  })`
 							: `${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  }`
 					}** was successfully **warned**.\n**Case number: ${
 						warned.warningCase
@@ -181,16 +180,16 @@ export const command: Command = {
 			} catch {
 				return await message.channel.send(
 					`**${
-						message.guild.members.cache.get(`${warningUserID}`)?.nickname
+						message.guild?.members.cache.get(`${warningUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${warningUserID}`)?.nickname} (${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  })`
 							: `${
-									message.guild.members.cache.get(`${warningUserID}`).user.username +
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.username +
 									`#` +
-									message.guild.members.cache.get(`${warningUserID}`).user.discriminator
+									message.guild?.members.cache.get(`${warningUserID}`)?.user.discriminator
 							  }`
 					}** was successfully **warned**.\n**Case number: ${
 						warned.warningCase

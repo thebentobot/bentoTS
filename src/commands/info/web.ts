@@ -8,7 +8,7 @@ export const command: Command = {
 	description: `Link to the Bento 🍱 website`,
 	usage: `web`,
 	website: `https://www.bentobot.xyz/commands#web`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message): Promise<Message> => {
 		return message.channel.send(`https://www.bentobot.xyz/`)
 	},
 }

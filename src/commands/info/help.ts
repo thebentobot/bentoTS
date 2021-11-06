@@ -13,7 +13,7 @@ export const command: Command = {
 	description: `Displays bot help message or info for a command`,
 	usage: `help [command name]`,
 	website: `https://www.bentobot.xyz/commands#help`,
-	run: async (client, message, args): Promise<any> => {
+	run: async (client, message, args): Promise<Message | void> => {
 		if (args[0]) {
 			return getCMD(client, message, args[0])
 		} else {
@@ -23,14 +23,14 @@ export const command: Command = {
 		async function helpMSG(client: ExtendedClient, message: Message) {
 			initModels(database)
 
-			const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+			const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 
 			const embed = new MessageEmbed()
-				.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`)
+				.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 				.setTitle(`Help`)
-				.setThumbnail(client.user.avatarURL())
+				.setThumbnail(client.user?.avatarURL() as string)
 				.setDescription(
-					`For a full list of commands, please type \`${guildDB.prefix}commands\` \nTo see more info about a specific command, please type \`${guildDB.prefix}help <command>\` without the \`<>\``,
+					`For a full list of commands, please type \`${guildDB?.prefix}commands\` \nTo see more info about a specific command, please type \`${guildDB?.prefix}help <command>\` without the \`<>\``,
 				)
 				.addField(
 					`About Bento Bot 🍱`,
@@ -47,15 +47,15 @@ export const command: Command = {
 				)
 				.setFooter(
 					`Bento 🍱 is created by Banner#1017`,
-					(await client.users.fetch(`232584569289703424`)).avatarURL({ dynamic: true }),
+					(await client.users.fetch(`232584569289703424`))?.avatarURL({ dynamic: true }) as string,
 				)
-			await message.channel.send(embed).catch((error) => {
+			return await message.channel.send(embed).catch((error) => {
 				console.error(`Could not send message, missing permission`, error)
 			})
 		}
 
-		async function getCMD(client: ExtendedClient, message: Message, input: any) {
-			const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+		async function getCMD(client: ExtendedClient, message: Message, input: string) {
+			const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 
 			const embed = new MessageEmbed()
 
@@ -67,23 +67,28 @@ export const command: Command = {
 
 			if (!cmd) {
 				return message.channel.send(
-					embed.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`).setDescription(info),
+					embed
+						.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
+						.setDescription(info),
 				)
 			}
 
 			cmd.aliases = Array.prototype.slice.call(cmd.aliases)
 			if (cmd.name) info = `**Command Name**: ${cmd.name}`
-			if (cmd.aliases)
-				info += `\n**Aliases**: ${cmd.aliases.map((a) => `\`${stringify({ a }).slice(2)}\``).join(`, `)}`
+			if (cmd.aliases) info += `\n**Aliases**: ${cmd.aliases.map((a) => `\`${stringify({ a }).slice(2)}\``).join(`, `)}`
 			if (cmd.description) info += `\n**Description**: ${cmd.description}`
 			if (cmd.usage) {
-				info += `\n**Usage**: ${guildDB.prefix}${cmd.usage}`
+				info += `\n**Usage**: ${guildDB?.prefix}${cmd.usage}`
 				embed.setFooter(`<> = REQUIRED | [] = OPTIONAL`)
 			}
 			if (cmd.website) info += `\n**Website**: ${cmd.website}`
 
 			return message.channel
-				.send(embed.setColor(`${await urlToColours(client.user.avatarURL({ format: `png` }))}`).setDescription(info))
+				.send(
+					embed
+						.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
+						.setDescription(info),
+				)
 				.catch((error) => {
 					console.error(`Could not send message, missing permission`, error)
 				})
