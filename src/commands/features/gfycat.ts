@@ -1,12 +1,11 @@
 import axios, { AxiosResponse } from 'axios'
-import { Message, MessageAttachment, MessageEmbed, TextChannel } from 'discord.js'
+import { Message, MessageEmbed, MessageReaction, TextChannel, User } from 'discord.js'
 import database from '../../database/database'
 import { initModels, guild, gfycatBlacklist } from '../../database/models/init-models'
 import { Command, gfycatInterface, gfycatSearchInterface } from '../../interfaces'
 import { gfycatToken } from './gif'
 import naughtyWords from 'naughty-words/en.json'
 import utf8 from 'utf8'
-import moment from 'moment'
 import { nFormatter, urlToColours } from '../../utils'
 
 const gfycatAPI = axios.create({
@@ -17,45 +16,43 @@ export const command: Command = {
 	name: `gfycat`,
 	aliases: [`gfy`],
 	category: `features`,
-	description:
-		`Various Gfycat features. Create GIFs with video URLs or video attachments, get gfycat user profiles or feeds, get info about a gfycat post, or search for gfycat posts just like the gif command.`,
-	usage:
-		`gfycat create <video url, or attachment> [--full if you want the whole video as a gif. If this is added, no need to specify start seconds and duration] <seconds to start at> <duration of the gif> [title of your gfycat post]\ngfycat user profile <gfycat username>\ngfycat user feed <gfycat username> [count number between 1-30]\ngfycat info <gfycat post name e.g. naiveamusingfritillarybutterfly>\ngfycat search <search input> [--multi [--count <number between 1-30>]]`,
+	description: `Various Gfycat features. Create GIFs with video URLs or video attachments, get gfycat user profiles or feeds, get info about a gfycat post, or search for gfycat posts just like the gif command.`,
+	usage: `gfycat create <video url, or attachment> [--full if you want the whole video as a gif. If this is added, no need to specify start seconds and duration] <seconds to start at> <duration of the gif> [title of your gfycat post]\ngfycat user profile <gfycat username>\ngfycat user feed <gfycat username> [count number between 1-30]\ngfycat info <gfycat post name e.g. naiveamusingfritillarybutterfly>\ngfycat search <search input> [--multi [--count <number between 1-30>]]`,
 	website: `https://www.bentobot.xyz/commands#gfycat`,
-	run: async (client, message, args): Promise<any> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		if (message.channel.type !== `text`) return
 
 		switch (args[0]) {
-		case `upload`:
-		case `create`:
-			await createGfycat(message)
-			break
-		case `user`:
-			switch (args[1]) {
-			case `profile`:
-				await userProfile(message, args[2])
+			case `upload`:
+			case `create`:
+				await createGfycat(message)
 				break
-			case `feed`:
-			case `gfycats`:
-			case `gfys`:
-				await userFeed(message, args[2], args[3])
+			case `user`:
+				switch (args[1]) {
+					case `profile`:
+						await userProfile(message, args[2])
+						break
+					case `feed`:
+					case `gfycats`:
+					case `gfys`:
+						await userFeed(message, args[2], args[3])
+						break
+				}
 				break
-			}
-			break
-		case `get`:
-		case `info`:
-			await getGfycat(message, args[1])
-			break
-		case `search`:
-			await searchGfycat(message, args)
-			break
+			case `get`:
+			case `info`:
+				await getGfycat(message, args[1])
+				break
+			case `search`:
+				await searchGfycat(message, args)
+				break
 		}
 
 		initModels(database)
 
-		const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+		const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 
-		if (guildDB.media === false) return
+		if (guildDB?.media === false) return
 
 		async function searchGfycat(message: Message, search: string[]) {
 			if (!search) {
@@ -75,7 +72,8 @@ export const command: Command = {
 			if (args.includes(`--multi`)) {
 				let getNumber = args.join(` `)
 				if (args.includes(`--count`)) {
-					getNumber = getNumber.match(/\d+/).pop()
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+					getNumber = getNumber.match(/\d+/)!.pop() as string
 					count = parseInt(getNumber)
 					if (count > 30) return message.channel.send(`Sorry, 30 posts is the max.`)
 				}
@@ -112,13 +110,15 @@ export const command: Command = {
 						`Loading a random Gfycat Post related to \`${query}\` ... ⌛🐱`,
 					)
 					let index = Math.floor(Math.random() * gfycatData.length)
-					let gfyTest
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					let gfyTest: any
 					await axios
 						.get(gfycatData[index].mobileUrl)
 						.then((res) => {
 							gfyTest = res
 						})
-						.catch((error) => {})
+						// eslint-disable-next-line @typescript-eslint/no-empty-function
+						.catch(() => {})
 					while (gfyTest?.status !== 200) {
 						gfycatData = gfycatData.filter((gfy) => gfy.userData.username !== gfycatData[index].userData.username)
 						index = Math.floor(Math.random() * gfycatData.length)
@@ -127,7 +127,8 @@ export const command: Command = {
 							.then((res) => {
 								gfyTest = res
 							})
-							.catch((error) => {})
+							// eslint-disable-next-line @typescript-eslint/no-empty-function
+							.catch(() => {})
 					}
 					waitingMessage.delete()
 					return message.channel.send(`https://gfycat.com/${gfycatData[index].gfyName}`)
@@ -145,7 +146,7 @@ export const command: Command = {
 					await queueEmbed.react(`⬅️`)
 					await queueEmbed.react(`➡️`)
 					await queueEmbed.react(`❌`)
-					const filter = (reaction, user) =>
+					const filter = (reaction: MessageReaction, user: User) =>
 						[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 					const collector = queueEmbed.createReactionCollector(filter, { idle: 900000, dispose: true })
 
@@ -167,27 +168,6 @@ export const command: Command = {
 							await queueEmbed.delete()
 						}
 					})
-
-					async function generateGfyCatEmbed(gfycat: gfycatInterface[]) {
-						const embeds = []
-						let k = 1
-						for (let i = 0; i < gfycat.length; i += 1) {
-							const current = gfycat[i]
-							const j = i
-							k += 1
-
-							const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ``}${
-								current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ``
-							}${current.views} Views\n<t:${current.createDate}:F>\nhttps://gfycat.com/${current.gfyName}`
-							await axios
-								.get(current.mobileUrl)
-								.then((res) => {
-									embeds.push(embed)
-								})
-								.catch((error) => {})
-						}
-						return embeds
-					}
 				}
 			}
 		}
@@ -199,12 +179,11 @@ export const command: Command = {
 				return message.channel.send(`You didn't attach any content to create a gfycat`)
 			}
 
-			let gfyContent: string
 			let caption: string
 			let startSeconds: string
 			let duration: string
 
-			gfyContent = getUrl[0] ? getUrl[0].url : args[1]
+			const gfyContent = getUrl[0] ? getUrl[0].url : args[1]
 			if (args.includes(`--full`)) {
 				startSeconds = ``
 				duration = ``
@@ -237,11 +216,6 @@ export const command: Command = {
 					headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` },
 				})
 				while (checkStatus.data.task === `encoding`) {
-					function sleep(ms: number) {
-						return new Promise((resolve) => {
-							setTimeout(resolve, ms)
-						})
-					}
 					sleep(30000)
 					checkStatus = await gfycatAPI.get(`gfycats/fetch/status/${response.data.gfyname}`, {
 						headers: { Authorization: `Bearer ${gfycatToken}` },
@@ -280,7 +254,7 @@ export const command: Command = {
 				return message.channel.send(`Error - couldn't find \`${user}\``)
 			}
 
-			let response: AxiosResponse
+			let response: AxiosResponse | undefined
 			await gfycatAPI
 				.get(`users/${user}`, {
 					headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` },
@@ -288,14 +262,15 @@ export const command: Command = {
 				.then((res) => {
 					response = res
 				})
-				.catch((error) => {})
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
+				.catch(() => {})
 
 			try {
 				const profilePicture = await axios({
 					method: `post`,
 					url: `http://sushii-image-server:3000/url`,
 					data: {
-						url: response.data.profileImageUrl,
+						url: response?.data.profileImageUrl,
 						width: 200,
 						height: 200,
 						imageFormat: `png`,
@@ -306,25 +281,28 @@ export const command: Command = {
 
 				const embed = new MessageEmbed()
 					.setAuthor(
-						(await response.data.verified) ? `${await response.data.username} ✔️` : await response.data.username,
-						await response.data.profileImageUrl,
-						await response.data.url,
+						(await response?.data.verified) ? `${await response?.data.username} ✔️` : await response?.data.username,
+						await response?.data.profileImageUrl,
+						await response?.data.url,
 					)
-					.setColor(`${await urlToColours(response.data.profileImageUrl)}`)
-					.setTitle(await response.data.name)
-					.attachFiles([{ name: `${response.data.username}_gfypfp.png`, attachment: profilePicture }])
-					.setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
+					.setColor(`${await urlToColours(response?.data.profileImageUrl)}`)
+					.setTitle(await response?.data.name)
+					.attachFiles([{ name: `${response?.data.username}_gfypfp.png`, attachment: profilePicture }])
+					.setThumbnail(`attachment://${response?.data.username}_gfypfp.png`)
 					.setDescription(
 						`${
-							(await response.data.description.length) > 0 ? `${await response.data.description}\n\n` : ``
-						}Total Views: ${nFormatter(await response.data.views, 1)}\nPublished Gfycats: ${nFormatter(
-							await response.data.publishedGfycats,
+							(await response?.data.description.length) > 0 ? `${await response?.data.description}\n\n` : ``
+						}Total Views: ${nFormatter(await response?.data.views, 1)}\nPublished Gfycats: ${nFormatter(
+							await response?.data.publishedGfycats,
 							1,
-						)}\nPublished Gfycat Albums: ${nFormatter(await response.data.publishedAlbums, 1)}\nFollowers: ${nFormatter(
-							await response.data.followers,
+						)}\nPublished Gfycat Albums: ${nFormatter(
+							await response?.data.publishedAlbums,
 							1,
-						)}\nFollowing: ${nFormatter(await response.data.following, 1)}\nAccount made on <t:${await response.data
-							.createDate}:F>\nProfile URL: ${await response.data.profileUrl}`,
+						)}\nFollowers: ${nFormatter(await response?.data.followers, 1)}\nFollowing: ${nFormatter(
+							await response?.data.following,
+							1,
+						)}\nAccount made on <t:${await response?.data.createDate}:F>\nProfile URL: ${await response?.data
+							.profileUrl}`,
 					)
 				return await message.channel.send(embed)
 			} catch {
@@ -346,11 +324,12 @@ export const command: Command = {
 			let insertCount = 15
 
 			if (count) {
-				const getNumber = count.match(/\d+/).pop()
-				insertCount = parseInt(getNumber)
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+				const getNumber = count.match(/\d+/)!.pop()
+				insertCount = parseInt(getNumber as string)
 				if (insertCount > 30) return message.channel.send(`Sorry, 30 posts is the max.`)
 			}
-			let response: AxiosResponse
+			let response: AxiosResponse | undefined
 			await gfycatAPI
 				.get(`users/${user}/gfycats`, {
 					params: { count: insertCount },
@@ -359,19 +338,20 @@ export const command: Command = {
 				.then((res) => {
 					response = res
 				})
-				.catch((error) => {})
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
+				.catch(() => {})
 
 			const waitingMessage: Message = await message.channel.send(
 				`Loading the multiple Gfycat Posts from \`${user}\` ... ⌛🐱`,
 			)
 
 			try {
-				let gfycatData = response.data.gfycats
+				let gfycatData = response?.data.gfycats
 
 				const channelObject = message.channel as TextChannel
 
 				if (channelObject.nsfw !== true) {
-					gfycatData = gfycatData.filter((gfy) => gfy.nsfw === 0)
+					gfycatData = gfycatData.filter((gfy: gfycatInterface) => gfy.nsfw === `0`)
 				}
 
 				let currentPage = 0
@@ -384,7 +364,7 @@ export const command: Command = {
 				await queueEmbed.react(`⬅️`)
 				await queueEmbed.react(`➡️`)
 				await queueEmbed.react(`❌`)
-				const filter = (reaction, user) =>
+				const filter = (reaction: MessageReaction, user: User) =>
 					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 				const collector = queueEmbed.createReactionCollector(filter, { idle: 900000, dispose: true })
 
@@ -406,29 +386,6 @@ export const command: Command = {
 						await queueEmbed.delete()
 					}
 				})
-
-				async function generateGfyCatEmbed(gfycat: any) {
-					const embeds = []
-					let k = 1
-					for (let i = 0; i < gfycat.length; i += 1) {
-						const current = gfycat[i]
-						const j = i
-						k += 1
-
-						const embed = `${
-							current.title.length > 0 ? `**${current.title}**\n` : ``
-						}${`Made by <https://gfycat.com/@${current.username}>`}\n${current.views} Views\n<t:${
-							current.createDate
-						}:F>\nhttps://gfycat.com/${current.gfyName}`
-						await axios
-							.get(current.mobileUrl)
-							.then((res) => {
-								embeds.push(embed)
-							})
-							.catch((error) => {})
-					}
-					return embeds
-				}
 			} catch {
 				waitingMessage.delete()
 				return message.channel.send(`Error - couldn't find \`${user}\``)
@@ -439,7 +396,7 @@ export const command: Command = {
 			if (!gfyID) {
 				return message.channel.send(`You need to specify a gfyID`)
 			}
-			let response: AxiosResponse
+			let response: AxiosResponse | undefined
 			await gfycatAPI
 				.get(`gfycats/${gfyID}`, {
 					headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` },
@@ -447,17 +404,18 @@ export const command: Command = {
 				.then((res) => {
 					response = res
 				})
-				.catch((error) => {})
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
+				.catch(() => {})
 
 			const blacklistData = await gfycatBlacklist.findAll()
 
-			if (blacklistData.some((user) => user.username === `${response.data.gfyItem.username}`)) {
+			if (blacklistData.some((user) => user.username === `${response?.data.gfyItem.username}`)) {
 				return message.channel.send(`Error - couldn't find \`${gfyID}\``)
 			}
 
 			try {
 				let profilePicture
-				if (response.data.gfyItem.userData?.profileImageUrl) {
+				if (response?.data.gfyItem.userData?.profileImageUrl) {
 					profilePicture = await axios({
 						method: `post`,
 						url: `http://sushii-image-server:3000/url`,
@@ -474,26 +432,26 @@ export const command: Command = {
 
 				const embeds = []
 
-				const gfycatEmbed = `https://gfycat.com/${response.data.gfyItem.gfyName}`
+				const gfycatEmbed = `https://gfycat.com/${response?.data.gfyItem.gfyName}`
 				embeds.push(gfycatEmbed)
 
 				const profileEmbed = new MessageEmbed()
-					.setColor(response.data.gfyItem.avgColor)
-					.setTitle(await response.data.gfyItem.gfyName)
-					.attachFiles([{ name: `${response.data.username}_gfypfp.png`, attachment: profilePicture }])
-					.setThumbnail(`attachment://${response.data.username}_gfypfp.png`)
+					.setColor(response?.data.gfyItem.avgColor)
+					.setTitle(await response?.data.gfyItem.gfyName)
+					.attachFiles([{ name: `${response?.data.username}_gfypfp.png`, attachment: profilePicture as Buffer }])
+					.setThumbnail(`attachment://${response?.data.username}_gfypfp.png`)
 					.setDescription(
 						`${
-							(await response.data.gfyItem.description.length) > 0 ? `${await response.data.description}\n\n` : ``
-						}Total Views: ${nFormatter(await response.data.gfyItem.views, 1)}\n${
-							response.data.gfyItem.likes
-						} Likes ❤️ \nGfycat Post made on <t:${await response.data.gfyItem.createDate}:F>\nFrame rate: ${
-							response.data.gfyItem.frameRate
-						}\nWidth & Height: ${response.data.gfyItem.width}x${response.data.gfyItem.height}${
-							response.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response.data.gfyItem.tags.join(`, `)}` : ``
+							(await response?.data.gfyItem.description.length) > 0 ? `${await response?.data.description}\n\n` : ``
+						}Total Views: ${nFormatter(await response?.data.gfyItem.views, 1)}\n${
+							response?.data.gfyItem.likes
+						} Likes ❤️ \nGfycat Post made on <t:${await response?.data.gfyItem.createDate}:F>\nFrame rate: ${
+							response?.data.gfyItem.frameRate
+						}\nWidth & Height: ${response?.data.gfyItem.width}x${response?.data.gfyItem.height}${
+							response?.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response?.data.gfyItem.tags.join(`, `)}` : ``
 						}`,
 					)
-				if (response.data.gfyItem.userData?.username) {
+				if (response?.data.gfyItem.userData?.username) {
 					profileEmbed.setAuthor(
 						(await response.data.gfyItem.userData.verified)
 							? `${await response.data.gfyItem.userData.username} ✔️`
@@ -510,7 +468,8 @@ export const command: Command = {
 				const queueEmbed = await message.channel.send(gfycatEmbed)
 				await queueEmbed.react(`🔄`)
 				await queueEmbed.react(`❌`)
-				const filter = (reaction, user) => [`🔄`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`🔄`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 				const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
 				collector.on(`collect`, async (reaction, user) => {
@@ -535,4 +494,29 @@ export const command: Command = {
 			// click on a button to switch between info embed and gfycat embed
 		}
 	},
+}
+
+async function generateGfyCatEmbed(gfycat: gfycatInterface[]) {
+	const embeds: string[] = []
+	for (let i = 0; i < gfycat.length; i += 1) {
+		const current = gfycat[i]
+
+		const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ``}${
+			current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ``
+		}${current.views} Views\n<t:${current.createDate}:F>\nhttps://gfycat.com/${current.gfyName}`
+		await axios
+			.get(current.mobileUrl)
+			.then(() => {
+				embeds.push(embed)
+			})
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
+			.catch(() => {})
+	}
+	return embeds
+}
+
+function sleep(ms: number) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms)
+	})
 }

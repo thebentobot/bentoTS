@@ -1,14 +1,22 @@
-// @ts-nocheck
-import { Message, MessageAttachment, MessageEmbed, Util } from 'discord.js'
-import { Command } from '../../interfaces'
+import { GuildMember, Message, MessageAttachment, MessageEmbed, MessageReaction, User, Util } from 'discord.js'
+import { Command, lastfmRecentTracks } from '../../interfaces'
 import database from '../../database/database'
 import { initModels, guild, lastfmCreationAttributes, lastfm } from '../../database/models/init-models'
-import axios, { AxiosResponse } from 'axios'
+import axios from 'axios'
 import * as dotenv from 'dotenv'
 import SpotifyWebApi from 'spotify-web-api-node'
 import moment from 'moment'
 import { flag } from 'country-emoji'
 import { getHTMLImage } from '../../utils'
+import {
+	lastfmProfile,
+	lastfmTopAlbum,
+	lastfmTopAlbums,
+	lastfmTopArtist,
+	lastfmTopArtists,
+	lastfmTopTrack,
+	lastfmTopTracks,
+} from '../../interfaces/lastfm'
 dotenv.config()
 
 const api_key = process.env.lastfm
@@ -47,12 +55,10 @@ export const command: Command = {
 	name: `lastfm`,
 	aliases: [`fm`, `lf`],
 	category: `features`,
-	description:
-		`last.fm feature. If you don't mention a user with an argument, it searches for your last.fm. If you only mention a user and no time period, it checks for overall.\n**The possible time period arguments:** overall, 7day, 1month, 3month, 6month, 12month.`,
-	usage:
-		` is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user's last.fm account.\nlastfm collage <topalbums, toptracks or topartists> [time period or user or collage size] [user or collage size] [collage size]`,
+	description: `last.fm feature. If you don't mention a user with an argument, it searches for your last.fm. If you only mention a user and no time period, it checks for overall.\n**The possible time period arguments:** overall, 7day, 1month, 3month, 6month, 12month.`,
+	usage: ` is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user's last.fm account.\nlastfm collage <topalbums, toptracks or topartists> [time period or user or collage size] [user or collage size] [collage size]`,
 	website: `https://www.bentobot.xyz/commands#lastfm`,
-	run: async (client, message, args): Promise<any> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		if (!args.length) {
 			return nowPlaying(message)
 		}
@@ -102,7 +108,7 @@ export const command: Command = {
 		}
 
 		if (args[0] === `collage`) {
-			return collage(message, args[1], args[2], args[3], args[4], args[5])
+			return collage(message, args[1], args[2], args[3], args[4])
 		}
 		/*
         if (args[0] === 'wkt') {
@@ -138,20 +144,20 @@ export const command: Command = {
 			return nowPlaying(message, args[0])
 		}
 
-		async function nowPlaying(message: Message, mentionedUser?: any) {
+		async function nowPlaying(message: Message, mentionedUser?: string | GuildMember) {
 			initModels(database)
 
-			let username: string
-			let usernameEmbed: any
-			let user: string
+			let username: string | undefined
+			let usernameEmbed: lastfmRecentTracks
+			let user: string | undefined
 
 			try {
-				const theUser = message.mentions.members.has(client.user.id)
+				const theUser = message.mentions.members?.has(client.user?.id as string)
 					? message.mentions.members.size > 1
 						? message.mentions.members.last()
 						: message.member
-					: message.mentions.members.first() || (await message.guild.members.fetch(mentionedUser))
-				user = theUser.id
+					: message.mentions.members?.first() || (await message.guild?.members.fetch(mentionedUser as string))
+				user = theUser?.id
 				const lastfmData = await lastfm.findOne({ raw: true, where: { userID: user } })
 				if (!lastfmData) {
 					return message.channel.send(`This user doesn't have a last.fm account saved.`)
@@ -160,11 +166,11 @@ export const command: Command = {
 			} catch {
 				try {
 					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
-					username = lastFmName.lastfm
+					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
 				}
 			}
@@ -175,9 +181,9 @@ export const command: Command = {
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			}
 
@@ -185,32 +191,32 @@ export const command: Command = {
 				.setAuthor(
 					user
 						? `${
-							message.guild.members.cache.get(user)?.nickname
-								? `${message.guild.members.cache.get(user)?.nickname} (${
-									message.guild.members.cache.get(user).user.username +
+								message.guild?.members.cache.get(user)?.nickname
+									? `${message.guild.members.cache.get(user)?.nickname} (${
+											message.guild?.members.cache.get(user)?.user.username +
 											`#` +
-											message.guild.members.cache.get(user).user.discriminator
+											message.guild?.members.cache.get(user)?.user.discriminator
 									  })`
-								: message.guild.members.cache.get(user).user.username +
+									: message.guild?.members.cache.get(user)?.user.username +
 									  `#` +
-									  message.guild.members.cache.get(user).user.discriminator
+									  message.guild?.members.cache.get(user)?.user.discriminator
 						  }`
 						: `${
-							message.guild.members.cache.get(message.author.id)?.nickname
-								? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-									message.guild.members.cache.get(message.author.id).user.username +
+								message.guild?.members.cache.get(message.author.id)?.nickname
+									? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+											message.guild?.members.cache.get(message.author.id)?.user.username +
 											`#` +
-											message.guild.members.cache.get(message.author.id).user.discriminator
+											message.guild?.members.cache.get(message.author.id)?.user.discriminator
 									  })`
-								: `${
-									message.guild.members.cache.get(message.author.id).user.username +
+									: `${
+											message.guild?.members.cache.get(message.author.id)?.user.username +
 											`#` +
-											message.guild.members.cache.get(message.author.id).user.discriminator
+											message.guild?.members.cache.get(message.author.id)?.user.discriminator
 									  }`
 						  }`,
 					user
-						? message.guild.members.cache.get(user).user.displayAvatarURL()
-						: message.guild.members.cache.get(message.author.id).user.displayAvatarURL(),
+						? message.guild?.members.cache.get(user)?.user.displayAvatarURL()
+						: message.guild?.members.cache.get(message.author.id)?.user.displayAvatarURL(),
 					`https://www.last.fm/user/${username}`,
 				)
 				.setColor(`#e4141e`)
@@ -220,13 +226,21 @@ export const command: Command = {
 						name: `${
 							usernameEmbed.recenttracks.track[0][`@attr`]
 								? `Now Playing`
-								: moment.unix(usernameEmbed.recenttracks.track[0].date.uts).fromNow()
+								: moment.unix(parseInt(usernameEmbed.recenttracks.track[0].date.uts)).fromNow()
 						}`,
-						value: `**${usernameEmbed.recenttracks.track[0].artist[`#text`]}** - [${usernameEmbed.recenttracks.track[0].name}](${usernameEmbed.recenttracks.track[0].url})\nFrom the album **${usernameEmbed.recenttracks.track[0].album[`#text`]}**`,
+						value: `**${usernameEmbed.recenttracks.track[0].artist[`#text`]}** - [${
+							usernameEmbed.recenttracks.track[0].name
+						}](${usernameEmbed.recenttracks.track[0].url})\nFrom the album **${
+							usernameEmbed.recenttracks.track[0].album[`#text`]
+						}**`,
 					},
 					{
-						name: `${moment.unix(usernameEmbed.recenttracks.track[1].date.uts).fromNow()}`,
-						value: `**${usernameEmbed.recenttracks.track[1].artist[`#text`]}** - [${usernameEmbed.recenttracks.track[1].name}](${usernameEmbed.recenttracks.track[1].url})\nFrom the album **${usernameEmbed.recenttracks.track[1].album[`#text`]}**`,
+						name: `${moment.unix(parseInt(usernameEmbed.recenttracks.track[1].date.uts)).fromNow()}`,
+						value: `**${usernameEmbed.recenttracks.track[1].artist[`#text`]}** - [${
+							usernameEmbed.recenttracks.track[1].name
+						}](${usernameEmbed.recenttracks.track[1].url})\nFrom the album **${
+							usernameEmbed.recenttracks.track[1].album[`#text`]
+						}**`,
 					},
 				)
 				.setFooter(
@@ -246,8 +260,21 @@ export const command: Command = {
 				try {
 					const response = await lastfmAPI.get(`/`, { params: { method: `user.getinfo`, user: username } })
 					username = response.data.user.name
-				} catch (error) {
-					if (error.response) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				} catch (error: any) {
+					/*
+					interface responseObject {
+						status: number
+						statusText: string
+					}
+					class axiosError extends Error {
+						constructor(response: responseObject) {
+							super()
+							this.message = string
+						}
+					}
+					*/
+					if (error) {
 						console.error(Error(`Last.fm error: ${error.response.status} - ${error.response.statusText}`))
 						if (error.response.status >= 500) {
 							return message.channel.send(`Server Error. LastFM is likely down or experiencing issues.`)
@@ -265,15 +292,16 @@ export const command: Command = {
 			}
 
 			if (!username) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Please provide a LastFM username: \`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Please provide a LastFM username: \`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			} else {
 				try {
 					const response = await lastfmAPI.get(`/`, { params: { method: `user.getinfo`, user: username } })
 					username = response.data.user.name
-				} catch (error) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				} catch (error: any) {
 					if (error.response) {
 						console.error(Error(`Last.fm error: ${error.response.status} - ${error.response.statusText}`))
 						if (error.response.status >= 500) {
@@ -311,10 +339,10 @@ export const command: Command = {
 		async function topTracks(message: Message, secondArg?: string, thirdArg?: string) {
 			initModels(database)
 
-			let username: string
-			let usernameEmbed: any
-			let userID: string
-			let userIDInsert: string
+			let username: string | undefined
+			let usernameEmbed: lastfmTopTracks
+			let userID: string | undefined
+			let userIDInsert: string | undefined
 			let period: string[]
 
 			if (secondArg === `overall`) {
@@ -373,13 +401,13 @@ export const command: Command = {
 			}
 
 			try {
-				const theUser = message.mentions.members.has(client.user.id)
+				const theUser = message.mentions.members?.has(client.user?.id as string)
 					? message.mentions.members.size > 1
 						? message.mentions.members.last()
 						: message.member
-					: message.mentions.members.first() || (await message.guild.members.fetch(userIDInsert))
-				if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
-				userID = theUser.id
+					: message.mentions.members?.first() || (await message.guild?.members.fetch(userIDInsert as string))
+				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
+				userID = theUser?.id
 				try {
 					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
 					if (!lastfmData) {
@@ -393,11 +421,11 @@ export const command: Command = {
 				try {
 					userID = message.author.id
 					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
-					username = lastFmName.lastfm
+					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
 				}
 			}
@@ -408,14 +436,14 @@ export const command: Command = {
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			}
 
 			let currentPage = 0
-			const embeds = generateTopTracksEmbed(usernameEmbed, message, period, userID)
+			const embeds = generateTopTracksEmbed(usernameEmbed, message, period, userID as string)
 			const queueEmbed = await message.channel.send(
 				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
 				(
@@ -425,7 +453,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -448,48 +476,52 @@ export const command: Command = {
 				}
 			})
 
-			async function generateTopTracksEmbed(input, message: Message, period: string[], userID: string) {
+			async function generateTopTracksEmbed(
+				input: lastfmTopTracks,
+				message: Message,
+				period: string[],
+				userID: string,
+			) {
 				const lastfmAcc = input.toptracks[`@attr`].user
 				const tracks = input.toptracks.track
 				const embeds = []
 				let k = 10
 				for (let i = 0; i < tracks.length; i += 10) {
 					const current = tracks.slice(i, k)
-					const j = i
 					k += 10
 
 					const embed = new MessageEmbed()
 					embed.setAuthor(
 						userID
 							? `${
-								message.guild.members.cache.get(userID)?.nickname
-									? `${message.guild.members.cache.get(userID)?.nickname} (${
-										message.guild.members.cache.get(userID).user.username +
+									message.guild?.members.cache.get(userID)?.nickname
+										? `${message.guild?.members.cache.get(userID)?.nickname} (${
+												message.guild?.members.cache.get(userID)?.user.username +
 												`#` +
-												message.guild.members.cache.get(userID).user.discriminator
+												message.guild?.members.cache.get(userID)?.user.discriminator
 										  })`
-									: message.guild.members.cache.get(userID).user.username +
+										: message.guild?.members.cache.get(userID)?.user.username +
 										  `#` +
-										  message.guild.members.cache.get(userID).user.discriminator
+										  message.guild?.members.cache.get(userID)?.user.discriminator
 							  }`
 							: `${
-								message.guild.members.cache.get(message.author.id)?.nickname
-									? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-										message.guild.members.cache.get(message.author.id).user.username +
+									message.guild?.members.cache.get(message.author.id)?.nickname
+										? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  })`
-									: `${
-										message.guild.members.cache.get(message.author.id).user.username +
+										: `${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  }`
 							  }`,
 						userID
-							? message.guild.members.cache.get(userID).user.displayAvatarURL()
-							: message.guild.members.cache
-								.get(message.author.id)
-								.user.displayAvatarURL({ format: `png`, dynamic: true }),
+							? message.guild?.members.cache.get(userID)?.user.displayAvatarURL()
+							: (message.guild?.members.cache
+									.get(message.author.id)
+									?.user.displayAvatarURL({ format: `png`, dynamic: true }) as string),
 						`https://www.last.fm/user/${lastfmAcc}`,
 					)
 					embed.setColor(`#e4141e`)
@@ -501,7 +533,7 @@ export const command: Command = {
 								`**${track[`@attr`].rank}. ${Util.escapeMarkdown(track.name, {
 									bold: false,
 								})}** by [${Util.escapeMarkdown(track.artist.name, { bold: false })}](${track.url}) - ${
-									track.playcount > 1 ? `${track.playcount} plays` : `${track.playcount} play`
+									parseInt(track.playcount) > 1 ? `${track.playcount} plays` : `${track.playcount} play`
 								}`,
 						)
 						.join(`\n`)
@@ -510,61 +542,61 @@ export const command: Command = {
 						`Top tracks for ${
 							userID
 								? `${
-									message.guild.members.cache.get(userID)?.nickname
-										? `${message.guild.members.cache.get(userID)?.nickname} (${
-											message.guild.members.cache.get(userID).user.username +
+										message.guild?.members.cache.get(userID)?.nickname
+											? `${message.guild.members.cache.get(userID)?.nickname} (${
+													message.guild?.members.cache.get(userID)?.user.username +
 													`#` +
-													message.guild.members.cache.get(userID).user.discriminator
+													message.guild?.members.cache.get(userID)?.user.discriminator
 											  })`
-										: message.guild.members.cache.get(userID).user.username +
+											: message.guild?.members.cache.get(userID)?.user.username +
 											  `#` +
-											  message.guild.members.cache.get(userID).user.discriminator
+											  message.guild?.members.cache.get(userID)?.user.discriminator
 								  }`
 								: `${
-									message.guild.members.cache.get(message.author.id)?.nickname
-										? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-											message.guild.members.cache.get(message.author.id).user.username +
+										message.guild?.members.cache.get(message.author.id)?.nickname
+											? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  })`
-										: `${
-											message.guild.members.cache.get(message.author.id).user.username +
+											: `${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  }`
 								  }`
 						}`,
 					)
-					let cover: string
+					let cover: string | null | undefined
 					await spotifyCred.searchArtists(current[0].artist.name, { limit: 1 }).then(
 						function (data) {
-							if (data.body.artists.items[0].length < 0) {
-								cover = message.guild.members.cache
+							if ((data.body.artists?.items.length as number) < 0) {
+								cover = message.guild?.members?.cache
 									.get(userID)
-									.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+									?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 							} else {
-								if (typeof data.body.artists.items[0].images[0]?.url === `undefined`) {
-									cover = message.guild.members.cache
+								if (typeof data.body.artists?.items[0].images[0]?.url === `undefined`) {
+									cover = message.guild?.members.cache
 										.get(userID)
-										.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+										?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 								} else {
 									cover =
-										data.body.artists.items[0].images[0]?.length < 0
-											? message.guild.members.cache
-												.get(userID)
-												.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+										data.body.artists.items[0].images.length < 0
+											? message.guild?.members.cache
+													.get(userID)
+													?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 											: data.body.artists.items[0].images[0].url
 								}
 							}
 						},
 						function (err) {
-							cover = message.guild.members.cache
+							cover = message.guild?.members.cache
 								.get(userID)
-								.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+								?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 							console.error(err)
 						},
 					)
-					embed.setThumbnail(cover)
+					embed.setThumbnail(cover as string)
 					embed.setFooter(
 						`Time period - ${period[0]} | Powered by last.fm`,
 						`https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png`,
@@ -578,10 +610,10 @@ export const command: Command = {
 		async function topAlbums(message: Message, secondArg?: string, thirdArg?: string) {
 			initModels(database)
 
-			let username: string
-			let usernameEmbed: any
-			let userID: string
-			let userIDInsert: string
+			let username: string | undefined
+			let usernameEmbed: lastfmTopAlbums
+			let userID: string | undefined
+			let userIDInsert: string | undefined
 			let period: string[]
 
 			if (secondArg === `overall`) {
@@ -640,13 +672,13 @@ export const command: Command = {
 			}
 
 			try {
-				const theUser = message.mentions.members.has(client.user.id)
+				const theUser = message.mentions.members?.has(client.user?.id as string)
 					? message.mentions.members.size > 1
 						? message.mentions.members.last()
 						: message.member
-					: message.mentions.members.first() || (await message.guild.members.fetch(userIDInsert))
-				if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
-				userID = theUser.id
+					: message.mentions.members?.first() || (await message.guild?.members.fetch(userIDInsert as string))
+				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
+				userID = theUser?.id
 				try {
 					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
 					if (!lastfmData) {
@@ -660,11 +692,11 @@ export const command: Command = {
 				try {
 					userID = message.author.id
 					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
-					username = lastFmName.lastfm
+					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
 				}
 			}
@@ -675,14 +707,14 @@ export const command: Command = {
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			}
 
 			let currentPage = 0
-			const embeds = generateTopAlbumsEmbed(usernameEmbed, message, period, userID)
+			const embeds = generateTopAlbumsEmbed(usernameEmbed, message, period, userID as string)
 			const queueEmbed = await message.channel.send(
 				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
 				(
@@ -692,7 +724,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -715,46 +747,50 @@ export const command: Command = {
 				}
 			})
 
-			async function generateTopAlbumsEmbed(input, message: Message, period: string[], userID: string) {
+			async function generateTopAlbumsEmbed(
+				input: lastfmTopAlbums,
+				message: Message,
+				period: string[],
+				userID: string,
+			) {
 				const lastfmAcc = input.topalbums[`@attr`].user
 				const tracks = input.topalbums.album
 				const embeds = []
 				let k = 10
 				for (let i = 0; i < tracks.length; i += 10) {
 					const current = tracks.slice(i, k)
-					const j = i
 					k += 10
 
 					const embed = new MessageEmbed()
 					embed.setAuthor(
 						userID
 							? `${
-								message.guild.members.cache.get(userID)?.nickname
-									? `${message.guild.members.cache.get(userID)?.nickname} (${
-										message.guild.members.cache.get(userID).user.username +
+									message.guild?.members.cache.get(userID)?.nickname
+										? `${message.guild.members.cache.get(userID)?.nickname} (${
+												message.guild?.members.cache.get(userID)?.user.username +
 												`#` +
-												message.guild.members.cache.get(userID).user.discriminator
+												message.guild?.members.cache.get(userID)?.user.discriminator
 										  })`
-									: message.guild.members.cache.get(userID).user.username +
+										: message.guild?.members.cache.get(userID)?.user.username +
 										  `#` +
-										  message.guild.members.cache.get(userID).user.discriminator
+										  message.guild?.members.cache.get(userID)?.user.discriminator
 							  }`
 							: `${
-								message.guild.members.cache.get(message.author.id)?.nickname
-									? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-										message.guild.members.cache.get(message.author.id).user.username +
+									message.guild?.members.cache.get(message.author.id)?.nickname
+										? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  })`
-									: `${
-										message.guild.members.cache.get(message.author.id).user.username +
+										: `${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  }`
 							  }`,
 						userID
-							? message.guild.members.cache.get(userID).user.displayAvatarURL()
-							: message.guild.members.cache.get(message.author.id).user.displayAvatarURL(),
+							? message.guild?.members.cache.get(userID)?.user.displayAvatarURL()
+							: message.guild?.members.cache.get(message.author.id)?.user.displayAvatarURL(),
 						`https://www.last.fm/user/${lastfmAcc}`,
 					)
 					embed.setColor(`#e4141e`)
@@ -766,7 +802,7 @@ export const command: Command = {
 								`**${album[`@attr`].rank}. ${Util.escapeMarkdown(album.name, {
 									bold: false,
 								})}** by [${Util.escapeMarkdown(album.artist.name, { bold: false })}](${album.url}) - ${
-									album.playcount > 1 ? `${album.playcount} plays` : `${album.playcount} play`
+									parseInt(album.playcount) > 1 ? `${album.playcount} plays` : `${album.playcount} play`
 								}`,
 						)
 						.join(`\n`)
@@ -775,27 +811,27 @@ export const command: Command = {
 						`Top albums for ${
 							userID
 								? `${
-									message.guild.members.cache.get(userID)?.nickname
-										? `${message.guild.members.cache.get(userID)?.nickname} (${
-											message.guild.members.cache.get(userID).user.username +
+										message.guild?.members.cache.get(userID)?.nickname
+											? `${message.guild?.members.cache.get(userID)?.nickname} (${
+													message.guild?.members.cache.get(userID)?.user.username +
 													`#` +
-													message.guild.members.cache.get(userID).user.discriminator
+													message.guild?.members.cache.get(userID)?.user.discriminator
 											  })`
-										: message.guild.members.cache.get(userID).user.username +
+											: message.guild?.members.cache.get(userID)?.user.username +
 											  `#` +
-											  message.guild.members.cache.get(userID).user.discriminator
+											  message.guild?.members.cache.get(userID)?.user.discriminator
 								  }`
 								: `${
-									message.guild.members.cache.get(message.author.id)?.nickname
-										? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-											message.guild.members.cache.get(message.author.id).user.username +
+										message.guild?.members.cache.get(message.author.id)?.nickname
+											? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  })`
-										: `${
-											message.guild.members.cache.get(message.author.id).user.username +
+											: `${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  }`
 								  }`
 						}`,
@@ -814,10 +850,10 @@ export const command: Command = {
 		async function topArtists(message: Message, secondArg?: string, thirdArg?: string) {
 			initModels(database)
 
-			let username: string
-			let usernameEmbed: any
-			let userID: string
-			let userIDInsert: string
+			let username: string | undefined
+			let usernameEmbed: lastfmTopArtists
+			let userID: string | undefined
+			let userIDInsert: string | undefined
 			let period: string[]
 
 			if (secondArg === `overall`) {
@@ -876,13 +912,13 @@ export const command: Command = {
 			}
 
 			try {
-				const theUser = message.mentions.members.has(client.user.id)
+				const theUser = message.mentions.members?.has(client.user?.id as string)
 					? message.mentions.members.size > 1
 						? message.mentions.members.last()
 						: message.member
-					: message.mentions.members.first() || (await message.guild.members.fetch(userIDInsert))
-				if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
-				userID = theUser.id
+					: message.mentions.members?.first() || (await message.guild?.members.fetch(userIDInsert as string))
+				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
+				userID = theUser?.id
 				try {
 					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
 					if (!lastfmData) {
@@ -896,11 +932,11 @@ export const command: Command = {
 				try {
 					userID = message.author.id
 					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
-					username = lastFmName.lastfm
+					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
 				}
 			}
@@ -911,14 +947,14 @@ export const command: Command = {
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			}
 
 			let currentPage = 0
-			const embeds = generateTopArtistsEmbed(usernameEmbed, message, period, userID)
+			const embeds = generateTopArtistsEmbed(usernameEmbed, message, period, userID as string)
 			const queueEmbed = await message.channel.send(
 				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
 				(
@@ -928,7 +964,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -951,46 +987,50 @@ export const command: Command = {
 				}
 			})
 
-			async function generateTopArtistsEmbed(input, message: Message, period: string[], userID: string) {
+			async function generateTopArtistsEmbed(
+				input: lastfmTopArtists,
+				message: Message,
+				period: string[],
+				userID: string,
+			) {
 				const lastfmAcc = input.topartists[`@attr`].user
 				const tracks = input.topartists.artist
 				const embeds = []
 				let k = 10
 				for (let i = 0; i < tracks.length; i += 10) {
 					const current = tracks.slice(i, k)
-					const j = i
 					k += 10
 
 					const embed = new MessageEmbed()
 					embed.setAuthor(
 						userID
 							? `${
-								message.guild.members.cache.get(userID)?.nickname
-									? `${message.guild.members.cache.get(userID)?.nickname} (${
-										message.guild.members.cache.get(userID).user.username +
+									message.guild?.members.cache.get(userID)?.nickname
+										? `${message.guild.members.cache.get(userID)?.nickname} (${
+												message.guild?.members.cache.get(userID)?.user.username +
 												`#` +
-												message.guild.members.cache.get(userID).user.discriminator
+												message.guild?.members.cache.get(userID)?.user.discriminator
 										  })`
-									: message.guild.members.cache.get(userID).user.username +
+										: message.guild?.members.cache.get(userID)?.user.username +
 										  `#` +
-										  message.guild.members.cache.get(userID).user.discriminator
+										  message.guild?.members.cache.get(userID)?.user.discriminator
 							  }`
 							: `${
-								message.guild.members.cache.get(message.author.id)?.nickname
-									? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-										message.guild.members.cache.get(message.author.id).user.username +
+									message.guild?.members.cache.get(message.author.id)?.nickname
+										? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  })`
-									: `${
-										message.guild.members.cache.get(message.author.id).user.username +
+										: `${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  }`
 							  }`,
 						userID
-							? message.guild.members.cache.get(userID).user.displayAvatarURL()
-							: message.guild.members.cache.get(message.author.id).user.displayAvatarURL(),
+							? message.guild?.members.cache.get(userID)?.user.displayAvatarURL()
+							: message.guild?.members.cache.get(message.author.id)?.user.displayAvatarURL(),
 						`https://www.last.fm/user/${lastfmAcc}`,
 					)
 					embed.setColor(`#e4141e`)
@@ -1000,7 +1040,7 @@ export const command: Command = {
 						.map(
 							(artist) =>
 								`**${artist[`@attr`].rank}. ${Util.escapeMarkdown(artist.name, { bold: false })}** - [${
-									artist.playcount > 1 ? `${artist.playcount} plays` : `${artist.playcount} play`
+									parseInt(artist.playcount) > 1 ? `${artist.playcount} plays` : `${artist.playcount} play`
 								}](${artist.url})`,
 						)
 						.join(`\n`)
@@ -1009,61 +1049,61 @@ export const command: Command = {
 						`Top artists for ${
 							userID
 								? `${
-									message.guild.members.cache.get(userID)?.nickname
-										? `${message.guild.members.cache.get(userID)?.nickname} (${
-											message.guild.members.cache.get(userID).user.username +
+										message.guild?.members.cache.get(userID)?.nickname
+											? `${message.guild?.members.cache.get(userID)?.nickname} (${
+													message.guild?.members.cache.get(userID)?.user.username +
 													`#` +
-													message.guild.members.cache.get(userID).user.discriminator
+													message.guild?.members.cache.get(userID)?.user.discriminator
 											  })`
-										: message.guild.members.cache.get(userID).user.username +
+											: message.guild?.members.cache.get(userID)?.user.username +
 											  `#` +
-											  message.guild.members.cache.get(userID).user.discriminator
+											  message.guild?.members.cache.get(userID)?.user.discriminator
 								  }`
 								: `${
-									message.guild.members.cache.get(message.author.id)?.nickname
-										? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-											message.guild.members.cache.get(message.author.id).user.username +
+										message.guild?.members.cache.get(message.author.id)?.nickname
+											? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  })`
-										: `${
-											message.guild.members.cache.get(message.author.id).user.username +
+											: `${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  }`
 								  }`
 						}`,
 					)
-					let cover: string
+					let cover: string | null | undefined
 					await spotifyCred.searchArtists(current[0].name, { limit: 1 }).then(
 						function (data) {
-							if (data.body.artists.items[0].length < 0) {
-								cover = message.guild.members.cache
+							if ((data.body.artists?.items.length as number) < 0) {
+								cover = message.guild?.members.cache
 									.get(userID)
-									.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+									?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 							} else {
-								if (typeof data.body.artists.items[0].images[0]?.url === `undefined`) {
-									cover = message.guild.members.cache
+								if (typeof data.body.artists?.items[0].images[0]?.url === `undefined`) {
+									cover = message.guild?.members.cache
 										.get(userID)
-										.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+										?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 								} else {
 									cover =
-										data.body.artists.items[0].images[0]?.length < 0
-											? message.guild.members.cache
-												.get(userID)
-												.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+										data.body.artists.items[0].images?.length < 0
+											? message.guild?.members.cache
+													.get(userID)
+													?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 											: data.body.artists.items[0].images[0].url
 								}
 							}
 						},
 						function (err) {
-							cover = message.guild.members.cache
+							cover = message.guild?.members.cache
 								.get(userID)
-								.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+								?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 							console.error(err)
 						},
 					)
-					embed.setThumbnail(cover)
+					embed.setThumbnail(cover as string)
 					embed.setFooter(
 						`Time period - ${period[0]} | Powered by last.fm`,
 						`https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png`,
@@ -1077,18 +1117,18 @@ export const command: Command = {
 		async function recentTracks(message: Message, mentionedUser?: string) {
 			initModels(database)
 
-			let username: string
-			let usernameEmbed: any
-			let user: string
+			let username: string | undefined
+			let usernameEmbed: lastfmRecentTracks
+			let user: string | undefined
 
 			try {
-				const theUser = message.mentions.members.has(client.user.id)
+				const theUser = message.mentions.members?.has(client.user?.id as string)
 					? message.mentions.members.size > 1
 						? message.mentions.members.last()
 						: message.member
-					: message.mentions.members.first() || (await message.guild.members.fetch(mentionedUser))
-				if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
-				user = theUser.id
+					: message.mentions.members?.first() || (await message.guild?.members.fetch(mentionedUser as string))
+				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
+				user = theUser?.id
 				try {
 					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: user } })
 					if (!lastfmData) {
@@ -1102,11 +1142,11 @@ export const command: Command = {
 				try {
 					user = message.author.id
 					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
-					username = lastFmName.lastfm
+					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
 				}
 			}
@@ -1117,14 +1157,14 @@ export const command: Command = {
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			}
 
 			let currentPage = 0
-			const embeds = generateRecentTracksEmbed(usernameEmbed, message, user)
+			const embeds = generateRecentTracksEmbed(usernameEmbed, message, user as string)
 			const queueEmbed = await message.channel.send(
 				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
 				(
@@ -1134,7 +1174,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -1157,46 +1197,45 @@ export const command: Command = {
 				}
 			})
 
-			async function generateRecentTracksEmbed(input, message: Message, userID: string) {
+			async function generateRecentTracksEmbed(input: lastfmRecentTracks, message: Message, userID: string) {
 				const lastfmAcc = input.recenttracks[`@attr`].user
 				const tracks = input.recenttracks.track
 				const embeds = []
 				let k = 10
 				for (let i = 0; i < tracks.length; i += 10) {
 					const current = tracks.slice(i, k)
-					const j = i
 					k += 10
 
 					const embed = new MessageEmbed()
 					embed.setAuthor(
 						userID
 							? `${
-								message.guild.members.cache.get(userID)?.nickname
-									? `${message.guild.members.cache.get(userID)?.nickname} (${
-										message.guild.members.cache.get(userID).user.username +
+									message.guild?.members.cache.get(userID)?.nickname
+										? `${message.guild.members.cache.get(userID)?.nickname} (${
+												message.guild?.members.cache.get(userID)?.user.username +
 												`#` +
-												message.guild.members.cache.get(userID).user.discriminator
+												message.guild?.members.cache.get(userID)?.user.discriminator
 										  })`
-									: message.guild.members.cache.get(userID).user.username +
+										: message.guild?.members.cache.get(userID)?.user.username +
 										  `#` +
-										  message.guild.members.cache.get(userID).user.discriminator
+										  message.guild?.members.cache.get(userID)?.user.discriminator
 							  }`
 							: `${
-								message.guild.members.cache.get(message.author.id)?.nickname
-									? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-										message.guild.members.cache.get(message.author.id).user.username +
+									message.guild?.members.cache.get(message.author.id)?.nickname
+										? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  })`
-									: `${
-										message.guild.members.cache.get(message.author.id).user.username +
+										: `${
+												message.guild?.members.cache.get(message.author.id)?.user.username +
 												`#` +
-												message.guild.members.cache.get(message.author.id).user.discriminator
+												message.guild?.members.cache.get(message.author.id)?.user.discriminator
 										  }`
 							  }`,
 						userID
-							? message.guild.members.cache.get(userID).user.displayAvatarURL()
-							: message.guild.members.cache.get(message.author.id).user.displayAvatarURL(),
+							? message.guild?.members.cache.get(userID)?.user.displayAvatarURL()
+							: message.guild?.members.cache.get(message.author.id)?.user.displayAvatarURL(),
 						`https://www.last.fm/user/${lastfmAcc}`,
 					)
 					embed.setColor(`#e4141e`)
@@ -1205,10 +1244,12 @@ export const command: Command = {
 					const info = current
 						.map(
 							(track) =>
-								`**${track[`@attr`] ? `Now Playing` : moment.unix(track.date.uts).fromNow()}** | ${Util.escapeMarkdown(
-									track.artist[`#text`],
+								`**${
+									track[`@attr`] ? `Now Playing` : moment.unix(parseInt(track.date.uts)).fromNow()
+								}** | ${Util.escapeMarkdown(track.artist[`#text`], { bold: false })} - [${Util.escapeMarkdown(
+									track.name,
 									{ bold: false },
-								)} - [${Util.escapeMarkdown(track.name, { bold: false })}](${track.url})`,
+								)}](${track.url})`,
 						)
 						.join(`\n`)
 					embed.setDescription(`${info}`)
@@ -1216,27 +1257,27 @@ export const command: Command = {
 						`Recent tracks for ${
 							userID
 								? `${
-									message.guild.members.cache.get(userID)?.nickname
-										? `${message.guild.members.cache.get(userID)?.nickname} (${
-											message.guild.members.cache.get(userID).user.username +
+										message.guild?.members.cache.get(userID)?.nickname
+											? `${message.guild.members.cache.get(userID)?.nickname} (${
+													message.guild?.members.cache.get(userID)?.user.username +
 													`#` +
-													message.guild.members.cache.get(userID).user.discriminator
+													message.guild?.members.cache.get(userID)?.user.discriminator
 											  })`
-										: message.guild.members.cache.get(userID).user.username +
+											: message.guild?.members.cache.get(userID)?.user.username +
 											  `#` +
-											  message.guild.members.cache.get(userID).user.discriminator
+											  message.guild?.members.cache.get(userID)?.user.discriminator
 								  }`
 								: `${
-									message.guild.members.cache.get(message.author.id)?.nickname
-										? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-											message.guild.members.cache.get(message.author.id).user.username +
+										message.guild?.members.cache.get(message.author.id)?.nickname
+											? `${message.guild?.members.cache.get(message.author.id)?.nickname} (${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  })`
-										: `${
-											message.guild.members.cache.get(message.author.id).user.username +
+											: `${
+													message.guild?.members.cache.get(message.author.id)?.user.username +
 													`#` +
-													message.guild.members.cache.get(message.author.id).user.discriminator
+													message.guild?.members.cache.get(message.author.id)?.user.discriminator
 											  }`
 								  }`
 						}`,
@@ -1257,18 +1298,18 @@ export const command: Command = {
 			// author pic is the discord avatar
 			initModels(database)
 
-			let username: string
-			let usernameEmbed: any
-			let user: string
+			let username: string | undefined
+			let usernameEmbed: lastfmProfile
+			let user: string | undefined
 
 			try {
-				const theUser = message.mentions.members.has(client.user.id)
+				const theUser = message.mentions.members?.has(client.user?.id as string)
 					? message.mentions.members.size > 1
 						? message.mentions.members.last()
 						: message.member
-					: message.mentions.members.first() || (await message.guild.members.fetch(mentionedUser))
-				if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
-				user = theUser.id
+					: message.mentions.members?.first() || (await message.guild?.members.fetch(mentionedUser as string))
+				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
+				user = theUser?.id
 				try {
 					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: user } })
 					if (!lastfmData) {
@@ -1281,11 +1322,11 @@ export const command: Command = {
 			} catch {
 				try {
 					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
-					username = lastFmName.lastfm
+					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
 				}
 			}
@@ -1294,9 +1335,9 @@ export const command: Command = {
 				const response = await lastfmAPI.get(`/`, { params: { method: `user.getinfo`, user: username } })
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			}
 
@@ -1304,32 +1345,32 @@ export const command: Command = {
 				.setAuthor(
 					user
 						? `${
-							message.guild.members.cache.get(user)?.nickname
-								? `${message.guild.members.cache.get(user)?.nickname} (${
-									message.guild.members.cache.get(user).user.username +
+								message.guild?.members.cache.get(user)?.nickname
+									? `${message.guild.members.cache.get(user)?.nickname} (${
+											message.guild?.members.cache.get(user)?.user.username +
 											`#` +
-											message.guild.members.cache.get(user).user.discriminator
+											message.guild?.members.cache.get(user)?.user.discriminator
 									  })`
-								: message.guild.members.cache.get(user).user.username +
+									: message.guild?.members.cache.get(user)?.user.username +
 									  `#` +
-									  message.guild.members.cache.get(user).user.discriminator
+									  message.guild?.members.cache.get(user)?.user.discriminator
 						  }`
 						: `${
-							message.guild.members.cache.get(message.author.id)?.nickname
-								? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
-									message.guild.members.cache.get(message.author.id).user.username +
+								message.guild?.members.cache.get(message.author.id)?.nickname
+									? `${message.guild.members.cache.get(message.author.id)?.nickname} (${
+											message.guild?.members.cache.get(message.author.id)?.user.username +
 											`#` +
-											message.guild.members.cache.get(message.author.id).user.discriminator
+											message.guild?.members.cache.get(message.author.id)?.user.discriminator
 									  })`
-								: `${
-									message.guild.members.cache.get(message.author.id).user.username +
+									: `${
+											message.guild?.members.cache.get(message.author.id)?.user.username +
 											`#` +
-											message.guild.members.cache.get(message.author.id).user.discriminator
+											message.guild?.members.cache.get(message.author.id)?.user.discriminator
 									  }`
 						  }`,
 					user
-						? message.guild.members.cache.get(user).user.displayAvatarURL()
-						: message.guild.members.cache.get(message.author.id).user.displayAvatarURL(),
+						? message.guild?.members.cache.get(user)?.user.displayAvatarURL()
+						: message.guild?.members.cache.get(message.author.id)?.user.displayAvatarURL(),
 					`https://www.last.fm/user/${username}`,
 				)
 				.setColor(`#e4141e`)
@@ -1338,7 +1379,7 @@ export const command: Command = {
 				.setThumbnail(usernameEmbed.user.image[3][`#text`])
 				.addField(`Country`, `${usernameEmbed.user.country} ${flag(usernameEmbed.user.country)}`)
 				.addField(`Track Plays`, `${usernameEmbed.user.playcount}`)
-				.addField(`Account Created`, `${moment.unix(usernameEmbed.user.registered.unixtime).fromNow()}`)
+				.addField(`Account Created`, `${moment.unix(parseInt(usernameEmbed.user.registered.unixtime)).fromNow()}`)
 				.setTimestamp()
 				.setFooter(`Powered by last.fm`, `https://www.last.fm/static/images/lastfm_avatar_twitter.52a5d69a85ac.png`)
 
@@ -1354,12 +1395,12 @@ export const command: Command = {
 		) {
 			initModels(database)
 
-			let username: string
-			let userID: string
-			let userIDInsert: string
+			let username: string | undefined
+			let userID: string | undefined
+			let userIDInsert: string | undefined
 			let topType: string
 			let period: string[]
-			let grid: string
+			let grid: string | undefined
 
 			if (secondArg === `toptracks`) {
 				topType = `track`
@@ -1437,13 +1478,13 @@ export const command: Command = {
 			}
 
 			try {
-				const theUser = message.mentions.members.has(client.user.id)
-					? message.mentions.members.size > 1
-						? message.mentions.members.last()
+				const theUser = message.mentions.members?.has(client.user?.id as string)
+					? message.mentions.members?.size > 1
+						? message.mentions.members?.last()
 						: message.member
-					: message.mentions.members.first() || (await message.guild.members.fetch(userIDInsert))
-				if (theUser.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
-				userID = theUser.id
+					: message.mentions.members?.first() || (await message.guild?.members.fetch(userIDInsert as string))
+				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
+				userID = theUser?.id
 				try {
 					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
 					if (!lastfmData) {
@@ -1466,7 +1507,7 @@ export const command: Command = {
 				try {
 					userID = message.author.id
 					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
-					username = lastFmName.lastfm
+					username = lastFmName?.lastfm
 					if (thirdArg) {
 						const gridMatch = thirdArg.match(/\d+x\d+/i)
 						grid = gridMatch ? thirdArg : `3x3`
@@ -1477,14 +1518,15 @@ export const command: Command = {
 						grid = gridMatch ? fourthArg : `3x3`
 					}
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Please provide a LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
 				}
 			}
 
-			const dims = grid.split(`x`)
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			const dims = grid!.split(`x`)
 			let dimension = Math.round(Math.sqrt(+dims[0] * +dims[1])) || 3
 			if (dimension > 10) dimension = 10
 			const itemCount = dimension ** 2
@@ -1493,25 +1535,35 @@ export const command: Command = {
 				return message.channel.send(
 					`Invalid collage size.\nWrite either \`1x1\`, \`2x2\`, \`3x3\`, \`4x4\`, \`5x5\` or \`6x6\``,
 				)
-
-			let collection: any
-			let response: AxiosResponse<any>
+			let collection
 			try {
-				response = await lastfmAPI.get(`/`, {
+				const response = await lastfmAPI.get(`/`, {
 					params: { method: `user.gettop${topType}s`, user: username, period: period[0], limit: itemCount, page: 1 },
 				})
-				collection = response.data[`top${topType}s`][topType]
+				let getCollection
+				if (topType === `track`) {
+					getCollection = response.data as lastfmTopTracks
+					collection = getCollection.toptracks.track
+				}
+				if (topType === `album`) {
+					getCollection = response.data as lastfmTopAlbums
+					collection = getCollection.topalbums.album
+				}
+				if (topType === `artist`) {
+					getCollection = response.data as lastfmTopArtists
+					collection = getCollection.topartists.artist
+				}
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Request failed. Please provide a valid LastFM username\n\`${guildData.prefix}fm set <lastfm account name>\`.`,
+					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			}
 
-			if (!collection || collection.length < 1) {
+			if (!collection) {
 				message.channel.send(
-					`${(await message.member.fetch(userID)).user.username}#${
-						(await message.member.fetch(userID)).user.discriminator
+					`${(await message.member?.fetch())?.user.username}#${
+						(await message.member?.fetch())?.user.discriminator
 					} hasn't listened to any music during this period.`,
 				)
 				return
@@ -1571,14 +1623,10 @@ export const command: Command = {
 				htmlString += `<div class="row">\n    `
 				for (let i = 0; i < dimension; i++) {
 					if (collection.length < 1) break
-					const item = collection.shift()
 
-					if (topType == `album`) {
-						const image =
-							item.image[item.image.length - 1][`#text`] ||
-							(topType == `artist`
-								? `https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png`
-								: `https://lastfm.freetls.fastly.net/i/u/300x300/c6f59c1e5e7240a4c0d427abd71f3dbb.png`)
+					if (topType === `album`) {
+						const item = collection.shift() as lastfmTopAlbum
+						const image = item.image[item.image.length - 1][`#text`]
 
 						htmlString += [
 							`    <div class="container">\n    `,
@@ -1587,16 +1635,21 @@ export const command: Command = {
 							`    </div>\n    `,
 						].join(``)
 					}
-					if (topType == `track`) {
-						let image: string
+					if (topType === `track`) {
+						const item = collection.shift() as lastfmTopTrack
+						let image: string | undefined
 						await spotifyCred.searchArtists(item.artist.name, { limit: 1 }).then(
 							function (data) {
-								image = data.body.artists.items.length
+								image = data.body.artists?.items.length
 									? data.body.artists.items[0].images[0].url
-									: message.guild.members.cache.get(userID).user.avatarURL({ format: `png`, size: 512 })
+									: (message.guild?.members?.cache
+											.get(userID as string)
+											?.user.avatarURL({ format: `png`, size: 512 }) as string)
 							},
 							function (err) {
-								image = message.guild.members.cache.get(userID).user.avatarURL({ format: `png`, size: 512 })
+								image = message.guild?.members?.cache
+									.get(userID as string)
+									?.user.avatarURL({ format: `png`, size: 512 }) as string
 								console.error(err)
 							},
 						)
@@ -1608,16 +1661,21 @@ export const command: Command = {
 							`    </div>\n    `,
 						].join(``)
 					}
-					if (topType == `artist`) {
-						let image: string
+					if (topType === `artist`) {
+						const item = collection.shift() as lastfmTopArtist
+						let image: string | undefined
 						await spotifyCred.searchArtists(item.name, { limit: 1 }).then(
 							function (data) {
-								image = data.body.artists.items.length
-									? data.body.artists.items[0].images[0].url
-									: message.guild.members.cache.get(userID).user.avatarURL({ format: `png`, size: 512 })
+								image = data.body.artists?.items.length
+									? data.body.artists?.items[0].images[0].url
+									: (message.guild?.members?.cache
+											.get(userID as string)
+											?.user.avatarURL({ format: `png`, size: 512 }) as string)
 							},
 							function (err) {
-								image = message.guild.members.cache.get(userID).user.avatarURL({ format: `png`, size: 512 })
+								image = message.guild?.members?.cache
+									.get(userID as string)
+									?.user.avatarURL({ format: `png`, size: 512 }) as string
 								console.error(err)
 							},
 						)
@@ -1649,7 +1707,7 @@ export const command: Command = {
 
 			const image = await getHTMLImage(htmlString, `${screen_width}`, `${screen_height}`).catch(console.error)
 			const imageAttachment = new MessageAttachment(
-				image,
+				image as Buffer,
 				`${username}-${period[0]}-${new Date(Date.now()).toISOString()}.png`,
 			)
 			loadingStatus = true

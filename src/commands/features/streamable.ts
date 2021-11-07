@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js'
+import { Message } from 'discord.js'
 import { Command } from '../../interfaces'
 import axios from 'axios'
 import * as dotenv from 'dotenv'
@@ -12,11 +12,10 @@ export const command: Command = {
 	name: `streamable`,
 	aliases: [],
 	category: `features`,
-	description:
-		`Get a Streamable link of your desired video. There is a 250 MB / 10 minute / up to 720p 60 fps limit per video.`,
+	description: `Get a Streamable link of your desired video. There is a 250 MB / 10 minute / up to 720p 60 fps limit per video.`,
 	usage: `streamable <valid video URL or attachment> [title for the video]`,
 	website: `https://www.bentobot.xyz/commands#streamable`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		let url: string
 		let title: string
 		let titleMessage: string
@@ -52,18 +51,13 @@ export const command: Command = {
 			let loopCount = 0 // adding seconds to each attempt, to avoid TMR
 
 			while (streamableStatus === false) {
-				function sleep(ms: number) {
-					return new Promise((resolve) => {
-						setTimeout(resolve, ms)
-					})
-				}
 				switch (loopCount) {
-				case 0:
-				case 1:
-					await sleep(60000)
-					break
-				default:
-					await sleep(120000)
+					case 0:
+					case 1:
+						await sleep(60000)
+						break
+					default:
+						await sleep(120000)
 				}
 				if (loopCount === 1) {
 					waitingMessage.edit(`Approx. 2 minutes has gone by since Streamable started processing the video ⌛`)
@@ -115,4 +109,10 @@ export const command: Command = {
 			return message.channel.send(`https://streamable.com/${data.data?.shortcode}`)
 		}
 	},
+}
+
+function sleep(ms: number) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms)
+	})
 }

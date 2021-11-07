@@ -1,15 +1,18 @@
-import { Command } from '../../interfaces'
+import { Command, weatherAPIObjectInterface } from '../../interfaces'
 import axios from 'axios'
 import database from '../../database/database'
 import tzlookup from 'tz-lookup'
-import moment from 'moment'
-import { tz } from 'moment-timezone'
+import moment, { Moment } from 'moment'
 import { initModels, guild, weather, weatherCreationAttributes } from '../../database/models/init-models'
 import * as dotenv from 'dotenv'
-import { Message, MessageEmbed, GuildMember } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 import { capitalize } from '../../utils/capitalize'
 import { flag } from 'country-emoji'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { codeToName } from 'country-emoji/dist/lib'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { tz } from 'moment-timezone'
 dotenv.config()
 
 const openWeatherAPI = axios.create({
@@ -20,11 +23,10 @@ export const command: Command = {
 	name: `weather`,
 	aliases: [],
 	category: `features`,
-	description:
-		`Displays info about the weather at the city saved for the user, or at the specified city.\nIf it shows a city from another country than the one you expected, try to add a country code (e.g. US, GB, DE) beside the city (remember a comma after city), as shown below\nIf it does not show up either, it may not be included in the OpenWeather API.`,
+	description: `Displays info about the weather at the city saved for the user, or at the specified city.\nIf it shows a city from another country than the one you expected, try to add a country code (e.g. US, GB, DE) beside the city (remember a comma after city), as shown below\nIf it does not show up either, it may not be included in the OpenWeather API.`,
 	usage: `weather [save] <city>, [country code]`,
 	website: `https://www.bentobot.xyz/commands#weather`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		if (args[0] === `save`) {
 			return saveWeather(message, args.slice(1).join(` `))
 		}
@@ -37,27 +39,27 @@ export const command: Command = {
 			return weatherFunction(message)
 		}
 
-		async function weatherFunction(message: Message, input?: GuildMember | any) {
+		async function weatherFunction(message: Message, input?: string) {
 			initModels(database)
 
-			let userID: string
-			let city: string
+			let userID: string | undefined
+			let city: string | undefined
 
 			if (input) {
 				try {
-					const mentionedUser = message.mentions.members.has(client.user.id)
+					const mentionedUser = message.mentions.members?.has(client.user?.id as string)
 						? message.mentions.members.size > 1
 							? message.mentions.members.last()
 							: message.member
-						: message.mentions.members.first() || (await message.guild.members.fetch(input))
-					if (mentionedUser.user.bot === true) return message.channel.send(`Bots doesn't care about the weather.`)
-					userID = mentionedUser.id
+						: message.mentions.members?.first() || (await message.guild?.members.fetch(input))
+					if (mentionedUser?.user.bot === true) return message.channel.send(`Bots doesn't care about the weather.`)
+					userID = mentionedUser?.id
 					try {
 						const weatherData = await weather.findOne({ raw: true, where: { userID: userID } })
-						city = weatherData.city
+						city = weatherData?.city
 					} catch {
 						return message.channel.send(
-							`${mentionedUser.user.username}#${mentionedUser.user.discriminator} hasn't saved a weather location.`,
+							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved a weather location.`,
 						)
 					}
 				} catch {
@@ -67,62 +69,13 @@ export const command: Command = {
 				try {
 					userID = message.author.id
 					const weatherData = await weather.findOne({ raw: true, where: { userID: userID } })
-					city = weatherData.city
+					city = weatherData?.city
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 					return message.channel.send(
-						`Your request was invalid. You haven't saved a city for the weather command.\nUse \`${guildData.prefix}help weather\` for help with your request.`,
+						`Your request was invalid. You haven't saved a city for the weather command.\nUse \`${guildData?.prefix}help weather\` for help with your request.`,
 					)
 				}
-			}
-
-			interface weatherAPIWeatherObjectInterface {
-				id: number;
-				main: string;
-				description: string;
-				icon: string;
-			}
-
-			interface weatherAPISysObjectInterface {
-				country: string;
-				sunrise: number;
-				sunset: number;
-			}
-
-			interface weatherAPIMainObjectInterface {
-				temp: number;
-				feels_like: number;
-				temp_min: number;
-				temp_max: number;
-				pressure: number;
-				humidity: number;
-			}
-
-			interface weatherAPICloudsObjectInterface {
-				all: number;
-			}
-
-			interface weatherAPIWindObjectInterface {
-				speed: number;
-				deg: number;
-			}
-
-			interface weatherAPICoordObjectInterface {
-				lon: number;
-				lat: number;
-			}
-
-			interface weatherAPIObjectInterface {
-				name: string;
-				id: number;
-				weather: Array<weatherAPIWeatherObjectInterface>;
-				sys: weatherAPISysObjectInterface;
-				main: weatherAPIMainObjectInterface;
-				dt: number;
-				timezone: number;
-				clouds: weatherAPICloudsObjectInterface;
-				wind: weatherAPIWindObjectInterface;
-				coord: weatherAPICoordObjectInterface;
 			}
 
 			let response: weatherAPIObjectInterface
@@ -132,9 +85,9 @@ export const command: Command = {
 				})
 				response = fetch.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`No results found for the location \`${city}\`.\nIf you've saved the location you can change the location to something else by using \`${guildData.prefix}weather save <city>\`.\nIf you tried to check the weather by ID and it failed, it's either because the user hasn't saved a city or the user isn't on this server.\nIf you searched for the location, perhaps add the country code for the location or you've misspelled.\nUse \`${guildData.prefix}help weather\` to get help.`,
+					`No results found for the location \`${city}\`.\nIf you've saved the location you can change the location to something else by using \`${guildData?.prefix}weather save <city>\`.\nIf you tried to check the weather by ID and it failed, it's either because the user hasn't saved a city or the user isn't on this server.\nIf you searched for the location, perhaps add the country code for the location or you've misspelled.\nUse \`${guildData?.prefix}help weather\` to get help.`,
 				)
 			}
 
@@ -142,20 +95,20 @@ export const command: Command = {
 				.setColor(`#EB6E4B`)
 				.setAuthor(
 					userID
-						? message.guild.members.cache.get(userID)?.nickname
+						? message.guild?.members.cache.get(userID)?.nickname
 							? `${message.guild.members.cache.get(userID)?.nickname} (${
-								message.guild.members.cache.get(userID).user.username +
+									message.guild?.members.cache.get(userID)?.user.username +
 									`#` +
-									message.guild.members.cache.get(userID).user.discriminator
+									message.guild?.members.cache.get(userID)?.user.discriminator
 							  })`
-							: message.guild.members.cache.get(userID).user.username +
+							: message.guild?.members.cache.get(userID)?.user.username +
 							  `#` +
-							  message.guild.members.cache.get(userID).user.discriminator
+							  message.guild?.members.cache.get(userID)?.user.discriminator
 						: `OpenWeather`,
 					userID
-						? message.guild.members.cache.get(userID).user.displayAvatarURL({ format: `png`, dynamic: true })
+						? message.guild?.members.cache.get(userID)?.user.displayAvatarURL({ format: `png`, dynamic: true })
 						: `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg`,
-					userID ? null : `https://openweathermap.org/`,
+					userID ? `` : `https://openweathermap.org/`,
 				)
 				.setTitle(
 					`${response.weather[0].main} ${await weatherEmote(response.weather[0].id)} in ${response.name}, ${codeToName(
@@ -169,7 +122,7 @@ export const command: Command = {
 						moment.unix(response.dt),
 						await location(response.coord.lat, response.coord.lon),
 					)}`,
-					userID ? `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg` : null,
+					userID ? `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg` : ``,
 				)
 				.setDescription(
 					`Currently **${capitalize(response.weather[0].description)}** ${await weatherEmote(
@@ -201,8 +154,7 @@ export const command: Command = {
 		async function saveWeather(message: Message, city: string) {
 			initModels(database)
 
-			let userID: string
-			userID = message.author.id
+			const userID = message.author.id
 
 			const weatherAttr: weatherCreationAttributes = {
 				userID: BigInt(userID),
@@ -222,13 +174,13 @@ export const command: Command = {
 		}
 
 		async function windDirection(degree: number) {
-			if (degree == 90) {
+			if (degree === 90) {
 				return `⬆️`
-			} else if (degree == 270) {
+			} else if (degree === 270) {
 				return `⬇️`
-			} else if (degree == 180) {
+			} else if (degree === 180) {
 				return `⬅️`
-			} else if (degree == 360 || 0) {
+			} else if (degree === 360 || 0) {
 				return `➡️`
 			} else if (degree > 0 && degree < 90) {
 				return `↗️`
@@ -252,7 +204,7 @@ export const command: Command = {
 				return `🌧️`
 			} else if (weather >= 500 && weather <= 504) {
 				return `🌦️`
-			} else if (weather == 511) {
+			} else if (weather === 511) {
 				return `🌨️`
 			} else if (weather >= 520 && weather <= 531) {
 				return `🌧️`
@@ -260,9 +212,9 @@ export const command: Command = {
 				return `❄️`
 			} else if (weather >= 701 && weather <= 781) {
 				return `🌫️`
-			} else if (weather == 800) {
+			} else if (weather === 800) {
 				return `☀️`
-			} else if (weather == 801) {
+			} else if (weather === 801) {
 				return `⛅`
 			} else if (weather >= 802 && weather <= 804) {
 				return `☁️`
@@ -274,7 +226,7 @@ export const command: Command = {
 			return loc
 		}
 
-		async function toTimeZone(time, zone) {
+		async function toTimeZone(time: Moment, zone: string) {
 			return moment(time, `LT`).tz(zone).format(`LT`)
 		}
 

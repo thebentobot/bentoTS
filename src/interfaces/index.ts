@@ -1,3 +1,5 @@
 export { Command } from './command'
 export { Event } from './event'
 export { gfycatSearchInterface, gfycatInterface } from './gfycat'
+export { lastfmUser, lastfmRecentTracks, lastfmTopTracks, lastfmTopAlbums } from './lastfm'
+export { weatherAPIObjectInterface } from './weather'

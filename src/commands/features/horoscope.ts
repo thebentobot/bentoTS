@@ -8,8 +8,10 @@ import {
 	horoscopeCreationAttributes,
 	horoscopeAttributes,
 } from '../../database/models/init-models'
-import { Message, MessageEmbed, GuildMember, Util } from 'discord.js'
+import { Message, MessageEmbed, MessageReaction, User } from 'discord.js'
 //const aztroJs = require("aztro-js");
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import * as aztroJs from 'aztro-js'
 import chroma from 'chroma-js'
 import { QueryTypes } from 'sequelize'
@@ -18,12 +20,10 @@ export const command: Command = {
 	name: `horoscope`,
 	aliases: [`horo`, `astro`, `zodiac`, `hs`],
 	category: `features`,
-	description:
-		`Provides a horoscope based on day and sign. If you search signs, it provides a list of signs and their date range`,
-	usage:
-		`**horoscope <save> <sign>** to save your horoscope\n**horoscope <today/tomorrow/yesterday> [sign or a user mention/id]** to show horoscope for a given day and for a given user\nIf you don't specify a user or sign, then it will check for yourself. If you don't mention anything and have a sign saved, it shows for today.\n**horoscope list** shows a list of all users on the server who has saved their horoscope.\n**horoscope search <query>** makes you able to search for users who has a specific horoscope.`,
+	description: `Provides a horoscope based on day and sign. If you search signs, it provides a list of signs and their date range`,
+	usage: `**horoscope <save> <sign>** to save your horoscope\n**horoscope <today/tomorrow/yesterday> [sign or a user mention/id]** to show horoscope for a given day and for a given user\nIf you don't specify a user or sign, then it will check for yourself. If you don't mention anything and have a sign saved, it shows for today.\n**horoscope list** shows a list of all users on the server who has saved their horoscope.\n**horoscope search <query>** makes you able to search for users who has a specific horoscope.`,
 	website: `https://www.bentobot.xyz/commands#horoscope`,
-	run: async (client, message, args): Promise<any> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		if (!args.length) {
 			return horoToday(message)
 		}
@@ -68,24 +68,24 @@ export const command: Command = {
 			return horoToday(message, args[0])
 		}
 
-		async function horoSave(message: Message, input?: GuildMember | any) {
+		async function horoSave(message: Message, input?: string) {
+			if (!input) return message.channel.send(``)
 			initModels(database)
 
-			let userID: string
 			let sign: string
 
-			userID = message.author.id
+			const userID = message.author.id
 
 			if (horoSigns.includes(input) || horoSignsLow.includes(input)) {
 				sign = capitalize(input)
 			} else {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 				return message.channel.send(
-					`Your request was invalid. You wrote the wrong sign or misspelled the sign.\nUse \`${guildData.prefix}signs\` to see a list of horoscopes, or \`${guildData.prefix}help horoscope\` for help with your request.`,
+					`Your request was invalid. You wrote the wrong sign or misspelled the sign.\nUse \`${guildData?.prefix}signs\` to see a list of horoscopes, or \`${guildData?.prefix}help horoscope\` for help with your request.`,
 				)
 			}
 
-			let horoAttr: horoscopeCreationAttributes
+			let horoAttr: horoscopeCreationAttributes | undefined
 
 			if (sign === `Aries`) {
 				horoAttr = {
@@ -285,55 +285,55 @@ export const command: Command = {
 			}
 		}
 
-		async function horoToday(message: Message, input?: any) {
+		async function horoToday(message: Message, input?: string) {
 			initModels(database)
+			const inputParsing = input ? input : `Not there`
+			let userID: string | undefined
+			let sign: string | undefined
 
-			let userID: string
-			let sign: string
-			const horoscopeUserLookUp = false
-
-			if (horoSigns.includes(input) || horoSignsLow.includes(input)) {
-				sign = input
+			if (horoSigns.includes(inputParsing) || horoSignsLow.includes(inputParsing)) {
+				sign = inputParsing
 			} else {
 				try {
-					const mentionedUser = message.mentions.members.has(client.user.id)
+					const mentionedUser = message.mentions.members?.has(client.user?.id as string)
 						? message.mentions.members.size > 1
 							? message.mentions.members.last()
 							: message.member
-						: message.mentions.members.first() || (await message.guild.members.fetch(input))
-					if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
-					userID = mentionedUser.id
+						: message.mentions.members?.first() || (await message.guild?.members.fetch(inputParsing))
+					if (mentionedUser?.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
+					userID = mentionedUser?.id
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
-						sign = horoData.horoscope
+						sign = horoData?.horoscope
 					} catch {
 						return message.channel.send(
-							`${mentionedUser.user.username}#${mentionedUser.user.discriminator} hasn't saved their horoscope.`,
+							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved their horoscope.`,
 						)
 					}
 				} catch {
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
-						sign = horoData.horoscope
+						sign = horoData?.horoscope
 					} catch {
-						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 						return message.channel.send(
-							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData.prefix}help horoscope\` for help with your request.`,
+							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData?.prefix}help horoscope\` for help with your request.`,
 						)
 					}
 				}
 			}
 
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			aztroJs.getTodaysHoroscope(sign, async function (res: any) {
 				const colour: string = res.color
 				const exampleEmbed = new MessageEmbed()
 					.setAuthor(
-						`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`,
+						`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 						userID
-							? message.guild.members.cache.get(userID).user.avatarURL({ format: `png`, dynamic: true })
-							: message.author.avatarURL({ format: `png`, dynamic: true }),
+							? (message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png`, dynamic: true }) as string)
+							: (message.author.avatarURL({ format: `png`, dynamic: true }) as string),
 					)
-					.setTitle(`${capitalize(sign)} horoscope for ${res.current_date}`)
+					.setTitle(`${capitalize(sign as string)} horoscope for ${res.current_date}`)
 					.setDescription(res.description)
 					.setTimestamp()
 					.addFields(
@@ -350,8 +350,10 @@ export const command: Command = {
 					exampleEmbed.setColor(
 						`${
 							userID
-								? await urlToColours(message.guild.members.cache.get(userID).user.avatarURL({ format: `png` }))
-								: await urlToColours(message.author.avatarURL({ format: `png` }))
+								? await urlToColours(
+										message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png` }) as string,
+								  )
+								: await urlToColours(message.author.avatarURL({ format: `png` }) as string)
 						}`,
 					)
 				}
@@ -359,54 +361,57 @@ export const command: Command = {
 			})
 		}
 
-		async function horoTomorrow(message: Message, input?: GuildMember | any) {
+		async function horoTomorrow(message: Message, input?: string) {
 			initModels(database)
 
-			let userID: string
-			let sign: string
+			const inputParsing = input ? input : `Not there`
 
-			if (horoSigns.includes(input) || horoSignsLow.includes(input)) {
+			let userID: string | undefined
+			let sign: string | undefined
+
+			if (horoSigns.includes(inputParsing) || horoSignsLow.includes(inputParsing)) {
 				sign = input
 			} else {
 				try {
-					const mentionedUser = message.mentions.members.has(client.user.id)
+					const mentionedUser = message.mentions.members?.has(client.user?.id as string)
 						? message.mentions.members.size > 1
 							? message.mentions.members.last()
 							: message.member
-						: message.mentions.members.first() || (await message.guild.members.fetch(input))
-					if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
-					userID = mentionedUser.id
+						: message.mentions.members?.first() || (await message.guild?.members.fetch(inputParsing))
+					if (mentionedUser?.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
+					userID = mentionedUser?.id
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
-						sign = horoData.horoscope
+						sign = horoData?.horoscope
 					} catch {
 						return message.channel.send(
-							`${mentionedUser.user.username}#${mentionedUser.user.discriminator} hasn't saved their horoscope.`,
+							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved their horoscope.`,
 						)
 					}
 				} catch {
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
-						sign = horoData.horoscope
+						sign = horoData?.horoscope
 					} catch {
-						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 						return message.channel.send(
-							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData.prefix}help horoscope\` for help with your request.`,
+							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData?.prefix}help horoscope\` for help with your request.`,
 						)
 					}
 				}
 			}
 
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			aztroJs.getTomorrowsHoroscope(sign, async function (res: any) {
 				const colour: string = res.color
 				const exampleEmbed = new MessageEmbed()
 					.setAuthor(
-						`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`,
+						`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 						userID
-							? message.guild.members.cache.get(userID).user.avatarURL({ format: `png`, dynamic: true })
-							: message.author.avatarURL({ format: `png`, dynamic: true }),
+							? (message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png`, dynamic: true }) as string)
+							: (message.author.avatarURL({ format: `png`, dynamic: true }) as string),
 					)
-					.setTitle(`${capitalize(sign)} horoscope for ${res.current_date}`)
+					.setTitle(`${capitalize(sign as string)} horoscope for ${res.current_date}`)
 					.setDescription(res.description)
 					.setTimestamp()
 					.addFields(
@@ -423,8 +428,10 @@ export const command: Command = {
 					exampleEmbed.setColor(
 						`${
 							userID
-								? await urlToColours(message.guild.members.cache.get(userID).user.avatarURL({ format: `png` }))
-								: await urlToColours(message.author.avatarURL({ format: `png` }))
+								? await urlToColours(
+										message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png` }) as string,
+								  )
+								: await urlToColours(message.author.avatarURL({ format: `png` }) as string)
 						}`,
 					)
 				}
@@ -432,54 +439,57 @@ export const command: Command = {
 			})
 		}
 
-		async function horoYesterday(message: Message, input?: GuildMember | any) {
+		async function horoYesterday(message: Message, input?: string) {
 			initModels(database)
 
-			let userID: string
-			let sign: string
+			const inputParsing = input ? input : `Not there`
 
-			if (horoSigns.includes(input) || horoSignsLow.includes(input)) {
+			let userID: string | undefined
+			let sign: string | undefined
+
+			if (horoSigns.includes(inputParsing) || horoSignsLow.includes(inputParsing)) {
 				sign = input
 			} else {
 				try {
-					const mentionedUser = message.mentions.members.has(client.user.id)
+					const mentionedUser = message.mentions.members?.has(client.user?.id as string)
 						? message.mentions.members.size > 1
 							? message.mentions.members.last()
 							: message.member
-						: message.mentions.members.first() || (await message.guild.members.fetch(input))
-					if (mentionedUser.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
-					userID = mentionedUser.id
+						: message.mentions.members?.first() || (await message.guild?.members.fetch(inputParsing))
+					if (mentionedUser?.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
+					userID = mentionedUser?.id
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
-						sign = horoData.horoscope
+						sign = horoData?.horoscope
 					} catch {
 						return message.channel.send(
-							`${mentionedUser.user.username}#${mentionedUser.user.discriminator} hasn't saved their horoscope.`,
+							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved their horoscope.`,
 						)
 					}
 				} catch {
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
-						sign = horoData.horoscope
+						sign = horoData?.horoscope
 					} catch {
-						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 						return message.channel.send(
-							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData.prefix}help horoscope\` for help with your request.`,
+							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData?.prefix}help horoscope\` for help with your request.`,
 						)
 					}
 				}
 			}
 
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			aztroJs.getYesterdaysHoroscope(sign, async function (res: any) {
 				const colour: string = res.color
 				const exampleEmbed = new MessageEmbed()
 					.setAuthor(
-						`${userID ? message.guild.members.cache.get(userID).user.username : message.author.username}`,
+						`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 						userID
-							? message.guild.members.cache.get(userID).user.avatarURL({ format: `png`, dynamic: true })
-							: message.author.avatarURL({ format: `png`, dynamic: true }),
+							? (message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png`, dynamic: true }) as string)
+							: (message.author.avatarURL({ format: `png`, dynamic: true }) as string),
 					)
-					.setTitle(`${capitalize(sign)} horoscope for ${res.current_date}`)
+					.setTitle(`${capitalize(sign as string)} horoscope for ${res.current_date}`)
 					.setDescription(res.description)
 					.setTimestamp()
 					.addFields(
@@ -496,8 +506,10 @@ export const command: Command = {
 					exampleEmbed.setColor(
 						`${
 							userID
-								? await urlToColours(message.guild.members.cache.get(userID).user.avatarURL({ format: `png` }))
-								: await urlToColours(message.author.avatarURL({ format: `png` }))
+								? await urlToColours(
+										message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png` }) as string,
+								  )
+								: await urlToColours(message.author.avatarURL({ format: `png` }) as string)
 						}`,
 					)
 				}
@@ -507,10 +519,10 @@ export const command: Command = {
 
 		async function horoList(message: Message) {
 			interface horoscopeListInterface {
-				userID: bigint;
-				username: string;
-				discriminator: string;
-				horoscope: horoscopeAttributes;
+				userID: bigint
+				username: string
+				discriminator: string
+				horoscope: horoscopeAttributes
 			}
 			const serverRank: Array<horoscopeListInterface> = await database.query(
 				`
@@ -522,7 +534,7 @@ export const command: Command = {
             GROUP BY u."userID", u.username, u.discriminator, horo.horoscope
             ORDER BY u.username ASC;`,
 				{
-					replacements: { guild: message.guild.id },
+					replacements: { guild: message.guild?.id },
 					type: QueryTypes.SELECT,
 				},
 			)
@@ -540,7 +552,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
 
@@ -573,21 +585,21 @@ export const command: Command = {
 					const info = current
 						.map(
 							(horoscope) =>
-								`**${++j}.** ${message.guild.members.cache.get(`${horoscope.userID}`)} - ${horoscope.horoscope}`,
+								`**${++j}.** ${message.guild?.members.cache.get(`${horoscope.userID}`)} - ${horoscope.horoscope}`,
 						)
 						.join(`\n`)
 					const embed = new MessageEmbed()
 						.setDescription(`${info}`)
 						.setColor(
-							message.guild.iconURL()
-								? `${await urlToColours(message.guild.iconURL({ format: `png` }))}`
-								: `${await urlToColours(client.user.displayAvatarURL({ format: `png` }))}`,
+							message.guild?.iconURL()
+								? `${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`
+								: `${await urlToColours(client.user?.displayAvatarURL({ format: `png` }) as string)}`,
 						)
-						.setTitle(`All horoscopes for ${message.guild.name}`)
-						.setThumbnail(message.guild.iconURL() ? message.guild.iconURL() : ``)
+						.setTitle(`All horoscopes for ${message.guild?.name}`)
+						.setThumbnail(message.guild?.iconURL() ? (message.guild.iconURL() as string) : ``)
 						.setAuthor(
-							message.guild.iconURL() ? message.guild.name : client.user.username,
-							message.guild.iconURL() ? message.guild.iconURL() : client.user.displayAvatarURL(),
+							message.guild?.iconURL() ? message.guild.name : client.user?.username,
+							message.guild?.iconURL() ? (message.guild.iconURL() as string) : client.user?.displayAvatarURL(),
 						)
 						.setTimestamp()
 					embeds.push(embed)
@@ -598,10 +610,10 @@ export const command: Command = {
 
 		async function horoSearch(message: Message, query?: string) {
 			interface horoscopeListInterface {
-				userID: bigint;
-				username: string;
-				discriminator: string;
-				horoscope: horoscopeAttributes;
+				userID: bigint
+				username: string
+				discriminator: string
+				horoscope: horoscopeAttributes
 			}
 			const queryData: Array<horoscopeListInterface> = await database.query(
 				`
@@ -613,7 +625,7 @@ export const command: Command = {
             GROUP BY u."userID", u.username, u.discriminator, horo.horoscope
             ORDER BY u.username ASC;`,
 				{
-					replacements: { guild: message.guild.id, query: `%` + query + `%` },
+					replacements: { guild: message.guild?.id, query: `%` + query + `%` },
 					type: QueryTypes.SELECT,
 				},
 			)
@@ -631,7 +643,7 @@ export const command: Command = {
 			await queueEmbed.react(`⬅️`)
 			await queueEmbed.react(`➡️`)
 			await queueEmbed.react(`❌`)
-			const filter = (reaction, user) =>
+			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 			const collector = queueEmbed.createReactionCollector(filter)
 
@@ -665,21 +677,21 @@ export const command: Command = {
 					const info = current
 						.map(
 							(horoscope) =>
-								`**${++j}.** ${message.guild.members.cache.get(`${horoscope.userID}`)} - ${horoscope.horoscope}`,
+								`**${++j}.** ${message.guild?.members.cache.get(`${horoscope.userID}`)} - ${horoscope.horoscope}`,
 						)
 						.join(`\n`)
 					const embed = new MessageEmbed()
 						.setDescription(`${info}`)
 						.setColor(
-							message.guild.iconURL()
-								? `${await urlToColours(message.guild.iconURL({ format: `png` }))}`
-								: `${await urlToColours(client.user.displayAvatarURL({ format: `png` }))}`,
+							message.guild?.iconURL()
+								? `${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`
+								: `${await urlToColours(client.user?.displayAvatarURL({ format: `png` }) as string)}`,
 						)
 						.setTitle(`All horoscopes that includes \`${query}\``)
-						.setThumbnail(message.guild.iconURL() ? message.guild.iconURL() : ``)
+						.setThumbnail(message.guild?.iconURL() ? (message.guild.iconURL() as string) : ``)
 						.setAuthor(
-							message.guild.iconURL() ? message.guild.name : client.user.username,
-							message.guild.iconURL() ? message.guild.iconURL() : client.user.displayAvatarURL(),
+							message.guild?.iconURL() ? message.guild.name : client.user?.username,
+							message.guild?.iconURL() ? (message.guild.iconURL() as string) : client.user?.displayAvatarURL(),
 						)
 						.setTimestamp()
 					// denne funktion skal skubbe siderne

@@ -4,8 +4,7 @@ import utf8 from 'utf8'
 import database from '../../database/database'
 import { initModels, guild, gfycatBlacklist } from '../../database/models/init-models'
 import * as dotenv from 'dotenv'
-import { Message, TextChannel } from 'discord.js'
-import moment from 'moment'
+import { Message, MessageReaction, TextChannel, User } from 'discord.js'
 import naughtyWords from 'naughty-words/en.json'
 dotenv.config()
 
@@ -37,11 +36,10 @@ export const command: Command = {
 	name: `gif`,
 	aliases: [],
 	category: `features`,
-	description:
-		`Searches for a random GIF based on the search input.\nThe GIFs comes from Gfycat, who has removed adult content from their site, so no fear of NSFW content (NSFW filtering is applied just to be sure).\nIf you want to see multiple posts add \`--multi\` after the search input, and if you want to specify how many multiple posts it is \`--count\` followed by a number between 1-50.\n\`--tenor\` searches for GIFs with Tenor.\nTenor has a g-rated content filter for non-NSFW channels. The filter is off in NSFW channels. It is not possible to see multiple Tenor posts.`,
+	description: `Searches for a random GIF based on the search input.\nThe GIFs comes from Gfycat, who has removed adult content from their site, so no fear of NSFW content (NSFW filtering is applied just to be sure).\nIf you want to see multiple posts add \`--multi\` after the search input, and if you want to specify how many multiple posts it is \`--count\` followed by a number between 1-50.\n\`--tenor\` searches for GIFs with Tenor.\nTenor has a g-rated content filter for non-NSFW channels. The filter is off in NSFW channels. It is not possible to see multiple Tenor posts.`,
 	usage: `gif <search input> [--tenor] [--multi [--count <number between 1-30>]]`,
 	website: `https://www.bentobot.xyz/commands#gif`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message, args): Promise<Message | undefined> => {
 		if (!args.length) {
 			return message.channel.send(`You need to provide a search input!`).then((m) => m.delete({ timeout: 5000 }))
 		}
@@ -52,9 +50,9 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+		const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 
-		if (guildDB.media === false) return
+		if (guildDB?.media === false) return
 
 		let messageParse: string[] = args
 
@@ -88,7 +86,8 @@ export const command: Command = {
 		if (args.includes(`--multi`)) {
 			let getNumber = args.join(` `)
 			if (args.includes(`--count`)) {
-				getNumber = getNumber.match(/\d+/).pop()
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+				getNumber = getNumber.match(/\d+/)!.pop() as string
 				count = parseInt(getNumber)
 				if (count > 30) return message.channel.send(`Sorry, 30 posts is the max.`)
 			}
@@ -121,13 +120,15 @@ export const command: Command = {
 					`Loading a random Gfycat Post related to \`${query}\` ... ⌛🐱`,
 				)
 				let index = Math.floor(Math.random() * gfycatData.length)
-				let gfyTest
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				let gfyTest: any
 				await axios
 					.get(gfycatData[index].mobileUrl)
 					.then((res) => {
 						gfyTest = res
 					})
-					.catch((error) => {})
+					// eslint-disable-next-line @typescript-eslint/no-empty-function
+					.catch(() => {})
 				while (gfyTest?.status !== 200) {
 					gfycatData = gfycatData.filter((gfy) => gfy.userData.username !== gfycatData[index].userData.username)
 					index = Math.floor(Math.random() * gfycatData.length)
@@ -136,7 +137,8 @@ export const command: Command = {
 						.then((res) => {
 							gfyTest = res
 						})
-						.catch((error) => {})
+						// eslint-disable-next-line @typescript-eslint/no-empty-function
+						.catch(() => {})
 				}
 				waitingMessage.delete()
 				return message.channel.send(`https://gfycat.com/${gfycatData[index].gfyName}`)
@@ -154,7 +156,7 @@ export const command: Command = {
 				await queueEmbed.react(`⬅️`)
 				await queueEmbed.react(`➡️`)
 				await queueEmbed.react(`❌`)
-				const filter = (reaction, user) =>
+				const filter = (reaction: MessageReaction, user: User) =>
 					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
 				const collector = queueEmbed.createReactionCollector(filter, { idle: 900000, dispose: true })
 
@@ -176,28 +178,26 @@ export const command: Command = {
 						await queueEmbed.delete()
 					}
 				})
-
-				async function generateGfyCatEmbed(gfycat: gfycatInterface[]) {
-					const embeds = []
-					let k = 1
-					for (let i = 0; i < gfycat.length; i += 1) {
-						const current = gfycat[i]
-						const j = i
-						k += 1
-
-						const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ``}${
-							current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ``
-						}${current.views} Views\n<t:${current.createDate}:F>\nhttps://gfycat.com/${current.gfyName}`
-						await axios
-							.get(current.mobileUrl)
-							.then((res) => {
-								embeds.push(embed)
-							})
-							.catch((error) => {})
-					}
-					return embeds
-				}
 			}
 		}
 	},
+}
+
+async function generateGfyCatEmbed(gfycat: gfycatInterface[]) {
+	const embeds: string[] = []
+	for (let i = 0; i < gfycat.length; i += 1) {
+		const current = gfycat[i]
+
+		const embed = `${current.title.length > 0 ? `**${current.title}**\n` : ``}${
+			current.userData?.username.length ? `Made by <${current.userData.url}>\n` : ``
+		}${current.views} Views\n<t:${current.createDate}:F>\nhttps://gfycat.com/${current.gfyName}`
+		await axios
+			.get(current.mobileUrl)
+			.then(() => {
+				embeds.push(embed)
+			})
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
+			.catch(() => {})
+	}
+	return embeds
 }

@@ -17,10 +17,10 @@ export const command: Command = {
 		const bentoResult = bentoReplies[random]
 		const result = acceptedReplies[random]
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild.id } })
+		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 
 		const choice = args[0]
-		if (!choice) return message.channel.send(`How to play: \`${guildData.prefix}rps <rock|paper|scissors>\``)
+		if (!choice) return message.channel.send(`How to play: \`${guildData?.prefix}rps <rock|paper|scissors>\``)
 		if (!acceptedReplies.includes(choice))
 			return message.channel.send(`Only these responses are accepted: \`${acceptedReplies.join(`, `)}\``)
 
@@ -43,29 +43,42 @@ export const command: Command = {
 
 		if (result === choice) {
 			switch (choice) {
-				case `rock`: {
-					const userData = await rpsGame.findOrCreate({
-						raw: true,
-						where: { userID: message.author.id },
-						defaults: userDefault,
-					})
-					await rpsGame.update({ rockTies: userData[0].rockTies + 1 }, { where: { userID: message.author.id } })
-				}
-				case `paper`: {
-					const userData = await rpsGame.findOrCreate({
-						raw: true,
-						where: { userID: message.author.id },
-						defaults: userDefault,
-					})
-					await rpsGame.update({ paperTies: userData[0].paperTies + 1 }, { where: { userID: message.author.id } })
-				}
+				case `rock`:
+					{
+						const userData = await rpsGame.findOrCreate({
+							raw: true,
+							where: { userID: message.author.id },
+							defaults: userDefault,
+						})
+						await rpsGame.update(
+							{ rockTies: (userData[0].rockTies as number) + 1 },
+							{ where: { userID: message.author.id } },
+						)
+					}
+					break
+				case `paper`:
+					{
+						const userData = await rpsGame.findOrCreate({
+							raw: true,
+							where: { userID: message.author.id },
+							defaults: userDefault,
+						})
+						await rpsGame.update(
+							{ paperTies: (userData[0].paperTies as number) + 1 },
+							{ where: { userID: message.author.id } },
+						)
+					}
+					break
 				case `scissors`: {
 					const userData = await rpsGame.findOrCreate({
 						raw: true,
 						where: { userID: message.author.id },
 						defaults: userDefault,
 					})
-					await rpsGame.update({ scissorsTies: userData[0].scissorsTies + 1 }, { where: { userID: message.author.id } })
+					await rpsGame.update(
+						{ scissorsTies: (userData[0].scissorsTies as number) + 1 },
+						{ where: { userID: message.author.id } },
+					)
 				}
 			}
 			return message.channel.send(`**${username}** Its a tie 👔! We had the same choice 😂`)
@@ -79,7 +92,10 @@ export const command: Command = {
 						where: { userID: message.author.id },
 						defaults: userDefault,
 					})
-					await rpsGame.update({ rockLosses: userData[0].rockLosses + 1 }, { where: { userID: message.author.id } })
+					await rpsGame.update(
+						{ rockLosses: (userData[0].rockLosses as number) + 1 },
+						{ where: { userID: message.author.id } },
+					)
 					return message.channel.send(`**${username}** I won! 🤣`)
 				} else {
 					const userData = await rpsGame.findOrCreate({
@@ -87,7 +103,10 @@ export const command: Command = {
 						where: { userID: message.author.id },
 						defaults: userDefault,
 					})
-					await rpsGame.update({ rockWins: userData[0].rockWins + 1 }, { where: { userID: message.author.id } })
+					await rpsGame.update(
+						{ rockWins: (userData[0].rockWins as number) + 1 },
+						{ where: { userID: message.author.id } },
+					)
 					return message.channel.send(`**${username}** You won! 😔`)
 				}
 			}
@@ -98,7 +117,10 @@ export const command: Command = {
 						where: { userID: message.author.id },
 						defaults: userDefault,
 					})
-					await rpsGame.update({ paperLosses: userData[0].paperLosses + 1 }, { where: { userID: message.author.id } })
+					await rpsGame.update(
+						{ paperLosses: (userData[0].paperLosses as number) + 1 },
+						{ where: { userID: message.author.id } },
+					)
 					return message.channel.send(`**${username}** I won! 🤣`)
 				} else {
 					const userData = await rpsGame.findOrCreate({
@@ -106,7 +128,10 @@ export const command: Command = {
 						where: { userID: message.author.id },
 						defaults: userDefault,
 					})
-					await rpsGame.update({ paperWins: userData[0].paperWins + 1 }, { where: { userID: message.author.id } })
+					await rpsGame.update(
+						{ paperWins: (userData[0].paperWins as number) + 1 },
+						{ where: { userID: message.author.id } },
+					)
 					return message.channel.send(`**${username}** You won! 😔`)
 				}
 			}
@@ -118,7 +143,7 @@ export const command: Command = {
 						defaults: userDefault,
 					})
 					await rpsGame.update(
-						{ scissorsLosses: userData[0].scissorsLosses + 1 },
+						{ scissorsLosses: (userData[0].scissorsLosses as number) + 1 },
 						{ where: { userID: message.author.id } },
 					)
 					return message.channel.send(`**${username}** I won! 🤣`)
@@ -128,7 +153,10 @@ export const command: Command = {
 						where: { userID: message.author.id },
 						defaults: userDefault,
 					})
-					await rpsGame.update({ scissorWins: userData[0].scissorWins + 1 }, { where: { userID: message.author.id } })
+					await rpsGame.update(
+						{ scissorWins: (userData[0].scissorWins as number) + 1 },
+						{ where: { userID: message.author.id } },
+					)
 					return message.channel.send(`**${username}** You won! 😔`)
 				}
 			}
