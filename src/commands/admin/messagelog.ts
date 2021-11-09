@@ -28,11 +28,11 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			try {
-				const messageLogData = await messageLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const messageLogData = await messageLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			if (messageLogData !== null) {
 				return message.channel.send(`
             The message log is currently \`enabled\` on this server.\nThe message log channel on this server is currently in <#${messageLogData?.channel}>.`)
-			} catch {
+			} else {
 				return message.channel.send(
 					`This server doesn't have a message log.\nUse \`${guildData?.prefix}help messagelog\` to see how to setup a message log for this server.`,
 				)
@@ -69,14 +69,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `delete`) {
-			try {
-				await messageLog.destroy({ where: { channel: message.guild?.id } })
-				return message.channel.send(
-					`Your message log channel is deleted in Bento's database and Bento will from now on not log edited and deleted messages.\nPlease use ${guildData?.prefix}messagelog channel <channelID> to enable it again.`,
-				)
-			} catch {
-				return message.channel.send(`You don't have a message log enabled.`)
-			}
+			await messageLog.destroy({ where: { channel: message.guild?.id } })
+			return message.channel.send(
+				`Your message log channel is deleted in Bento's database and Bento will from now on not log edited and deleted messages.\nPlease use ${guildData?.prefix}messagelog channel <channelID> to enable it again.`,
+			)
 		}
 	},
 }

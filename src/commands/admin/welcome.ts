@@ -28,11 +28,19 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			try {
-				const welcomeData = await welcome.findOne({ raw: true, where: { guildID: message.guild?.id } })
-				return message.channel.send(`
-            welcome messages is currently \`enabled\` on this server.\nThe welcome message on this server is currently: \`${welcomeData?.message}\`.\nThe welcome message channel on this server is currently in ${welcomeData?.channel}.`)
-			} catch {
+			const welcomeData = await welcome.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			if (welcomeData !== null) {
+				if (welcomeData.message && welcomeData.channel) {
+					return message.channel.send(`
+            welcome messages is currently \`enabled\` on this server.\nThe welcome message on this server is currently: \`${welcomeData.message}\`.\nThe welcome message channel on this server is currently in <#${welcomeData.channel}>.`)
+				} else if (welcomeData.message) {
+					return message.channel.send(`
+            welcome messages is currently \`disabled\` on this server.\nThe welcome message on this server is currently: \`${welcomeData?.message}\`.\nThe welcome message channel on this server is currently not set.`)
+				} else if (welcomeData.channel) {
+					return message.channel.send(`
+            welcome messages is currently \`disabled\` on this server.\nThe welcome message on this server is currently not set.\nThe welcome message channel on this server is currently in <#${welcomeData.channel}>.`)
+				}
+			} else {
 				return message.channel.send(
 					`This server doesn't have a welcome message for when people join.\nUse \`${guildData?.prefix}help welcome\` to see how to setup a welcome message for this server.`,
 				)
@@ -63,7 +71,7 @@ export const command: Command = {
 					)
 				} else {
 					return message.channel.send(
-						`Your welcome message was updated! It is now: ${msg}.\nThe message will now appear in ${welcomeData.channel}`,
+						`Your welcome message was updated! It is now: ${msg}.\nThe message will now appear in <#${welcomeData.channel}>`,
 					)
 				}
 			}
@@ -108,14 +116,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `delete`) {
-			try {
-				await welcome.destroy({ where: { channel: message.guild?.id } })
-				return message.channel.send(
-					`Your welcome configuration is now deleted in Bento's database and Bento will from now on not say welcome to users who join.\nPlease use ${guildData?.prefix}welcome to enable welcome again.`,
-				)
-			} catch {
-				return message.channel.send(`You don't have a welcome message enabled.`)
-			}
+			await welcome.destroy({ where: { channel: message.guild?.id } })
+			return message.channel.send(
+				`Your welcome configuration is now deleted in Bento's database and Bento will from now on not say welcome to users who join.\nPlease use ${guildData?.prefix}welcome to enable welcome again.`,
+			)
 		}
 	},
 }

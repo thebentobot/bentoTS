@@ -28,12 +28,12 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			try {
-				const autoRoleData = await autoRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const autoRoleData = await autoRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			if (autoRoleData !== null) {
 				return message.channel.send(
 					`Auto role is currently \`${autoRoleData ? `Enabled` : `Disabled`}\` on this server.`,
 				)
-			} catch {
+			} else {
 				return message.channel.send(
 					`This server doesn't have a auto role.\nUse \`${guildData?.prefix}help autorole\` to see how to setup a auto role for this server.`,
 				)

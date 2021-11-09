@@ -28,12 +28,22 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			try {
-				const byeData = await bye.findOne({ raw: true, where: { guildID: message.guild?.id } })
-				return message.channel.send(
-					`Bye messages is currently \`enabled\` on this server.\nThe Bye message on this server is currently: \`${byeData?.message}\`.\nThe Bye message channel on this server is currently in <#${byeData?.channel}>.`,
-				)
-			} catch {
+			const byeData = await bye.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			if (byeData !== null) {
+				if (byeData?.message && byeData?.channel) {
+					return message.channel.send(
+						`Bye messages is currently \`enabled\` on this server.\nThe Bye message on this server is currently: \`${byeData?.message}\`.\nThe Bye message channel on this server is currently in <#${byeData?.channel}>.`,
+					)
+				} else if (byeData?.message) {
+					return message.channel.send(
+						`Bye messages is currently \`disabled\` on this server.\nThe Bye message on this server is currently: \`${byeData?.message}\`.\nThe Bye message channel on this server is currently not set.`,
+					)
+				} else if (byeData?.channel) {
+					return message.channel.send(
+						`Bye messages is currently \`disabled\` on this server.\nThe Bye message on this server is currently not set.\nThe Bye message channel on this server is currently in <#${byeData?.channel}>.`,
+					)
+				}
+			} else {
 				return message.channel.send(
 					`This server doesn't have a bye message for when people leave.\nUse \`${guildData?.prefix}help bye\` to see how to setup a bye message for this server.`,
 				)
@@ -110,14 +120,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `delete`) {
-			try {
-				await bye.destroy({ where: { channel: message.guild?.id } })
-				return message.channel.send(
-					`Your bye configuration is now deleted in Bento's database and Bento will from now on not say bye to users who leave.\nPlease use ${guildData?.prefix}bye to enable bye again.`,
-				)
-			} catch {
-				return message.channel.send(`You don't have a bye message enabled.`)
-			}
+			await bye.destroy({ where: { channel: message.guild?.id } })
+			return message.channel.send(
+				`Your bye configuration is now deleted in Bento's database and Bento will from now on not say bye to users who leave.\nPlease use ${guildData?.prefix}bye to enable bye again.`,
+			)
 		}
 	},
 }

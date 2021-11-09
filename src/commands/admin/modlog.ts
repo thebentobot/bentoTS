@@ -28,11 +28,11 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			try {
-				const modLogData = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const modLogData = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			if (modLogData !== null) {
 				return message.channel.send(`
             The mod Log is currently \`enabled\` on this server.\nThe mod Log channel on this server is currently in <#${modLogData?.channel}>.`)
-			} catch {
+			} else {
 				return message.channel.send(
 					`This server doesn't have a mod log.\nUse \`${guildData?.prefix}help modlog\` to see how to setup a mod log for this server.`,
 				)
@@ -70,14 +70,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `delete`) {
-			try {
-				await modLog.destroy({ where: { channel: message.guild?.id } })
-				return message.channel.send(
-					`Your mod log channel is deleted in Bento's database and Bento will from now on not log changes and moderation.\nPlease use ${guildData?.prefix}modlog channel <channelID> to enable it again.`,
-				)
-			} catch {
-				return message.channel.send(`You don't have a mod log enabled.`)
-			}
+			await modLog.destroy({ where: { channel: message.guild?.id } })
+			return message.channel.send(
+				`Your mod log channel is deleted in Bento's database and Bento will from now on not log changes and moderation.\nPlease use ${guildData?.prefix}modlog channel <channelID> to enable it again.`,
+			)
 		}
 	},
 }

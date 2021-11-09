@@ -28,11 +28,11 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			try {
-				const memberLogData = await memberLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const memberLogData = await memberLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			if (memberLogData !== null) {
 				return message.channel.send(`
             The member log is currently \`enabled\` on this server.\nThe member log channel on this server is currently in <#${memberLogData?.channel}>.`)
-			} catch {
+			} else {
 				return message.channel.send(
 					`This server doesn't have a member log.\nUse \`${guildData?.prefix}help memberlog\` to see how to setup a member log for this server.`,
 				)
@@ -47,7 +47,7 @@ export const command: Command = {
 					message.mentions.channels.first() || (message.guild?.channels.cache.get(args[1]) as TextChannel)
 				channel = channelID.id
 			} catch {
-				return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`)
+				return message.channel.send(`Your channel id \`${args[1]}\` was invalid.\nPlease use a valid channel id.`)
 			}
 
 			const memberLogData = await memberLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
@@ -69,14 +69,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `delete`) {
-			try {
-				await memberLog.destroy({ where: { channel: message.guild?.id } })
-				return message.channel.send(
-					`Your member log channel is deleted in Bento's database and Bento will from now on not log changes, updates, and matters about the users of the server.\nPlease use ${guildData?.prefix}memberlog channel <channelID> to enable it again.`,
-				)
-			} catch {
-				return message.channel.send(`You don't have a member log enabled.`)
-			}
+			await memberLog.destroy({ where: { channel: message.guild?.id } })
+			return message.channel.send(
+				`Your member log channel is deleted in Bento's database and Bento will from now on not log changes, updates, and matters about the users of the server.\nPlease use \`${guildData?.prefix}memberlog channel <channelID>\` to enable it again.`,
+			)
 		}
 	},
 }
