@@ -111,9 +111,9 @@ export const command: Command = {
 					userID ? `` : `https://openweathermap.org/`,
 				)
 				.setTitle(
-					`${response.weather[0].main} ${await weatherEmote(response.weather[0].id)} in ${response.name}, ${codeToName(
-						response.sys.country,
-					)} ${flag(response.sys.country)}`,
+					`${capitalize(response.weather[0].description)} ${await weatherEmote(response.weather[0].id)} in ${
+						response.name
+					}, ${codeToName(response.sys.country)} ${flag(response.sys.country)}`,
 				)
 				.setURL(`https://openweathermap.org/city/${response.id}`)
 				.setThumbnail(`http://openweathermap.org/img/w/${response.weather[0].icon}.png`)
@@ -125,9 +125,7 @@ export const command: Command = {
 					userID ? `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg` : ``,
 				)
 				.setDescription(
-					`Currently **${capitalize(response.weather[0].description)}** ${await weatherEmote(
-						response.weather[0].id,
-					)}\n🌡 ${Math.round(response.main.temp)}°C (${Math.round(
+					`🌡 ${Math.round(response.main.temp)}°C (${Math.round(
 						(response.main.temp * 9) / 5 + 32,
 					)}°F), feels like ${Math.round(response.main.feels_like)}°C (${Math.round(
 						(response.main.feels_like * 9) / 5 + 32,

@@ -304,7 +304,8 @@ export const command: Command = {
 					userID = mentionedUser?.id
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
-						sign = horoData?.horoscope
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						sign = horoData!.horoscope
 					} catch {
 						return message.channel.send(
 							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved their horoscope.`,
@@ -313,7 +314,8 @@ export const command: Command = {
 				} catch {
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
-						sign = horoData?.horoscope
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						sign = horoData!.horoscope
 					} catch {
 						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 						return message.channel.send(
@@ -382,7 +384,8 @@ export const command: Command = {
 					userID = mentionedUser?.id
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
-						sign = horoData?.horoscope
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						sign = horoData!.horoscope
 					} catch {
 						return message.channel.send(
 							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved their horoscope.`,
@@ -391,7 +394,8 @@ export const command: Command = {
 				} catch {
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
-						sign = horoData?.horoscope
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						sign = horoData!.horoscope
 					} catch {
 						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 						return message.channel.send(
@@ -460,7 +464,8 @@ export const command: Command = {
 					userID = mentionedUser?.id
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
-						sign = horoData?.horoscope
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						sign = horoData!.horoscope
 					} catch {
 						return message.channel.send(
 							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved their horoscope.`,
@@ -469,7 +474,8 @@ export const command: Command = {
 				} catch {
 					try {
 						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
-						sign = horoData?.horoscope
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						sign = horoData!.horoscope
 					} catch {
 						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
 						return message.channel.send(

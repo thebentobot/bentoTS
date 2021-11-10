@@ -296,7 +296,18 @@ export const command: Command = {
 		// background
 
 		async function setBackgroundURL(message: Message, backgroundURL?: string) {
-			if (!backgroundURL) return message.channel.send(`You need to either write reset or set a background with an URL.`)
+			if (!backgroundURL) {
+				if (message.attachments.array() !== undefined) {
+					const getUrl = message.attachments.array()
+					backgroundURL = getUrl[0] ? getUrl[0].url : undefined
+				} else {
+					return message.channel.send(`You need to either write reset or set a background with an URL.`)
+				}
+			}
+
+			if (backgroundURL === undefined)
+				return message.channel.send(`You need to either write reset or set a background with an URL.`)
+
 			initModels(database)
 
 			const userData = await profile.findOrCreate({

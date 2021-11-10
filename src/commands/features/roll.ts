@@ -11,6 +11,7 @@ export const command: Command = {
 	run: async (client, message, args): Promise<Message> => {
 		if (!args.length) return message.channel.send(`${message.author} Give me a number between 1-100!`)
 		const userNumber: number = parseInt(args[0])
+		if (isNaN(userNumber)) return message.channel.send(`${message.author} That is not a number 🤣`)
 		if (userNumber > 100) return message.channel.send(`${message.author} Give me a number between 1-100 😡`)
 		if (userNumber < 1) return message.channel.send(`${message.author} Give me a number between 1-100 😡`)
 		return message.channel.send(`${randomIntFromInterval(1, userNumber)}`)

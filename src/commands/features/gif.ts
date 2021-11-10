@@ -16,7 +16,8 @@ const tenorAPI = axios.create({
 	baseURL: `https://api.tenor.com/v1`,
 })
 
-export let gfycatToken: string
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
+export const gfycatToken: string = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzY1MDk0NjAsImlzcyI6IjJfNm8yTVN5Iiwicm9sZXMiOlsiQ29udGVudF9SZWFkZXIiXX0.KXFcHO-uQbfcnLiMyx1nzWkWI51QeFDxE9Tocsbq3F4`
 /*
 async function newToken() {
 	const gfycatAuthData = await axios.post(`https://api.gfycat.com/v1/oauth/token`, {
@@ -26,6 +27,7 @@ async function newToken() {
 	})
 	console.log(`The Gfycat Access Token expires in 1 hour`)
 	gfycatToken = gfycatAuthData.data.access_token
+	console.log(gfycatToken)
 }
 
 newToken()
@@ -89,15 +91,18 @@ export const command: Command = {
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				getNumber = getNumber.match(/\d+/)!.pop() as string
 				count = parseInt(getNumber)
-				if (count > 30) return message.channel.send(`Sorry, 30 posts is the max.`)
+				if (count > 50) return message.channel.send(`Sorry, 50 posts is the max.`)
 			}
 			messageParse = args.filter((msg) => msg !== `--multi` && msg !== `--count` && msg !== getNumber)
 			returnMultipleGifs = true
 		}
 
+		const badWordCheck = messageParse.map((message) => message.toLowerCase())
+
+		if (badWordCheck.some((msg) => naughtyWords.includes(msg)))
+			return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
+
 		const query: string = messageParse.join(` `)
-		if (naughtyWords.includes(query))
-			return message.channel.send(`No GIFs found based on your search input \`${query}\`.`)
 
 		const response = await gfycatAPI.get<gfycatSearchInterface>(`gfycats/search`, {
 			params: { search_text: utf8.encode(query), count: returnMultipleGifs === true ? count : 50 },

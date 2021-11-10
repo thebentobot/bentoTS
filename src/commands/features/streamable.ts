@@ -1,6 +1,6 @@
 import { Message } from 'discord.js'
 import { Command } from '../../interfaces'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -30,20 +30,26 @@ export const command: Command = {
 			titleMessage = args.slice(1).join(` `)
 			title = titleMessage.length > 0 ? titleMessage : `${message.author.username}'s Streamable Video`
 		}
+		let data: AxiosResponse | undefined
+		await streamableAPI
+			.get(`import?url=${url}&title=${title}`, {
+				auth: {
+					username: process.env.streamableUsername as string,
+					password: process.env.streamablePassword as string,
+				},
+			})
+			.then((res) => {
+				data = res
+			})
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
+			.catch(() => {})
 
-		const data = await streamableAPI.get(`import?url=${url}&title=${title}`, {
-			auth: {
-				username: process.env.streamableUsername as string,
-				password: process.env.streamablePassword as string,
-			},
-		})
-
-		if (data.status !== 200)
+		if (data?.status !== 200)
 			return message.channel.send(
 				`${message.author} Either your URL was invalid, or Streamable doesn't answer right now, try again 😔`,
 			)
 
-		if (data.data?.status === 1) {
+		if (data?.data?.status === 1) {
 			const waitingMessage = await message.channel.send(`Waiting for Streamable to process the video... ⌛`) // https://stackoverflow.com/questions/53693209/get-message-id-of-the-message-sent-by-my-bot/53693480
 
 			let streamableStatus = false

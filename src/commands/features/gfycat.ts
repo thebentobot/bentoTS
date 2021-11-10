@@ -69,26 +69,27 @@ export const command: Command = {
 
 			let count = 15
 
+			messageParse.shift()
+
 			if (args.includes(`--multi`)) {
 				let getNumber = args.join(` `)
 				if (args.includes(`--count`)) {
 					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 					getNumber = getNumber.match(/\d+/)!.pop() as string
 					count = parseInt(getNumber)
-					if (count > 30) return message.channel.send(`Sorry, 30 posts is the max.`)
+					if (count > 50) return message.channel.send(`Sorry, 50 posts is the max.`)
 				}
-				messageParse = args.filter(
-					(msg) => msg !== `--multi` && msg !== `--count` && msg !== getNumber && msg !== `search`,
-				)
+				messageParse = args.filter((msg) => msg !== `--multi` && msg !== `--count` && msg !== getNumber)
 				returnMultipleGifs = true
 			}
 
 			const blacklistData = await gfycatBlacklist.findAll()
+			const badWordCheck = messageParse.map((message) => message.toLowerCase())
+
+			if (badWordCheck.some((msg) => naughtyWords.includes(msg)))
+				return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
 
 			const query: string = messageParse.join(` `)
-			if (naughtyWords.includes(query))
-				return message.channel.send(`No GIFs found based on your search input \`${query}\`.`)
-
 			const response = await gfycatAPI.get<gfycatSearchInterface>(`gfycats/search`, {
 				params: { search_text: utf8.encode(query), count: returnMultipleGifs === true ? count : 50 },
 				headers: { Authorization: `Bearer ${gfycatToken}` },
@@ -264,7 +265,6 @@ export const command: Command = {
 				})
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				.catch(() => {})
-
 			try {
 				const profilePicture = await axios({
 					method: `post`,
@@ -310,7 +310,7 @@ export const command: Command = {
 			}
 		}
 
-		async function userFeed(message: Message, user: string, count: string) {
+		async function userFeed(message: Message, user: string, count?: string) {
 			if (!user) {
 				return message.channel.send(`You need to specify a user`)
 			}
@@ -340,7 +340,6 @@ export const command: Command = {
 				})
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				.catch(() => {})
-
 			const waitingMessage: Message = await message.channel.send(
 				`Loading the multiple Gfycat Posts from \`${user}\` ... ⌛🐱`,
 			)
@@ -351,7 +350,7 @@ export const command: Command = {
 				const channelObject = message.channel as TextChannel
 
 				if (channelObject.nsfw !== true) {
-					gfycatData = gfycatData.filter((gfy: gfycatInterface) => gfy.nsfw === `0`)
+					gfycatData = gfycatData.filter((gfy: gfycatInterface) => gfy.nsfw === 0)
 				}
 
 				let currentPage = 0
@@ -406,7 +405,6 @@ export const command: Command = {
 				})
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				.catch(() => {})
-
 			const blacklistData = await gfycatBlacklist.findAll()
 
 			if (blacklistData.some((user) => user.username === `${response?.data.gfyItem.username}`)) {
@@ -414,80 +412,84 @@ export const command: Command = {
 			}
 
 			try {
-				let profilePicture
-				if (response?.data.gfyItem.userData?.profileImageUrl) {
-					profilePicture = await axios({
-						method: `post`,
-						url: `http://sushii-image-server:3000/url`,
-						data: {
-							url: response.data.gfyItem.userData.profileImageUrl,
-							width: 200,
-							height: 200,
-							imageFormat: `png`,
-							quality: 100,
-						},
-						responseType: `arraybuffer`,
-					}).then((res) => Buffer.from(res.data))
-				}
-
-				const embeds = []
-
-				const gfycatEmbed = `https://gfycat.com/${response?.data.gfyItem.gfyName}`
-				embeds.push(gfycatEmbed)
-
-				const profileEmbed = new MessageEmbed()
-					.setColor(response?.data.gfyItem.avgColor)
-					.setTitle(await response?.data.gfyItem.gfyName)
-					.attachFiles([{ name: `${response?.data.username}_gfypfp.png`, attachment: profilePicture as Buffer }])
-					.setThumbnail(`attachment://${response?.data.username}_gfypfp.png`)
-					.setDescription(
-						`${
-							(await response?.data.gfyItem.description.length) > 0 ? `${await response?.data.description}\n\n` : ``
-						}Total Views: ${nFormatter(await response?.data.gfyItem.views, 1)}\n${
-							response?.data.gfyItem.likes
-						} Likes ❤️ \nGfycat Post made on <t:${await response?.data.gfyItem.createDate}:F>\nFrame rate: ${
-							response?.data.gfyItem.frameRate
-						}\nWidth & Height: ${response?.data.gfyItem.width}x${response?.data.gfyItem.height}${
-							response?.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response?.data.gfyItem.tags.join(`, `)}` : ``
-						}`,
-					)
-				if (response?.data.gfyItem.userData?.username) {
-					profileEmbed.setAuthor(
-						(await response.data.gfyItem.userData.verified)
-							? `${await response.data.gfyItem.userData.username} ✔️`
-							: await response.data.gfyItem.userData.username,
-						(await response.data.gfyItem.userData?.profileImageUrl)
-							? response.data.gfyItem.userData?.profileImageUrl
-							: ``,
-						`https://gfycat.com/@${response.data.gfyItem.userData.username}`,
-					)
-				}
-				embeds.push(profileEmbed)
-
-				let currentPage = 0
-				const queueEmbed = await message.channel.send(gfycatEmbed)
-				await queueEmbed.react(`🔄`)
-				await queueEmbed.react(`❌`)
-				const filter = (reaction: MessageReaction, user: User) =>
-					[`🔄`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-				const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
-
-				collector.on(`collect`, async (reaction, user) => {
-					if (reaction.emoji.name === `🔄`) {
-						if (currentPage < embeds.length - 1) {
-							currentPage++
-							reaction.users.remove(user)
-							queueEmbed.edit(profileEmbed)
-						} else {
-							currentPage--
-							reaction.users.remove(user)
-							queueEmbed.edit(gfycatEmbed)
-						}
-					} else {
-						collector.stop()
-						await queueEmbed.delete()
+				if (response === undefined) {
+					return message.channel.send(`Error - couldn't find \`${gfyID}\``)
+				} else {
+					let profilePicture
+					if (response?.data.gfyItem.userData?.profileImageUrl) {
+						profilePicture = await axios({
+							method: `post`,
+							url: `http://sushii-image-server:3000/url`,
+							data: {
+								url: response.data.gfyItem.userData.profileImageUrl,
+								width: 200,
+								height: 200,
+								imageFormat: `png`,
+								quality: 100,
+							},
+							responseType: `arraybuffer`,
+						}).then((res) => Buffer.from(res.data))
 					}
-				})
+
+					const embeds = []
+
+					const gfycatEmbed = `https://gfycat.com/${response?.data.gfyItem.gfyName}`
+					embeds.push(gfycatEmbed)
+
+					const profileEmbed = new MessageEmbed()
+						.setColor(response?.data.gfyItem.avgColor)
+						.setTitle(await response?.data.gfyItem.gfyName)
+						.attachFiles([{ name: `${response?.data.username}_gfypfp.png`, attachment: profilePicture as Buffer }])
+						.setThumbnail(`attachment://${response?.data.username}_gfypfp.png`)
+						.setDescription(
+							`${
+								(await response?.data.gfyItem.description.length) > 0 ? `${await response?.data.description}\n\n` : ``
+							}Total Views: ${nFormatter(await response?.data.gfyItem.views, 1)}\n${
+								response?.data.gfyItem.likes
+							} Likes ❤️ \nGfycat Post made on <t:${await response?.data.gfyItem.createDate}:F>\nFrame rate: ${
+								response?.data.gfyItem.frameRate
+							}\nWidth & Height: ${response?.data.gfyItem.width}x${response?.data.gfyItem.height}${
+								response?.data.gfyItem.tags.length > 0 ? `\n\nTags: ${response?.data.gfyItem.tags.join(`, `)}` : ``
+							}`,
+						)
+					if (response?.data.gfyItem.userData?.username) {
+						profileEmbed.setAuthor(
+							(await response.data.gfyItem.userData.verified)
+								? `${await response.data.gfyItem.userData.username} ✔️`
+								: await response.data.gfyItem.userData.username,
+							(await response.data.gfyItem.userData?.profileImageUrl)
+								? response.data.gfyItem.userData?.profileImageUrl
+								: ``,
+							`https://gfycat.com/@${response.data.gfyItem.userData.username}`,
+						)
+					}
+					embeds.push(profileEmbed)
+
+					let currentPage = 0
+					const queueEmbed = await message.channel.send(gfycatEmbed)
+					await queueEmbed.react(`🔄`)
+					await queueEmbed.react(`❌`)
+					const filter = (reaction: MessageReaction, user: User) =>
+						[`🔄`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+					const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+
+					collector.on(`collect`, async (reaction, user) => {
+						if (reaction.emoji.name === `🔄`) {
+							if (currentPage < embeds.length - 1) {
+								currentPage++
+								reaction.users.remove(user)
+								queueEmbed.edit(profileEmbed)
+							} else {
+								currentPage--
+								reaction.users.remove(user)
+								queueEmbed.edit(gfycatEmbed)
+							}
+						} else {
+							collector.stop()
+							await queueEmbed.delete()
+						}
+					})
+				}
 			} catch {
 				return message.channel.send(`Error - couldn't find \`${gfyID}\``)
 			}
