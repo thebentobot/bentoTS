@@ -9,7 +9,7 @@ services:
       - .env
     ports:
       - '6969:6969'
-    networks: 
+    networks:
       - bento_net
       - web
   sushii-image-server:
@@ -18,11 +18,11 @@ services:
     restart: unless-stopped
     init: true
     cap_add:
-        - SYS_ADMIN
+      - SYS_ADMIN
     expose:
-        - "3000"
+      - '3000'
     networks:
-        - bento_net 
+      - bento_net
 
 networks:
   web:

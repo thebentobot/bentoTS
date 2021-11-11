@@ -1,126 +1,133 @@
-import * as Sequelize from 'sequelize';
-import { DataTypes, Model, Optional } from 'sequelize';
-import type { user, userId } from './user';
+import * as Sequelize from 'sequelize'
+import { DataTypes, Model, Optional } from 'sequelize'
+import type { user, userId } from './user'
 
 export interface rpsGameAttributes {
-  id: number;
-  userID: bigint;
-  paperWins?: number;
-  paperLosses?: number;
-  rockWins?: number;
-  rockLosses?: number;
-  scissorWins?: number;
-  scissorsLosses?: number;
-  paperTies?: number;
-  rockTies?: number;
-  scissorsTies?: number;
+	id: number;
+	userID: bigint;
+	paperWins?: number;
+	paperLosses?: number;
+	rockWins?: number;
+	rockLosses?: number;
+	scissorWins?: number;
+	scissorsLosses?: number;
+	paperTies?: number;
+	rockTies?: number;
+	scissorsTies?: number;
 }
 
-export type rpsGamePk = "id";
+export type rpsGamePk = `id`;
 export type rpsGameId = rpsGame[rpsGamePk];
-export type rpsGameOptionalAttributes = "id" | "paperWins" | "paperLosses" | "rockWins" | "rockLosses" | "scissorWins" | "scissorsLosses" | "paperTies" | "rockTies" | "scissorsTies";
+export type rpsGameOptionalAttributes =
+	| `id`
+	| `paperWins`
+	| `paperLosses`
+	| `rockWins`
+	| `rockLosses`
+	| `scissorWins`
+	| `scissorsLosses`
+	| `paperTies`
+	| `rockTies`
+	| `scissorsTies`;
 export type rpsGameCreationAttributes = Optional<rpsGameAttributes, rpsGameOptionalAttributes>;
 
 export class rpsGame extends Model<rpsGameAttributes, rpsGameCreationAttributes> implements rpsGameAttributes {
-  id!: number;
-  userID!: bigint;
-  paperWins?: number;
-  paperLosses?: number;
-  rockWins?: number;
-  rockLosses?: number;
-  scissorWins?: number;
-  scissorsLosses?: number;
-  paperTies?: number;
-  rockTies?: number;
-  scissorsTies?: number;
+	id!: number
+	userID!: bigint
+	paperWins?: number
+	paperLosses?: number
+	rockWins?: number
+	rockLosses?: number
+	scissorWins?: number
+	scissorsLosses?: number
+	paperTies?: number
+	rockTies?: number
+	scissorsTies?: number
 
-  // rpsGame belongsTo user via userID
-  user!: user;
-  getUser!: Sequelize.BelongsToGetAssociationMixin<user>;
-  setUser!: Sequelize.BelongsToSetAssociationMixin<user, userId>;
-  createUser!: Sequelize.BelongsToCreateAssociationMixin<user>;
+	// rpsGame belongsTo user via userID
+	user!: user
+	getUser!: Sequelize.BelongsToGetAssociationMixin<user>
+	setUser!: Sequelize.BelongsToSetAssociationMixin<user, userId>
+	createUser!: Sequelize.BelongsToCreateAssociationMixin<user>
 
-  static initModel(sequelize: Sequelize.Sequelize): typeof rpsGame {
-    rpsGame.init({
-    id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true
-    },
-    userID: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      references: {
-        model: 'user',
-        key: 'userID'
-      }
-    },
-    paperWins: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    paperLosses: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rockWins: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rockLosses: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    scissorWins: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    scissorsLosses: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    paperTies: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rockTies: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    scissorsTies: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    }
-  }, {
-    sequelize,
-    tableName: 'rpsGame',
-    schema: 'public',
-    timestamps: false,
-    indexes: [
-      {
-        name: "rpsgame_id_uindex",
-        unique: true,
-        fields: [
-          { name: "id" },
-        ]
-      },
-      {
-        name: "rpsgame_pk",
-        unique: true,
-        fields: [
-          { name: "id" },
-        ]
-      },
-      {
-        name: "rpsgame_userid_uindex",
-        unique: true,
-        fields: [
-          { name: "userID" },
-        ]
-      },
-    ]
-  });
-  return rpsGame;
-  }
+	static initModel(sequelize: Sequelize.Sequelize): typeof rpsGame {
+		rpsGame.init(
+			{
+				id: {
+					autoIncrement: true,
+					type: DataTypes.INTEGER,
+					allowNull: false,
+					primaryKey: true,
+				},
+				userID: {
+					type: DataTypes.BIGINT,
+					allowNull: false,
+					references: {
+						model: `user`,
+						key: `userID`,
+					},
+				},
+				paperWins: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				paperLosses: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				rockWins: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				rockLosses: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				scissorWins: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				scissorsLosses: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				paperTies: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				rockTies: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+				scissorsTies: {
+					type: DataTypes.INTEGER,
+					allowNull: true,
+				},
+			},
+			{
+				sequelize,
+				tableName: `rpsGame`,
+				schema: `public`,
+				timestamps: false,
+				indexes: [
+					{
+						name: `rpsgame_id_uindex`,
+						unique: true,
+						fields: [{ name: `id` }],
+					},
+					{
+						name: `rpsgame_pk`,
+						unique: true,
+						fields: [{ name: `id` }],
+					},
+					{
+						name: `rpsgame_userid_uindex`,
+						unique: true,
+						fields: [{ name: `userID` }],
+					},
+				],
+			},
+		)
+		return rpsGame
+	}
 }

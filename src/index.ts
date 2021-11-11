@@ -1,3 +1,3 @@
-import Client from './client/index';
+import Client from './client/index'
 
-new Client().init();
+new Client().init()
