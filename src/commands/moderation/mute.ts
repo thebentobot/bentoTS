@@ -2,7 +2,7 @@ import { ClientUser, GuildMember, Message, MessageEmbed, Role, TextChannel } fro
 import { mute, muteCreationAttributes } from '../../database/models/mute'
 import { Command } from '../../interfaces'
 import database from '../../database/database'
-import { initModels, modLog, muteRole } from '../../database/models/init-models'
+import { initModels, modLog, muteRole, userCreationAttributes, user as userDB } from '../../database/models/init-models'
 import moment from 'moment'
 
 const momentTimeUnitBases = [
@@ -138,6 +138,17 @@ export const command: Command = {
 			}
 
 			initModels(database)
+
+			const userAttr: userCreationAttributes = {
+				userID: BigInt(mutedUserID as string),
+				discriminator: mutedUser?.user.discriminator as string,
+				username: mutedUser?.user.username as string,
+				xp: 0,
+				level: 1,
+				avatarURL: mutedUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+			}
+
+			await userDB.findOrCreate({ where: { userID: mutedUserID as string }, defaults: userAttr })
 
 			const muted = (await mute
 				.findOrCreate({

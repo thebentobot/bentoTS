@@ -7,6 +7,8 @@ import { gfycatToken } from './gif'
 import naughtyWords from 'naughty-words/en.json'
 import utf8 from 'utf8'
 import { nFormatter, urlToColours } from '../../utils'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const gfycatAPI = axios.create({
 	baseURL: `https://api.gfycat.com/v1/`,
@@ -268,7 +270,7 @@ export const command: Command = {
 			try {
 				const profilePicture = await axios({
 					method: `post`,
-					url: `http://sushii-image-server:3000/url`,
+					url: `http://${process.env.imageserverhost}:3000/url`,
 					data: {
 						url: response?.data.profileImageUrl,
 						width: 200,
@@ -419,7 +421,7 @@ export const command: Command = {
 					if (response?.data.gfyItem.userData?.profileImageUrl) {
 						profilePicture = await axios({
 							method: `post`,
-							url: `http://sushii-image-server:3000/url`,
+							url: `http://${process.env.imageserverhost}:3000/url`,
 							data: {
 								url: response.data.gfyItem.userData.profileImageUrl,
 								width: 200,

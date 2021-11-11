@@ -1,7 +1,7 @@
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js'
 import { warning, warningCreationAttributes } from '../../database/models/warning'
 import { Command } from '../../interfaces'
-import { initModels, modLog } from '../../database/models/init-models'
+import { initModels, modLog, user, userCreationAttributes } from '../../database/models/init-models'
 import database from '../../database/database'
 
 export const command: Command = {
@@ -63,6 +63,17 @@ export const command: Command = {
 		}
 
 		initModels(database)
+
+		const userAttr: userCreationAttributes = {
+			userID: BigInt(warningUserID as string),
+			discriminator: warningUser.user.discriminator,
+			username: warningUser.user.username,
+			xp: 0,
+			level: 1,
+			avatarURL: warningUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+		}
+
+		await user.findOrCreate({ where: { userID: warningUserID as string }, defaults: userAttr })
 
 		const warned = await warning.create(warnAttr)
 		const warningCount = await warning.findAndCountAll({ where: { guildID: message.guild?.id, userID: warningUserID } })

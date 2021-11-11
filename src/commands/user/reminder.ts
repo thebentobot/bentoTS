@@ -62,6 +62,12 @@ export const command: Command = {
 			return remindList(message)
 		}
 
+		if (args[0]) {
+			return message.channel.send(
+				`Invalid reminder.\nIf you need help with reminders, please use \`${guildData?.prefix}help reminder\` to see instructions`,
+			)
+		}
+
 		async function remindTime(message: Message, amountOfTime: string, timeframe: string, reminder: string) {
 			if (!amountOfTime) {
 				return message.channel.send(
@@ -219,7 +225,7 @@ export const command: Command = {
 
 			const now: Date = new Date()
 
-			if (!reminderData) {
+			if (!reminderData.length) {
 				return message.channel.send(
 					`You haven't set any reminders.\nUse \`${guildData?.prefix}help reminder\` if you need help with setting a reminder`,
 				)

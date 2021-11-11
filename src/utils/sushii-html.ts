@@ -1,11 +1,13 @@
 import axios from 'axios'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 // localhost when on windows
 // 0.0.0.0 when on mac
 export async function getHTMLImage(html: string, width: string, height: string, type = `png`): Promise<Buffer> {
 	return await axios({
 		method: `post`,
-		url: `http://sushii-image-server:3000/html`,
+		url: `http://${process.env.imageserverhost}:3000/html`,
 		data: {
 			html: html,
 			width: width,

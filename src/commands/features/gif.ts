@@ -16,9 +16,8 @@ const tenorAPI = axios.create({
 	baseURL: `https://api.tenor.com/v1`,
 })
 
-// eslint-disable-next-line @typescript-eslint/no-inferrable-types
-export const gfycatToken: string = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzY1MDk0NjAsImlzcyI6IjJfNm8yTVN5Iiwicm9sZXMiOlsiQ29udGVudF9SZWFkZXIiXX0.KXFcHO-uQbfcnLiMyx1nzWkWI51QeFDxE9Tocsbq3F4`
-/*
+export let gfycatToken: string
+
 async function newToken() {
 	const gfycatAuthData = await axios.post(`https://api.gfycat.com/v1/oauth/token`, {
 		client_id: `${process.env.gfycatclientID}`,
@@ -27,13 +26,12 @@ async function newToken() {
 	})
 	console.log(`The Gfycat Access Token expires in 1 hour`)
 	gfycatToken = gfycatAuthData.data.access_token
-	console.log(gfycatToken)
 }
 
 newToken()
 
 setInterval(newToken, 3600000)
-*/
+
 export const command: Command = {
 	name: `gif`,
 	aliases: [],

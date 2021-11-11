@@ -80,6 +80,10 @@ export const event: Event = {
 			const byeData = await bye.findOne({ where: { guildID: member.guild.id } })
 
 			if (byeData?.message && byeData?.channel) {
+				const kickData = await kick.findOne({ where: { guildID: member.guild.id, userID: member.id } })
+				const banData = await kick.findOne({ where: { guildID: member.guild.id, userID: member.id } })
+				if (banData !== null || kickData !== null) return
+
 				const channel = member.guild.channels.cache.get(`${byeData?.channel}`) as TextChannel
 				const msg = byeData?.message
 				const msgClean = msg as string

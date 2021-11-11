@@ -269,13 +269,10 @@ export const command: Command = {
 				const embed = new MessageEmbed()
 				embed.setColor(`${await urlToColours(client?.user?.displayAvatarURL({ format: `png` }) as string)}`)
 				embed.setTimestamp()
-				current.map(async (user) =>
-					embed.addField(
-						`${user.rank}. ${user.username + `#` + user.discriminator}`,
-						`Level ${user.level}, ${user.xp} XP`,
-					),
-				)
+				const info = current.map((user) => `${user.rank}. ${user.username}#${user.discriminator}`).join(`\n`)
+				embed.setDescription(`${info}`)
 				embed.setTitle(`Leaderboard for ${client?.user?.username}`)
+				embed.setURL(`https://bentobot.xyz/leaderboard`)
 				embed.setThumbnail(client?.user?.displayAvatarURL({ dynamic: true, format: `png` }) as string)
 				embeds.push(embed)
 			}
@@ -299,12 +296,9 @@ export const command: Command = {
 					}`,
 				)
 				embed.setTimestamp()
-				current.map(async (user) =>
-					embed.addField(
-						`${user.rank}. ${user.username + `#` + user.discriminator}`,
-						`Level ${user.level}, ${user.xp} XP`,
-					),
-				)
+				const info = current.map((user) => `${user.rank}. ${user.username}#${user.discriminator}`).join(`\n`)
+				embed.setDescription(`${info}`)
+				embed.setURL(`https://bentobot.xyz/leaderboard/${message.guild?.id}`)
 				embed.setTitle(`Leaderboard for ${message?.guild?.name}`)
 				embed.setThumbnail(
 					message?.guild?.iconURL({ dynamic: true, format: `png` })
@@ -323,7 +317,6 @@ export const command: Command = {
 				const current = input.slice(i, k)
 				//let j = i;
 				k += 10
-				// det foroven skærer, så det kun bliver 10 pr. page.
 				const embed = new MessageEmbed()
 				embed.setColor(
 					`${
@@ -333,9 +326,10 @@ export const command: Command = {
 					}`,
 				)
 				embed.setTimestamp()
-				current.map(async (user) =>
-					embed.addField(`${user.rank}. ${user.username + `#` + user.discriminator}`, `${user.bento} Bento 🍱`),
-				)
+				const info = current
+					.map((user) => `${user.rank}. ${user.username}#${user.discriminator} - ${user.bento} Bento 🍱`)
+					.join(`\n`)
+				embed.setDescription(`${info}`)
 				embed.setTitle(`Leaderboard for ${message?.guild?.name}`)
 				embed.setThumbnail(
 					message?.guild?.iconURL({ dynamic: true, format: `png` })
@@ -354,13 +348,13 @@ export const command: Command = {
 				const current = input.slice(i, k)
 				//let j = i;
 				k += 10
-				// det foroven skærer, så det kun bliver 10 pr. page.
+				const info = current
+					.map((user) => `${user.rank}. ${user.username + `#` + user.discriminator} - ${user.bento} Bento 🍱`)
+					.join(`\n`)
 				const embed = new MessageEmbed()
 				embed.setColor(`${await urlToColours(client?.user?.displayAvatarURL({ format: `png` }) as string)}`)
+				embed.setDescription(`${info}`)
 				embed.setTimestamp()
-				current.map(async (user) =>
-					embed.addField(`${user.rank}. ${user.username + `#` + user.discriminator}`, `${user.bento} Bento 🍱`),
-				)
 				embed.setTitle(`Bento 🍱 Leaderboard for ${client?.user?.username}`)
 				embed.setThumbnail(client?.user?.displayAvatarURL({ dynamic: true, format: `png` }) as string)
 				embeds.push(embed)

@@ -21,7 +21,7 @@ export const command: Command = {
 	aliases: [],
 	category: `moderation`,
 	description: `A Case-style logging system for bans, kicks, mutes and warnings. You can only check, search, list edit and delete individual cases from your own server, but you are able to check global cases for a user as long as they are on your server.`,
-	usage: ` is the prefix.\n**case user <userID or user mention> <ban/kick/mute/warning> [global]** shows all cases for a case type where the user has record. Global only shows server names and reasosn if the server has enabled it.\n**case check <ban/kick/mute/warning> <case number>** shows information for an individual case. Only works for your own server.\n**case edit <ban/kick/mute/warning> <case number> <reason/note/muteStatus> <content to edit>** Edit reason or note info for an existing case. You can only edit muteStatus if you are editing a mute case, and you can only edit with true and false with muteStatus.\n**case delete <ban/kick/mute/warning> <case number>** delete a case from your server. Confirmation appears before deleting.\n**case search <ban/kick/mute/warning> <note/reason/muteStatus/userID/date/muteEnd/actor> <your search input>** search for cases by choosing a column to search in and it will return as many that matches your query.\n**case list <ban/kick/mute/warning> [start date: YYYY-MM-DD] [end date: YYYY-MM-DD]** list all the type of cases on the server, with an option to list between a time period (time period needs to be YYYY-MM-DD)`,
+	usage: ` is the prefix.\n**case user <userID or user mention> <ban/kick/mute/warning/overview> [global]** shows all cases for a case type where the user has record. Global only shows server names and reasosn if the server has enabled it.\n**case check <ban/kick/mute/warning> <case number>** shows information for an individual case. Only works for your own server.\n**case edit <ban/kick/mute/warning> <case number> <reason/note/muteStatus> <content to edit>** Edit reason or note info for an existing case. You can only edit muteStatus if you are editing a mute case, and you can only edit with true and false with muteStatus.\n**case delete <ban/kick/mute/warning> <case number>** delete a case from your server. Confirmation appears before deleting.\n**case search <ban/kick/mute/warning> <note/reason/muteStatus/userID/date/muteEnd/actor> <your search input>** search for cases by choosing a column to search in and it will return as many that matches your query.\n**case list <ban/kick/mute/warning> [start date: YYYY-MM-DD] [end date: YYYY-MM-DD]** list all the type of cases on the server, with an option to list between a time period (time period needs to be YYYY-MM-DD)`,
 	website: `https://www.bentobot.xyz/commands#case`,
 	run: async (client, message, args): Promise<Message | void> => {
 		if (!message.member?.hasPermission(`BAN_MEMBERS`)) {
@@ -587,6 +587,8 @@ export const command: Command = {
 
 			const caseNumbered: number = parseInt(caseNumber)
 
+			if (isNaN(caseNumbered)) return message.channel.send(`Your case number is not a number`)
+
 			interface caseTables {
 				muteCase?: number
 				kickCase?: number
@@ -758,6 +760,8 @@ export const command: Command = {
 			}
 
 			const caseNumbered: number = parseInt(caseNumber)
+
+			if (isNaN(caseNumbered)) return message.channel.send(`Your case number is not a number`)
 
 			interface caseTables {
 				muteCase?: number

@@ -1,7 +1,13 @@
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js'
 import database from '../../database/database'
 
-import { initModels, kick, kickCreationAttributes } from '../../database/models/init-models'
+import {
+	initModels,
+	kick,
+	kickCreationAttributes,
+	user,
+	userCreationAttributes,
+} from '../../database/models/init-models'
 import { modLog } from '../../database/models/modLog'
 import { Command } from '../../interfaces'
 
@@ -12,7 +18,7 @@ export const command: Command = {
 	description: `Kicks the mentioned user from your server.`,
 	usage: `kick <user id or mention user> [reason]`,
 	website: `https://www.bentobot.xyz/commands#kick`,
-	run: async (client, message, args): Promise<Message> => {
+	run: async (client, message, args): Promise<Message | GuildMember> => {
 		if (!message.member?.hasPermission(`KICK_MEMBERS`)) {
 			return message.channel
 				.send(`You do not have permission to use this command.\nYou are not a mod.`)
@@ -64,6 +70,17 @@ export const command: Command = {
 		}
 
 		initModels(database)
+
+		const userAttr: userCreationAttributes = {
+			userID: BigInt(kickedUserID as string),
+			discriminator: kickedUser.user.discriminator,
+			username: kickedUser.user.username,
+			xp: 0,
+			level: 1,
+			avatarURL: kickedUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+		}
+
+		await user.findOrCreate({ where: { userID: kickedUserID as string }, defaults: userAttr })
 
 		const kicked = (await kick
 			.findOrCreate({ raw: true, where: { userID: kickedUserID, guildID: message.guild?.id }, defaults: kickAttr })
@@ -118,8 +135,7 @@ export const command: Command = {
 					.catch((error) => {
 						console.error(`Could not send kick DM`, error)
 					})
-				await kickedUser.kick(reason)
-				return await message.channel.send(
+				await message.channel.send(
 					`**${
 						message.guild?.members.cache.get(`${kickedUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${kickedUserID}`)?.nickname} (${
@@ -136,9 +152,9 @@ export const command: Command = {
 						kicked[0].reason
 					}\nYou can add notes for this kick by using the case command together with the case number.`,
 				)
+				return await kickedUser.kick(reason)
 			} catch {
-				await kickedUser.kick(reason)
-				return await message.channel.send(
+				await message.channel.send(
 					`**${
 						message.guild?.members.cache.get(`${kickedUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${kickedUserID}`)?.nickname} (${
@@ -155,6 +171,7 @@ export const command: Command = {
 						kicked[0].reason
 					}\nYou can add notes for this kick by using the case command together with the case number.`,
 				)
+				return await kickedUser.kick(reason)
 			}
 		} catch {
 			try {
@@ -163,8 +180,7 @@ export const command: Command = {
 					.catch((error) => {
 						console.error(`Could not send kick DM`, error)
 					})
-				await kickedUser.kick(reason)
-				return await message.channel.send(
+				await message.channel.send(
 					`**${
 						message.guild?.members.cache.get(`${kickedUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${kickedUserID}`)?.nickname} (${
@@ -181,9 +197,9 @@ export const command: Command = {
 						kicked[0].reason
 					}\nYou can add notes for this kick by using the case command together with the case number.`,
 				)
+				return await kickedUser.kick(reason)
 			} catch {
-				await kickedUser.kick(reason)
-				return await message.channel.send(
+				await message.channel.send(
 					`**${
 						message.guild?.members.cache.get(`${kickedUserID}`)?.nickname
 							? `${message.guild.members.cache.get(`${kickedUserID}`)?.nickname} (${
@@ -200,6 +216,7 @@ export const command: Command = {
 						kicked[0].reason
 					}\nYou can add notes for this kick by using the case command together with the case number.`,
 				)
+				return await kickedUser.kick(reason)
 			}
 		}
 	},

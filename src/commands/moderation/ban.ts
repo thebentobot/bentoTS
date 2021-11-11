@@ -1,7 +1,7 @@
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js'
 import database from '../../database/database'
 import { ban, banCreationAttributes } from '../../database/models/ban'
-import { initModels } from '../../database/models/init-models'
+import { initModels, user, userCreationAttributes } from '../../database/models/init-models'
 import { modLog } from '../../database/models/modLog'
 import { Command } from '../../interfaces'
 
@@ -55,6 +55,8 @@ export const command: Command = {
 			reason = args.slice(1).join(` `)
 		}
 
+		initModels(database)
+
 		const banAttr: banCreationAttributes = {
 			userID: BigInt(bannedUserID as string),
 			guildID: BigInt(message.guild?.id as string),
@@ -63,7 +65,16 @@ export const command: Command = {
 			reason: reason,
 		}
 
-		initModels(database)
+		const userAttr: userCreationAttributes = {
+			userID: BigInt(bannedUserID as string),
+			discriminator: bannedUser.user.discriminator,
+			username: bannedUser.user.username,
+			xp: 0,
+			level: 1,
+			avatarURL: bannedUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+		}
+
+		await user.findOrCreate({ where: { userID: bannedUserID as string }, defaults: userAttr })
 
 		const banned = (await ban
 			.findOrCreate({ raw: true, where: { userID: bannedUserID, guildID: message.guild?.id }, defaults: banAttr })
@@ -133,8 +144,7 @@ export const command: Command = {
 						.catch((error) => {
 							console.error(`Could not send ban DM`, error)
 						})
-					await bannedUser.ban({ reason: reason, days: 7 })
-					return await message.channel.send(
+					await message.channel.send(
 						`**${
 							message.guild?.members.cache.get(`${bannedUserID}`)?.nickname
 								? `${message.guild.members.cache.get(`${bannedUserID}`)?.nickname} (${
@@ -151,6 +161,7 @@ export const command: Command = {
 							banned[0].reason
 						}\nYou can add notes for this ban by using the case command, together with the case number.`,
 					)
+					return await bannedUser.ban({ reason: reason, days: 7 })
 				} catch {
 					await bannedUser.ban({ reason: reason, days: 7 })
 					return await message.channel.send(
