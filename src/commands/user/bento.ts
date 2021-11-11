@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import { Command } from '../../interfaces'
 import database from '../../database/database'
 import {
@@ -167,6 +168,9 @@ export const command: Command = {
 								by: 1 * 2,
 								where: { userID: bentoDataTarget[0].userID },
 							})
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							const targetIncrementParse = targetIncrement[0][0][0]
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
@@ -189,7 +193,7 @@ export const command: Command = {
 											: `${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
 													(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+									}** has received **${targetIncrementParse.bento} Bento** 🍱 over time 😋\n**${
 										(await message?.guild?.members.fetch(message.author.id))?.nickname
 											? (await message?.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
@@ -201,6 +205,9 @@ export const command: Command = {
 								by: 1 * 3,
 								where: { userID: bentoDataTarget[0].userID },
 							})
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							const targetIncrementParse = targetIncrement[0][0][0]
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
@@ -223,7 +230,7 @@ export const command: Command = {
 											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
 													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+									}** has received **${targetIncrementParse.bento as number} Bento** 🍱 over time 😋\n**${
 										(await message.guild?.members.fetch(message.author.id))?.nickname
 											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
@@ -235,6 +242,9 @@ export const command: Command = {
 								by: 1 * 4,
 								where: { userID: bentoDataTarget[0].userID },
 							})
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							const targetIncrementParse = targetIncrement[0][0][0]
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
@@ -257,7 +267,7 @@ export const command: Command = {
 											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
 													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+									}** has received **${targetIncrementParse.bento} Bento** 🍱 over time 😋\n**${
 										(await message.guild?.members.fetch(message.author.id))?.nickname
 											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
@@ -269,6 +279,9 @@ export const command: Command = {
 								by: 1 * 5,
 								where: { userID: bentoDataTarget[0].userID },
 							})
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							const targetIncrementParse = targetIncrement[0][0][0]
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
@@ -291,7 +304,7 @@ export const command: Command = {
 											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
 													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+									}** has received **${targetIncrementParse.bento} Bento** 🍱 over time 😋\n**${
 										(await message.guild?.members.fetch(message.author.id))?.nickname
 											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
@@ -303,6 +316,9 @@ export const command: Command = {
 								by: 1,
 								where: { userID: bentoDataTarget[0].userID },
 							})
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							const targetIncrementParse = targetIncrement[0][0][0]
 							return message.channel.send(
 								Util.removeMentions(
 									`**${
@@ -325,7 +341,7 @@ export const command: Command = {
 											: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
 													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 											  }`
-									}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+									}** has received **${targetIncrementParse.bento} Bento** 🍱 over time 😋\n**${
 										(await message.guild?.members.fetch(message.author.id))?.nickname
 											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
@@ -338,6 +354,9 @@ export const command: Command = {
 							by: 1,
 							where: { userID: bentoDataTarget[0].userID },
 						})
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-ignore
+						const targetIncrementParse = targetIncrement[0][0][0]
 						return message.channel.send(
 							Util.removeMentions(
 								`**${
@@ -360,7 +379,7 @@ export const command: Command = {
 										: `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username}#${
 												(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.discriminator
 										  }`
-								}** has received **${targetIncrement.bento} Bento** 🍱 over time 😋\n**${
+								}** has received **${targetIncrementParse.bento} Bento** 🍱 over time 😋\n**${
 									(await message.guild?.members.fetch(message.author.id))?.nickname
 										? (await message.guild?.members.fetch(message.author.id))?.nickname
 										: message.author.username
