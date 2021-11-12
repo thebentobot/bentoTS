@@ -48,7 +48,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const banned = await ban.findOne({ raw: true, where: { userID: unbannedUserID, guildID: message.guild?.id } })
+		const banned = await ban.findOne({
+			raw: true,
+			where: { userID: unbannedUserID, guildID: message.guild?.id },
+		})
 
 		if (!banned) {
 			return message.channel.send(
@@ -58,7 +61,10 @@ export const command: Command = {
 			)
 		} else {
 			try {
-				const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const channel = await modLog.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setColor(`#f5ec42`)
@@ -114,7 +120,13 @@ export const command: Command = {
 							console.error(`Could not send unban DM`, error)
 						})
 					await message.guild?.members.unban(unbannedUserID, reason)
-					await ban.destroy({ where: { guildID: message.guild?.id, userID: unbannedUserID, actor: banned.actor } })
+					await ban.destroy({
+						where: {
+							guildID: message.guild?.id,
+							userID: unbannedUserID,
+							actor: banned.actor,
+						},
+					})
 					return await message.channel.send(
 						`**${(await client.users.fetch(unbannedUserID)).username}#${
 							(
@@ -126,7 +138,13 @@ export const command: Command = {
 					)
 				} catch {
 					await message.guild?.members.unban(unbannedUserID, reason)
-					await ban.destroy({ where: { guildID: message.guild?.id, userID: unbannedUserID, actor: banned.actor } })
+					await ban.destroy({
+						where: {
+							guildID: message.guild?.id,
+							userID: unbannedUserID,
+							actor: banned.actor,
+						},
+					})
 					return await message.channel.send(
 						`**${(await client.users.fetch(unbannedUserID)).username}#${
 							(
@@ -149,7 +167,13 @@ export const command: Command = {
 							console.error(`Could not send unban DM`, error)
 						})
 					await message.guild?.members.unban(unbannedUserID, reason)
-					await ban.destroy({ where: { guildID: message.guild?.id, userID: unbannedUserID, actor: banned.actor } })
+					await ban.destroy({
+						where: {
+							guildID: message.guild?.id,
+							userID: unbannedUserID,
+							actor: banned.actor,
+						},
+					})
 					return await message.channel.send(
 						`**${(await client.users.fetch(unbannedUserID)).username}#${
 							(
@@ -161,7 +185,13 @@ export const command: Command = {
 					)
 				} catch {
 					await message.guild?.members.unban(unbannedUserID, reason)
-					await ban.destroy({ where: { guildID: message.guild?.id, userID: unbannedUserID, actor: banned.actor } })
+					await ban.destroy({
+						where: {
+							guildID: message.guild?.id,
+							userID: unbannedUserID,
+							actor: banned.actor,
+						},
+					})
 					return await message.channel.send(
 						`**${(await client.users.fetch(unbannedUserID)).username}#${
 							(

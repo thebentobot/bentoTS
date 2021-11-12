@@ -59,7 +59,9 @@ export const event: Event = {
 				where: { role: roleData.roleName, guildID: role.guild.id },
 			})
 			if (availableRoleData) {
-				await availableRolesGuild.destroy({ where: { role: roleData.roleName } })
+				await availableRolesGuild.destroy({
+					where: { role: roleData.roleName },
+				})
 			}
 			await roleDB.destroy({ where: { roleID: role.id } })
 			try {

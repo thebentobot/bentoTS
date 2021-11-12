@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import { Message, MessageEmbed, MessageReaction, TextChannel, User } from 'discord.js'
 import database from '../../database/database'
-import { initModels, guild, gfycatBlacklist } from '../../database/models/init-models'
+import { initModels, guild, gfycatBlacklist, gfycatWordList } from '../../database/models/init-models'
 import { Command, gfycatInterface, gfycatSearchInterface } from '../../interfaces'
 import { gfycatToken } from './gif'
 import naughtyWords from 'naughty-words/en.json'
@@ -52,7 +52,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildDB = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (guildDB?.media === false) return
 
@@ -86,14 +89,21 @@ export const command: Command = {
 			}
 
 			const blacklistData = await gfycatBlacklist.findAll()
+			const wordListData = await gfycatWordList.findAll()
+
 			const badWordCheck = messageParse.map((message) => message.toLowerCase())
 
 			if (badWordCheck.some((msg) => naughtyWords.includes(msg)))
 				return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
 
+			if (badWordCheck.some((msg) => wordListData.some((badWord) => badWord.word === msg)))
+				return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
 			const query: string = messageParse.join(` `)
 			const response = await gfycatAPI.get<gfycatSearchInterface>(`gfycats/search`, {
-				params: { search_text: utf8.encode(query), count: returnMultipleGifs === true ? count : 50 },
+				params: {
+					search_text: utf8.encode(query),
+					count: returnMultipleGifs === true ? count : 50,
+				},
 				headers: { Authorization: `Bearer ${gfycatToken}` },
 			})
 			if (!response.data.gfycats.length) {
@@ -151,7 +161,10 @@ export const command: Command = {
 					await queueEmbed.react(`❌`)
 					const filter = (reaction: MessageReaction, user: User) =>
 						[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-					const collector = queueEmbed.createReactionCollector(filter, { idle: 900000, dispose: true })
+					const collector = queueEmbed.createReactionCollector(filter, {
+						idle: 900000,
+						dispose: true,
+					})
 
 					collector.on(`collect`, async (reaction, user) => {
 						if (reaction.emoji.name === `➡️`) {
@@ -204,10 +217,18 @@ export const command: Command = {
 				{
 					fetchUrl: gfyContent,
 					noMd5: true,
-					cut: { start: startSeconds.length > 0 ? startSeconds : 0, duration: duration.length > 0 ? duration : 0 },
+					cut: {
+						start: startSeconds.length > 0 ? startSeconds : 0,
+						duration: duration.length > 0 ? duration : 0,
+					},
 					title: caption.length > 0 ? caption : ``,
 				},
-				{ headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` } },
+				{
+					headers: {
+						Authorization: `Bearer ${gfycatToken}`,
+						'Content-Type': `application/json`,
+					},
+				},
 			)
 			if (response.status !== 200) return message.channel.send(`Gfycat error.`)
 
@@ -216,7 +237,10 @@ export const command: Command = {
 			} else {
 				const waitingMessage = await message.channel.send(`Encoding your Gfycat Post... ⌛🐱`)
 				let checkStatus = await gfycatAPI.get(`gfycats/fetch/status/${response.data.gfyname}`, {
-					headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` },
+					headers: {
+						Authorization: `Bearer ${gfycatToken}`,
+						'Content-Type': `application/json`,
+					},
 				})
 				while (checkStatus.data.task === `encoding`) {
 					sleep(30000)
@@ -260,7 +284,10 @@ export const command: Command = {
 			let response: AxiosResponse | undefined
 			await gfycatAPI
 				.get(`users/${user}`, {
-					headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` },
+					headers: {
+						Authorization: `Bearer ${gfycatToken}`,
+						'Content-Type': `application/json`,
+					},
 				})
 				.then((res) => {
 					response = res
@@ -289,7 +316,12 @@ export const command: Command = {
 					)
 					.setColor(`${await urlToColours(response?.data.profileImageUrl)}`)
 					.setTitle(await response?.data.name)
-					.attachFiles([{ name: `${response?.data.username}_gfypfp.png`, attachment: profilePicture }])
+					.attachFiles([
+						{
+							name: `${response?.data.username}_gfypfp.png`,
+							attachment: profilePicture,
+						},
+					])
 					.setThumbnail(`attachment://${response?.data.username}_gfypfp.png`)
 					.setDescription(
 						`${
@@ -335,7 +367,10 @@ export const command: Command = {
 			await gfycatAPI
 				.get(`users/${user}/gfycats`, {
 					params: { count: insertCount },
-					headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` },
+					headers: {
+						Authorization: `Bearer ${gfycatToken}`,
+						'Content-Type': `application/json`,
+					},
 				})
 				.then((res) => {
 					response = res
@@ -367,7 +402,10 @@ export const command: Command = {
 				await queueEmbed.react(`❌`)
 				const filter = (reaction: MessageReaction, user: User) =>
 					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-				const collector = queueEmbed.createReactionCollector(filter, { idle: 900000, dispose: true })
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 900000,
+					dispose: true,
+				})
 
 				collector.on(`collect`, async (reaction, user) => {
 					if (reaction.emoji.name === `➡️`) {
@@ -400,7 +438,10 @@ export const command: Command = {
 			let response: AxiosResponse | undefined
 			await gfycatAPI
 				.get(`gfycats/${gfyID}`, {
-					headers: { Authorization: `Bearer ${gfycatToken}`, 'Content-Type': `application/json` },
+					headers: {
+						Authorization: `Bearer ${gfycatToken}`,
+						'Content-Type': `application/json`,
+					},
 				})
 				.then((res) => {
 					response = res
@@ -441,7 +482,12 @@ export const command: Command = {
 					const profileEmbed = new MessageEmbed()
 						.setColor(response?.data.gfyItem.avgColor)
 						.setTitle(await response?.data.gfyItem.gfyName)
-						.attachFiles([{ name: `${response?.data.username}_gfypfp.png`, attachment: profilePicture as Buffer }])
+						.attachFiles([
+							{
+								name: `${response?.data.username}_gfypfp.png`,
+								attachment: profilePicture as Buffer,
+							},
+						])
 						.setThumbnail(`attachment://${response?.data.username}_gfypfp.png`)
 						.setDescription(
 							`${
@@ -473,7 +519,10 @@ export const command: Command = {
 					await queueEmbed.react(`❌`)
 					const filter = (reaction: MessageReaction, user: User) =>
 						[`🔄`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-					const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+					const collector = queueEmbed.createReactionCollector(filter, {
+						idle: 300000,
+						dispose: true,
+					})
 
 					collector.on(`collect`, async (reaction, user) => {
 						if (reaction.emoji.name === `🔄`) {

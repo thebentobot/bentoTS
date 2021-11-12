@@ -1998,13 +1998,18 @@ export const command: Command = {
 			await confirmEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`✅`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = confirmEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = confirmEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `✅`) {
 					reaction.users.remove(user)
 					let newEmbed: MessageEmbed
-					const profileDelete = await profile.destroy({ where: { userID: message.author.id } })
+					const profileDelete = await profile.destroy({
+						where: { userID: message.author.id },
+					})
 					if (profileDelete === 0) {
 						newEmbed = new MessageEmbed()
 							.setAuthor(

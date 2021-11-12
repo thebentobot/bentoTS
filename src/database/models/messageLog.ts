@@ -3,13 +3,13 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface messageLogAttributes {
-	guildID: bigint;
-	channel: bigint;
+	guildID: bigint
+	channel: bigint
 }
 
-export type messageLogPk = `guildID`;
-export type messageLogId = messageLog[messageLogPk];
-export type messageLogCreationAttributes = Optional<messageLogAttributes, messageLogPk>;
+export type messageLogPk = `guildID`
+export type messageLogId = messageLog[messageLogPk]
+export type messageLogCreationAttributes = Optional<messageLogAttributes, messageLogPk>
 
 export class messageLog
 	extends Model<messageLogAttributes, messageLogCreationAttributes>

@@ -3,17 +3,17 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface roleAttributes {
-	id?: number;
-	roleID: bigint;
-	roleCommand: string;
-	roleName?: string;
-	guildID: bigint;
-	type?: `main` | `sub` | `other`;
+	id?: number
+	roleID: bigint
+	roleCommand: string
+	roleName?: string
+	guildID: bigint
+	type?: `main` | `sub` | `other`
 }
 
-export type rolePk = `id`;
-export type roleId = role[rolePk];
-export type roleCreationAttributes = Optional<roleAttributes, rolePk>;
+export type rolePk = `id`
+export type roleId = role[rolePk]
+export type roleCreationAttributes = Optional<roleAttributes, rolePk>
 
 export class role extends Model<roleAttributes, roleCreationAttributes> implements roleAttributes {
 	id?: number

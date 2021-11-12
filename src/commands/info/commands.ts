@@ -19,7 +19,10 @@ export const command: Command = {
 			return message.channel.send(`https://www.bentobot.xyz/commands`)
 		}
 		initModels(database)
-		const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildDB = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		const embed = new MessageEmbed()
 			.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)

@@ -3,13 +3,13 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface modLogAttributes {
-	guildID: bigint;
-	channel: bigint;
+	guildID: bigint
+	channel: bigint
 }
 
-export type modLogPk = `guildID`;
-export type modLogId = modLog[modLogPk];
-export type modLogCreationAttributes = Optional<modLogAttributes, modLogPk>;
+export type modLogPk = `guildID`
+export type modLogId = modLog[modLogPk]
+export type modLogCreationAttributes = Optional<modLogAttributes, modLogPk>
 
 export class modLog extends Model<modLogAttributes, modLogCreationAttributes> implements modLogAttributes {
 	guildID!: bigint

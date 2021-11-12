@@ -71,13 +71,24 @@ export const command: Command = {
 			username: bannedUser.user.username,
 			xp: 0,
 			level: 1,
-			avatarURL: bannedUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+			avatarURL: bannedUser.user.avatarURL({
+				format: `png`,
+				dynamic: true,
+				size: 1024,
+			}) as string,
 		}
 
-		await user.findOrCreate({ where: { userID: bannedUserID as string }, defaults: userAttr })
+		await user.findOrCreate({
+			where: { userID: bannedUserID as string },
+			defaults: userAttr,
+		})
 
 		const banned = (await ban
-			.findOrCreate({ raw: true, where: { userID: bannedUserID, guildID: message.guild?.id }, defaults: banAttr })
+			.findOrCreate({
+				raw: true,
+				where: { userID: bannedUserID, guildID: message.guild?.id },
+				defaults: banAttr,
+			})
 			.catch(console.error)) as [ban, boolean]
 
 		if (banned[1] === false) {
@@ -100,7 +111,10 @@ export const command: Command = {
 			)
 		} else {
 			try {
-				const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const channel = await modLog.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setColor(`#ff0000`)

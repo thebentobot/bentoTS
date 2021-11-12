@@ -19,7 +19,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel.send(
@@ -27,7 +30,10 @@ export const command: Command = {
 			)
 		}
 
-		const caseGlobalData = await caseGlobal.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const caseGlobalData = await caseGlobal.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args[0] === `server` && args[1] === `status`) {
 			return message.channel.send(

@@ -9,10 +9,16 @@ export const event: Event = {
 	run: async (client, guild: Guild, user: User): Promise<Message | void> => {
 		initModels(database)
 
-		const banCase = await ban.findOne({ raw: true, where: { guildID: guild.id, userID: user.id } })
+		const banCase = await ban.findOne({
+			raw: true,
+			where: { guildID: guild.id, userID: user.id },
+		})
 
 		try {
-			const channel = await modLog.findOne({ raw: true, where: { guildID: guild.id } })
+			const channel = await modLog.findOne({
+				raw: true,
+				where: { guildID: guild.id },
+			})
 			const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 			const embed = new MessageEmbed()
 				.setColor(`#f5ec42`)

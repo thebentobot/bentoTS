@@ -17,13 +17,23 @@ export const event: Event = {
 	run: async (client, channel: GuildChannel): Promise<Message | void> => {
 		initModels(database)
 
-		const guildData = await guild.findOne({ where: { guildID: channel.guild.id } })
-		const messageLogData = await messageLog.findOne({ where: { channel: channel.id } })
-		const memberLogData = await memberLog.findOne({ where: { channel: channel.id } })
+		const guildData = await guild.findOne({
+			where: { guildID: channel.guild.id },
+		})
+		const messageLogData = await messageLog.findOne({
+			where: { channel: channel.id },
+		})
+		const memberLogData = await memberLog.findOne({
+			where: { channel: channel.id },
+		})
 		const modLogData = await modLog.findOne({ where: { channel: channel.id } })
-		const welcomeData = await welcome.findOne({ where: { channel: channel.id } })
+		const welcomeData = await welcome.findOne({
+			where: { channel: channel.id },
+		})
 		const byeData = await bye.findOne({ where: { channel: channel.id } })
-		const roleData = await roleChannel.findOne({ where: { channelID: channel.id } })
+		const roleData = await roleChannel.findOne({
+			where: { channelID: channel.id },
+		})
 
 		if (messageLogData && modLogData) {
 			await messageLog.destroy({ where: { channel: channel.id } })

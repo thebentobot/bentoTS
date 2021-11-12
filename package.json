@@ -6,7 +6,8 @@
 	"scripts": {
 		"start": "ts-node src/index.ts",
 		"dev": "nodemon src/index.ts",
-		"build": "tsc"
+		"build": "tsc",
+		"lint": "npx eslint . --ext .js,.jsx,.ts,.tsx"
 	},
 	"keywords": [],
 	"author": "banner4422",

@@ -71,7 +71,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -123,7 +126,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -177,7 +183,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -236,7 +245,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -273,7 +285,12 @@ export const command: Command = {
 				embed.setDescription(`${info}`)
 				embed.setTitle(`Leaderboard for ${client?.user?.username}`)
 				embed.setURL(`https://bentobot.xyz/leaderboard`)
-				embed.setThumbnail(client?.user?.displayAvatarURL({ dynamic: true, format: `png` }) as string)
+				embed.setThumbnail(
+					client?.user?.displayAvatarURL({
+						dynamic: true,
+						format: `png`,
+					}) as string,
+				)
 				embeds.push(embed)
 			}
 			return embeds
@@ -302,7 +319,10 @@ export const command: Command = {
 				embed.setTitle(`Leaderboard for ${message?.guild?.name}`)
 				embed.setThumbnail(
 					message?.guild?.iconURL({ dynamic: true, format: `png` })
-						? (message?.guild?.iconURL({ dynamic: true, format: `png` }) as string)
+						? (message?.guild?.iconURL({
+								dynamic: true,
+								format: `png`,
+						  }) as string)
 						: (client?.user?.avatarURL() as string),
 				)
 				embeds.push(embed)
@@ -333,7 +353,10 @@ export const command: Command = {
 				embed.setTitle(`Leaderboard for ${message?.guild?.name}`)
 				embed.setThumbnail(
 					message?.guild?.iconURL({ dynamic: true, format: `png` })
-						? (message.guild.iconURL({ dynamic: true, format: `png` }) as string)
+						? (message.guild.iconURL({
+								dynamic: true,
+								format: `png`,
+						  }) as string)
 						: (client?.user?.avatarURL() as string),
 				)
 				embeds.push(embed)
@@ -356,7 +379,12 @@ export const command: Command = {
 				embed.setDescription(`${info}`)
 				embed.setTimestamp()
 				embed.setTitle(`Bento 🍱 Leaderboard for ${client?.user?.username}`)
-				embed.setThumbnail(client?.user?.displayAvatarURL({ dynamic: true, format: `png` }) as string)
+				embed.setThumbnail(
+					client?.user?.displayAvatarURL({
+						dynamic: true,
+						format: `png`,
+					}) as string,
+				)
 				embeds.push(embed)
 			}
 			return embeds

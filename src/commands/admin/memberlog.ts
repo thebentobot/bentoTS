@@ -19,7 +19,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel.send(
@@ -28,7 +31,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			const memberLogData = await memberLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const memberLogData = await memberLog.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			if (memberLogData !== null) {
 				return message.channel.send(`
             The member log is currently \`enabled\` on this server.\nThe member log channel on this server is currently in <#${memberLogData?.channel}>.`)
@@ -50,7 +56,10 @@ export const command: Command = {
 				return message.channel.send(`Your channel id \`${args[1]}\` was invalid.\nPlease use a valid channel id.`)
 			}
 
-			const memberLogData = await memberLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const memberLogData = await memberLog.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (memberLogData === null) {
 				const attr: memberLogCreationAttributes = {

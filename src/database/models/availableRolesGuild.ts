@@ -3,15 +3,15 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface availableRolesGuildAttributes {
-	role: string;
-	id?: number;
-	guildID: bigint;
-	type: `main` | `sub` | `other`;
+	role: string
+	id?: number
+	guildID: bigint
+	type: `main` | `sub` | `other`
 }
 
-export type availableRolesGuildPk = `id`;
-export type availableRolesGuildId = availableRolesGuild[availableRolesGuildPk];
-export type availableRolesGuildCreationAttributes = Optional<availableRolesGuildAttributes, availableRolesGuildPk>;
+export type availableRolesGuildPk = `id`
+export type availableRolesGuildId = availableRolesGuild[availableRolesGuildPk]
+export type availableRolesGuildCreationAttributes = Optional<availableRolesGuildAttributes, availableRolesGuildPk>
 
 export class availableRolesGuild
 	extends Model<availableRolesGuildAttributes, availableRolesGuildCreationAttributes>

@@ -3,15 +3,15 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface caseGlobalAttributes {
-	guildID: bigint;
-	serverName: boolean;
-	reason: boolean;
+	guildID: bigint
+	serverName: boolean
+	reason: boolean
 }
 
-export type caseGlobalPk = `guildID`;
-export type caseGlobalId = caseGlobal[caseGlobalPk];
-export type caseGlobalOptionalAttributes = `guildID`;
-export type caseGlobalCreationAttributes = Optional<caseGlobalAttributes, caseGlobalOptionalAttributes>;
+export type caseGlobalPk = `guildID`
+export type caseGlobalId = caseGlobal[caseGlobalPk]
+export type caseGlobalOptionalAttributes = `guildID`
+export type caseGlobalCreationAttributes = Optional<caseGlobalAttributes, caseGlobalOptionalAttributes>
 
 export class caseGlobal
 	extends Model<caseGlobalAttributes, caseGlobalCreationAttributes>

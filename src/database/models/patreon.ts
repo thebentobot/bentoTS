@@ -3,24 +3,24 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { user, userId } from './user'
 
 export interface patreonAttributes {
-	id?: number;
-	userID: bigint;
-	name?: string;
-	avatar?: string;
-	supporter: boolean;
-	follower: boolean;
-	enthusiast: boolean;
-	disciple: boolean;
-	sponsor: boolean;
-	emoteSlot1?: string;
-	emoteSlot2?: string;
-	emoteSlot3?: string;
-	emoteSlot4?: string;
+	id?: number
+	userID: bigint
+	name?: string
+	avatar?: string
+	supporter: boolean
+	follower: boolean
+	enthusiast: boolean
+	disciple: boolean
+	sponsor: boolean
+	emoteSlot1?: string
+	emoteSlot2?: string
+	emoteSlot3?: string
+	emoteSlot4?: string
 }
 
-export type patreonPk = `id`;
-export type patreonId = patreon[patreonPk];
-export type patreonCreationAttributes = Optional<patreonAttributes, patreonPk>;
+export type patreonPk = `id`
+export type patreonId = patreon[patreonPk]
+export type patreonCreationAttributes = Optional<patreonAttributes, patreonPk>
 
 export class patreon extends Model<patreonAttributes, patreonCreationAttributes> implements patreonAttributes {
 	id?: number

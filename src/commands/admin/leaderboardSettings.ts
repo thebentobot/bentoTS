@@ -4,12 +4,12 @@ import { initModels, guild } from '../../database/models/init-models'
 import { Message } from 'discord.js'
 
 export const command: Command = {
-	name: `leaderboardSettings`,
+	name: `leaderboardsettings`,
 	aliases: [`lbs`],
 	category: `admin`,
 	description: `Enable or disable the XP and levelling system on this server.`,
-	usage: `leaderboardSettings <enable/disable/status>`,
-	website: `https://www.bentobot.xyz/commands#leaderboardSettings`,
+	usage: `leaderboardsettings <enable/disable/status>`,
+	website: `https://www.bentobot.xyz/commands#leaderboardsettings`,
 	run: async (client, message, args): Promise<Message | undefined> => {
 		if (!message.member?.hasPermission(`MANAGE_GUILD`)) {
 			return message.channel
@@ -19,7 +19,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel.send(

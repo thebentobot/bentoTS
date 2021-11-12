@@ -13,7 +13,9 @@ export const event: Event = {
 		initModels(database)
 
 		try {
-			const log = await messageLog.findOne({ where: { guildID: oldMessage?.guild?.id } })
+			const log = await messageLog.findOne({
+				where: { guildID: oldMessage?.guild?.id },
+			})
 			const messageLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 
 			const embed = new MessageEmbed()

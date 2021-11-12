@@ -12,7 +12,13 @@ export const command: Command = {
 	run: async (client, message): Promise<Message> => {
 		const embed = new MessageEmbed()
 			.setTitle(`Support Bento 🍱`)
-			.setThumbnail(client.user?.avatarURL({ dynamic: true, format: `png`, size: 1024 }) as string)
+			.setThumbnail(
+				client.user?.avatarURL({
+					dynamic: true,
+					format: `png`,
+					size: 1024,
+				}) as string,
+			)
 			.setDescription(
 				`Support to ensure a stellar performance and a top quality experience and joy for thousands of users when using **Bento** 🍱\nAnd that it is free for **everyone**.\nSupport on **Patreon** for extra benefits.\nGet a Bento 🍱 for each tip on **Ko-fi**.\nVote for **free** on top.gg for **5 Bento** 🍱`,
 			)

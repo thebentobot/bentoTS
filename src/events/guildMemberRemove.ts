@@ -27,22 +27,47 @@ export const event: Event = {
 	run: async (client, member: GuildMember): Promise<Message | void> => {
 		initModels(database)
 
-		const memberLogData = await memberLog.findOne({ raw: true, where: { guildID: member.guild.id } })
+		const memberLogData = await memberLog.findOne({
+			raw: true,
+			where: { guildID: member.guild.id },
+		})
 		if (memberLogData) {
-			const banData = await ban.findAndCountAll({ raw: true, where: { userID: member.user.id } })
-			const kickData = await kick.findAndCountAll({ raw: true, where: { userID: member.user.id } })
-			const muteData = await mute.findAndCountAll({ raw: true, where: { userID: member.user.id } })
-			const warningData = await warning.findAndCountAll({ raw: true, where: { userID: member.user.id } })
+			const banData = await ban.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
+			const kickData = await kick.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
+			const muteData = await mute.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
+			const warningData = await warning.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
 
 			const currentMuteData = await mute.findOne({
 				raw: true,
-				where: { userID: member.user.id, guildID: member.guild.id, MuteStatus: true },
+				where: {
+					userID: member.user.id,
+					guildID: member.guild.id,
+					MuteStatus: true,
+				},
 			})
 
 			const channel = member.guild.channels.cache.get(`${memberLogData.channel}`) as TextChannel
 			const embed = new MessageEmbed()
 				.setTitle(`${member.user.username}#${member.user.discriminator} left the server!`)
-				.setThumbnail(`${member.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })}`)
+				.setThumbnail(
+					`${member.user.avatarURL({
+						format: `png`,
+						dynamic: true,
+						size: 1024,
+					})}`,
+				)
 				.setColor(`#FF0000	`)
 				.setFooter(`UserID: ${member.user.id}`)
 				.setTimestamp()
@@ -60,7 +85,9 @@ export const event: Event = {
 			await channel.send(embed)
 		}
 
-		await guildMember.destroy({ where: { guildID: member.guild.id, userID: member.user.id } })
+		await guildMember.destroy({
+			where: { guildID: member.guild.id, userID: member.user.id },
+		})
 
 		const userData = await user.findOne({ where: { userID: member.user.id } })
 
@@ -80,8 +107,12 @@ export const event: Event = {
 			const byeData = await bye.findOne({ where: { guildID: member.guild.id } })
 
 			if (byeData?.message && byeData?.channel) {
-				const kickData = await kick.findOne({ where: { guildID: member.guild.id, userID: member.id } })
-				const banData = await kick.findOne({ where: { guildID: member.guild.id, userID: member.id } })
+				const kickData = await kick.findOne({
+					where: { guildID: member.guild.id, userID: member.id },
+				})
+				const banData = await kick.findOne({
+					where: { guildID: member.guild.id, userID: member.id },
+				})
 				if (banData !== null || kickData !== null) return
 
 				const channel = member.guild.channels.cache.get(`${byeData?.channel}`) as TextChannel

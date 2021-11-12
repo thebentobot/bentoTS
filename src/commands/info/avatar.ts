@@ -14,7 +14,13 @@ export const command: Command = {
 			const embed = new MessageEmbed()
 				.setColor(`${await urlToColours(message.author.avatarURL({ format: `png` }) as string)}`)
 				.setTitle(`${message.author.tag}'s avatar`)
-				.setImage(message.author.avatarURL({ format: `png`, size: 1024, dynamic: true }) as string)
+				.setImage(
+					message.author.avatarURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					}) as string,
+				)
 				.setTimestamp()
 			return message.channel.send(embed)
 		}
@@ -24,7 +30,13 @@ export const command: Command = {
 			const embed = new MessageEmbed()
 				.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 				.setTitle(`${message.guild?.name}'s avatar`)
-				.setImage(message.guild?.iconURL({ format: `png`, size: 1024, dynamic: true }) as string)
+				.setImage(
+					message.guild?.iconURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					}) as string,
+				)
 				.setTimestamp()
 			return message.channel.send(embed)
 		}
@@ -49,7 +61,13 @@ export const command: Command = {
 			const embed = new MessageEmbed()
 				.setColor(`${await urlToColours(user.avatarURL({ format: `png` }) as string)}`)
 				.setTitle(`${user.username + `#` + user.discriminator}'s avatar`)
-				.setImage(user.avatarURL({ format: `png`, size: 1024, dynamic: true }) as string)
+				.setImage(
+					user.avatarURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					}) as string,
+				)
 				.setTimestamp()
 			return message.channel.send(embed)
 		} catch {

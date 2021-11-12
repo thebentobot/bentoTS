@@ -42,7 +42,10 @@ export const command: Command = {
 	run: async (client, message, args): Promise<Message | undefined> => {
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (!args.length) {
 			return message.channel.send(
@@ -113,7 +116,11 @@ export const command: Command = {
 			}
 
 			const reminderData = (await remindDB
-				.findOrCreate({ raw: true, where: { userID: message.author.id, reminder: reminder }, defaults: reminderAttr })
+				.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id, reminder: reminder },
+					defaults: reminderAttr,
+				})
 				.catch(console.error)) as [remindDB, boolean]
 
 			if (reminderData[1] === false) {
@@ -132,7 +139,13 @@ export const command: Command = {
 					)
 				return await message.channel.send(`Your reminder has been set.`)
 			} catch {
-				await remindDB.destroy({ where: { userID: message.author.id, reminder: reminder, date: remindDate } })
+				await remindDB.destroy({
+					where: {
+						userID: message.author.id,
+						reminder: reminder,
+						date: remindDate,
+					},
+				})
 				return await message.channel.send(
 					`Reminder hasn't been set, because I can't send DM's to you.\nPlease check your privacy settings and try again.`,
 				)
@@ -190,7 +203,11 @@ export const command: Command = {
 			}
 
 			const reminderData = (await remindDB
-				.findOrCreate({ raw: true, where: { userID: message.author.id, reminder: reminder }, defaults: reminderAttr })
+				.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id, reminder: reminder },
+					defaults: reminderAttr,
+				})
 				.catch(console.error)) as [remindDB, boolean]
 
 			if (reminderData[1] === false) {
@@ -209,7 +226,13 @@ export const command: Command = {
 					)
 				return await message.channel.send(`Your reminder has been set.`)
 			} catch {
-				await remindDB.destroy({ where: { userID: message.author.id, reminder: reminder, date: remindDate } })
+				await remindDB.destroy({
+					where: {
+						userID: message.author.id,
+						reminder: reminder,
+						date: remindDate,
+					},
+				})
 				return await message.channel.send(
 					`Reminder hasn't been set, because I can't send DM's to you.\nPlease check your privacy settings and try again.`,
 				)
@@ -250,7 +273,13 @@ export const command: Command = {
 					embed.setColor(`${await urlToColours(message.author.avatarURL({ format: `png` }) as string)}`)
 					embed.setDescription(`${current.reminder}\n\nRemind Date: <t:${moment(current.date).format(`X`)}:R>`)
 					embed.setTitle(`${capitalize(moment(now).to(current.date))}`)
-					embed.setThumbnail(message.author.avatarURL({ format: `png`, size: 1024, dynamic: true }) as string)
+					embed.setThumbnail(
+						message.author.avatarURL({
+							format: `png`,
+							size: 1024,
+							dynamic: true,
+						}) as string,
+					)
 					embeds.push(embed)
 				}
 				return embeds

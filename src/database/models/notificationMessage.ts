@@ -3,16 +3,16 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { user, userId } from './user'
 
 export interface notificationMessageAttributes {
-	id?: number;
-	userID: bigint;
-	guildID: bigint;
-	content: string;
-	global?: boolean;
+	id?: number
+	userID: bigint
+	guildID: bigint
+	content: string
+	global?: boolean
 }
 
-export type notificationMessagePk = `id`;
-export type notificationMessageId = notificationMessage[notificationMessagePk];
-export type notificationMessageCreationAttributes = Optional<notificationMessageAttributes, notificationMessagePk>;
+export type notificationMessagePk = `id`
+export type notificationMessageId = notificationMessage[notificationMessagePk]
+export type notificationMessageCreationAttributes = Optional<notificationMessageAttributes, notificationMessagePk>
 
 export class notificationMessage
 	extends Model<notificationMessageAttributes, notificationMessageCreationAttributes>

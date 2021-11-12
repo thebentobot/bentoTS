@@ -1,7 +1,8 @@
 import { Command } from '../../interfaces'
 import database from '../../database/database'
 import { initModels, autoRole, autoRoleCreationAttributes, guild } from '../../database/models/init-models'
-import { ClientUser, Message } from 'discord.js'
+import { ClientUser, Message, MessageEmbed } from 'discord.js'
+import { trim } from '../../utils'
 
 export const command: Command = {
 	name: `autorole`,
@@ -19,7 +20,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel.send(
@@ -28,7 +32,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			const autoRoleData = await autoRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const autoRoleData = await autoRole.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			if (autoRoleData !== null) {
 				return message.channel.send(
 					`Auto role is currently \`${autoRoleData ? `Enabled` : `Disabled`}\` on this server.`,
@@ -69,7 +76,9 @@ export const command: Command = {
 		if (args[0] === `delete`) {
 			try {
 				const roleID = message.mentions.roles.first() || (await message.guild?.roles.cache.get(args[1]))
-				await autoRole.destroy({ where: { roleID: roleID?.id, guildID: message.guild?.id } })
+				await autoRole.destroy({
+					where: { roleID: roleID?.id, guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Your auto role <@&${roleID?.id}> is now deleted in Bento's database and Bento will from now on not assign new users with that role.\nPlease use ${guildData?.prefix}autorole set <roleID> to set an auto role again.`,
 					{ disableMentions: `everyone` },
@@ -82,13 +91,25 @@ export const command: Command = {
 		}
 
 		if (args[0] === `list`) {
-			const roles = await autoRole.findAll({ where: { guildID: message.guild?.id } })
+			const roles = await autoRole.findAll({
+				where: { guildID: message.guild?.id },
+			})
 			if (!roles.length) return message.channel.send(`You don't have any auto roles saved.`)
-			const iterator = roles.values()
 
-			for (const value of iterator) {
-				message.channel.send(`<@&${value.roleID}>`)
-			}
+			const embed = new MessageEmbed()
+				.setAuthor(message.guild?.name, message.guild?.iconURL({ format: `png`, dynamic: true }) as string)
+				.setTitle(`All auto roles in ${message.guild?.name}`)
+				.setThumbnail(
+					message.guild?.iconURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					}) as string,
+				)
+				.setFooter(`Amount of auto roles - ${roles.length}`)
+				.setTimestamp()
+				.setDescription(trim(roles.map((role) => `<#${role.roleID}>`).join(` `) as string, 4096))
+			return await message.channel.send(embed)
 		}
 	},
 }

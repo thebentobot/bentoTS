@@ -23,7 +23,10 @@ export const command: Command = {
 		async function helpMSG(client: ExtendedClient, message: Message) {
 			initModels(database)
 
-			const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const guildDB = await guild.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			const embed = new MessageEmbed()
 				.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
@@ -47,7 +50,9 @@ export const command: Command = {
 				)
 				.setFooter(
 					`Bento 🍱 is created by Banner#1017`,
-					(await client.users.fetch(`232584569289703424`))?.avatarURL({ dynamic: true }) as string,
+					(await client.users.fetch(`232584569289703424`))?.avatarURL({
+						dynamic: true,
+					}) as string,
 				)
 			return await message.channel.send(embed).catch((error) => {
 				console.error(`Could not send message, missing permission`, error)
@@ -55,7 +60,10 @@ export const command: Command = {
 		}
 
 		async function getCMD(client: ExtendedClient, message: Message, input: string) {
-			const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const guildDB = await guild.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			const embed = new MessageEmbed()
 

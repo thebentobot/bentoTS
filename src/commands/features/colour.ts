@@ -53,10 +53,15 @@ export const command: Command = {
 			color: hexValue,
 			image: { url: `attachment://${hexColour}.png` },
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-			footer: { text: `RGB: ${rgbColour!.join(`, `)} | HSV: ${hsv[0]}, ${hsv[1]}%, ${hsv[2]}%` },
+			footer: {
+				text: `RGB: ${rgbColour!.join(`, `)} | HSV: ${hsv[0]}, ${hsv[1]}%, ${hsv[2]}%`,
+			},
 		})
 
-		return message.channel.send({ embed, files: [{ attachment: image, name: `${hexColour}.png` }] })
+		return message.channel.send({
+			embed,
+			files: [{ attachment: image, name: `${hexColour}.png` }],
+		})
 
 		async function rgbToHex(colour: number): Promise<string> {
 			const hex: string = colour.toString(16)

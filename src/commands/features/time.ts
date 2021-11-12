@@ -28,7 +28,12 @@ export const command: Command = {
 
 			try {
 				const response = await openWeatherAPI.get(`/weather?`, {
-					params: { q: city, units: `metric`, appid: process.env.WEATHERKEY, lang: `en` },
+					params: {
+						q: city,
+						units: `metric`,
+						appid: process.env.WEATHERKEY,
+						lang: `en`,
+					},
 				})
 				const time = await localTime(response.data.timezone)
 				return message.channel.send(

@@ -31,14 +31,38 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
-		const messageLogData = await messageLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
-		const modLogData = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
-		const byeData = await bye.findOne({ raw: true, where: { guildID: message.guild?.id } })
-		const welcomeData = await welcome.findOne({ raw: true, where: { guildID: message.guild?.id } })
-		const autoRoleData = await autoRole.findAll({ raw: true, where: { guildID: message.guild?.id } })
-		const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
-		const caseGlobalData = await caseGlobal.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
+		const messageLogData = await messageLog.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
+		const modLogData = await modLog.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
+		const byeData = await bye.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
+		const welcomeData = await welcome.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
+		const autoRoleData = await autoRole.findAll({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
+		const muteRoleData = await muteRole.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
+		const caseGlobalData = await caseGlobal.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		const modLogText = modLogData ? `<#${modLogData.channel}>` : `Not configured`
 		const msgLogText = messageLogData ? `<#${messageLogData.channel}>` : `Not configured`

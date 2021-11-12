@@ -3,21 +3,21 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { user, userId } from './user'
 
 export interface rpsGameAttributes {
-	id: number;
-	userID: bigint;
-	paperWins?: number;
-	paperLosses?: number;
-	rockWins?: number;
-	rockLosses?: number;
-	scissorWins?: number;
-	scissorsLosses?: number;
-	paperTies?: number;
-	rockTies?: number;
-	scissorsTies?: number;
+	id: number
+	userID: bigint
+	paperWins?: number
+	paperLosses?: number
+	rockWins?: number
+	rockLosses?: number
+	scissorWins?: number
+	scissorsLosses?: number
+	paperTies?: number
+	rockTies?: number
+	scissorsTies?: number
 }
 
-export type rpsGamePk = `id`;
-export type rpsGameId = rpsGame[rpsGamePk];
+export type rpsGamePk = `id`
+export type rpsGameId = rpsGame[rpsGamePk]
 export type rpsGameOptionalAttributes =
 	| `id`
 	| `paperWins`
@@ -28,8 +28,8 @@ export type rpsGameOptionalAttributes =
 	| `scissorsLosses`
 	| `paperTies`
 	| `rockTies`
-	| `scissorsTies`;
-export type rpsGameCreationAttributes = Optional<rpsGameAttributes, rpsGameOptionalAttributes>;
+	| `scissorsTies`
+export type rpsGameCreationAttributes = Optional<rpsGameAttributes, rpsGameOptionalAttributes>
 
 export class rpsGame extends Model<rpsGameAttributes, rpsGameCreationAttributes> implements rpsGameAttributes {
 	id!: number

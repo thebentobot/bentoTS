@@ -15,13 +15,19 @@ export const event: Event = {
 	run: async (client, oldRole: Role, newRole: Role): Promise<Message | void> => {
 		initModels(database)
 
-		const guildData = await guild.findOne({ where: { guildID: oldRole.guild.id } })
-		const muteRoleData = await muteRole.findOne({ where: { roleID: oldRole.id } })
+		const guildData = await guild.findOne({
+			where: { guildID: oldRole.guild.id },
+		})
+		const muteRoleData = await muteRole.findOne({
+			where: { roleID: oldRole.id },
+		})
 		const roleData = await roleDB.findOne({ where: { roleID: oldRole.id } })
 
 		if (muteRoleData && newRole.permissions.has(`SEND_MESSAGES`)) {
 			try {
-				const log = await modLog.findOne({ where: { guildID: oldRole.guild.id } })
+				const log = await modLog.findOne({
+					where: { guildID: oldRole.guild.id },
+				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				return await modLogChannel.send(
 					`The mute role **${oldRole.name}** has been updated${
@@ -47,7 +53,9 @@ export const event: Event = {
 				)
 			}
 			try {
-				const log = await modLog.findOne({ where: { guildID: oldRole.guild.id } })
+				const log = await modLog.findOne({
+					where: { guildID: oldRole.guild.id },
+				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				return await modLogChannel.send(
 					`You have updated the role name for the role **${oldRole.name}** to **${newRole.name}**, which is a role users can assign in the role management channel, and it has been updated accordingly in the database.\nRemember to update the role channel message by using \`${guildData?.prefix}role update\` and perhaps change the role commands to obtain the role, if the name differs a lot.`,
@@ -59,7 +67,9 @@ export const event: Event = {
 
 		if (oldRole.name !== newRole.name) {
 			try {
-				const log = await modLog.findOne({ where: { guildID: oldRole.guild.id } })
+				const log = await modLog.findOne({
+					where: { guildID: oldRole.guild.id },
+				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				await modLogChannel.send(
 					`A role called **${oldRole.name}** was updated to **${newRole.name}**.\nGet more info in the audit log.`,
@@ -71,7 +81,9 @@ export const event: Event = {
 
 		if (oldRole.permissions !== newRole.permissions) {
 			try {
-				const log = await modLog.findOne({ where: { guildID: oldRole.guild.id } })
+				const log = await modLog.findOne({
+					where: { guildID: oldRole.guild.id },
+				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				await modLogChannel.send(
 					`A role called **${

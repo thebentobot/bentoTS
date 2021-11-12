@@ -68,7 +68,9 @@ export const event: Event = {
 					.addField(`Vote on top.gg and receive 5 Bento 🍱`, `https://top.gg/bot/787041583580184609/vote`)
 					.setFooter(
 						`Bento 🍱 is created by Banner#1017`,
-						(await client.users.fetch(`232584569289703424`)).avatarURL({ dynamic: true }) as string,
+						(await client.users.fetch(`232584569289703424`)).avatarURL({
+							dynamic: true,
+						}) as string,
 					)
 					.setTimestamp()
 				await messageLogChannel.send(embed)

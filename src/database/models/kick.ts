@@ -3,18 +3,18 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface kickAttributes {
-	kickCase?: number;
-	userID: bigint;
-	guildID: bigint;
-	date?: Date;
-	note?: string;
-	actor: bigint;
-	reason?: string;
+	kickCase?: number
+	userID: bigint
+	guildID: bigint
+	date?: Date
+	note?: string
+	actor: bigint
+	reason?: string
 }
 
-export type kickPk = `kickCase`;
-export type kickId = kick[kickPk];
-export type kickCreationAttributes = Optional<kickAttributes, kickPk>;
+export type kickPk = `kickCase`
+export type kickId = kick[kickPk]
+export type kickCreationAttributes = Optional<kickAttributes, kickPk>
 
 export class kick extends Model<kickAttributes, kickCreationAttributes> implements kickAttributes {
 	kickCase?: number

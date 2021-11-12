@@ -2,14 +2,14 @@ import * as Sequelize from 'sequelize'
 import { DataTypes, Model, Optional } from 'sequelize'
 
 export interface gfycatBlacklistAttributes {
-	id: number;
-	username: string;
+	id: number
+	username: string
 }
 
-export type gfycatBlacklistPk = `id`;
-export type gfycatBlacklistId = gfycatBlacklist[gfycatBlacklistPk];
-export type gfycatBlacklistOptionalAttributes = `id`;
-export type gfycatBlacklistCreationAttributes = Optional<gfycatBlacklistAttributes, gfycatBlacklistOptionalAttributes>;
+export type gfycatBlacklistPk = `id`
+export type gfycatBlacklistId = gfycatBlacklist[gfycatBlacklistPk]
+export type gfycatBlacklistOptionalAttributes = `id`
+export type gfycatBlacklistCreationAttributes = Optional<gfycatBlacklistAttributes, gfycatBlacklistOptionalAttributes>
 
 export class gfycatBlacklist
 	extends Model<gfycatBlacklistAttributes, gfycatBlacklistCreationAttributes>

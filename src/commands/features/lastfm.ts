@@ -158,17 +158,26 @@ export const command: Command = {
 						: message.member
 					: message.mentions.members?.first() || (await message.guild?.members.fetch(mentionedUser as string))
 				user = theUser?.id
-				const lastfmData = await lastfm.findOne({ raw: true, where: { userID: user } })
+				const lastfmData = await lastfm.findOne({
+					raw: true,
+					where: { userID: user },
+				})
 				if (!lastfmData) {
 					return message.channel.send(`This user doesn't have a last.fm account saved.`)
 				}
 				username = lastfmData.lastfm
 			} catch {
 				try {
-					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+					const lastFmName = await lastfm.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
@@ -177,11 +186,19 @@ export const command: Command = {
 
 			try {
 				const response = await lastfmAPI.get(`/`, {
-					params: { method: `user.getrecenttracks`, user: username, limit: 2, page: 1 },
+					params: {
+						method: `user.getrecenttracks`,
+						user: username,
+						limit: 2,
+						page: 1,
+					},
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
@@ -254,11 +271,16 @@ export const command: Command = {
 		async function setUser(message: Message, username: string) {
 			initModels(database)
 
-			const userExits = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+			const userExits = await lastfm.findOne({
+				raw: true,
+				where: { userID: message.author.id },
+			})
 
 			if (userExits && username) {
 				try {
-					const response = await lastfmAPI.get(`/`, { params: { method: `user.getinfo`, user: username } })
+					const response = await lastfmAPI.get(`/`, {
+						params: { method: `user.getinfo`, user: username },
+					})
 					username = response.data.user.name
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				} catch (error: any) {
@@ -292,13 +314,18 @@ export const command: Command = {
 			}
 
 			if (!username) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Please provide a LastFM username: \`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
 			} else {
 				try {
-					const response = await lastfmAPI.get(`/`, { params: { method: `user.getinfo`, user: username } })
+					const response = await lastfmAPI.get(`/`, {
+						params: { method: `user.getinfo`, user: username },
+					})
 					username = response.data.user.name
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				} catch (error: any) {
@@ -409,7 +436,10 @@ export const command: Command = {
 				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
 				userID = theUser?.id
 				try {
-					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
+					const lastfmData = await lastfm.findOne({
+						raw: true,
+						where: { userID: userID },
+					})
 					if (!lastfmData) {
 						return message.channel.send(`This user doesn't have a last.fm account saved.`)
 					}
@@ -420,10 +450,16 @@ export const command: Command = {
 			} catch {
 				try {
 					userID = message.author.id
-					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+					const lastFmName = await lastfm.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
@@ -432,11 +468,20 @@ export const command: Command = {
 
 			try {
 				const response = await lastfmAPI.get(`/`, {
-					params: { method: `user.gettoptracks`, user: username, period: period[0], limit: 50, page: 1 },
+					params: {
+						method: `user.gettoptracks`,
+						user: username,
+						period: period[0],
+						limit: 50,
+						page: 1,
+					},
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
@@ -455,7 +500,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -519,9 +567,10 @@ export const command: Command = {
 							  }`,
 						userID
 							? message.guild?.members.cache.get(userID)?.user.displayAvatarURL()
-							: (message.guild?.members.cache
-									.get(message.author.id)
-									?.user.displayAvatarURL({ format: `png`, dynamic: true }) as string),
+							: (message.guild?.members.cache.get(message.author.id)?.user.displayAvatarURL({
+									format: `png`,
+									dynamic: true,
+							  }) as string),
 						`https://www.last.fm/user/${lastfmAcc}`,
 					)
 					embed.setColor(`#e4141e`)
@@ -532,7 +581,9 @@ export const command: Command = {
 							(track) =>
 								`**${track[`@attr`].rank}. ${Util.escapeMarkdown(track.name, {
 									bold: false,
-								})}** by [${Util.escapeMarkdown(track.artist.name, { bold: false })}](${track.url}) - ${
+								})}** by [${Util.escapeMarkdown(track.artist.name, {
+									bold: false,
+								})}](${track.url}) - ${
 									parseInt(track.playcount) > 1 ? `${track.playcount} plays` : `${track.playcount} play`
 								}`,
 						)
@@ -571,20 +622,26 @@ export const command: Command = {
 					await spotifyCred.searchArtists(current[0].artist.name, { limit: 1 }).then(
 						function (data) {
 							if ((data.body.artists?.items.length as number) < 0) {
-								cover = message.guild?.members?.cache
-									.get(userID)
-									?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+								cover = message.guild?.members?.cache.get(userID)?.user.avatarURL({
+									format: `png`,
+									dynamic: true,
+									size: 1024,
+								})
 							} else {
 								if (typeof data.body.artists?.items[0].images[0]?.url === `undefined`) {
-									cover = message.guild?.members.cache
-										.get(userID)
-										?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+									cover = message.guild?.members.cache.get(userID)?.user.avatarURL({
+										format: `png`,
+										dynamic: true,
+										size: 1024,
+									})
 								} else {
 									cover =
 										data.body.artists.items[0].images.length < 0
-											? message.guild?.members.cache
-													.get(userID)
-													?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+											? message.guild?.members.cache.get(userID)?.user.avatarURL({
+													format: `png`,
+													dynamic: true,
+													size: 1024,
+											  })
 											: data.body.artists.items[0].images[0].url
 								}
 							}
@@ -680,7 +737,10 @@ export const command: Command = {
 				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
 				userID = theUser?.id
 				try {
-					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
+					const lastfmData = await lastfm.findOne({
+						raw: true,
+						where: { userID: userID },
+					})
 					if (!lastfmData) {
 						return message.channel.send(`This user doesn't have a last.fm account saved.`)
 					}
@@ -691,10 +751,16 @@ export const command: Command = {
 			} catch {
 				try {
 					userID = message.author.id
-					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+					const lastFmName = await lastfm.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
@@ -703,11 +769,20 @@ export const command: Command = {
 
 			try {
 				const response = await lastfmAPI.get(`/`, {
-					params: { method: `user.gettopalbums`, user: username, period: period[0], limit: 50, page: 1 },
+					params: {
+						method: `user.gettopalbums`,
+						user: username,
+						period: period[0],
+						limit: 50,
+						page: 1,
+					},
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
@@ -726,7 +801,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -801,7 +879,9 @@ export const command: Command = {
 							(album) =>
 								`**${album[`@attr`].rank}. ${Util.escapeMarkdown(album.name, {
 									bold: false,
-								})}** by [${Util.escapeMarkdown(album.artist.name, { bold: false })}](${album.url}) - ${
+								})}** by [${Util.escapeMarkdown(album.artist.name, {
+									bold: false,
+								})}](${album.url}) - ${
 									parseInt(album.playcount) > 1 ? `${album.playcount} plays` : `${album.playcount} play`
 								}`,
 						)
@@ -920,7 +1000,10 @@ export const command: Command = {
 				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
 				userID = theUser?.id
 				try {
-					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
+					const lastfmData = await lastfm.findOne({
+						raw: true,
+						where: { userID: userID },
+					})
 					if (!lastfmData) {
 						return message.channel.send(`This user doesn't have a last.fm account saved.`)
 					}
@@ -931,10 +1014,16 @@ export const command: Command = {
 			} catch {
 				try {
 					userID = message.author.id
-					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+					const lastFmName = await lastfm.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
@@ -943,11 +1032,20 @@ export const command: Command = {
 
 			try {
 				const response = await lastfmAPI.get(`/`, {
-					params: { method: `user.gettopartists`, user: username, period: period[0], limit: 50, page: 1 },
+					params: {
+						method: `user.gettopartists`,
+						user: username,
+						period: period[0],
+						limit: 50,
+						page: 1,
+					},
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
@@ -966,7 +1064,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -1039,7 +1140,9 @@ export const command: Command = {
 					const info = current
 						.map(
 							(artist) =>
-								`**${artist[`@attr`].rank}. ${Util.escapeMarkdown(artist.name, { bold: false })}** - [${
+								`**${artist[`@attr`].rank}. ${Util.escapeMarkdown(artist.name, {
+									bold: false,
+								})}** - [${
 									parseInt(artist.playcount) > 1 ? `${artist.playcount} plays` : `${artist.playcount} play`
 								}](${artist.url})`,
 						)
@@ -1083,15 +1186,19 @@ export const command: Command = {
 									?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 							} else {
 								if (typeof data.body.artists?.items[0].images[0]?.url === `undefined`) {
-									cover = message.guild?.members.cache
-										.get(userID)
-										?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+									cover = message.guild?.members.cache.get(userID)?.user.avatarURL({
+										format: `png`,
+										dynamic: true,
+										size: 1024,
+									})
 								} else {
 									cover =
 										data.body.artists.items[0].images?.length < 0
-											? message.guild?.members.cache
-													.get(userID)
-													?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
+											? message.guild?.members.cache.get(userID)?.user.avatarURL({
+													format: `png`,
+													dynamic: true,
+													size: 1024,
+											  })
 											: data.body.artists.items[0].images[0].url
 								}
 							}
@@ -1130,7 +1237,10 @@ export const command: Command = {
 				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
 				user = theUser?.id
 				try {
-					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: user } })
+					const lastfmData = await lastfm.findOne({
+						raw: true,
+						where: { userID: user },
+					})
 					if (!lastfmData) {
 						return message.channel.send(`This user doesn't have a last.fm account saved.`)
 					}
@@ -1141,10 +1251,16 @@ export const command: Command = {
 			} catch {
 				try {
 					user = message.author.id
-					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+					const lastFmName = await lastfm.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
@@ -1153,11 +1269,19 @@ export const command: Command = {
 
 			try {
 				const response = await lastfmAPI.get(`/`, {
-					params: { method: `user.getrecenttracks`, user: username, limit: 50, page: 1 },
+					params: {
+						method: `user.getrecenttracks`,
+						user: username,
+						limit: 50,
+						page: 1,
+					},
 				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
@@ -1176,7 +1300,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -1246,10 +1373,9 @@ export const command: Command = {
 							(track) =>
 								`**${
 									track[`@attr`] ? `Now Playing` : moment.unix(parseInt(track.date.uts)).fromNow()
-								}** | ${Util.escapeMarkdown(track.artist[`#text`], { bold: false })} - [${Util.escapeMarkdown(
-									track.name,
-									{ bold: false },
-								)}](${track.url})`,
+								}** | ${Util.escapeMarkdown(track.artist[`#text`], {
+									bold: false,
+								})} - [${Util.escapeMarkdown(track.name, { bold: false })}](${track.url})`,
 						)
 						.join(`\n`)
 					embed.setDescription(`${info}`)
@@ -1311,7 +1437,10 @@ export const command: Command = {
 				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
 				user = theUser?.id
 				try {
-					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: user } })
+					const lastfmData = await lastfm.findOne({
+						raw: true,
+						where: { userID: user },
+					})
 					if (!lastfmData) {
 						return message.channel.send(`This user doesn't have a last.fm account saved.`)
 					}
@@ -1321,10 +1450,16 @@ export const command: Command = {
 				}
 			} catch {
 				try {
-					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+					const lastFmName = await lastfm.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					username = lastFmName?.lastfm
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
@@ -1332,10 +1467,15 @@ export const command: Command = {
 			}
 
 			try {
-				const response = await lastfmAPI.get(`/`, { params: { method: `user.getinfo`, user: username } })
+				const response = await lastfmAPI.get(`/`, {
+					params: { method: `user.getinfo`, user: username },
+				})
 				usernameEmbed = response.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
@@ -1486,7 +1626,10 @@ export const command: Command = {
 				if (theUser?.user.bot === true) return message.channel.send(`A bot doesn't have a lastfm.`)
 				userID = theUser?.id
 				try {
-					const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
+					const lastfmData = await lastfm.findOne({
+						raw: true,
+						where: { userID: userID },
+					})
 					if (!lastfmData) {
 						return message.channel.send(`This user doesn't have a last.fm account saved.`)
 					}
@@ -1506,7 +1649,10 @@ export const command: Command = {
 			} catch {
 				try {
 					userID = message.author.id
-					const lastFmName = await lastfm.findOne({ raw: true, where: { userID: message.author.id } })
+					const lastFmName = await lastfm.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					username = lastFmName?.lastfm
 					if (thirdArg) {
 						const gridMatch = thirdArg.match(/\d+x\d+/i)
@@ -1518,7 +1664,10 @@ export const command: Command = {
 						grid = gridMatch ? fourthArg : `3x3`
 					}
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Please provide a LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 					)
@@ -1538,7 +1687,13 @@ export const command: Command = {
 			let collection
 			try {
 				const response = await lastfmAPI.get(`/`, {
-					params: { method: `user.gettop${topType}s`, user: username, period: period[0], limit: itemCount, page: 1 },
+					params: {
+						method: `user.gettop${topType}s`,
+						user: username,
+						period: period[0],
+						limit: itemCount,
+						page: 1,
+					},
 				})
 				let getCollection
 				if (topType === `track`) {
@@ -1554,7 +1709,10 @@ export const command: Command = {
 					collection = getCollection.topartists.artist
 				}
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Request failed. Please provide a valid LastFM username\n\`${guildData?.prefix}fm set <lastfm account name>\`.`,
 				)
@@ -1642,9 +1800,10 @@ export const command: Command = {
 							function (data) {
 								image = data.body.artists?.items.length
 									? data.body.artists.items[0].images[0].url
-									: (message.guild?.members?.cache
-											.get(userID as string)
-											?.user.avatarURL({ format: `png`, size: 512 }) as string)
+									: (message.guild?.members?.cache.get(userID as string)?.user.avatarURL({
+											format: `png`,
+											size: 512,
+									  }) as string)
 							},
 							function (err) {
 								image = message.guild?.members?.cache

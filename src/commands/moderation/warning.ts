@@ -70,15 +70,27 @@ export const command: Command = {
 			username: warningUser.user.username,
 			xp: 0,
 			level: 1,
-			avatarURL: warningUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+			avatarURL: warningUser.user.avatarURL({
+				format: `png`,
+				dynamic: true,
+				size: 1024,
+			}) as string,
 		}
 
-		await user.findOrCreate({ where: { userID: warningUserID as string }, defaults: userAttr })
+		await user.findOrCreate({
+			where: { userID: warningUserID as string },
+			defaults: userAttr,
+		})
 
 		const warned = await warning.create(warnAttr)
-		const warningCount = await warning.findAndCountAll({ where: { guildID: message.guild?.id, userID: warningUserID } })
+		const warningCount = await warning.findAndCountAll({
+			where: { guildID: message.guild?.id, userID: warningUserID },
+		})
 		try {
-			const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const channel = await modLog.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 			const embed = new MessageEmbed()
 				.setColor(`#22ff00`)

@@ -3,64 +3,64 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { user, userId } from './user'
 
 export interface profileAttributes {
-	userID: bigint;
-	lastfmBoard?: boolean;
-	xpBoard?: boolean;
-	backgroundUrl?: string;
-	BackgroundColourOpacity?: number;
-	backgroundColour?: string;
-	descriptionColourOpacity?: number;
-	descriptionColour?: string;
-	overlayOpacity?: number;
-	overlayColour?: string;
-	usernameColour?: string;
-	discriminatorColour?: string;
-	sidebarItemServerColour?: string;
-	sidebarItemGlobalColour?: string;
-	sidebarItemBentoColour?: string;
-	sidebarItemTimezoneColour?: string;
-	sidebarValueServerColour?: string;
-	sidebarValueGlobalColour?: string;
-	sidebarValueBentoColour?: string;
-	sidebarOpacity?: number;
-	sidebarColour?: string;
-	sidebarBlur?: number;
-	fmDivBGOpacity?: number;
-	fmDivBGColour?: string;
-	fmSongTextOpacity?: number;
-	fmSongTextColour?: string;
-	fmArtistTextOpacity?: number;
-	fmArtistTextColour?: string;
-	xpDivBGOpacity?: number;
-	xpDivBGColour?: string;
-	xpTextOpacity?: number;
-	xpTextColour?: string;
-	xpText2Opacity?: number;
-	xpText2Colour?: string;
-	xpDoneServerColour1Opacity?: number;
-	xpDoneServerColour1?: string;
-	xpDoneServerColour2Opacity?: number;
-	xpDoneServerColour2?: string;
-	xpDoneServerColour3Opacity?: number;
-	xpDoneServerColour3?: string;
-	xpDoneGlobalColour1Opacity?: number;
-	xpDoneGlobalColour1?: string;
-	xpDoneGlobalColour2Opacity?: number;
-	xpDoneGlobalColour2?: string;
-	xpDoneGlobalColour3Opacity?: number;
-	xpDoneGlobalColour3?: string;
-	description?: string;
-	timezone?: string;
-	birthday?: string;
-	xpBarOpacity?: number;
-	xpBarColour?: string;
-	xpBar2Opacity?: number;
-	xpBar2Colour?: string;
+	userID: bigint
+	lastfmBoard?: boolean
+	xpBoard?: boolean
+	backgroundUrl?: string
+	BackgroundColourOpacity?: number
+	backgroundColour?: string
+	descriptionColourOpacity?: number
+	descriptionColour?: string
+	overlayOpacity?: number
+	overlayColour?: string
+	usernameColour?: string
+	discriminatorColour?: string
+	sidebarItemServerColour?: string
+	sidebarItemGlobalColour?: string
+	sidebarItemBentoColour?: string
+	sidebarItemTimezoneColour?: string
+	sidebarValueServerColour?: string
+	sidebarValueGlobalColour?: string
+	sidebarValueBentoColour?: string
+	sidebarOpacity?: number
+	sidebarColour?: string
+	sidebarBlur?: number
+	fmDivBGOpacity?: number
+	fmDivBGColour?: string
+	fmSongTextOpacity?: number
+	fmSongTextColour?: string
+	fmArtistTextOpacity?: number
+	fmArtistTextColour?: string
+	xpDivBGOpacity?: number
+	xpDivBGColour?: string
+	xpTextOpacity?: number
+	xpTextColour?: string
+	xpText2Opacity?: number
+	xpText2Colour?: string
+	xpDoneServerColour1Opacity?: number
+	xpDoneServerColour1?: string
+	xpDoneServerColour2Opacity?: number
+	xpDoneServerColour2?: string
+	xpDoneServerColour3Opacity?: number
+	xpDoneServerColour3?: string
+	xpDoneGlobalColour1Opacity?: number
+	xpDoneGlobalColour1?: string
+	xpDoneGlobalColour2Opacity?: number
+	xpDoneGlobalColour2?: string
+	xpDoneGlobalColour3Opacity?: number
+	xpDoneGlobalColour3?: string
+	description?: string
+	timezone?: string
+	birthday?: string
+	xpBarOpacity?: number
+	xpBarColour?: string
+	xpBar2Opacity?: number
+	xpBar2Colour?: string
 }
 
-export type profilePk = `userID`;
-export type profileId = profile[profilePk];
-export type profileCreationAttributes = Optional<profileAttributes, profilePk>;
+export type profilePk = `userID`
+export type profileId = profile[profilePk]
+export type profileCreationAttributes = Optional<profileAttributes, profilePk>
 
 export class profile extends Model<profileAttributes, profileCreationAttributes> implements profileAttributes {
 	userID!: bigint

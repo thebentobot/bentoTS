@@ -102,7 +102,11 @@ export const command: Command = {
 						username: theUser?.user.username as string,
 						xp: 0,
 						level: 1,
-						avatarURL: theUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+						avatarURL: theUser?.user.avatarURL({
+							format: `png`,
+							dynamic: true,
+							size: 1024,
+						}) as string,
 					}
 
 					const guildMemberAttr: guildMemberCreationAttributes = {
@@ -110,17 +114,30 @@ export const command: Command = {
 						guildID: BigInt(message?.guild?.id as string),
 						xp: 0,
 						level: 1,
-						avatarURL: theUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+						avatarURL: theUser?.user.avatarURL({
+							format: `png`,
+							dynamic: true,
+							size: 1024,
+						}) as string,
 					}
-					await userDB.findOrCreate({ where: { userID: userID }, defaults: userAttr })
+					await userDB.findOrCreate({
+						where: { userID: userID },
+						defaults: userAttr,
+					})
 					await guildMemberDB.findOrCreate({
 						where: { userID: userID, guildID: message?.guild?.id as string },
 						defaults: guildMemberAttr,
 					})
-					userProfileData = (await profile.findOne({ raw: true, where: { userID: userID } })) as profile
+					userProfileData = (await profile.findOne({
+						raw: true,
+						where: { userID: userID },
+					})) as profile
 					if (userProfileData) {
 						if (userProfileData.lastfmBoard === true) {
-							const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
+							const lastfmData = await lastfm.findOne({
+								raw: true,
+								where: { userID: userID },
+							})
 							if (lastfmData) {
 								username = lastfmData.lastfm
 							}
@@ -134,7 +151,11 @@ export const command: Command = {
 						username: message.author.username,
 						xp: 0,
 						level: 1,
-						avatarURL: message.author.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+						avatarURL: message.author.avatarURL({
+							format: `png`,
+							dynamic: true,
+							size: 1024,
+						}) as string,
 					}
 
 					const guildMemberAttr: guildMemberCreationAttributes = {
@@ -142,17 +163,30 @@ export const command: Command = {
 						guildID: BigInt(message?.guild?.id as string),
 						xp: 0,
 						level: 1,
-						avatarURL: message.author.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+						avatarURL: message.author.avatarURL({
+							format: `png`,
+							dynamic: true,
+							size: 1024,
+						}) as string,
 					}
-					await userDB.findOrCreate({ where: { userID: userID }, defaults: userAttr })
+					await userDB.findOrCreate({
+						where: { userID: userID },
+						defaults: userAttr,
+					})
 					await guildMemberDB.findOrCreate({
 						where: { userID: userID, guildID: message?.guild?.id as string },
 						defaults: guildMemberAttr,
 					})
-					userProfileData = (await profile.findOne({ raw: true, where: { userID: userID } })) as profile
+					userProfileData = (await profile.findOne({
+						raw: true,
+						where: { userID: userID },
+					})) as profile
 					if (userProfileData) {
 						if (userProfileData.lastfmBoard === true) {
-							const lastfmData = await lastfm.findOne({ raw: true, where: { userID: userID } })
+							const lastfmData = await lastfm.findOne({
+								raw: true,
+								where: { userID: userID },
+							})
 							if (lastfmData) {
 								username = lastfmData.lastfm
 							}
@@ -188,7 +222,12 @@ export const command: Command = {
 
 				if (username) {
 					const response = await lastfmAPI.get(`/`, {
-						params: { method: `user.getrecenttracks`, user: username, limit: 2, page: 1 },
+						params: {
+							method: `user.getrecenttracks`,
+							user: username,
+							limit: 2,
+							page: 1,
+						},
 					})
 					usernameEmbed = response.data
 					lastfmStatus = true

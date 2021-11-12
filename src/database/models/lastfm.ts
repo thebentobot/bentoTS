@@ -3,13 +3,13 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { user, userId } from './user'
 
 export interface lastfmAttributes {
-	userID: bigint;
-	lastfm: string;
+	userID: bigint
+	lastfm: string
 }
 
-export type lastfmPk = `userID`;
-export type lastfmId = lastfm[lastfmPk];
-export type lastfmCreationAttributes = Optional<lastfmAttributes, lastfmPk>;
+export type lastfmPk = `userID`
+export type lastfmId = lastfm[lastfmPk]
+export type lastfmCreationAttributes = Optional<lastfmAttributes, lastfmPk>
 
 export class lastfm extends Model<lastfmAttributes, lastfmCreationAttributes> implements lastfmAttributes {
 	userID!: bigint

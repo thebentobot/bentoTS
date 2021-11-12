@@ -19,7 +19,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel.send(
@@ -28,7 +31,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			const byeData = await bye.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const byeData = await bye.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			if (byeData !== null) {
 				if (byeData?.message && byeData?.channel) {
 					return message.channel.send(
@@ -54,7 +60,10 @@ export const command: Command = {
 			if (!args[1]) return message.channel.send(`Please write a bye message`)
 			const msg = args.slice(1).join(` `)
 
-			const byeData = await bye.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const byeData = await bye.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (byeData === null) {
 				const attr: byeCreationAttributes = {
@@ -92,7 +101,10 @@ export const command: Command = {
 				return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`)
 			}
 
-			const byeData = await bye.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const byeData = await bye.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (byeData === null) {
 				const attr: byeCreationAttributes = {

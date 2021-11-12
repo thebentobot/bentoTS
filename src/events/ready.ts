@@ -19,7 +19,9 @@ export const event: Event = {
 		console.log(`${client?.user?.tag} is online! Let's get this bread!`)
 
 		async function clientStatus() {
-			await client?.user?.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, { type: `PLAYING` })
+			await client?.user?.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {
+				type: `PLAYING`,
+			})
 
 			await axios.post(
 				`https://top.gg/api/bots/${client?.user?.id}/stats`,
@@ -58,9 +60,15 @@ export const event: Event = {
 					defaults: bentoAttrTarget,
 				})
 				if (vote.isWeekend === true) {
-					await bento.increment(`bento`, { by: 10, where: { userID: bentoDataTarget[0].userID } })
+					await bento.increment(`bento`, {
+						by: 10,
+						where: { userID: bentoDataTarget[0].userID },
+					})
 				} else {
-					await bento.increment(`bento`, { by: 5, where: { userID: bentoDataTarget[0].userID } })
+					await bento.increment(`bento`, {
+						by: 5,
+						where: { userID: bentoDataTarget[0].userID },
+					})
 				}
 				const webhookChannel: TextChannel = client.channels.cache.get(`881566124993544232`) as TextChannel
 				webhookChannel.send(
@@ -153,10 +161,16 @@ export const event: Event = {
 						return
 					}
 
-					const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: unmute.guildID } })
+					const muteRoleData = await muteRole.findOne({
+						raw: true,
+						where: { guildID: unmute.guildID },
+					})
 					const role = guild?.roles.cache.get(`${muteRoleData?.roleID}`)
 					try {
-						const channel = await modLog.findOne({ raw: true, where: { guildID: guild?.id } })
+						const channel = await modLog.findOne({
+							raw: true,
+							where: { guildID: guild?.id },
+						})
 						const logChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 						const embed = new MessageEmbed()
 							.setColor(`#00ff4a`)
@@ -210,13 +224,25 @@ export const event: Event = {
 							await member.roles.remove(role as Role)
 							await mute.update(
 								{ MuteStatus: false },
-								{ where: { userID: unmute.userID, guildID: unmute.guildID, MuteStatus: true } },
+								{
+									where: {
+										userID: unmute.userID,
+										guildID: unmute.guildID,
+										MuteStatus: true,
+									},
+								},
 							)
 						} catch {
 							await member.roles.remove(role as Role)
 							await mute.update(
 								{ MuteStatus: false },
-								{ where: { userID: unmute.userID, guildID: unmute.guildID, MuteStatus: true } },
+								{
+									where: {
+										userID: unmute.userID,
+										guildID: unmute.guildID,
+										MuteStatus: true,
+									},
+								},
 							)
 						}
 					} catch {
@@ -227,13 +253,25 @@ export const event: Event = {
 							await member.roles.remove(role as Role)
 							await mute.update(
 								{ MuteStatus: false },
-								{ where: { userID: unmute.userID, guildID: unmute.guildID, MuteStatus: true } },
+								{
+									where: {
+										userID: unmute.userID,
+										guildID: unmute.guildID,
+										MuteStatus: true,
+									},
+								},
 							)
 						} catch {
 							await member.roles.remove(role as Role)
 							await mute.update(
 								{ MuteStatus: false },
-								{ where: { userID: unmute.userID, guildID: unmute.guildID, MuteStatus: true } },
+								{
+									where: {
+										userID: unmute.userID,
+										guildID: unmute.guildID,
+										MuteStatus: true,
+									},
+								},
 							)
 						}
 					} finally {
@@ -274,7 +312,12 @@ export const event: Event = {
 						user = client.users.cache.get(`${remind.userID}`) as User
 						await user.send(`**Reminder!** ${remind.reminder}`).catch(() => console.error(`Could not send reminder DM`))
 						await reminder.destroy({
-							where: { id: remind.id, userID: remind.userID, reminder: remind.reminder, date: remind.date },
+							where: {
+								id: remind.id,
+								userID: remind.userID,
+								reminder: remind.reminder,
+								date: remind.date,
+							},
 						})
 					} catch {
 						return
