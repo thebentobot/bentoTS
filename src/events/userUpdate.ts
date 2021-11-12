@@ -14,7 +14,13 @@ export const event: Event = {
 		) {
 			try {
 				await user.update(
-					{ avatarURL: newUser.avatarURL({ dynamic: true, format: `png`, size: 1024 }) as string },
+					{
+						avatarURL: newUser.avatarURL({
+							dynamic: true,
+							format: `png`,
+							size: 1024,
+						}) as string,
+					},
 					{ where: { userID: oldUser.id } },
 				)
 			} catch {

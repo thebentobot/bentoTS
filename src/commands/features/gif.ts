@@ -2,7 +2,7 @@ import { Command, gfycatInterface, gfycatSearchInterface } from '../../interface
 import axios from 'axios'
 import utf8 from 'utf8'
 import database from '../../database/database'
-import { initModels, guild, gfycatBlacklist } from '../../database/models/init-models'
+import { initModels, guild, gfycatBlacklist, gfycatWordList } from '../../database/models/init-models'
 import * as dotenv from 'dotenv'
 import { Message, MessageReaction, TextChannel, User } from 'discord.js'
 import naughtyWords from 'naughty-words/en.json'
@@ -50,7 +50,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildDB = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildDB = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (guildDB?.media === false) return
 
@@ -67,7 +70,11 @@ export const command: Command = {
 				filter = `off`
 			}
 			const response = await tenorAPI.get(`/search`, {
-				params: { q: utf8.encode(query), key: process.env.TENORKEY, contentfilter: filter },
+				params: {
+					q: utf8.encode(query),
+					key: process.env.TENORKEY,
+					contentfilter: filter,
+				},
 			})
 			const index = Math.floor(Math.random() * response.data.results.length)
 			if (!response.data.results.length) {
@@ -82,6 +89,7 @@ export const command: Command = {
 		let count = 15
 
 		const blacklistData = await gfycatBlacklist.findAll()
+		const wordListData = await gfycatWordList.findAll()
 
 		if (args.includes(`--multi`)) {
 			let getNumber = args.join(` `)
@@ -100,10 +108,16 @@ export const command: Command = {
 		if (badWordCheck.some((msg) => naughtyWords.includes(msg)))
 			return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
 
+		if (badWordCheck.some((msg) => wordListData.some((badWord) => badWord.word === msg)))
+			return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
+
 		const query: string = messageParse.join(` `)
 
 		const response = await gfycatAPI.get<gfycatSearchInterface>(`gfycats/search`, {
-			params: { search_text: utf8.encode(query), count: returnMultipleGifs === true ? count : 50 },
+			params: {
+				search_text: utf8.encode(query),
+				count: returnMultipleGifs === true ? count : 50,
+			},
 			headers: { Authorization: `Bearer ${gfycatToken}` },
 		})
 		if (!response.data.gfycats.length) {
@@ -161,7 +175,10 @@ export const command: Command = {
 				await queueEmbed.react(`❌`)
 				const filter = (reaction: MessageReaction, user: User) =>
 					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-				const collector = queueEmbed.createReactionCollector(filter, { idle: 900000, dispose: true })
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 900000,
+					dispose: true,
+				})
 
 				collector.on(`collect`, async (reaction, user) => {
 					if (reaction.emoji.name === `➡️`) {

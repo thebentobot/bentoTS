@@ -140,20 +140,44 @@ export const command: Command = {
 						where: { userID: userID, guildID: message.guild?.id },
 						order: [[`date`, `DESC`]],
 					})
-					const overviewObject = { bans: bans, kicks: kicks, mutes: mutes, warnings: warnings, status: `local` }
+					const overviewObject = {
+						bans: bans,
+						kicks: kicks,
+						mutes: mutes,
+						warnings: warnings,
+						status: `local`,
+					}
 					const embeds = generateOverviewEmbedding(overviewObject)
 					return await message.channel.send(await embeds)
 				} else {
 					initModels(database)
-					const bans = await ban.findAndCountAll({ raw: true, where: { userID: userID }, order: [[`date`, `DESC`]] })
-					const kicks = await kick.findAndCountAll({ raw: true, where: { userID: userID }, order: [[`date`, `DESC`]] })
-					const mutes = await mute.findAndCountAll({ raw: true, where: { userID: userID }, order: [[`date`, `DESC`]] })
+					const bans = await ban.findAndCountAll({
+						raw: true,
+						where: { userID: userID },
+						order: [[`date`, `DESC`]],
+					})
+					const kicks = await kick.findAndCountAll({
+						raw: true,
+						where: { userID: userID },
+						order: [[`date`, `DESC`]],
+					})
+					const mutes = await mute.findAndCountAll({
+						raw: true,
+						where: { userID: userID },
+						order: [[`date`, `DESC`]],
+					})
 					const warnings = await warning.findAndCountAll({
 						raw: true,
 						where: { userID: userID },
 						order: [[`date`, `DESC`]],
 					})
-					const overviewObject = { bans: bans, kicks: kicks, mutes: mutes, warnings: warnings, status: `global` }
+					const overviewObject = {
+						bans: bans,
+						kicks: kicks,
+						mutes: mutes,
+						warnings: warnings,
+						status: `global`,
+					}
 					const embeds = generateOverviewEmbedding(overviewObject)
 					return await message.channel.send(await embeds)
 				}
@@ -182,7 +206,11 @@ export const command: Command = {
             FROM ${caseType}
             WHERE ${caseType}."userID" = :user${!global ? ` AND ${caseType}."guildID" = :guild;` : `;`}`,
 				{
-					replacements: { case: theCaseType, user: userID, guild: message.guild?.id },
+					replacements: {
+						case: theCaseType,
+						user: userID,
+						guild: message.guild?.id,
+					},
 					type: QueryTypes.SELECT,
 				},
 			)
@@ -237,7 +265,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -301,13 +332,21 @@ export const command: Command = {
 						caseUserNickname = data?.nickname ? data?.nickname : ``
 						caseUsername = data.user.username
 						caseUserDiscri = data.user.discriminator
-						caseUserPfp = data.user.avatarURL({ format: `png`, size: 1024, dynamic: true })
+						caseUserPfp = data.user.avatarURL({
+							format: `png`,
+							size: 1024,
+							dynamic: true,
+						})
 					} catch {
 						try {
 							const data = client.users.cache.get(`${current.userID}`) as User
 							caseUsername = data.username
 							caseUserDiscri = data.discriminator
-							caseUserPfp = data.avatarURL({ format: `png`, size: 1024, dynamic: true })
+							caseUserPfp = data.avatarURL({
+								format: `png`,
+								size: 1024,
+								dynamic: true,
+							})
 						} catch {
 							caseUsername = `Username`
 							caseUserDiscri = `Not in our system`
@@ -377,7 +416,10 @@ export const command: Command = {
 						}
 						embeds.push(embed)
 					} else {
-						const caseGlobalData = await caseGlobal.findOne({ raw: true, where: { guildID: current.guildID } })
+						const caseGlobalData = await caseGlobal.findOne({
+							raw: true,
+							where: { guildID: current.guildID },
+						})
 						const embed = new MessageEmbed()
 						embed.setAuthor(
 							caseGlobalData?.serverName === true
@@ -657,13 +699,21 @@ export const command: Command = {
 				caseUserNickname = data?.nickname ? data?.nickname : ``
 				caseUsername = data.user.username
 				caseUserDiscri = data.user.discriminator
-				caseUserPfp = data.user.avatarURL({ format: `png`, size: 1024, dynamic: true })
+				caseUserPfp = data.user.avatarURL({
+					format: `png`,
+					size: 1024,
+					dynamic: true,
+				})
 			} catch {
 				try {
 					const data = client.users.cache.get(`${caseQuery[0].userID}`) as User
 					caseUsername = data.username
 					caseUserDiscri = data.discriminator
-					caseUserPfp = data.avatarURL({ format: `png`, size: 1024, dynamic: true })
+					caseUserPfp = data.avatarURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					})
 				} catch {
 					caseUsername = `Username`
 					caseUserDiscri = `Not in our system`
@@ -827,13 +877,21 @@ export const command: Command = {
 				caseUserNickname = data?.nickname ? data?.nickname : ``
 				caseUsername = data.user.username
 				caseUserDiscri = data.user.discriminator
-				caseUserPfp = data.user.avatarURL({ format: `png`, size: 1024, dynamic: true })
+				caseUserPfp = data.user.avatarURL({
+					format: `png`,
+					size: 1024,
+					dynamic: true,
+				})
 			} catch {
 				try {
 					const data = client.users.cache.get(`${testCaseQuery[0].userID}`) as User
 					caseUsername = data.username
 					caseUserDiscri = data.discriminator
-					caseUserPfp = data.avatarURL({ format: `png`, size: 1024, dynamic: true })
+					caseUserPfp = data.avatarURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					})
 				} catch {
 					caseUsername = `Username`
 					caseUserDiscri = `Not in our system`
@@ -845,7 +903,10 @@ export const command: Command = {
 				if (column === `note`) {
 					const banUpdate = await ban.update(
 						{ note: editedContent },
-						{ where: { guildID: message.guild.id, banCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, banCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (banUpdate[0] === 0) {
 						return message.channel.send(
@@ -886,7 +947,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -899,7 +963,10 @@ export const command: Command = {
 				if (column === `reason`) {
 					const banUpdate = await ban.update(
 						{ reason: editedContent },
-						{ where: { guildID: message.guild.id, banCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, banCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (banUpdate[0] === 0) {
 						return message.channel.send(
@@ -937,7 +1004,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -952,7 +1022,10 @@ export const command: Command = {
 				if (column === `note`) {
 					const kickUpdate = await kick.update(
 						{ note: editedContent },
-						{ where: { guildID: message.guild.id, kickCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, kickCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (kickUpdate[0] === 0) {
 						return message.channel.send(
@@ -960,7 +1033,13 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild?.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setAuthor(
+							message.guild.name,
+							message.guild?.iconURL({
+								format: `png`,
+								dynamic: true,
+							}) as string,
+						)
 						embed.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
@@ -993,7 +1072,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -1006,7 +1088,10 @@ export const command: Command = {
 				if (column === `reason`) {
 					const kickUpdate = await kick.update(
 						{ reason: editedContent },
-						{ where: { guildID: message.guild.id, kickCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, kickCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (kickUpdate[0] === 0) {
 						return message.channel.send(
@@ -1044,7 +1129,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -1059,7 +1147,10 @@ export const command: Command = {
 				if (column === `note`) {
 					const muteUpdate = await mute.update(
 						{ note: editedContent },
-						{ where: { guildID: message.guild.id, muteCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, muteCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (muteUpdate[0] === 0) {
 						return message.channel.send(
@@ -1067,7 +1158,13 @@ export const command: Command = {
 						)
 					} else {
 						const embed = new MessageEmbed()
-						embed.setAuthor(message.guild.name, message.guild?.iconURL({ format: `png`, dynamic: true }) as string)
+						embed.setAuthor(
+							message.guild.name,
+							message.guild?.iconURL({
+								format: `png`,
+								dynamic: true,
+							}) as string,
+						)
 						embed.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 						embed.setTimestamp()
 						embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
@@ -1105,7 +1202,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -1118,7 +1218,10 @@ export const command: Command = {
 				if (column === `reason`) {
 					const muteUpdate = await mute.update(
 						{ note: editedContent },
-						{ where: { guildID: message.guild.id, muteCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, muteCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (muteUpdate[0] === 0) {
 						return message.channel.send(
@@ -1161,7 +1264,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -1180,7 +1286,10 @@ export const command: Command = {
 					}
 					const muteUpdate = await mute.update(
 						{ MuteStatus: muteStatusConv },
-						{ where: { guildID: message.guild.id, muteCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, muteCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (muteUpdate[0] === 0) {
 						return message.channel.send(
@@ -1225,7 +1334,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -1240,7 +1352,10 @@ export const command: Command = {
 				if (column === `note`) {
 					const warningUpdate = await warning.update(
 						{ note: editedContent },
-						{ where: { guildID: message.guild.id, warningCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, warningCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (warningUpdate[0] === 0) {
 						return message.channel.send(
@@ -1281,7 +1396,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -1294,7 +1412,10 @@ export const command: Command = {
 				if (column === `reason`) {
 					const warningUpdate = await warning.update(
 						{ note: editedContent },
-						{ where: { guildID: message.guild.id, warningCase: caseNumbered }, returning: true },
+						{
+							where: { guildID: message.guild.id, warningCase: caseNumbered },
+							returning: true,
+						},
 					)
 					if (warningUpdate[0] === 0) {
 						return message.channel.send(
@@ -1332,7 +1453,10 @@ export const command: Command = {
 							client.user?.avatarURL({ format: `png` }) as string,
 						)
 						try {
-							const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild.id } })
+							const channel = await modLog.findOne({
+								raw: true,
+								where: { guildID: message.guild.id },
+							})
 							const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 							await logChannel.send(embed)
 							return await message.channel.send(embed)
@@ -1411,13 +1535,21 @@ export const command: Command = {
 				actorNickname = data?.nickname ? data?.nickname : ``
 				actorUsername = data.user.username
 				actorDiscri = data.user.discriminator
-				actorPfp = data.user.avatarURL({ format: `png`, size: 1024, dynamic: true })
+				actorPfp = data.user.avatarURL({
+					format: `png`,
+					size: 1024,
+					dynamic: true,
+				})
 			} catch {
 				try {
 					const data = client.users.cache.get(`${testCaseQuery[0].actor}`) as User
 					actorUsername = data.username
 					actorDiscri = data.discriminator
-					actorPfp = data.avatarURL({ format: `png`, size: 1024, dynamic: true })
+					actorPfp = data.avatarURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					})
 				} catch {
 					actorUsername = `Username`
 					actorDiscri = `Not in our system`
@@ -1429,13 +1561,21 @@ export const command: Command = {
 				caseUserNickname = data?.nickname ? data?.nickname : ``
 				caseUsername = data.user.username
 				caseUserDiscri = data.user.discriminator
-				caseUserPfp = data.user.avatarURL({ format: `png`, size: 1024, dynamic: true })
+				caseUserPfp = data.user.avatarURL({
+					format: `png`,
+					size: 1024,
+					dynamic: true,
+				})
 			} catch {
 				try {
 					const data = client.users.cache.get(`${testCaseQuery[0].userID}`) as User
 					caseUsername = data.username
 					caseUserDiscri = data.discriminator
-					caseUserPfp = data.avatarURL({ format: `png`, size: 1024, dynamic: true })
+					caseUserPfp = data.avatarURL({
+						format: `png`,
+						size: 1024,
+						dynamic: true,
+					})
 				} catch {
 					caseUsername = `Username`
 					caseUserDiscri = `Not in our system`
@@ -1506,14 +1646,19 @@ export const command: Command = {
 			await confirmEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`✅`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = confirmEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = confirmEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `✅`) {
 					reaction.users.remove(user)
 					let newEmbed = new MessageEmbed()
 					if (caseType === `ban`) {
-						const banDelete = await ban.destroy({ where: { guildID: message.guild?.id, banCase: caseNumbered } })
+						const banDelete = await ban.destroy({
+							where: { guildID: message.guild?.id, banCase: caseNumbered },
+						})
 						if (banDelete === 0) {
 							newEmbed = new MessageEmbed()
 								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
@@ -1541,7 +1686,9 @@ export const command: Command = {
 						}
 					}
 					if (caseType === `kick`) {
-						const kickDelete = await kick.destroy({ where: { guildID: message.guild?.id, kickCase: caseNumbered } })
+						const kickDelete = await kick.destroy({
+							where: { guildID: message.guild?.id, kickCase: caseNumbered },
+						})
 						if (kickDelete === 0) {
 							newEmbed = new MessageEmbed()
 								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
@@ -1569,7 +1716,9 @@ export const command: Command = {
 						}
 					}
 					if (caseType === `mute`) {
-						const muteDelete = await mute.destroy({ where: { guildID: message.guild?.id, muteCase: caseNumbered } })
+						const muteDelete = await mute.destroy({
+							where: { guildID: message.guild?.id, muteCase: caseNumbered },
+						})
 						if (muteDelete === 0) {
 							newEmbed = new MessageEmbed()
 								.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)
@@ -1596,7 +1745,10 @@ export const command: Command = {
 								)
 						}
 						const unmutedUser = await message.guild?.members.fetch(`${testCaseQuery[0].userID}`)
-						const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const muteRoleData = await muteRole.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
 						const role = message.guild?.roles.cache.get(`${muteRoleData?.roleID}`)
 						await unmutedUser?.roles.remove(role as Role)
 					}
@@ -1631,7 +1783,10 @@ export const command: Command = {
 						}
 					}
 					try {
-						const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const channel = await modLog.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
 						const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 						const deletedDataEmbed = new MessageEmbed()
 						deletedDataEmbed.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
@@ -1829,7 +1984,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -1887,13 +2045,21 @@ export const command: Command = {
 						caseUserNickname = data?.nickname ? data?.nickname : ``
 						caseUsername = data.user.username
 						caseUserDiscri = data.user.discriminator
-						caseUserPfp = data.user.avatarURL({ format: `png`, size: 1024, dynamic: true })
+						caseUserPfp = data.user.avatarURL({
+							format: `png`,
+							size: 1024,
+							dynamic: true,
+						})
 					} catch {
 						try {
 							const data = client.users.cache.get(`${current.userID}`) as User
 							caseUsername = data.username
 							caseUserDiscri = data.discriminator
-							caseUserPfp = data.avatarURL({ format: `png`, size: 1024, dynamic: true })
+							caseUserPfp = data.avatarURL({
+								format: `png`,
+								size: 1024,
+								dynamic: true,
+							})
 						} catch {
 							caseUsername = `Username`
 							caseUserDiscri = `Not in our system`
@@ -2022,7 +2188,11 @@ export const command: Command = {
             WHERE "guildID" = :guild${firstDate ? ` AND date >= :startDate AND date < :endDate` : ``}
             ORDER BY date DESC;`,
 				{
-					replacements: { guild: message.guild?.id, startDate: firstDate, endDate: secondDate },
+					replacements: {
+						guild: message.guild?.id,
+						startDate: firstDate,
+						endDate: secondDate,
+					},
 					type: QueryTypes.SELECT,
 				},
 			)
@@ -2044,7 +2214,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -2141,8 +2314,16 @@ export const command: Command = {
 							}`,
 						)
 						.setThumbnail(
-							message.guild?.iconURL({ format: `png`, dynamic: true, size: 1024 })
-								? (message.guild?.iconURL({ format: `png`, dynamic: true, size: 1024 }) as string)
+							message.guild?.iconURL({
+								format: `png`,
+								dynamic: true,
+								size: 1024,
+							})
+								? (message.guild?.iconURL({
+										format: `png`,
+										dynamic: true,
+										size: 1024,
+								  }) as string)
 								: ``,
 						)
 						.setAuthor(client.user?.username, client.user?.avatarURL({ format: `png` }) as string)

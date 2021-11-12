@@ -36,7 +36,10 @@ export const command: Command = {
 				let bentoData: bento | null
 				let then: Date
 				try {
-					bentoData = await bento.findOne({ raw: true, where: { userID: message.author.id } })
+					bentoData = await bento.findOne({
+						raw: true,
+						where: { userID: message.author.id },
+					})
 					then = new Date(bentoData?.bentoDate as Date)
 				} catch {
 					return message.channel.send(
@@ -90,7 +93,11 @@ export const command: Command = {
 						username: getUser?.user.username,
 						xp: 0,
 						level: 1,
-						avatarURL: getUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+						avatarURL: getUser?.user.avatarURL({
+							format: `png`,
+							dynamic: true,
+							size: 1024,
+						}) as string,
 					}
 
 					const guildMemberAttr: guildMemberCreationAttributes = {
@@ -98,9 +105,16 @@ export const command: Command = {
 						guildID: BigInt(message?.guild?.id as string),
 						xp: 0,
 						level: 1,
-						avatarURL: getUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+						avatarURL: getUser?.user.avatarURL({
+							format: `png`,
+							dynamic: true,
+							size: 1024,
+						}) as string,
 					}
-					await userDB.findOrCreate({ where: { userID: getUser?.id }, defaults: userAttr })
+					await userDB.findOrCreate({
+						where: { userID: getUser?.id },
+						defaults: userAttr,
+					})
 					await guildMember.findOrCreate({
 						where: { userID: getUser?.id, guildID: message?.guild?.id },
 						defaults: guildMemberAttr,
@@ -161,7 +175,10 @@ export const command: Command = {
 						where: { userID: mentionedUser?.id },
 						defaults: bentoAttrTarget,
 					})
-					const patreonUser = await patreon.findOne({ raw: true, where: { userID: bentoDataTarget[0].userID } })
+					const patreonUser = await patreon.findOne({
+						raw: true,
+						where: { userID: bentoDataTarget[0].userID },
+					})
 					if (patreonUser) {
 						if (patreonUser.follower === true) {
 							const targetIncrement = await bento.increment(`bento`, {

@@ -19,7 +19,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel.send(
@@ -28,7 +31,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const muteRoleData = await muteRole.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			if (muteRoleData !== null) {
 				return message.channel.send(`
             mute role is currently \`${muteRoleData.roleID ? `Enabled` : `Disabled`}\` on this server.`)
@@ -49,7 +55,10 @@ export const command: Command = {
 				return message.channel.send(`Your role id ${args[1]} was invalid.\nPlease use a valid role id.`)
 			}
 
-			const roleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const roleData = await muteRole.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (roleData === null) {
 				const attr: muteRoleCreationAttributes = {

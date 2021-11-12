@@ -79,7 +79,10 @@ export const command: Command = {
 			if (horoSigns.includes(input) || horoSignsLow.includes(input)) {
 				sign = capitalize(input)
 			} else {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Your request was invalid. You wrote the wrong sign or misspelled the sign.\nUse \`${guildData?.prefix}signs\` to see a list of horoscopes, or \`${guildData?.prefix}help horoscope\` for help with your request.`,
 				)
@@ -303,7 +306,10 @@ export const command: Command = {
 					if (mentionedUser?.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
 					userID = mentionedUser?.id
 					try {
-						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
+						const horoData = await horoscope.findOne({
+							raw: true,
+							where: { userID: userID },
+						})
 						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						sign = horoData!.horoscope
 					} catch {
@@ -313,11 +319,17 @@ export const command: Command = {
 					}
 				} catch {
 					try {
-						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
+						const horoData = await horoscope.findOne({
+							raw: true,
+							where: { userID: message.author.id },
+						})
 						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						sign = horoData!.horoscope
 					} catch {
-						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const guildData = await guild.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
 						return message.channel.send(
 							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData?.prefix}help horoscope\` for help with your request.`,
 						)
@@ -333,17 +345,32 @@ export const command: Command = {
 						`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 						userID
 							? (message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png`, dynamic: true }) as string)
-							: (message.author.avatarURL({ format: `png`, dynamic: true }) as string),
+							: (message.author.avatarURL({
+									format: `png`,
+									dynamic: true,
+							  }) as string),
 					)
 					.setTitle(`${capitalize(sign as string)} horoscope for ${res.current_date}`)
 					.setDescription(res.description)
 					.setTimestamp()
 					.addFields(
-						{ name: `Date Range`, value: `Between ${res.date_range}`, inline: true },
-						{ name: `Compatibility 😳`, value: `${res.compatibility} 😏`, inline: true },
+						{
+							name: `Date Range`,
+							value: `Between ${res.date_range}`,
+							inline: true,
+						},
+						{
+							name: `Compatibility 😳`,
+							value: `${res.compatibility} 😏`,
+							inline: true,
+						},
 						{ name: `Mood`, value: `${res.mood}`, inline: true },
 						{ name: `Colour`, value: `${res.color}`, inline: true },
-						{ name: `Lucky number`, value: `${res.lucky_number}`, inline: true },
+						{
+							name: `Lucky number`,
+							value: `${res.lucky_number}`,
+							inline: true,
+						},
 						{ name: `Lucky time`, value: `${res.lucky_time}`, inline: true },
 					)
 				try {
@@ -383,7 +410,10 @@ export const command: Command = {
 					if (mentionedUser?.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
 					userID = mentionedUser?.id
 					try {
-						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
+						const horoData = await horoscope.findOne({
+							raw: true,
+							where: { userID: userID },
+						})
 						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						sign = horoData!.horoscope
 					} catch {
@@ -393,11 +423,17 @@ export const command: Command = {
 					}
 				} catch {
 					try {
-						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
+						const horoData = await horoscope.findOne({
+							raw: true,
+							where: { userID: message.author.id },
+						})
 						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						sign = horoData!.horoscope
 					} catch {
-						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const guildData = await guild.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
 						return message.channel.send(
 							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData?.prefix}help horoscope\` for help with your request.`,
 						)
@@ -413,17 +449,32 @@ export const command: Command = {
 						`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 						userID
 							? (message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png`, dynamic: true }) as string)
-							: (message.author.avatarURL({ format: `png`, dynamic: true }) as string),
+							: (message.author.avatarURL({
+									format: `png`,
+									dynamic: true,
+							  }) as string),
 					)
 					.setTitle(`${capitalize(sign as string)} horoscope for ${res.current_date}`)
 					.setDescription(res.description)
 					.setTimestamp()
 					.addFields(
-						{ name: `Date Range`, value: `Between ${res.date_range}`, inline: true },
-						{ name: `Compatibility 😳`, value: `${res.compatibility} 😏`, inline: true },
+						{
+							name: `Date Range`,
+							value: `Between ${res.date_range}`,
+							inline: true,
+						},
+						{
+							name: `Compatibility 😳`,
+							value: `${res.compatibility} 😏`,
+							inline: true,
+						},
 						{ name: `Mood`, value: `${res.mood}`, inline: true },
 						{ name: `Colour`, value: `${res.color}`, inline: true },
-						{ name: `Lucky number`, value: `${res.lucky_number}`, inline: true },
+						{
+							name: `Lucky number`,
+							value: `${res.lucky_number}`,
+							inline: true,
+						},
 						{ name: `Lucky time`, value: `${res.lucky_time}`, inline: true },
 					)
 				try {
@@ -463,7 +514,10 @@ export const command: Command = {
 					if (mentionedUser?.user.bot === true) return message.channel.send(`A bot doesn't have a horoscope`)
 					userID = mentionedUser?.id
 					try {
-						const horoData = await horoscope.findOne({ raw: true, where: { userID: userID } })
+						const horoData = await horoscope.findOne({
+							raw: true,
+							where: { userID: userID },
+						})
 						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						sign = horoData!.horoscope
 					} catch {
@@ -473,11 +527,17 @@ export const command: Command = {
 					}
 				} catch {
 					try {
-						const horoData = await horoscope.findOne({ raw: true, where: { userID: message.author.id } })
+						const horoData = await horoscope.findOne({
+							raw: true,
+							where: { userID: message.author.id },
+						})
 						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						sign = horoData!.horoscope
 					} catch {
-						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const guildData = await guild.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
 						return message.channel.send(
 							`Your request was invalid. Either you wrote the wrong sign or the user you inserted hasn't saved their sign.\nUse \`${guildData?.prefix}help horoscope\` for help with your request.`,
 						)
@@ -493,17 +553,32 @@ export const command: Command = {
 						`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 						userID
 							? (message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png`, dynamic: true }) as string)
-							: (message.author.avatarURL({ format: `png`, dynamic: true }) as string),
+							: (message.author.avatarURL({
+									format: `png`,
+									dynamic: true,
+							  }) as string),
 					)
 					.setTitle(`${capitalize(sign as string)} horoscope for ${res.current_date}`)
 					.setDescription(res.description)
 					.setTimestamp()
 					.addFields(
-						{ name: `Date Range`, value: `Between ${res.date_range}`, inline: true },
-						{ name: `Compatibility 😳`, value: `${res.compatibility} 😏`, inline: true },
+						{
+							name: `Date Range`,
+							value: `Between ${res.date_range}`,
+							inline: true,
+						},
+						{
+							name: `Compatibility 😳`,
+							value: `${res.compatibility} 😏`,
+							inline: true,
+						},
 						{ name: `Mood`, value: `${res.mood}`, inline: true },
 						{ name: `Colour`, value: `${res.color}`, inline: true },
-						{ name: `Lucky number`, value: `${res.lucky_number}`, inline: true },
+						{
+							name: `Lucky number`,
+							value: `${res.lucky_number}`,
+							inline: true,
+						},
 						{ name: `Lucky time`, value: `${res.lucky_time}`, inline: true },
 					)
 				try {
@@ -560,7 +635,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {

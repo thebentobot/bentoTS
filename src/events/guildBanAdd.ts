@@ -23,7 +23,9 @@ export const event: Event = {
 		// the ban command inserts the record into the ban table
 		await guildMember.destroy({ where: { guildID: guild.id, userID: user.id } })
 
-		const guildMemberData = await guildMember.findAll({ where: { userID: user.id } })
+		const guildMemberData = await guildMember.findAll({
+			where: { userID: user.id },
+		})
 		if (1 > guildMemberData.length) {
 			await bento.destroy({ where: { userID: user.id } })
 			await rpsGame.destroy({ where: { userID: user.id } })

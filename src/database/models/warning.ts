@@ -3,18 +3,18 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface warningAttributes {
-	warningCase?: number;
-	userID: bigint;
-	guildID: bigint;
-	date?: Date;
-	note?: string;
-	actor: bigint;
-	reason?: string;
+	warningCase?: number
+	userID: bigint
+	guildID: bigint
+	date?: Date
+	note?: string
+	actor: bigint
+	reason?: string
 }
 
-export type warningPk = `warningCase`;
-export type warningId = warning[warningPk];
-export type warningCreationAttributes = Optional<warningAttributes, warningPk>;
+export type warningPk = `warningCase`
+export type warningId = warning[warningPk]
+export type warningCreationAttributes = Optional<warningAttributes, warningPk>
 
 export class warning extends Model<warningAttributes, warningCreationAttributes> implements warningAttributes {
 	warningCase?: number

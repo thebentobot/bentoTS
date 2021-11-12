@@ -18,11 +18,25 @@ export const command: Command = {
 				.setThumbnail(message.author.avatarURL({ format: `png`, dynamic: true }) as string)
 				.setTimestamp()
 				.addFields(
-					{ name: `Nickname on the server`, value: message.member?.displayName },
-					{ name: `Last message`, value: message.author.lastMessage, inline: true },
+					{
+						name: `Nickname on the server`,
+						value: message.member?.displayName,
+					},
+					{
+						name: `Last message`,
+						value: message.author.lastMessage,
+						inline: true,
+					},
 					{ name: `User ID`, value: message.author.id },
-					{ name: `Account created on`, value: `<t:${moment(message.author.createdAt).format(`X`)}:F>` },
-					{ name: `Joined server at`, value: `<t:${moment(message.member?.joinedAt).format(`X`)}:F>`, inline: true },
+					{
+						name: `Account created on`,
+						value: `<t:${moment(message.author.createdAt).format(`X`)}:F>`,
+					},
+					{
+						name: `Joined server at`,
+						value: `<t:${moment(message.member?.joinedAt).format(`X`)}:F>`,
+						inline: true,
+					},
 					{ name: `Highest role`, value: message.member?.roles.highest },
 					{
 						name: `All roles`,
@@ -49,8 +63,15 @@ export const command: Command = {
 						{ name: `Nickname on the server`, value: user?.displayName },
 						{ name: `Last message`, value: user?.lastMessage, inline: true },
 						{ name: `User ID`, value: user?.id },
-						{ name: `Account created on`, value: `<t:${moment(user?.user.createdAt).format(`X`)}:F>` },
-						{ name: `Joined server at`, value: `<t:${moment(user?.joinedAt).format(`X`)}:F>`, inline: true },
+						{
+							name: `Account created on`,
+							value: `<t:${moment(user?.user.createdAt).format(`X`)}:F>`,
+						},
+						{
+							name: `Joined server at`,
+							value: `<t:${moment(user?.joinedAt).format(`X`)}:F>`,
+							inline: true,
+						},
 						{ name: `Highest role`, value: user?.roles.highest },
 						{
 							name: `All roles`,
@@ -72,7 +93,10 @@ export const command: Command = {
 						.setTimestamp()
 						.addFields(
 							{ name: `User ID`, value: globalUser },
-							{ name: `Account created on`, value: `<t:${moment(globalUser.createdAt).format(`X`)}:F>` },
+							{
+								name: `Account created on`,
+								value: `<t:${moment(globalUser.createdAt).format(`X`)}:F>`,
+							},
 						)
 					return message.channel.send(embed)
 				} catch {

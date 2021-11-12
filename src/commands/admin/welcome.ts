@@ -19,7 +19,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel.send(
@@ -28,7 +31,10 @@ export const command: Command = {
 		}
 
 		if (args[0] === `status`) {
-			const welcomeData = await welcome.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const welcomeData = await welcome.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			if (welcomeData !== null) {
 				if (welcomeData.message && welcomeData.channel) {
 					return message.channel.send(`
@@ -51,7 +57,10 @@ export const command: Command = {
 			if (!args[1]) return message.channel.send(`Please write a welcome message`)
 			const msg = args.slice(1).join(` `)
 
-			const welcomeData = await welcome.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const welcomeData = await welcome.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (welcomeData === null) {
 				const attr: welcomeCreationAttributes = {
@@ -88,7 +97,10 @@ export const command: Command = {
 				return message.channel.send(`Your channel id ${args[1]} was invalid.\nPlease use a valid channel id.`)
 			}
 
-			const welcomeData = await welcome.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const welcomeData = await welcome.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (welcomeData === null) {
 				const attr: welcomeCreationAttributes = {

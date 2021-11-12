@@ -19,7 +19,10 @@ export const command: Command = {
 	run: async (client, message, args): Promise<Message | undefined> => {
 		if (!args.length) {
 			initModels(database)
-			const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const guildData = await guild.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			return message.channel.send(
 				`If you need help with tags, please use \`${guildData?.prefix}help tag\` to see instructions`,
 			)
@@ -95,7 +98,10 @@ export const command: Command = {
 
 		if (args[0]) {
 			initModels(database)
-			const customCommand = await tag.findOne({ raw: true, where: { guildID: message.guild?.id, command: args[0] } })
+			const customCommand = await tag.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id, command: args[0] },
+			})
 			if (customCommand) {
 				await tag.increment(`count`, {
 					where: {
@@ -107,7 +113,10 @@ export const command: Command = {
 				})
 				return message.channel.send(customCommand.content)
 			} else {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`Sorry, the tag ${args[0]} is not a tag on this server.\nIf you didn't intent to get a tag, please use \`${guildData?.prefix}help tag\` for help with tags.`,
 				)
@@ -198,10 +207,16 @@ export const command: Command = {
 			const tagName = nameOfTag?.toLowerCase()
 			initModels(database)
 
-			const tagData = await tag.findOne({ raw: true, where: { guildID: message.guild?.id, command: tagName } })
+			const tagData = await tag.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id, command: tagName },
+			})
 
 			if (tagData === null) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
 				)
@@ -218,7 +233,10 @@ export const command: Command = {
 				})
 				return message.channel.send(`Successfully deleted the tag \`${tagName}\``)
 			} else {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					// eslint-disable-next-line no-useless-escape
 					`You are not authorised to delete this tag.\nCheck who owns this tag by using the command \´${guildData?.prefix}tag info ${tagName}\´`,
@@ -230,17 +248,26 @@ export const command: Command = {
 			const tagName = nameOfTag?.toLowerCase()
 			initModels(database)
 
-			const tagData = await tag.findOne({ raw: true, where: { guildID: message.guild?.id, command: tagName } })
+			const tagData = await tag.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id, command: tagName },
+			})
 
 			if (tagData === null) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
 				)
 			}
 
 			if (message.author.id !== `${tagData.userID}` || !message.member?.permissions.has(`BAN_MEMBERS`)) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`You are not authorised to edit this tag.\nCheck who owns this tag by using the command ${guildData?.prefix}tag info ${tagName}`,
 				)
@@ -271,7 +298,13 @@ export const command: Command = {
 
 			await tag.update(
 				{ content: tagContent },
-				{ where: { guildID: tagData.guildID, userID: tagData.userID, command: tagData.command } },
+				{
+					where: {
+						guildID: tagData.guildID,
+						userID: tagData.userID,
+						command: tagData.command,
+					},
+				},
 			)
 			return message.channel.send(`The tag \`${tagData.command}\` got updated!\nThe content is now: \`${tagContent}\``)
 		}
@@ -280,10 +313,16 @@ export const command: Command = {
 			const tagName = nameOfTag?.toLowerCase()
 			initModels(database)
 
-			const tagData = await tag.findOne({ raw: true, where: { guildID: message.guild?.id, command: tagName } })
+			const tagData = await tag.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id, command: tagName },
+			})
 
 			if (tagData === null) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
 				)
@@ -346,7 +385,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -416,7 +458,10 @@ export const command: Command = {
                 FROM tag
                 WHERE "guildID" = :guild AND command LIKE :query`,
 					{
-						replacements: { guild: message.guild?.id, query: `%` + query + `%` },
+						replacements: {
+							guild: message.guild?.id,
+							query: `%` + query + `%`,
+						},
 						type: QueryTypes.SELECT,
 					},
 				)
@@ -453,17 +498,26 @@ export const command: Command = {
 
 			initModels(database)
 
-			const oldTagData = await tag.findOne({ raw: true, where: { guildID: message.guild?.id, command: oldTagName } })
+			const oldTagData = await tag.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id, command: oldTagName },
+			})
 
 			if (oldTagData === null) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`The tag name \`${oldTagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
 				)
 			}
 
 			if (!message.member?.permissions.has(`MANAGE_GUILD`) || message.author.id !== `${oldTagData.userID}`) {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`You are not authorised to rename this tag.\nCheck who owns this tag by using the command ${guildData?.prefix}tag info ${oldTagName}`,
 				)
@@ -494,12 +548,21 @@ export const command: Command = {
 				)
 			}
 
-			const NewTagData = await tag.findOne({ raw: true, where: { guildID: message.guild?.id, command: newTagName } })
+			const NewTagData = await tag.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id, command: newTagName },
+			})
 
 			if (NewTagData === null) {
 				await tag.update(
 					{ command: newTagName },
-					{ where: { guildID: oldTagData.guildID, userID: oldTagData.userID, command: oldTagData.command } },
+					{
+						where: {
+							guildID: oldTagData.guildID,
+							userID: oldTagData.userID,
+							command: oldTagData.command,
+						},
+					},
 				)
 				return message.channel.send(`The tag \`${oldTagName}\` got rename!\nThe tag is now called: \`${newTagName}\``)
 			}
@@ -534,7 +597,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -630,13 +696,19 @@ export const command: Command = {
 					commands = tagData.rows
 					commandCount = tagData.count
 					if (tagData?.count === 0) {
-						const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+						const guildData = await guild.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
 						return message.channel.send(
 							`You haven't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
 						)
 					}
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`You haven't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
 					)
@@ -654,7 +726,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -711,16 +786,26 @@ export const command: Command = {
 						.setAuthor(
 							`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 							userID
-								? (message.guild?.members.cache
-										.get(userID as string)
-										?.user.avatarURL({ format: `png`, dynamic: true }) as string)
-								: (message.author.avatarURL({ format: `png`, dynamic: true }) as string),
+								? (message.guild?.members.cache.get(userID as string)?.user.avatarURL({
+										format: `png`,
+										dynamic: true,
+								  }) as string)
+								: (message.author.avatarURL({
+										format: `png`,
+										dynamic: true,
+								  }) as string),
 						)
 						.setFooter(`Total tags: ${count}`)
 						.setThumbnail(
 							userID
-								? (message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png`, dynamic: true }) as string)
-								: message.author.displayAvatarURL({ format: `png`, dynamic: true }),
+								? (message.guild?.members.cache.get(userID)?.user.avatarURL({
+										format: `png`,
+										dynamic: true,
+								  }) as string)
+								: message.author.displayAvatarURL({
+										format: `png`,
+										dynamic: true,
+								  }),
 						)
 						.setTimestamp()
 					// denne funktion skal skubbe siderne
@@ -746,13 +831,19 @@ export const command: Command = {
 				commands = tagData.rows
 				commandCount = tagData.count
 				if (tagData?.count === 0) {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`This server hasn't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
 					)
 				}
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`This server hasn't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
 				)
@@ -769,7 +860,10 @@ export const command: Command = {
 			await queueEmbed.react(`❌`)
 			const filter = (reaction: MessageReaction, user: User) =>
 				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, { idle: 300000, dispose: true })
+			const collector = queueEmbed.createReactionCollector(filter, {
+				idle: 300000,
+				dispose: true,
+			})
 
 			collector.on(`collect`, async (reaction, user) => {
 				if (reaction.emoji.name === `➡️`) {
@@ -810,7 +904,12 @@ export const command: Command = {
 						.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 						.setTitle(`Top tags used on ${message.guild?.name}`)
 						.setFooter(`Total tags: ${count}`)
-						.setThumbnail(message.guild?.iconURL({ format: `png`, dynamic: true }) as string)
+						.setThumbnail(
+							message.guild?.iconURL({
+								format: `png`,
+								dynamic: true,
+							}) as string,
+						)
 						.setTimestamp()
 					embeds.push(embed)
 				}

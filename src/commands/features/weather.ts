@@ -55,7 +55,10 @@ export const command: Command = {
 					if (mentionedUser?.user.bot === true) return message.channel.send(`Bots doesn't care about the weather.`)
 					userID = mentionedUser?.id
 					try {
-						const weatherData = await weather.findOne({ raw: true, where: { userID: userID } })
+						const weatherData = await weather.findOne({
+							raw: true,
+							where: { userID: userID },
+						})
 						city = weatherData?.city
 					} catch {
 						return message.channel.send(
@@ -68,10 +71,16 @@ export const command: Command = {
 			} else {
 				try {
 					userID = message.author.id
-					const weatherData = await weather.findOne({ raw: true, where: { userID: userID } })
+					const weatherData = await weather.findOne({
+						raw: true,
+						where: { userID: userID },
+					})
 					city = weatherData?.city
 				} catch {
-					const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
 					return message.channel.send(
 						`Your request was invalid. You haven't saved a city for the weather command.\nUse \`${guildData?.prefix}help weather\` for help with your request.`,
 					)
@@ -81,11 +90,19 @@ export const command: Command = {
 			let response: weatherAPIObjectInterface
 			try {
 				const fetch = await openWeatherAPI.get(`/weather?`, {
-					params: { q: city, units: `metric`, appid: process.env.WEATHERKEY, lang: `en` },
+					params: {
+						q: city,
+						units: `metric`,
+						appid: process.env.WEATHERKEY,
+						lang: `en`,
+					},
 				})
 				response = fetch.data
 			} catch {
-				const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				return message.channel.send(
 					`No results found for the location \`${city}\`.\nIf you've saved the location you can change the location to something else by using \`${guildData?.prefix}weather save <city>\`.\nIf you tried to check the weather by ID and it failed, it's either because the user hasn't saved a city or the user isn't on this server.\nIf you searched for the location, perhaps add the country code for the location or you've misspelled.\nUse \`${guildData?.prefix}help weather\` to get help.`,
 				)
@@ -159,7 +176,11 @@ export const command: Command = {
 				city: city,
 			}
 
-			const createWeather = await weather.findOrCreate({ raw: true, where: { userID: userID }, defaults: weatherAttr })
+			const createWeather = await weather.findOrCreate({
+				raw: true,
+				where: { userID: userID },
+				defaults: weatherAttr,
+			})
 
 			if (createWeather[1] === false) {
 				await weather.update({ city: city }, { where: { userID: userID } })

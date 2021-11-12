@@ -21,7 +21,10 @@ export const command: Command = {
 
 		initModels(database)
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (args.length < 1) {
 			return message.channel

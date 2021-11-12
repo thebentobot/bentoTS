@@ -11,8 +11,12 @@ import { bye } from './bye'
 import type { byeAttributes, byeCreationAttributes } from './bye'
 import { caseGlobal } from './caseGlobal'
 import type { caseGlobalAttributes, caseGlobalCreationAttributes } from './caseGlobal'
+import { channelDisable } from './channelDisable'
+import type { channelDisableAttributes, channelDisableCreationAttributes } from './channelDisable'
 import { gfycatBlacklist } from './gfycatBlacklist'
 import type { gfycatBlacklistAttributes, gfycatBlacklistCreationAttributes } from './gfycatBlacklist'
+import { gfycatWordList } from './gfycatWordList'
+import type { gfycatWordListAttributes, gfycatWordListCreationAttributes } from './gfycatWordList'
 import { guild } from './guild'
 import type { guildAttributes, guildCreationAttributes } from './guild'
 import { guildMember } from './guildMember'
@@ -67,7 +71,9 @@ export {
 	bento,
 	bye,
 	caseGlobal,
+	channelDisable,
 	gfycatBlacklist,
+	gfycatWordList,
 	guild,
 	guildMember,
 	horoscope,
@@ -106,8 +112,12 @@ export type {
 	byeCreationAttributes,
 	caseGlobalAttributes,
 	caseGlobalCreationAttributes,
+	channelDisableAttributes,
+	channelDisableCreationAttributes,
 	gfycatBlacklistAttributes,
 	gfycatBlacklistCreationAttributes,
+	gfycatWordListAttributes,
+	gfycatWordListCreationAttributes,
 	guildAttributes,
 	guildCreationAttributes,
 	guildMemberAttributes,
@@ -163,7 +173,9 @@ export function initModels(sequelize: Sequelize) {
 	bento.initModel(sequelize)
 	bye.initModel(sequelize)
 	caseGlobal.initModel(sequelize)
+	channelDisable.initModel(sequelize)
 	gfycatBlacklist.initModel(sequelize)
+	gfycatWordList.initModel(sequelize)
 	guild.initModel(sequelize)
 	guildMember.initModel(sequelize)
 	horoscope.initModel(sequelize)
@@ -191,13 +203,21 @@ export function initModels(sequelize: Sequelize) {
 	autoRole.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
 	guild.hasMany(autoRole, { as: `autoRoles`, foreignKey: `guildID` })
 	availableRolesGuild.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
-	guild.hasMany(availableRolesGuild, { as: `availableRolesGuilds`, foreignKey: `guildID` })
+	guild.hasMany(availableRolesGuild, {
+		as: `availableRolesGuilds`,
+		foreignKey: `guildID`,
+	})
 	ban.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
 	guild.hasMany(ban, { as: `bans`, foreignKey: `guildID` })
 	bye.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
 	guild.hasOne(bye, { as: `bye`, foreignKey: `guildID` })
 	caseGlobal.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
 	guild.hasOne(caseGlobal, { as: `caseGlobal`, foreignKey: `guildID` })
+	channelDisable.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
+	guild.hasMany(channelDisable, {
+		as: `channelDisables`,
+		foreignKey: `guildID`,
+	})
 	guildMember.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
 	guild.hasMany(guildMember, { as: `guildMembers`, foreignKey: `guildID` })
 	kick.belongsTo(guild, { as: `guild`, foreignKey: `guildID` })
@@ -233,7 +253,10 @@ export function initModels(sequelize: Sequelize) {
 	lastfm.belongsTo(user, { as: `user`, foreignKey: `userID` })
 	user.hasOne(lastfm, { as: `lastfm`, foreignKey: `userID` })
 	notificationMessage.belongsTo(user, { as: `user`, foreignKey: `userID` })
-	user.hasMany(notificationMessage, { as: `notificationMessages`, foreignKey: `userID` })
+	user.hasMany(notificationMessage, {
+		as: `notificationMessages`,
+		foreignKey: `userID`,
+	})
 	patreon.belongsTo(user, { as: `user`, foreignKey: `userID` })
 	user.hasMany(patreon, { as: `patreons`, foreignKey: `userID` })
 	profile.belongsTo(user, { as: `user`, foreignKey: `userID` })
@@ -254,7 +277,9 @@ export function initModels(sequelize: Sequelize) {
 		bento: bento,
 		bye: bye,
 		caseGlobal: caseGlobal,
+		channelDisable: channelDisable,
 		gfycatBlacklist: gfycatBlacklist,
+		gfycatWordList: gfycatWordList,
 		guild: guild,
 		guildMember: guildMember,
 		horoscope: horoscope,

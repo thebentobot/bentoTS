@@ -25,7 +25,10 @@ export const event: Event = {
 		})
 
 		if (currentMute) {
-			const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: member.guild.id } })
+			const muteRoleData = await muteRole.findOne({
+				raw: true,
+				where: { guildID: member.guild.id },
+			})
 			const role = member.guild.roles.cache.get(`${muteRoleData?.roleID}`)
 			try {
 				await member.roles.add(role as Role)
@@ -55,7 +58,9 @@ export const event: Event = {
 
         await guildMember.create(guildMemberAttr);
         */
-		const autoRoleData = await autoRole.findAll({ where: { guildID: member.guild.id } })
+		const autoRoleData = await autoRole.findAll({
+			where: { guildID: member.guild.id },
+		})
 		if (autoRoleData) {
 			const iterator = autoRoleData.values()
 
@@ -64,17 +69,38 @@ export const event: Event = {
 			}
 		}
 
-		const memberLogData = await memberLog.findOne({ raw: true, where: { guildID: member.guild.id } })
+		const memberLogData = await memberLog.findOne({
+			raw: true,
+			where: { guildID: member.guild.id },
+		})
 		if (memberLogData) {
-			const banData = await ban.findAndCountAll({ raw: true, where: { userID: member.user.id } })
-			const kickData = await kick.findAndCountAll({ raw: true, where: { userID: member.user.id } })
-			const muteData = await mute.findAndCountAll({ raw: true, where: { userID: member.user.id } })
-			const warningData = await warning.findAndCountAll({ raw: true, where: { userID: member.user.id } })
+			const banData = await ban.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
+			const kickData = await kick.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
+			const muteData = await mute.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
+			const warningData = await warning.findAndCountAll({
+				raw: true,
+				where: { userID: member.user.id },
+			})
 
 			const channel = member.guild.channels.cache.get(`${memberLogData.channel}`) as TextChannel
 			const embed = new MessageEmbed()
 				.setTitle(`${member.user.username}#${member.user.discriminator} joined the server!`)
-				.setThumbnail(`${member.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })}`)
+				.setThumbnail(
+					`${member.user.avatarURL({
+						format: `png`,
+						dynamic: true,
+						size: 1024,
+					})}`,
+				)
 				.setColor(`#00ff1a`)
 				.setFooter(`UserID: ${member.user.id}`)
 				.setTimestamp()
@@ -93,7 +119,9 @@ export const event: Event = {
 		}
 
 		try {
-			const welcomeData = await welcome.findOne({ where: { guildID: member.guild.id } })
+			const welcomeData = await welcome.findOne({
+				where: { guildID: member.guild.id },
+			})
 
 			const channel = member.guild.channels.cache.get(`${welcomeData?.channel}`) as TextChannel
 			const msg = welcomeData?.message

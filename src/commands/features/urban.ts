@@ -28,12 +28,12 @@ export const command: Command = {
 		}
 
 		interface urbanDicInterface {
-			word: string;
-			permalink: string;
-			definition: string;
-			example: string;
-			thumbs_up: number;
-			thumbs_down: number;
+			word: string
+			permalink: string
+			definition: string
+			example: string
+			thumbs_up: number
+			thumbs_down: number
 		}
 
 		const answer: urbanDicInterface = response.data.list[0]
@@ -51,7 +51,10 @@ export const command: Command = {
 			.addFields(
 				{ name: `Definition`, value: trim(answer.definition, 1024) },
 				{ name: `Example`, value: trim(answer.example, 1024) },
-				{ name: `Rating`, value: `${answer.thumbs_up} :thumbsup: ${answer.thumbs_down} :thumbsdown:` },
+				{
+					name: `Rating`,
+					value: `${answer.thumbs_up} :thumbsup: ${answer.thumbs_down} :thumbsdown:`,
+				},
 			)
 
 		return message.channel.send(exampleEmbed)

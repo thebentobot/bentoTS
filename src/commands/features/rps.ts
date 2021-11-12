@@ -17,7 +17,10 @@ export const command: Command = {
 		const bentoResult = bentoReplies[random]
 		const result = acceptedReplies[random]
 
-		const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const guildData = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		const choice = args[0]
 		if (!choice) return message.channel.send(`How to play: \`${guildData?.prefix}rps <rock|paper|scissors>\``)

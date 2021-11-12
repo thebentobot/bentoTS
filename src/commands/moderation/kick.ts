@@ -77,17 +77,33 @@ export const command: Command = {
 			username: kickedUser.user.username,
 			xp: 0,
 			level: 1,
-			avatarURL: kickedUser.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+			avatarURL: kickedUser.user.avatarURL({
+				format: `png`,
+				dynamic: true,
+				size: 1024,
+			}) as string,
 		}
 
-		await user.findOrCreate({ where: { userID: kickedUserID as string }, defaults: userAttr })
+		await user.findOrCreate({
+			where: { userID: kickedUserID as string },
+			defaults: userAttr,
+		})
 
 		const kicked = (await kick
-			.findOrCreate({ raw: true, where: { userID: kickedUserID, guildID: message.guild?.id }, defaults: kickAttr })
+			.findOrCreate({
+				raw: true,
+				where: { userID: kickedUserID, guildID: message.guild?.id },
+				defaults: kickAttr,
+			})
 			.catch(console.error)) as [kick, boolean]
-		const kickedCount = await kick.findAndCountAll({ where: { guildID: message.guild?.id, userID: kickedUserID } })
+		const kickedCount = await kick.findAndCountAll({
+			where: { guildID: message.guild?.id, userID: kickedUserID },
+		})
 		try {
-			const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const channel = await modLog.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 			const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 			const embed = new MessageEmbed()
 				.setColor(`#ff8000`)

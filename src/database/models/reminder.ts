@@ -3,15 +3,15 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { user, userId } from './user'
 
 export interface reminderAttributes {
-	id?: number;
-	userID: bigint;
-	date?: Date;
-	reminder: string;
+	id?: number
+	userID: bigint
+	date?: Date
+	reminder: string
 }
 
-export type reminderPk = `id`;
-export type reminderId = reminder[reminderPk];
-export type reminderCreationAttributes = Optional<reminderAttributes, reminderPk>;
+export type reminderPk = `id`
+export type reminderId = reminder[reminderPk]
+export type reminderCreationAttributes = Optional<reminderAttributes, reminderPk>
 
 export class reminder extends Model<reminderAttributes, reminderCreationAttributes> implements reminderAttributes {
 	id?: number

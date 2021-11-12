@@ -566,4 +566,34 @@ create unique index if not exists rpsgame_id_uindex
 create unique index if not exists rpsgame_userid_uindex
     on "rpsGame" ("userID");
 
+create table if not exists "gfycatWordList"
+(
+    id   serial
+        constraint gfycatwordlist_pk
+            primary key,
+    word varchar not null
+);
+
+create unique index if not exists gfycatwordlist_id_uindex
+    on "gfycatWordList" (id);
+
+create unique index if not exists gfycatwordlist_word_uindex
+    on "gfycatWordList" (word);
+
+create table if not exists "channelDisable"
+(
+    id          serial
+        constraint channeldisable_pk
+            primary key,
+    "guildID"   bigint not null
+        constraint channeldisable_guild_guildid_fk
+            references guild,
+    "channelID" bigint not null
+);
+
+create unique index if not exists channeldisable_channelid_uindex
+    on "channelDisable" ("channelID");
+
+create unique index if not exists channeldisable_id_uindex
+    on "channelDisable" (id);
 

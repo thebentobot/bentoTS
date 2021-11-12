@@ -3,20 +3,20 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface muteAttributes {
-	muteCase?: number;
-	userID: bigint;
-	guildID: bigint;
-	date?: Date;
-	muteEnd?: Date;
-	note?: string;
-	actor: bigint;
-	reason?: string;
-	MuteStatus: boolean;
+	muteCase?: number
+	userID: bigint
+	guildID: bigint
+	date?: Date
+	muteEnd?: Date
+	note?: string
+	actor: bigint
+	reason?: string
+	MuteStatus: boolean
 }
 
-export type mutePk = `muteCase`;
-export type muteId = mute[mutePk];
-export type muteCreationAttributes = Optional<muteAttributes, mutePk>;
+export type mutePk = `muteCase`
+export type muteId = mute[mutePk]
+export type muteCreationAttributes = Optional<muteAttributes, mutePk>
 
 export class mute extends Model<muteAttributes, muteCreationAttributes> implements muteAttributes {
 	muteCase?: number

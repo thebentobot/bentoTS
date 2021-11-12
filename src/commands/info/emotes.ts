@@ -15,7 +15,13 @@ export const command: Command = {
 				const embed = new MessageEmbed()
 					.setAuthor(message.guild?.name, message.guild?.iconURL({ format: `png` }) as string)
 					.setTitle(`All Emotes in ${message.guild?.name}`)
-					.setThumbnail(message.guild?.iconURL({ format: `png`, size: 1024, dynamic: true }) as string)
+					.setThumbnail(
+						message.guild?.iconURL({
+							format: `png`,
+							size: 1024,
+							dynamic: true,
+						}) as string,
+					)
 					.setFooter(`Amount of emotes - ${message.guild?.emojis.cache.size}`)
 					.setTimestamp()
 					.setDescription(
@@ -37,7 +43,13 @@ export const command: Command = {
 				const embed = new MessageEmbed()
 					.setAuthor(message.guild?.name, message.guild?.iconURL({ format: `png` }) as string)
 					.setTitle(`All Animated Emotes in ${message.guild?.name}`)
-					.setThumbnail(message.guild?.iconURL({ format: `png`, size: 1024, dynamic: true }) as string)
+					.setThumbnail(
+						message.guild?.iconURL({
+							format: `png`,
+							size: 1024,
+							dynamic: true,
+						}) as string,
+					)
 					.setFooter(
 						`Amount of Animated Emotes - ${message.guild?.emojis.cache.array().filter((e) => e.animated).length}`,
 					)
@@ -64,7 +76,13 @@ export const command: Command = {
 				const embed = new MessageEmbed()
 					.setAuthor(message.guild?.name, message.guild?.iconURL({ format: `png` }) as string)
 					.setTitle(`All Static Emotes in ${message.guild?.name}`)
-					.setThumbnail(message.guild?.iconURL({ format: `png`, size: 1024, dynamic: true }) as string)
+					.setThumbnail(
+						message.guild?.iconURL({
+							format: `png`,
+							size: 1024,
+							dynamic: true,
+						}) as string,
+					)
 					.setFooter(`Amount of Static Emotes - ${(message.guild?.emojis.cache.size as number) - animatedEmotes}`)
 					.setTimestamp()
 					.setDescription(

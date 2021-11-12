@@ -3,14 +3,14 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface autoRoleAttributes {
-	autoRoleID?: bigint;
-	guildID: bigint;
-	roleID: bigint;
+	autoRoleID?: bigint
+	guildID: bigint
+	roleID: bigint
 }
 
-export type autoRolePk = `autoRoleID`;
-export type autoRoleId = autoRole[autoRolePk];
-export type autoRoleCreationAttributes = Optional<autoRoleAttributes, autoRolePk>;
+export type autoRolePk = `autoRoleID`
+export type autoRoleId = autoRole[autoRolePk]
+export type autoRoleCreationAttributes = Optional<autoRoleAttributes, autoRolePk>
 
 export class autoRole extends Model<autoRoleAttributes, autoRoleCreationAttributes> implements autoRoleAttributes {
 	autoRoleID?: bigint

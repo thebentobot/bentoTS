@@ -24,7 +24,10 @@ export const command: Command = {
 			)
 		}
 
-		const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+		const muteRoleData = await muteRole.findOne({
+			raw: true,
+			where: { guildID: message.guild?.id },
+		})
 
 		if (muteRoleData === null) {
 			return message.channel.send(
@@ -69,7 +72,11 @@ export const command: Command = {
 
 		const muted = await mute.findOne({
 			raw: true,
-			where: { userID: unmutedUserID, guildID: message.guild?.id, MuteStatus: true },
+			where: {
+				userID: unmutedUserID,
+				guildID: message.guild?.id,
+				MuteStatus: true,
+			},
 		})
 
 		const unmutedUserObject = (await client.users
@@ -86,7 +93,10 @@ export const command: Command = {
 			}
 		} else {
 			try {
-				const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const channel = await modLog.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setColor(`#00ff4a`)
@@ -152,7 +162,13 @@ export const command: Command = {
 					await unmutedUser?.roles.remove(role as Role)
 					await mute.update(
 						{ MuteStatus: false },
-						{ where: { userID: unmutedUserID, guildID: message.guild?.id, MuteStatus: true } },
+						{
+							where: {
+								userID: unmutedUserID,
+								guildID: message.guild?.id,
+								MuteStatus: true,
+							},
+						},
 					)
 					return await message.channel.send(
 						`**${
@@ -167,7 +183,13 @@ export const command: Command = {
 					await unmutedUser?.roles.remove(role as Role)
 					await mute.update(
 						{ MuteStatus: false },
-						{ where: { userID: unmutedUserID, guildID: message.guild?.id, MuteStatus: true } },
+						{
+							where: {
+								userID: unmutedUserID,
+								guildID: message.guild?.id,
+								MuteStatus: true,
+							},
+						},
 					)
 					return await message.channel.send(
 						`**${
@@ -191,7 +213,13 @@ export const command: Command = {
 					await unmutedUser?.roles.remove(role as Role)
 					await mute.update(
 						{ MuteStatus: false },
-						{ where: { userID: unmutedUserID, guildID: message.guild?.id, MuteStatus: true } },
+						{
+							where: {
+								userID: unmutedUserID,
+								guildID: message.guild?.id,
+								MuteStatus: true,
+							},
+						},
 					)
 					return await message.channel.send(
 						`**${
@@ -206,7 +234,13 @@ export const command: Command = {
 					await unmutedUser?.roles.remove(role as Role)
 					await mute.update(
 						{ MuteStatus: false },
-						{ where: { userID: unmutedUserID, guildID: message.guild?.id, MuteStatus: true } },
+						{
+							where: {
+								userID: unmutedUserID,
+								guildID: message.guild?.id,
+								MuteStatus: true,
+							},
+						},
 					)
 					return await message.channel.send(
 						`**${

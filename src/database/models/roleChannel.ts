@@ -3,13 +3,13 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface roleChannelAttributes {
-	guildID: bigint;
-	channelID: bigint;
+	guildID: bigint
+	channelID: bigint
 }
 
-export type roleChannelPk = `guildID`;
-export type roleChannelId = roleChannel[roleChannelPk];
-export type roleChannelCreationAttributes = Optional<roleChannelAttributes, roleChannelPk>;
+export type roleChannelPk = `guildID`
+export type roleChannelId = roleChannel[roleChannelPk]
+export type roleChannelCreationAttributes = Optional<roleChannelAttributes, roleChannelPk>
 
 export class roleChannel
 	extends Model<roleChannelAttributes, roleChannelCreationAttributes>

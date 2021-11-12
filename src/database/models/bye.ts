@@ -3,14 +3,14 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface byeAttributes {
-	guildID: bigint;
-	message?: string;
-	channel?: bigint;
+	guildID: bigint
+	message?: string
+	channel?: bigint
 }
 
-export type byePk = `guildID`;
-export type byeId = bye[byePk];
-export type byeCreationAttributes = Optional<byeAttributes, byePk>;
+export type byePk = `guildID`
+export type byeId = bye[byePk]
+export type byeCreationAttributes = Optional<byeAttributes, byePk>
 
 export class bye extends Model<byeAttributes, byeCreationAttributes> implements byeAttributes {
 	guildID!: bigint

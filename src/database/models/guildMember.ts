@@ -4,17 +4,17 @@ import type { guild, guildId } from './guild'
 import type { user, userId } from './user'
 
 export interface guildMemberAttributes {
-	guildMemberID?: number;
-	userID: bigint;
-	guildID: bigint;
-	xp: number;
-	level: number;
-	avatarURL?: string;
+	guildMemberID?: number
+	userID: bigint
+	guildID: bigint
+	xp: number
+	level: number
+	avatarURL?: string
 }
 
-export type guildMemberPk = `guildMemberID`;
-export type guildMemberId = guildMember[guildMemberPk];
-export type guildMemberCreationAttributes = Optional<guildMemberAttributes, guildMemberPk>;
+export type guildMemberPk = `guildMemberID`
+export type guildMemberId = guildMember[guildMemberPk]
+export type guildMemberCreationAttributes = Optional<guildMemberAttributes, guildMemberPk>
 
 export class guildMember
 	extends Model<guildMemberAttributes, guildMemberCreationAttributes>

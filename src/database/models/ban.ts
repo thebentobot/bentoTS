@@ -3,18 +3,18 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface banAttributes {
-	banCase?: number;
-	userID: bigint;
-	guildID: bigint;
-	date?: Date;
-	note?: string;
-	actor: bigint;
-	reason?: string;
+	banCase?: number
+	userID: bigint
+	guildID: bigint
+	date?: Date
+	note?: string
+	actor: bigint
+	reason?: string
 }
 
-export type banPk = `banCase`;
-export type banId = ban[banPk];
-export type banCreationAttributes = Optional<banAttributes, banPk>;
+export type banPk = `banCase`
+export type banId = ban[banPk]
+export type banCreationAttributes = Optional<banAttributes, banPk>
 
 export class ban extends Model<banAttributes, banCreationAttributes> implements banAttributes {
 	banCase?: number

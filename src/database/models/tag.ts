@@ -4,18 +4,18 @@ import type { guild, guildId } from './guild'
 import type { user, userId } from './user'
 
 export interface tagAttributes {
-	tagID?: number;
-	userID: bigint;
-	guildID: bigint;
-	date?: Date;
-	command: string;
-	content: string;
-	count: number;
+	tagID?: number
+	userID: bigint
+	guildID: bigint
+	date?: Date
+	command: string
+	content: string
+	count: number
 }
 
-export type tagPk = `tagID`;
-export type tagId = tag[tagPk];
-export type tagCreationAttributes = Optional<tagAttributes, tagPk>;
+export type tagPk = `tagID`
+export type tagId = tag[tagPk]
+export type tagCreationAttributes = Optional<tagAttributes, tagPk>
 
 export class tag extends Model<tagAttributes, tagCreationAttributes> implements tagAttributes {
 	tagID?: number

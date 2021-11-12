@@ -3,14 +3,14 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { guild, guildId } from './guild'
 
 export interface welcomeAttributes {
-	guildID: bigint;
-	message?: string;
-	channel?: bigint;
+	guildID: bigint
+	message?: string
+	channel?: bigint
 }
 
-export type welcomePk = `guildID`;
-export type welcomeId = welcome[welcomePk];
-export type welcomeCreationAttributes = Optional<welcomeAttributes, welcomePk>;
+export type welcomePk = `guildID`
+export type welcomeId = welcome[welcomePk]
+export type welcomeCreationAttributes = Optional<welcomeAttributes, welcomePk>
 
 export class welcome extends Model<welcomeAttributes, welcomeCreationAttributes> implements welcomeAttributes {
 	guildID!: bigint

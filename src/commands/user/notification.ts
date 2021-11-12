@@ -36,7 +36,10 @@ export const command: Command = {
 		if (!args.length) {
 			initModels(database)
 
-			const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const guildData = await guild.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			return message.channel.send(
 				`You need to use an argument for this command.\nUse \`${guildData?.prefix}help notification\` to get help with this command.`,
@@ -47,7 +50,10 @@ export const command: Command = {
 			await message.delete()
 			initModels(database)
 
-			const guildData = await guild.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const guildData = await guild.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			let globalStatus: boolean
 			let wordContent: string
@@ -103,7 +109,11 @@ export const command: Command = {
 					})) as Message
 				} catch {
 					await notificationMessage.destroy({
-						where: { userID: message.author.id, content: createNoti[0].content, id: createNoti[0].id },
+						where: {
+							userID: message.author.id,
+							content: createNoti[0].content,
+							id: createNoti[0].id,
+						},
 					})
 					return await message.channel.send(
 						`The notification has not been saved because I can't send DM's to you ${message.author}.\nPlease check your privacy settings and try again.`,
@@ -116,7 +126,9 @@ export const command: Command = {
 			await message.delete()
 			initModels(database)
 
-			const deleteNoti = await notificationMessage.destroy({ where: { userID: message.author.id, content: content } })
+			const deleteNoti = await notificationMessage.destroy({
+				where: { userID: message.author.id, content: content },
+			})
 
 			if (deleteNoti === 0) {
 				return message.channel.send(`The notification you tried to delete doesn't exist.`)
@@ -128,7 +140,9 @@ export const command: Command = {
 		async function listNoti(message: Message) {
 			initModels(database)
 
-			const listNoti = await notificationMessage.findAndCountAll({ where: { userID: message.author.id } })
+			const listNoti = await notificationMessage.findAndCountAll({
+				where: { userID: message.author.id },
+			})
 
 			if (listNoti.count === 0) {
 				return message.channel.send(`You don't have any notifications saved.`)
@@ -137,7 +151,13 @@ export const command: Command = {
 				const embed = new MessageEmbed()
 					.setColor(`${await urlToColours(client.user?.avatarURL({ format: `png` }) as string)}`)
 					.setTimestamp()
-					.setThumbnail(message.author.avatarURL({ dynamic: true, format: `png`, size: 1024 }) as string)
+					.setThumbnail(
+						message.author.avatarURL({
+							dynamic: true,
+							format: `png`,
+							size: 1024,
+						}) as string,
+					)
 					.setTitle(`Your saved notifications`)
 					.setFooter(`Notifications marked with (G) is enabled globally.\nNotifications in total: ${listNoti.count}.`)
 					.setDescription(
@@ -177,7 +197,9 @@ export const command: Command = {
 			await message.delete()
 			initModels(database)
 
-			const listNoti = await notificationMessage.findOne({ where: { userID: message.author.id, content: content } })
+			const listNoti = await notificationMessage.findOne({
+				where: { userID: message.author.id, content: content },
+			})
 
 			if (!listNoti) {
 				return message.channel.send(

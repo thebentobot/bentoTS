@@ -3,13 +3,13 @@ import { DataTypes, Model, Optional } from 'sequelize'
 import type { user, userId } from './user'
 
 export interface weatherAttributes {
-	userID: bigint;
-	city: string;
+	userID: bigint
+	city: string
 }
 
-export type weatherPk = `userID`;
-export type weatherId = weather[weatherPk];
-export type weatherCreationAttributes = Optional<weatherAttributes, weatherPk>;
+export type weatherPk = `userID`
+export type weatherId = weather[weatherPk]
+export type weatherCreationAttributes = Optional<weatherAttributes, weatherPk>
 
 export class weather extends Model<weatherAttributes, weatherCreationAttributes> implements weatherAttributes {
 	userID!: bigint

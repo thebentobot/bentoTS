@@ -5,6 +5,7 @@ import type { availableRolesGuild, availableRolesGuildId } from './availableRole
 import type { ban, banId } from './ban'
 import type { bye, byeCreationAttributes, byeId } from './bye'
 import type { caseGlobal, caseGlobalCreationAttributes, caseGlobalId } from './caseGlobal'
+import type { channelDisable, channelDisableId } from './channelDisable'
 import type { guildMember, guildMemberId } from './guildMember'
 import type { kick, kickId } from './kick'
 import type { memberLog, memberLogCreationAttributes, memberLogId } from './memberLog'
@@ -20,20 +21,20 @@ import type { warning, warningId } from './warning'
 import type { welcome, welcomeCreationAttributes, welcomeId } from './welcome'
 
 export interface guildAttributes {
-	guildID: bigint;
-	guildName: string;
-	prefix: string;
-	tiktok: boolean;
-	leaderboard: boolean;
-	media: boolean;
-	icon?: string;
-	memberCount?: number;
+	guildID: bigint
+	guildName: string
+	prefix: string
+	tiktok: boolean
+	leaderboard: boolean
+	media: boolean
+	icon?: string
+	memberCount?: number
 }
 
-export type guildPk = `guildID`;
-export type guildId = guild[guildPk];
-export type guildOptionalAttributes = `guildID` | `icon` | `memberCount`;
-export type guildCreationAttributes = Optional<guildAttributes, guildOptionalAttributes>;
+export type guildPk = `guildID`
+export type guildId = guild[guildPk]
+export type guildOptionalAttributes = `guildID` | `icon` | `memberCount`
+export type guildCreationAttributes = Optional<guildAttributes, guildOptionalAttributes>
 
 export class guild extends Model<guildAttributes, guildCreationAttributes> implements guildAttributes {
 	guildID!: bigint
@@ -91,6 +92,18 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
 	getCaseGlobal!: Sequelize.HasOneGetAssociationMixin<caseGlobal>
 	setCaseGlobal!: Sequelize.HasOneSetAssociationMixin<caseGlobal, caseGlobalId>
 	createCaseGlobal!: Sequelize.HasOneCreateAssociationMixin<caseGlobalCreationAttributes>
+	// guild hasMany channelDisable via guildID
+	channelDisables!: channelDisable[]
+	getChannelDisables!: Sequelize.HasManyGetAssociationsMixin<channelDisable>
+	setChannelDisables!: Sequelize.HasManySetAssociationsMixin<channelDisable, channelDisableId>
+	addChannelDisable!: Sequelize.HasManyAddAssociationMixin<channelDisable, channelDisableId>
+	addChannelDisables!: Sequelize.HasManyAddAssociationsMixin<channelDisable, channelDisableId>
+	createChannelDisable!: Sequelize.HasManyCreateAssociationMixin<channelDisable>
+	removeChannelDisable!: Sequelize.HasManyRemoveAssociationMixin<channelDisable, channelDisableId>
+	removeChannelDisables!: Sequelize.HasManyRemoveAssociationsMixin<channelDisable, channelDisableId>
+	hasChannelDisable!: Sequelize.HasManyHasAssociationMixin<channelDisable, channelDisableId>
+	hasChannelDisables!: Sequelize.HasManyHasAssociationsMixin<channelDisable, channelDisableId>
+	countChannelDisables!: Sequelize.HasManyCountAssociationsMixin
 	// guild hasMany guildMember via guildID
 	guildMembers!: guildMember[]
 	getGuildMembers!: Sequelize.HasManyGetAssociationsMixin<guildMember>

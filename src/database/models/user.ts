@@ -12,17 +12,17 @@ import type { tag, tagId } from './tag'
 import type { weather, weatherCreationAttributes, weatherId } from './weather'
 
 export interface userAttributes {
-	userID: bigint;
-	discriminator: string;
-	xp: number;
-	level: number;
-	username?: string;
-	avatarURL?: string;
+	userID: bigint
+	discriminator: string
+	xp: number
+	level: number
+	username?: string
+	avatarURL?: string
 }
 
-export type userPk = `userID`;
-export type userId = user[userPk];
-export type userCreationAttributes = Optional<userAttributes, userPk>;
+export type userPk = `userID`
+export type userId = user[userPk]
+export type userCreationAttributes = Optional<userAttributes, userPk>
 
 export class user extends Model<userAttributes, userCreationAttributes> implements userAttributes {
 	userID!: bigint

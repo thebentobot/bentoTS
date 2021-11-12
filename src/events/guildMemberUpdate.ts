@@ -10,7 +10,9 @@ export const event: Event = {
 
 		if (oldMember.nickname !== newMember.nickname) {
 			try {
-				const log = await memberLog.findOne({ where: { guildID: oldMember.guild.id } })
+				const log = await memberLog.findOne({
+					where: { guildID: oldMember.guild.id },
+				})
 				const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setAuthor(
@@ -34,30 +36,58 @@ export const event: Event = {
 			newMember.user.avatarURL({ dynamic: true, format: `png`, size: 1024 })
 		) {
 			try {
-				const log = await memberLog.findOne({ where: { guildID: oldMember.guild.id } })
+				const log = await memberLog.findOne({
+					where: { guildID: oldMember.guild.id },
+				})
 				const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setAuthor(
 						`${oldMember.user.username + `#` + oldMember.user.discriminator} (userID: ${oldMember.id})`,
-						oldMember.user.displayAvatarURL({ dynamic: true, format: `png`, size: 1024 }),
+						oldMember.user.displayAvatarURL({
+							dynamic: true,
+							format: `png`,
+							size: 1024,
+						}),
 					)
-					.setThumbnail(newMember.user.avatarURL({ dynamic: true, format: `png`, size: 1024 }) as string)
+					.setThumbnail(
+						newMember.user.avatarURL({
+							dynamic: true,
+							format: `png`,
+							size: 1024,
+						}) as string,
+					)
 					.setColor(`#39FF14`)
 					.setDescription(
 						`Avatar updated for this user.\n**Previous avatar:**\n${oldMember.user.avatarURL({
 							dynamic: true,
 							format: `png`,
 							size: 1024,
-						})}\n**New avatar:**\n${newMember.user.avatarURL({ dynamic: true, format: `png`, size: 1024 })}`,
+						})}\n**New avatar:**\n${newMember.user.avatarURL({
+							dynamic: true,
+							format: `png`,
+							size: 1024,
+						})}`,
 					)
 					.setFooter(`Updated at`)
 					.setTimestamp()
 				await user.update(
-					{ avatarURL: newMember.user.avatarURL({ dynamic: true, format: `png`, size: 1024 }) as string },
+					{
+						avatarURL: newMember.user.avatarURL({
+							dynamic: true,
+							format: `png`,
+							size: 1024,
+						}) as string,
+					},
 					{ where: { userID: oldMember.id } },
 				)
 				await guildMember.update(
-					{ avatarURL: newMember.user.avatarURL({ dynamic: true, format: `png`, size: 1024 }) as string },
+					{
+						avatarURL: newMember.user.avatarURL({
+							dynamic: true,
+							format: `png`,
+							size: 1024,
+						}) as string,
+					},
 					{ where: { userID: oldMember.id } },
 				)
 				await memberLogChannel.send(embed)
@@ -68,7 +98,9 @@ export const event: Event = {
 
 		if (oldMember.user.username !== newMember.user.username) {
 			try {
-				const log = await memberLog.findOne({ where: { guildID: oldMember.guild.id } })
+				const log = await memberLog.findOne({
+					where: { guildID: oldMember.guild.id },
+				})
 				const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setAuthor(
@@ -90,7 +122,9 @@ export const event: Event = {
 
 		if (oldMember.user.discriminator !== newMember.user.discriminator) {
 			try {
-				const log = await memberLog.findOne({ where: { guildID: oldMember.guild.id } })
+				const log = await memberLog.findOne({
+					where: { guildID: oldMember.guild.id },
+				})
 				const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setAuthor(

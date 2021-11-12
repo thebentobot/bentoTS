@@ -12,7 +12,10 @@ export async function addXpServer(guildID: string, userID: string, xpToAdd: numb
 			return
 		}
 
-		const result = await guildMember.increment(`xp`, { by: xpToAdd, where: { guildID: guildID, userID: userID } })
+		const result = await guildMember.increment(`xp`, {
+			by: xpToAdd,
+			where: { guildID: guildID, userID: userID },
+		})
 		// https://sequelize.org/master/manual/model-instances.html
 		// bottom about incrementing
 		const xp = result.xp
@@ -20,7 +23,10 @@ export async function addXpServer(guildID: string, userID: string, xpToAdd: numb
 		const getNeededXP = (level: number) => level * level * 100
 		const needed = getNeededXP(level)
 		if (xp >= needed) {
-			await guildMember.increment(`level`, { by: 1, where: { guildID: guildID, userID: userID } })
+			await guildMember.increment(`level`, {
+				by: 1,
+				where: { guildID: guildID, userID: userID },
+			})
 			await guildMember.update({ xp: 0 }, { where: { userID: userID, guildID: guildID } })
 		}
 
@@ -41,7 +47,10 @@ export async function addXpGlobal(userID: string, xpToAdd: number): Promise<void
 			return
 		}
 
-		const result = await user.increment(`xp`, { by: xpToAdd, where: { userID: userID } })
+		const result = await user.increment(`xp`, {
+			by: xpToAdd,
+			where: { userID: userID },
+		})
 		// https://sequelize.org/master/manual/model-instances.html
 		// bottom about incrementing
 		const xp = result.xp

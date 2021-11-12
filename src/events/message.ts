@@ -19,6 +19,7 @@ import {
 	roleChannel,
 	notificationMessage,
 	patreon,
+	channelDisable,
 } from '../database/models/init-models'
 import { QueryTypes } from 'sequelize'
 import { trim, urlToColours } from '../utils'
@@ -41,7 +42,11 @@ export const event: Event = {
 			username: message.author.username,
 			xp: 0,
 			level: 1,
-			avatarURL: message.author.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+			avatarURL: message.author.avatarURL({
+				format: `png`,
+				dynamic: true,
+				size: 1024,
+			}) as string,
 		}
 
 		const guildMemberAttr: guildMemberCreationAttributes = {
@@ -49,17 +54,30 @@ export const event: Event = {
 			guildID: BigInt(message.guild.id),
 			xp: 0,
 			level: 1,
-			avatarURL: message.author.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+			avatarURL: message.author.avatarURL({
+				format: `png`,
+				dynamic: true,
+				size: 1024,
+			}) as string,
 		}
 
-		await user.findOrCreate({ where: { userID: message.author.id }, defaults: userAttr })
+		await user.findOrCreate({
+			where: { userID: message.author.id },
+			defaults: userAttr,
+		})
 		await guildMember.findOrCreate({
 			where: { userID: message.author.id, guildID: message.guild.id },
 			defaults: guildMemberAttr,
 		})
 
-		const messageGuild = await guild.findOne({ raw: true, where: { guildID: message.guild.id } }) //raw: true returns only the dataValues
-		const patreonUser = await patreon.findOne({ raw: true, where: { userID: message.author.id } })
+		const messageGuild = await guild.findOne({
+			raw: true,
+			where: { guildID: message.guild.id },
+		}) //raw: true returns only the dataValues
+		const patreonUser = await patreon.findOne({
+			raw: true,
+			where: { userID: message.author.id },
+		})
 
 		if (messageGuild?.leaderboard === true) {
 			if (patreonUser) {
@@ -93,7 +111,13 @@ export const event: Event = {
 
 			if (messageGuild?.icon !== message.guild.iconURL({ format: `png`, dynamic: true, size: 1024 })) {
 				await guild.update(
-					{ icon: message.guild.iconURL({ format: `png`, dynamic: true, size: 1024 }) as string },
+					{
+						icon: message.guild.iconURL({
+							format: `png`,
+							dynamic: true,
+							size: 1024,
+						}) as string,
+					},
 					{ where: { guildID: message.guild.id } },
 				)
 			}
@@ -104,7 +128,10 @@ export const event: Event = {
 			}, 3600000) // 1 hour
 		}
 
-		const roleChannelData = await roleChannel.findOne({ raw: true, where: { guildID: message.guild.id } })
+		const roleChannelData = await roleChannel.findOne({
+			raw: true,
+			where: { guildID: message.guild.id },
+		})
 
 		if (roleChannelData !== null) {
 			if (`${roleChannelData.channelID}` === message.channel.id) {
@@ -154,7 +181,10 @@ export const event: Event = {
 		)
 
 		if (notificationData) {
-			const guildMemberData = await guildMember.findAll({ raw: true, where: { userID: message.author.id } })
+			const guildMemberData = await guildMember.findAll({
+				raw: true,
+				where: { userID: message.author.id },
+			})
 			const guildCheck = guildMemberData.map((guild) => guild.guildID)
 			const newNotiArr: Array<notificationValues> = []
 			for (const notiCheck of notificationData) {
@@ -178,12 +208,24 @@ export const event: Event = {
 					const embed = new MessageEmbed()
 						.setAuthor(
 							message.guild.name,
-							(message.guild.iconURL({ dynamic: true, format: `png` }) as string)
-								? (message.guild.iconURL({ dynamic: true, format: `png` }) as string)
+							(message.guild.iconURL({
+								dynamic: true,
+								format: `png`,
+							}) as string)
+								? (message.guild.iconURL({
+										dynamic: true,
+										format: `png`,
+								  }) as string)
 								: (client?.user?.avatarURL({ format: `png` }) as string),
 						)
 						.setTimestamp()
-						.setThumbnail(message.author.avatarURL({ format: `png`, size: 1024, dynamic: true }) as string)
+						.setThumbnail(
+							message.author.avatarURL({
+								format: `png`,
+								size: 1024,
+								dynamic: true,
+							}) as string,
+						)
 						.setColor(
 							`${await urlToColours(
 								(message.guild.iconURL({ format: `png` }) as string)
@@ -216,13 +258,29 @@ export const event: Event = {
 						)
 					await user.send(`Link to message:\n${message.url}`, embed).catch(async (error) => {
 						console.error(`Could not send notification DM`, error)
-						await notificationMessage.destroy({ where: { userID: noti.userID, content: noti.content, id: noti.id } })
+						await notificationMessage.destroy({
+							where: {
+								userID: noti.userID,
+								content: noti.content,
+								id: noti.id,
+							},
+						})
 					})
 				} catch {
 					return
 				}
 			}
 		}
+
+		const channelDisableData = await channelDisable.findOne({
+			raw: true,
+			where: { guildID: message.guild.id, channelID: message.channel.id },
+		})
+
+		if (channelDisableData && !message.member?.hasPermission(`MANAGE_MESSAGES`)) {
+			return
+		}
+
 		const hasEmoteRegex = /<a?:.+:\d+>/gm
 		const emoteRegex = /<:.+:(\d+)>/gm
 		const animatedEmoteRegex = /<a:.+:(\d+)>/gm
@@ -269,7 +327,10 @@ export const event: Event = {
 		if (command) {
 			;(command as Command).run(client, message, args)
 		} else {
-			const customCommand = await tag.findOne({ raw: true, where: { guildID: message.guild.id, command: cmd } })
+			const customCommand = await tag.findOne({
+				raw: true,
+				where: { guildID: message.guild.id, command: cmd },
+			})
 			if (customCommand) {
 				await tag.increment(`count`, { where: { command: cmd } })
 				try {

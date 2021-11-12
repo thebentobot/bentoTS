@@ -85,7 +85,10 @@ export const command: Command = {
 				)
 			}
 
-			const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const muteRoleData = await muteRole.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (muteRoleData === null) {
 				return message.channel.send(
@@ -145,15 +148,26 @@ export const command: Command = {
 				username: mutedUser?.user.username as string,
 				xp: 0,
 				level: 1,
-				avatarURL: mutedUser?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 }) as string,
+				avatarURL: mutedUser?.user.avatarURL({
+					format: `png`,
+					dynamic: true,
+					size: 1024,
+				}) as string,
 			}
 
-			await userDB.findOrCreate({ where: { userID: mutedUserID as string }, defaults: userAttr })
+			await userDB.findOrCreate({
+				where: { userID: mutedUserID as string },
+				defaults: userAttr,
+			})
 
 			const muted = (await mute
 				.findOrCreate({
 					raw: true,
-					where: { userID: mutedUserID, guildID: message.guild?.id, MuteStatus: true },
+					where: {
+						userID: mutedUserID,
+						guildID: message.guild?.id,
+						MuteStatus: true,
+					},
 					defaults: muteAttr,
 				})
 				.catch(console.error)) as [mute, boolean]
@@ -178,9 +192,14 @@ export const command: Command = {
 				)
 			}
 
-			const muteCount = await mute.findAndCountAll({ where: { guildID: message.guild?.id, userID: mutedUserID } })
+			const muteCount = await mute.findAndCountAll({
+				where: { guildID: message.guild?.id, userID: mutedUserID },
+			})
 			try {
-				const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const channel = await modLog.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setColor(`#000000`)
@@ -194,7 +213,13 @@ export const command: Command = {
 							  }`,
 						message.author.avatarURL() as string,
 					)
-					.setThumbnail(mutedUser?.user.avatarURL({ format: `png`, size: 1024, dynamic: true }) as string)
+					.setThumbnail(
+						mutedUser?.user.avatarURL({
+							format: `png`,
+							size: 1024,
+							dynamic: true,
+						}) as string,
+					)
 					.setTitle(
 						`${
 							mutedUser?.nickname
@@ -343,7 +368,10 @@ export const command: Command = {
 				)
 			}
 
-			const muteRoleData = await muteRole.findOne({ raw: true, where: { guildID: message.guild?.id } })
+			const muteRoleData = await muteRole.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
+			})
 
 			if (muteRoleData === null) {
 				return message.channel.send(
@@ -396,7 +424,11 @@ export const command: Command = {
 
 			const muted = await mute.findOrCreate({
 				raw: true,
-				where: { userID: mutedUserID, guildID: message.guild?.id, MuteStatus: true },
+				where: {
+					userID: mutedUserID,
+					guildID: message.guild?.id,
+					MuteStatus: true,
+				},
 				defaults: muteAttr,
 			})
 
@@ -420,9 +452,14 @@ export const command: Command = {
 				)
 			}
 
-			const muteCount = await mute.findAndCountAll({ where: { guildID: message.guild?.id, userID: mutedUserID } })
+			const muteCount = await mute.findAndCountAll({
+				where: { guildID: message.guild?.id, userID: mutedUserID },
+			})
 			try {
-				const channel = await modLog.findOne({ raw: true, where: { guildID: message.guild?.id } })
+				const channel = await modLog.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setColor(`#000000`)
