@@ -40,115 +40,106 @@ export const command: Command = {
 	usage: `gif <search input> [--tenor] [--multi [--count <number between 1-30>]]`,
 	website: `https://www.bentobot.xyz/commands#gif`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		if (!args.length) {
-			return message.channel.send(`You need to provide a search input!`).then((m) => m.delete({ timeout: 5000 }))
-		}
-
-		if (message.channel.type !== `text`) return
-
-		const channelObject = message.channel as TextChannel
-
-		initModels(database)
-
-		const guildDB = await guild.findOne({
-			raw: true,
-			where: { guildID: message.guild?.id },
-		})
-
-		if (guildDB?.media === false) return
-
-		let messageParse: string[] = args
-
-		if (args.includes(`--tenor`)) {
-			let query: string
-			let filter: string
-			if (channelObject.nsfw === false) {
-				query = args.join(` `).replace(`contentfilter`, ``).replace(`--tenor`, ``)
-				filter = `high`
-			} else {
-				query = args.join(` `)
-				filter = `off`
+		try {
+			if (!args.length) {
+				return message.channel.send(`You need to provide a search input!`).then((m) => m.delete({ timeout: 5000 }))
 			}
-			const response = await tenorAPI.get(`/search`, {
-				params: {
-					q: utf8.encode(query),
-					key: process.env.TENORKEY,
-					contentfilter: filter,
-				},
+
+			if (message.channel.type !== `text`) return
+
+			const channelObject = message.channel as TextChannel
+
+			initModels(database)
+
+			const guildDB = await guild.findOne({
+				raw: true,
+				where: { guildID: message.guild?.id },
 			})
-			const index = Math.floor(Math.random() * response.data.results.length)
-			if (!response.data.results.length) {
+
+			if (guildDB?.media === false) return
+
+			let messageParse: string[] = args
+
+			if (args.includes(`--tenor`)) {
+				let query: string
+				let filter: string
+				if (channelObject.nsfw === false) {
+					query = args.join(` `).replace(`contentfilter`, ``).replace(`--tenor`, ``)
+					filter = `high`
+				} else {
+					query = args.join(` `)
+					filter = `off`
+				}
+				const response = await tenorAPI.get(`/search`, {
+					params: {
+						q: utf8.encode(query),
+						key: process.env.TENORKEY,
+						contentfilter: filter,
+					},
+				})
+				const index = Math.floor(Math.random() * response.data.results.length)
+				if (!response.data.results.length) {
+					return message.channel.send(`No GIFs found based on your search input \`${query}\`.`)
+				} else {
+					return message.channel.send(response.data.results[index].url)
+				}
+			}
+
+			let returnMultipleGifs = false
+
+			let count = 15
+
+			const blacklistData = await gfycatBlacklist.findAll()
+			const wordListData = await gfycatWordList.findAll()
+
+			if (args.includes(`--multi`)) {
+				let getNumber = args.join(` `)
+				if (args.includes(`--count`)) {
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+					getNumber = getNumber.match(/\d+/)!.pop() as string
+					count = parseInt(getNumber)
+					if (count > 50) return message.channel.send(`Sorry, 50 posts is the max.`)
+				}
+				messageParse = args.filter((msg) => msg !== `--multi` && msg !== `--count` && msg !== getNumber)
+				returnMultipleGifs = true
+			}
+
+			const badWordCheck = messageParse.map((message) => message.toLowerCase())
+
+			if (badWordCheck.some((msg) => naughtyWords.includes(msg)))
+				return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
+
+			if (badWordCheck.some((msg) => wordListData.some((badWord) => badWord.word === msg)))
+				return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
+
+			const query: string = messageParse.join(` `)
+
+			const response = await gfycatAPI.get<gfycatSearchInterface>(`gfycats/search`, {
+				params: {
+					search_text: utf8.encode(query),
+					count: returnMultipleGifs === true ? count : 50,
+				},
+				headers: { Authorization: `Bearer ${gfycatToken}` },
+			})
+			if (!response.data.gfycats.length) {
 				return message.channel.send(`No GIFs found based on your search input \`${query}\`.`)
 			} else {
-				return message.channel.send(response.data.results[index].url)
-			}
-		}
+				let gfycatData = response.data.gfycats
 
-		let returnMultipleGifs = false
-
-		let count = 15
-
-		const blacklistData = await gfycatBlacklist.findAll()
-		const wordListData = await gfycatWordList.findAll()
-
-		if (args.includes(`--multi`)) {
-			let getNumber = args.join(` `)
-			if (args.includes(`--count`)) {
-				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-				getNumber = getNumber.match(/\d+/)!.pop() as string
-				count = parseInt(getNumber)
-				if (count > 50) return message.channel.send(`Sorry, 50 posts is the max.`)
-			}
-			messageParse = args.filter((msg) => msg !== `--multi` && msg !== `--count` && msg !== getNumber)
-			returnMultipleGifs = true
-		}
-
-		const badWordCheck = messageParse.map((message) => message.toLowerCase())
-
-		if (badWordCheck.some((msg) => naughtyWords.includes(msg)))
-			return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
-
-		if (badWordCheck.some((msg) => wordListData.some((badWord) => badWord.word === msg)))
-			return message.channel.send(`No GIFs found based on your search input \`${messageParse.join(` `)}\`.`)
-
-		const query: string = messageParse.join(` `)
-
-		const response = await gfycatAPI.get<gfycatSearchInterface>(`gfycats/search`, {
-			params: {
-				search_text: utf8.encode(query),
-				count: returnMultipleGifs === true ? count : 50,
-			},
-			headers: { Authorization: `Bearer ${gfycatToken}` },
-		})
-		if (!response.data.gfycats.length) {
-			return message.channel.send(`No GIFs found based on your search input \`${query}\`.`)
-		} else {
-			let gfycatData = response.data.gfycats
-
-			if (channelObject.nsfw !== true) {
-				gfycatData = gfycatData.filter((gfy) => gfy.nsfw === `0`)
-				gfycatData = gfycatData.filter((gfyUser) => {
-					return !blacklistData.some((user) => user.username === `${gfyUser.userData?.username}`)
-				})
-			}
-
-			if (returnMultipleGifs === false) {
-				const waitingMessage = await message.channel.send(
-					`Loading a random Gfycat Post related to \`${query}\` ... ⌛🐱`,
-				)
-				let index = Math.floor(Math.random() * gfycatData.length)
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				let gfyTest: any
-				await axios
-					.get(gfycatData[index].mobileUrl)
-					.then((res) => {
-						gfyTest = res
+				if (channelObject.nsfw !== true) {
+					gfycatData = gfycatData.filter((gfy) => gfy.nsfw === `0`)
+					gfycatData = gfycatData.filter((gfyUser) => {
+						return !blacklistData.some((user) => user.username === `${gfyUser.userData?.username}`)
 					})
-					// eslint-disable-next-line @typescript-eslint/no-empty-function
-					.catch(() => {})
-				while (gfyTest?.status !== 200) {
-					gfycatData = gfycatData.filter((gfy) => gfy.userData.username !== gfycatData[index].userData.username)
-					index = Math.floor(Math.random() * gfycatData.length)
+				}
+
+				if (returnMultipleGifs === false) {
+					const waitingMessage = await message.channel.send(
+						`Loading a random Gfycat Post related to \`${query}\` ... ⌛🐱`,
+					)
+					let index = Math.floor(Math.random() * gfycatData.length)
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					let gfyTest: any
 					await axios
 						.get(gfycatData[index].mobileUrl)
 						.then((res) => {
@@ -156,49 +147,62 @@ export const command: Command = {
 						})
 						// eslint-disable-next-line @typescript-eslint/no-empty-function
 						.catch(() => {})
-				}
-				waitingMessage.delete()
-				return message.channel.send(`https://gfycat.com/${gfycatData[index].gfyName}`)
-			} else {
-				let currentPage = 0
-				const waitingMessage = await message.channel.send(
-					`Loading the multiple Gfycat Posts related to \`${query}\` ... ⌛🐱`,
-				)
-				const embeds = await generateGfyCatEmbed(gfycatData)
-				if (!embeds.length) return message.channel.send(`No results based on your specifications`)
-				waitingMessage.delete()
-				const queueEmbed = await message.channel.send(
-					`Current Gfycat: ${currentPage + 1}/${embeds.length}\n${embeds[currentPage]}`,
-				)
-				await queueEmbed.react(`⬅️`)
-				await queueEmbed.react(`➡️`)
-				await queueEmbed.react(`❌`)
-				const filter = (reaction: MessageReaction, user: User) =>
-					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-				const collector = queueEmbed.createReactionCollector(filter, {
-					idle: 900000,
-					dispose: true,
-				})
-
-				collector.on(`collect`, async (reaction, user) => {
-					if (reaction.emoji.name === `➡️`) {
-						if (currentPage < embeds.length - 1) {
-							currentPage++
-							reaction.users.remove(user)
-							queueEmbed.edit(`Current Gfycat: ${currentPage + 1}/${embeds.length}\n${embeds[currentPage]}`)
-						}
-					} else if (reaction.emoji.name === `⬅️`) {
-						if (currentPage !== 0) {
-							--currentPage
-							reaction.users.remove(user)
-							queueEmbed.edit(`Current Gfycat: ${currentPage + 1}/${embeds.length}\n${embeds[currentPage]}`)
-						}
-					} else {
-						collector.stop()
-						await queueEmbed.delete()
+					while (gfyTest?.status !== 200) {
+						gfycatData = gfycatData.filter((gfy) => gfy.userData.username !== gfycatData[index].userData.username)
+						index = Math.floor(Math.random() * gfycatData.length)
+						await axios
+							.get(gfycatData[index].mobileUrl)
+							.then((res) => {
+								gfyTest = res
+							})
+							// eslint-disable-next-line @typescript-eslint/no-empty-function
+							.catch(() => {})
 					}
-				})
+					waitingMessage.delete()
+					return message.channel.send(`https://gfycat.com/${gfycatData[index].gfyName}`)
+				} else {
+					let currentPage = 0
+					const waitingMessage = await message.channel.send(
+						`Loading the multiple Gfycat Posts related to \`${query}\` ... ⌛🐱`,
+					)
+					const embeds = await generateGfyCatEmbed(gfycatData)
+					if (!embeds.length) return message.channel.send(`No results based on your specifications`)
+					waitingMessage.delete()
+					const queueEmbed = await message.channel.send(
+						`Current Gfycat: ${currentPage + 1}/${embeds.length}\n${embeds[currentPage]}`,
+					)
+					await queueEmbed.react(`⬅️`)
+					await queueEmbed.react(`➡️`)
+					await queueEmbed.react(`❌`)
+					const filter = (reaction: MessageReaction, user: User) =>
+						[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+					const collector = queueEmbed.createReactionCollector(filter, {
+						idle: 900000,
+						dispose: true,
+					})
+
+					collector.on(`collect`, async (reaction, user) => {
+						if (reaction.emoji.name === `➡️`) {
+							if (currentPage < embeds.length - 1) {
+								currentPage++
+								reaction.users.remove(user)
+								queueEmbed.edit(`Current Gfycat: ${currentPage + 1}/${embeds.length}\n${embeds[currentPage]}`)
+							}
+						} else if (reaction.emoji.name === `⬅️`) {
+							if (currentPage !== 0) {
+								--currentPage
+								reaction.users.remove(user)
+								queueEmbed.edit(`Current Gfycat: ${currentPage + 1}/${embeds.length}\n${embeds[currentPage]}`)
+							}
+						} else {
+							collector.stop()
+							await queueEmbed.delete()
+						}
+					})
+				}
 			}
+		} catch (err) {
+			console.log(`Error at gif.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 	},
 }

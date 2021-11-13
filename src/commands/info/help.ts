@@ -14,10 +14,14 @@ export const command: Command = {
 	usage: `help [command name]`,
 	website: `https://www.bentobot.xyz/commands#help`,
 	run: async (client, message, args): Promise<Message | void> => {
-		if (args[0]) {
-			return getCMD(client, message, args[0])
-		} else {
-			return helpMSG(client, message)
+		try {
+			if (args[0]) {
+				return getCMD(client, message, args[0])
+			} else {
+				return helpMSG(client, message)
+			}
+		} catch (err) {
+			console.log(`Error at help.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function helpMSG(client: ExtendedClient, message: Message) {

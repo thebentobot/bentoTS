@@ -17,110 +17,114 @@ export const command: Command = {
 	usage: `tag <add> <tag name> <tag content>\ntag <delete> <tag name>\ntag <edit> <tag name> <tag content being edit>\ntag <info> <tag name>\ntag <list>\ntag <random> [search query]\ntag <rename> <tag name> <new tag name>\ntag <search> <query>\ntag <author> [mention a user or userID]\ntag <top>`,
 	website: `https://www.bentobot.xyz/commands#tag`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		if (!args.length) {
-			initModels(database)
-			const guildData = await guild.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
-			return message.channel.send(
-				`If you need help with tags, please use \`${guildData?.prefix}help tag\` to see instructions`,
-			)
-		}
-
-		if (args[0] === `add`) {
-			if (!args[1]) {
-				return message.channel.send(`You didn't specify a tag name!`)
-			}
-
-			if (args[1].length > 20) {
-				return message.channel.send(`Your tag name is too long. It must be under 20 characters.`)
-			}
-
-			if (!args[2] && !message.attachments.array()) {
-				return message.channel.send(`You didn't attach any content for the tag \`${args[1]}\``)
-			}
-
-			return addTag(message, args[1])
-		}
-
-		if (args[0] === `delete`) {
-			if (!args[1]) {
-				return message.channel.send(`You didn't specify a tag name!`)
-			}
-
-			return removeTag(message, args[1])
-		}
-
-		if (args[0] === `edit`) {
-			if (!args[1]) {
-				return message.channel.send(`You didn't specify a tag name!`)
-			}
-
-			return editTag(message, args[1])
-		}
-
-		if (args[0] === `info`) {
-			if (!args[1]) {
-				return message.channel.send(`You didn't specify a tag name!`)
-			}
-
-			return infoTag(message, args[1])
-		}
-
-		if (args[0] === `list`) {
-			return listTags(message)
-		}
-
-		if (args[0] === `random`) {
-			return randomTag(message, args.slice(1).join(` `))
-		}
-
-		if (args[0] === `rename`) {
-			return renameTag(message, args[1], args[2])
-		}
-
-		if (args[0] === `search`) {
-			if (!args[1]) {
-				return message.channel.send(`You didn't write a query!`)
-			}
-
-			return searchTag(message, args.slice(1).join(` `))
-		}
-
-		if (args[0] === `author`) {
-			return authorTag(message, args[1])
-		}
-
-		if (args[0] === `top`) {
-			return usageCountList(message)
-		}
-
-		if (args[0]) {
-			initModels(database)
-			const customCommand = await tag.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id, command: args[0] },
-			})
-			if (customCommand) {
-				await tag.increment(`count`, {
-					where: {
-						command: customCommand.command,
-						guildID: customCommand.guildID,
-						content: customCommand.content,
-						userID: customCommand.userID,
-					},
-				})
-				return message.channel.send(customCommand.content)
-			} else {
+		try {
+			if (!args.length) {
+				initModels(database)
 				const guildData = await guild.findOne({
 					raw: true,
 					where: { guildID: message.guild?.id },
 				})
 				return message.channel.send(
-					`Sorry, the tag ${args[0]} is not a tag on this server.\nIf you didn't intent to get a tag, please use \`${guildData?.prefix}help tag\` for help with tags.`,
+					`If you need help with tags, please use \`${guildData?.prefix}help tag\` to see instructions`,
 				)
 			}
+
+			if (args[0] === `add`) {
+				if (!args[1]) {
+					return message.channel.send(`You didn't specify a tag name!`)
+				}
+
+				if (args[1].length > 20) {
+					return message.channel.send(`Your tag name is too long. It must be under 20 characters.`)
+				}
+
+				if (!args[2] && !message.attachments.array()) {
+					return message.channel.send(`You didn't attach any content for the tag \`${args[1]}\``)
+				}
+
+				return addTag(message, args[1])
+			}
+
+			if (args[0] === `delete`) {
+				if (!args[1]) {
+					return message.channel.send(`You didn't specify a tag name!`)
+				}
+
+				return removeTag(message, args[1])
+			}
+
+			if (args[0] === `edit`) {
+				if (!args[1]) {
+					return message.channel.send(`You didn't specify a tag name!`)
+				}
+
+				return editTag(message, args[1])
+			}
+
+			if (args[0] === `info`) {
+				if (!args[1]) {
+					return message.channel.send(`You didn't specify a tag name!`)
+				}
+
+				return infoTag(message, args[1])
+			}
+
+			if (args[0] === `list`) {
+				return listTags(message)
+			}
+
+			if (args[0] === `random`) {
+				return randomTag(message, args.slice(1).join(` `))
+			}
+
+			if (args[0] === `rename`) {
+				return renameTag(message, args[1], args[2])
+			}
+
+			if (args[0] === `search`) {
+				if (!args[1]) {
+					return message.channel.send(`You didn't write a query!`)
+				}
+
+				return searchTag(message, args.slice(1).join(` `))
+			}
+
+			if (args[0] === `author`) {
+				return authorTag(message, args[1])
+			}
+
+			if (args[0] === `top`) {
+				return usageCountList(message)
+			}
+
+			if (args[0]) {
+				initModels(database)
+				const customCommand = await tag.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id, command: args[0] },
+				})
+				if (customCommand) {
+					await tag.increment(`count`, {
+						where: {
+							command: customCommand.command,
+							guildID: customCommand.guildID,
+							content: customCommand.content,
+							userID: customCommand.userID,
+						},
+					})
+					return message.channel.send(customCommand.content)
+				} else {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						`Sorry, the tag ${args[0]} is not a tag on this server.\nIf you didn't intent to get a tag, please use \`${guildData?.prefix}help tag\` for help with tags.`,
+					)
+				}
+			}
+		} catch (err) {
+			console.log(`Error at tag.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function addTag(message: Message, nameOfTag?: string) {

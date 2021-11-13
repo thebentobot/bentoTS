@@ -133,10 +133,14 @@ export const event: Event = {
 			where: { guildID: message.guild.id },
 		})
 
-		if (roleChannelData !== null) {
-			if (`${roleChannelData.channelID}` === message.channel.id) {
-				await roleManagement(message)
+		try {
+			if (roleChannelData !== null) {
+				if (`${roleChannelData.channelID}` === message.channel.id) {
+					await roleManagement(message)
+				}
 			}
+		} catch (err) {
+			console.log(`Error at message.ts (rolemanagement), server ${message.guild.id}\n\n${err}`)
 		}
 
 		if (message.content.includes(`tiktok.com`)) {

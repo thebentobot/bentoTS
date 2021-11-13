@@ -17,33 +17,37 @@ export const command: Command = {
 	usage: ` is the prefix.\n**notification add <content>** to add content to be notified by. Add ''--global'' if you want to get notified when someone mentions the word on all Bento servers.\n**notification delete <content>** to delete the saved notification.\n**notification list** to get a DM with a list of all your saved notifications.\n**notification global <content>** to enable/disable global notifications for a saved notification.`,
 	website: `https://www.bentobot.xyz/commands#notification`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		if (args[0] === `add`) {
-			return addNoti(message, args.slice(1).join(` `))
-		}
+		try {
+			if (args[0] === `add`) {
+				return addNoti(message, args.slice(1).join(` `))
+			}
 
-		if (args[0] === `delete`) {
-			return deleteNoti(message, args.slice(1).join(` `))
-		}
+			if (args[0] === `delete`) {
+				return deleteNoti(message, args.slice(1).join(` `))
+			}
 
-		if (args[0] === `list`) {
-			return listNoti(message)
-		}
+			if (args[0] === `list`) {
+				return listNoti(message)
+			}
 
-		if (args[0] === `global`) {
-			return globalNoti(message, args.slice(1).join(` `))
-		}
+			if (args[0] === `global`) {
+				return globalNoti(message, args.slice(1).join(` `))
+			}
 
-		if (!args.length) {
-			initModels(database)
+			if (!args.length) {
+				initModels(database)
 
-			const guildData = await guild.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
+				const guildData = await guild.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 
-			return message.channel.send(
-				`You need to use an argument for this command.\nUse \`${guildData?.prefix}help notification\` to get help with this command.`,
-			)
+				return message.channel.send(
+					`You need to use an argument for this command.\nUse \`${guildData?.prefix}help notification\` to get help with this command.`,
+				)
+			}
+		} catch (err) {
+			console.log(`Error at notification.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function addNoti(message: Message, content: string): Promise<Message> {

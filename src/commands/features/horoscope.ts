@@ -24,48 +24,52 @@ export const command: Command = {
 	usage: `**horoscope <save> <sign>** to save your horoscope\n**horoscope <today/tomorrow/yesterday> [sign or a user mention/id]** to show horoscope for a given day and for a given user\nIf you don't specify a user or sign, then it will check for yourself. If you don't mention anything and have a sign saved, it shows for today.\n**horoscope list** shows a list of all users on the server who has saved their horoscope.\n**horoscope search <query>** makes you able to search for users who has a specific horoscope.`,
 	website: `https://www.bentobot.xyz/commands#horoscope`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		if (!args.length) {
-			return horoToday(message)
-		}
+		try {
+			if (!args.length) {
+				return horoToday(message)
+			}
 
-		if (args[0] === `save`) {
-			return horoSave(message, args[1])
-		}
+			if (args[0] === `save`) {
+				return horoSave(message, args[1])
+			}
 
-		if (args[0] === `tomorrow`) {
-			return horoTomorrow(message, args[1])
-		}
+			if (args[0] === `tomorrow`) {
+				return horoTomorrow(message, args[1])
+			}
 
-		if (args[0] === `today`) {
-			return horoToday(message, args[1])
-		}
+			if (args[0] === `today`) {
+				return horoToday(message, args[1])
+			}
 
-		if (args[0] === `yesterday`) {
-			return horoYesterday(message, args[1])
-		}
+			if (args[0] === `yesterday`) {
+				return horoYesterday(message, args[1])
+			}
 
-		if (args[0] === `search`) {
-			return horoSearch(message, args[1])
-		}
+			if (args[0] === `search`) {
+				return horoSearch(message, args[1])
+			}
 
-		if (args[0] === `list`) {
-			return horoList(message)
-		}
+			if (args[0] === `list`) {
+				return horoList(message)
+			}
 
-		if (args[0] === `sign`) {
-			return message.channel.send(
-				`https://i.pinimg.com/736x/43/aa/50/43aa50c918f3bd03abb71b6d4aaf93c7--new-zodiac-signs-zodiac-signs-and-dates.jpg`,
-			)
-		}
+			if (args[0] === `sign`) {
+				return message.channel.send(
+					`https://i.pinimg.com/736x/43/aa/50/43aa50c918f3bd03abb71b6d4aaf93c7--new-zodiac-signs-zodiac-signs-and-dates.jpg`,
+				)
+			}
 
-		if (args[0] === `signs`) {
-			return message.channel.send(
-				`https://i.pinimg.com/736x/43/aa/50/43aa50c918f3bd03abb71b6d4aaf93c7--new-zodiac-signs-zodiac-signs-and-dates.jpg`,
-			)
-		}
+			if (args[0] === `signs`) {
+				return message.channel.send(
+					`https://i.pinimg.com/736x/43/aa/50/43aa50c918f3bd03abb71b6d4aaf93c7--new-zodiac-signs-zodiac-signs-and-dates.jpg`,
+				)
+			}
 
-		if (args[0]) {
-			return horoToday(message, args[0])
+			if (args[0]) {
+				return horoToday(message, args[0])
+			}
+		} catch (err) {
+			console.log(`Error at horoscope.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function horoSave(message: Message, input?: string) {

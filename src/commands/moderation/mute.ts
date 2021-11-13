@@ -40,10 +40,14 @@ export const command: Command = {
 	usage: `mute <user id or mention user> [reason]\nmute time <amount of time> <timeframe> <user id or mention user> [reason]`,
 	website: `https://www.bentobot.xyz/commands#mute`,
 	run: async (client, message, args): Promise<Message | GuildMember | undefined> => {
-		if (args[0] === `time`) {
-			return timedMute(message, args[1], args[2], args[3], args.slice(4).join(` `))
-		} else {
-			return regularMute(message, args[0], args.slice(1).join(` `))
+		try {
+			if (args[0] === `time`) {
+				return timedMute(message, args[1], args[2], args[3], args.slice(4).join(` `))
+			} else {
+				return regularMute(message, args[0], args.slice(1).join(` `))
+			}
+		} catch (err) {
+			console.log(`Error at mute.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function timedMute(message: Message, amountOfTime: string, timeframe: string, user: string, reason?: string) {

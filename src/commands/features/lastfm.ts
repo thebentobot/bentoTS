@@ -59,57 +59,70 @@ export const command: Command = {
 	usage: ` is the prefix.\n**lastfm set <lastfm account name>** sets your lastfm user.\n**lastfm remove <lastfm account name>** removes your lastfm account.\n**lastfm [np] [user id or mention a user]** shows your current/last two songs.\n**lastfm toptracks [time period, or user where time period = overall] [user id or mention a user]** returns top tracks in a given period. You can also use **tt** for short.\n**lastfm topalbums [time period, or user where time period = overall] [user id or mention a user]** returns top albums in a given period. You can also use **tal** for short.\n**lastfm topartists [time period, or user where time period = overall] [user id or mention a user]** returns top artists in a given time period. You can also use **ta** for short.\n**lastfm recent [user id or mention a user]** returns the 50 most recent tracks.\n**lastfm profile [user id or mention a user]** shows info about a user's last.fm account.\n**lastfm collage <topalbums, toptracks or topartists> [time period or user or collage size] [user or collage size] [collage size]** returns a collage/picture of your specifications. 6x6 is the max.`,
 	website: `https://www.bentobot.xyz/commands#lastfm`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		if (!args.length) {
-			return nowPlaying(message)
+		try {
+			if (!args.length) {
+				return nowPlaying(message)
+			}
+
+			if (args[0] === `np`) {
+				return nowPlaying(message, args[1])
+			}
+
+			if (args[0] === `set`) {
+				return setUser(message, args[1])
+			}
+
+			if (args[0] === `remove`) {
+				return removeUser(message)
+			}
+
+			if (args[0] === `toptracks`) {
+				return topTracks(message, args[1], args[2])
+			}
+
+			if (args[0] === `tt`) {
+				return topTracks(message, args[1], args[2])
+			}
+
+			if (args[0] === `topalbums`) {
+				return topAlbums(message, args[1], args[2])
+			}
+
+			if (args[0] === `tal`) {
+				return topAlbums(message, args[1], args[2])
+			}
+
+			if (args[0] === `topartists`) {
+				return topArtists(message, args[1], args[2])
+			}
+
+			if (args[0] === `ta`) {
+				return topArtists(message, args[1], args[2])
+			}
+
+			if (args[0] === `recent`) {
+				return recentTracks(message, args[1])
+			}
+
+			if (args[0] === `profile`) {
+				return lastfmProfile(message, args[1])
+			}
+
+			if (args[0] === `collage`) {
+				return collage(message, args[1], args[2], args[3], args[4])
+			}
+
+			if (args[0]) {
+				return nowPlaying(message, args[0])
+			}
+		} catch (err) {
+			console.log(`Error at horoscope.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
-		if (args[0] === `np`) {
-			return nowPlaying(message, args[1])
-		}
+		/*
+        Space for more commands, perhaps combining with the spotify API to look for songs?
+        */
 
-		if (args[0] === `set`) {
-			return setUser(message, args[1])
-		}
-
-		if (args[0] === `remove`) {
-			return removeUser(message)
-		}
-
-		if (args[0] === `toptracks`) {
-			return topTracks(message, args[1], args[2])
-		}
-
-		if (args[0] === `tt`) {
-			return topTracks(message, args[1], args[2])
-		}
-
-		if (args[0] === `topalbums`) {
-			return topAlbums(message, args[1], args[2])
-		}
-
-		if (args[0] === `tal`) {
-			return topAlbums(message, args[1], args[2])
-		}
-
-		if (args[0] === `topartists`) {
-			return topArtists(message, args[1], args[2])
-		}
-
-		if (args[0] === `ta`) {
-			return topArtists(message, args[1], args[2])
-		}
-
-		if (args[0] === `recent`) {
-			return recentTracks(message, args[1])
-		}
-
-		if (args[0] === `profile`) {
-			return lastfmProfile(message, args[1])
-		}
-
-		if (args[0] === `collage`) {
-			return collage(message, args[1], args[2], args[3], args[4])
-		}
 		/*
         if (args[0] === 'wkt') {
             return lastfmWkt (message, args.slice(1).join(" "));
@@ -135,14 +148,6 @@ export const command: Command = {
             return lastfmGwk (message, args.slice(1).join(" "));
         }
         */
-
-		/*
-        Space for more commands, perhaps combining with the spotify API to look for songs?
-        */
-
-		if (args[0]) {
-			return nowPlaying(message, args[0])
-		}
 
 		async function nowPlaying(message: Message, mentionedUser?: string | GuildMember) {
 			initModels(database)

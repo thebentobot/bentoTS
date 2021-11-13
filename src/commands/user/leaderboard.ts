@@ -22,24 +22,28 @@ export const command: Command = {
 	usage: `leaderboard [<global/bento>] [global]`,
 	website: `https://www.bentobot.xyz/commands#leaderboard`,
 	run: async (client, message, args): Promise<Message | void> => {
-		if (!args.length) {
-			return serverLeaderboard(message)
-		}
+		try {
+			if (!args.length) {
+				return serverLeaderboard(message)
+			}
 
-		if (args[0] === `global`) {
-			return globalLeaderboard(message)
-		}
+			if (args[0] === `global`) {
+				return globalLeaderboard(message)
+			}
 
-		if (args[0] === `bento` && args[1] === `global`) {
-			return bentoGlobalLeaderboard(message)
-		}
+			if (args[0] === `bento` && args[1] === `global`) {
+				return bentoGlobalLeaderboard(message)
+			}
 
-		if (args[0] === `bento`) {
-			return bentoServerLeaderboard(message)
-		}
+			if (args[0] === `bento`) {
+				return bentoServerLeaderboard(message)
+			}
 
-		if (args[0] === `web`) {
-			return message.channel.send(`https://www.bentobot.xyz/leaderboard/${message?.guild?.id}`)
+			if (args[0] === `web`) {
+				return message.channel.send(`https://www.bentobot.xyz/leaderboard/${message?.guild?.id}`)
+			}
+		} catch (err) {
+			console.log(`Error at leaderboard.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function serverLeaderboard(message: Message) {
