@@ -25,8 +25,8 @@ export const event: Event = {
 				.setTimestamp(message.createdAt)
 
 			await messageLogChannel.send(embed)
-		} catch (err) {
-			console.log(`Error at messagedelete.ts, server ${message.guild?.id}\n\n${err}`)
+		} catch {
+			return
 		}
 	},
 }
