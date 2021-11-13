@@ -23,10 +23,14 @@ export const command: Command = {
 	usage: `bento [<user>]. If you just write the command, it shows when you can give a Bento Box 🍱 again.`,
 	website: `https://www.bentobot.xyz/commands#bento`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		if (!args.length) {
-			return giveBento(message)
-		} else {
-			return giveBento(message, args[0])
+		try {
+			if (!args.length) {
+				return giveBento(message)
+			} else {
+				return giveBento(message, args[0])
+			}
+		} catch (err) {
+			console.log(`Error at bento.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function giveBento(message: Message, user?: string): Promise<Message | undefined> {

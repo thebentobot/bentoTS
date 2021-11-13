@@ -118,10 +118,6 @@ export const event: Event = {
 			return res.json({ success: true })
 		})
 
-		app.get(`/`, (req, res) => {
-			res.send(`Hello World!`)
-		})
-
 		app.listen(process.env.webhookport, () => {
 			console.log(`Bento Webhooks listening on port ${process.env.webhookport}`)
 		})

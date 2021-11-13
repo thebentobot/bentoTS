@@ -8,145 +8,150 @@ import { Command } from '../../interfaces'
 import { urlToColours } from '../../utils'
 
 export async function roleManagement(message: Message) {
-	async function roleEmbed(responses: object) {
-		const embed = new MessageEmbed()
-		embed.setTitle(
-			Util.removeMentions(
-				`${
-					message.member?.nickname
-						? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`
-				}`,
-			),
-		)
-		if (message.author.avatarURL()) {
-			embed.setThumbnail(message.author.avatarURL({ dynamic: true, format: `png` }) as string)
+	try {
+		// eslint-disable-next-line no-inner-declarations
+		async function roleEmbed(responses: object) {
+			const embed = new MessageEmbed()
+			embed.setTitle(
+				Util.removeMentions(
+					`${
+						message.member?.nickname
+							? `${message.member.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`
+					}`,
+				),
+			)
+			if (message.author.avatarURL()) {
+				embed.setThumbnail(message.author.avatarURL({ dynamic: true, format: `png` }) as string)
+			}
+			let key: string
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			let val: any
+			for ([key, val] of Object.entries(responses)) {
+				if (val.length > 0) embed.addField(key, val.join(`, `), false)
+			}
+			return embed
 		}
-		let key: string
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		let val: any
-		for ([key, val] of Object.entries(responses)) {
-			if (val.length > 0) embed.addField(key, val.join(`, `), false)
-		}
-		return embed
-	}
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	await message.delete().catch(() => {})
-
-	const args = message.content.trim().split(` `)
-	if (args.length < 2) {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		return message.delete({ timeout: 1000 }).catch(() => {})
-	}
-	// eslint-disable-next-line no-useless-escape
-	const prefix = message.content.trim().match(/^(?:\+|\-)\s*(main|sub|other)/i)
-	if (!prefix) {
-		return message.reply(`Invalid formatting. Please read the instructions above.`).then((reply) => {
+		await message.delete().catch(() => {})
+
+		const args = message.content.trim().split(` `)
+		if (args.length < 2) {
 			// eslint-disable-next-line @typescript-eslint/no-empty-function
-			reply.delete({ timeout: 4000 }).catch(() => {})
-		})
-	}
-	const modifier = prefix[0][0]
-	const type = prefix[1]
-	const roleCommands = message.content.slice(message.content.indexOf(type) + type.length).split(`,`)
-	const rolesToProcess = []
-	const rolesSuccessful: Role[] = []
-	const rolesUnsuccessful: Role[] = []
-	const errors = []
-
-	let member: GuildMember
-	if (message.member) {
-		member = message.member
-	} else {
-		member = (await message.guild?.members.fetch(message.author.id)) as GuildMember
-	}
-
-	let colour: number | string | undefined
-
-	for (let i = 0; i < roleCommands.length; i++) {
-		const roleCommand = roleCommands[i].trim()
-		const roleData = await roleDB.findOne({
-			raw: true,
-			where: {
-				roleCommand: roleCommand,
-				guildID: message.guild?.id,
-				type: type,
-			},
-		})
-		let role: Role | null | undefined
-		if (roleData) {
-			role = await message.guild?.roles.fetch(`${roleData.roleID}`)
+			return message.delete({ timeout: 1000 }).catch(() => {})
 		}
+		// eslint-disable-next-line no-useless-escape
+		const prefix = message.content.trim().match(/^(?:\+|\-)\s*(main|sub|other)/i)
+		if (!prefix) {
+			return message.reply(`Invalid formatting. Please read the instructions above.`).then((reply) => {
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
+				reply.delete({ timeout: 4000 }).catch(() => {})
+			})
+		}
+		const modifier = prefix[0][0]
+		const type = prefix[1]
+		const roleCommands = message.content.slice(message.content.indexOf(type) + type.length).split(`,`)
+		const rolesToProcess = []
+		const rolesSuccessful: Role[] = []
+		const rolesUnsuccessful: Role[] = []
+		const errors = []
 
-		if (role) {
-			if (!colour) colour = role.color
-
-			switch (modifier) {
-				case `+`:
-					if (member.roles.cache.has(`${roleData?.roleID}`) && !rolesUnsuccessful.includes(role)) {
-						rolesUnsuccessful.push(role)
-					} else if (!member.roles.cache.has(`${roleData?.roleID}`) && !rolesSuccessful.includes(role)) {
-						rolesToProcess.push(`${roleData?.roleID}`)
-						rolesSuccessful.push(role)
-					}
-					break
-				case `-`:
-					if (!member.roles.cache.has(`${roleData?.roleID}`) && !rolesUnsuccessful.includes(role)) {
-						rolesUnsuccessful.push(role)
-					} else if (member.roles.cache.has(`${roleData?.roleID}`) && !rolesUnsuccessful.includes(role)) {
-						rolesToProcess.push(`${roleData?.roleID}`)
-						rolesSuccessful.push(role)
-					}
-					break
-			}
+		let member: GuildMember
+		if (message.member) {
+			member = message.member
 		} else {
-			errors.push(`"${roleCommand}"`)
+			member = (await message.guild?.members.fetch(message.author.id)) as GuildMember
 		}
-	}
-	if (!colour)
-		colour = (await urlToColours(
-			`${
-				message.guild?.iconURL({ format: `png` })
-					? message.guild.iconURL({ format: `png` })
-					: message.author.avatarURL({ format: `png` })
-			}`,
-		)) as string
 
-	switch (modifier) {
-		case `+`:
-			{
-				member.roles.add(rolesToProcess)
-				const addRoleResponses = {
-					'Assigned Roles': rolesSuccessful,
-					'Current Roles': rolesUnsuccessful,
-					'Invalid Roles': errors,
-				}
-				const addRoleEmbed = await roleEmbed(addRoleResponses)
-				addRoleEmbed.setColor(colour)
-				await message.reply(addRoleEmbed).then(async (reply) => {
-					await reply.delete({
-						timeout: addRoleEmbed.fields.length * 2000 + 2000,
-					})
-				})
+		let colour: number | string | undefined
+
+		for (let i = 0; i < roleCommands.length; i++) {
+			const roleCommand = roleCommands[i].trim()
+			const roleData = await roleDB.findOne({
+				raw: true,
+				where: {
+					roleCommand: roleCommand,
+					guildID: message.guild?.id,
+					type: type,
+				},
+			})
+			let role: Role | null | undefined
+			if (roleData) {
+				role = await message.guild?.roles.fetch(`${roleData.roleID}`)
 			}
-			break
-		case `-`:
-			{
-				member.roles.remove(rolesToProcess)
-				const removeRoleResponses = {
-					'Removed Roles': rolesSuccessful,
-					'Roles not assigned': rolesUnsuccessful,
-					'Invalid Roles': errors,
+
+			if (role) {
+				if (!colour) colour = role.color
+
+				switch (modifier) {
+					case `+`:
+						if (member.roles.cache.has(`${roleData?.roleID}`) && !rolesUnsuccessful.includes(role)) {
+							rolesUnsuccessful.push(role)
+						} else if (!member.roles.cache.has(`${roleData?.roleID}`) && !rolesSuccessful.includes(role)) {
+							rolesToProcess.push(`${roleData?.roleID}`)
+							rolesSuccessful.push(role)
+						}
+						break
+					case `-`:
+						if (!member.roles.cache.has(`${roleData?.roleID}`) && !rolesUnsuccessful.includes(role)) {
+							rolesUnsuccessful.push(role)
+						} else if (member.roles.cache.has(`${roleData?.roleID}`) && !rolesUnsuccessful.includes(role)) {
+							rolesToProcess.push(`${roleData?.roleID}`)
+							rolesSuccessful.push(role)
+						}
+						break
 				}
-				const removeRoleEmbed = await roleEmbed(removeRoleResponses)
-				removeRoleEmbed.setColor(colour)
-				await message.reply(removeRoleEmbed).then(async (reply) => {
-					await reply.delete({
-						timeout: removeRoleEmbed.fields.length * 2000 + 2000,
-					})
-				})
+			} else {
+				errors.push(`"${roleCommand}"`)
 			}
-			break
+		}
+		if (!colour)
+			colour = (await urlToColours(
+				`${
+					message.guild?.iconURL({ format: `png` })
+						? message.guild.iconURL({ format: `png` })
+						: message.author.avatarURL({ format: `png` })
+				}`,
+			)) as string
+
+		switch (modifier) {
+			case `+`:
+				{
+					member.roles.add(rolesToProcess)
+					const addRoleResponses = {
+						'Assigned Roles': rolesSuccessful,
+						'Current Roles': rolesUnsuccessful,
+						'Invalid Roles': errors,
+					}
+					const addRoleEmbed = await roleEmbed(addRoleResponses)
+					addRoleEmbed.setColor(colour)
+					await message.reply(addRoleEmbed).then(async (reply) => {
+						await reply.delete({
+							timeout: addRoleEmbed.fields.length * 2000 + 2000,
+						})
+					})
+				}
+				break
+			case `-`:
+				{
+					member.roles.remove(rolesToProcess)
+					const removeRoleResponses = {
+						'Removed Roles': rolesSuccessful,
+						'Roles not assigned': rolesUnsuccessful,
+						'Invalid Roles': errors,
+					}
+					const removeRoleEmbed = await roleEmbed(removeRoleResponses)
+					removeRoleEmbed.setColor(colour)
+					await message.reply(removeRoleEmbed).then(async (reply) => {
+						await reply.delete({
+							timeout: removeRoleEmbed.fields.length * 2000 + 2000,
+						})
+					})
+				}
+				break
+		}
+	} catch (err) {
+		console.log(`Error at role.ts (first function), server ${message.guild?.id}\n\n${err}`)
 	}
 }
 
@@ -169,32 +174,36 @@ export const command: Command = {
 			where: { guildID: message.guild?.id },
 		})
 
-		if (args[0] === `message`) {
-			return roleMessageFunction(message, args.slice(1).join(` `))
-		}
+		try {
+			if (args[0] === `message`) {
+				return await roleMessageFunction(message, args.slice(1).join(` `))
+			}
 
-		if (args[0] === `add`) {
-			return roleSetFunction(message, args[1], args.slice(2).join(` `))
-		}
+			if (args[0] === `add`) {
+				return await roleSetFunction(message, args[1], args.slice(2).join(` `))
+			}
 
-		if (args[0] === `delete`) {
-			return roleDeleteFunction(message, args[1], args.slice(2).join(` `))
-		}
+			if (args[0] === `delete`) {
+				return await roleDeleteFunction(message, args[1], args.slice(2).join(` `))
+			}
 
-		if (args[0] === `channel`) {
-			return rolesChannel(message, args[1])
-		}
+			if (args[0] === `channel`) {
+				return await rolesChannel(message, args[1])
+			}
 
-		if (args[0] === `update`) {
-			return rolesChannelUpdate(message)
-		}
+			if (args[0] === `update`) {
+				return await rolesChannelUpdate(message)
+			}
 
-		if (args[0] === `list`) {
-			return rolesList(message)
-		}
+			if (args[0] === `list`) {
+				return await rolesList(message)
+			}
 
-		if (!args.length) {
-			return message.channel.send(`Get help with this command by using\`${guildData?.prefix}help role\``)
+			if (!args.length) {
+				return message.channel.send(`Get help with this command by using\`${guildData?.prefix}help role\``)
+			}
+		} catch (err) {
+			console.log(`Error at role.ts (main), server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function roleMessageFunction(message: Message, content: string) {

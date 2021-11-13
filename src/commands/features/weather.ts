@@ -27,16 +27,20 @@ export const command: Command = {
 	usage: `weather [save] <city>, [country code]`,
 	website: `https://www.bentobot.xyz/commands#weather`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		if (args[0] === `save`) {
-			return saveWeather(message, args.slice(1).join(` `))
-		}
+		try {
+			if (args[0] === `save`) {
+				return await saveWeather(message, args.slice(1).join(` `))
+			}
 
-		if (args[0]) {
-			return weatherFunction(message, args.slice(0).join(` `))
-		}
+			if (args[0]) {
+				return await weatherFunction(message, args.slice(0).join(` `))
+			}
 
-		if (!args.length) {
-			return weatherFunction(message)
+			if (!args.length) {
+				return await weatherFunction(message)
+			}
+		} catch (err) {
+			console.log(`Error at weather.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function weatherFunction(message: Message, input?: string) {

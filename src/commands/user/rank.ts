@@ -35,7 +35,11 @@ export const command: Command = {
 	usage: `rank [userID/mention a user]`,
 	website: `https://www.bentobot.xyz/commands#rank`,
 	run: async (client, message, args): Promise<Message | void> => {
-		return userFunction(message, args[0])
+		try {
+			return userFunction(message, args[0])
+		} catch (err) {
+			console.log(`Error at rank.ts, server ${message.guild?.id}\n\n${err}`)
+		}
 
 		async function userFunction(message: Message, user: string) {
 			try {

@@ -13,284 +13,288 @@ export const command: Command = {
 	usage: `**sketch bgpic** <image URL> | **sketch desc** <add/colour/opacity/status> <description text / hex colour / 0-100> | **sketch timezone** <tz database value, e.g. "Europe/Copenhagen"> | **sketch birthday** <birthday e.g. "25 November"> | **sketch username** <hex color> | **sketch discriminator** <hex color> | **sketch overlay** <colour/opacity/status> <hex colour/ 0-100 / status> | **sketch bgcolour** <colour/opacity/status> <hex colour / 0-100 / no argument for status> | **sketch fm** <toggle/bg/status/song/artist> <colour/opacity> <hex colour / 0-100> | **sketch xpboard** <toggle/bg/status/text/bar/barbg/text1/text2/bar1/bar2/barbg1/barbg2> <colour/opacity> <hex colour / 0-100> | **sketch sidebar** <opacity/colour/blur/rank/users/status> <hex colour/ 0-100 / number for blur amount / if it is rank or users you need to specify if it is either the server, global, bento or timezone row, before writing colour> <hex colour for rank and users> | **sketch delete**`,
 	website: `https://www.bentobot.xyz/commands#sketch`,
 	run: async (client, message, args): Promise<Message | void> => {
-		switch (args[0]) {
-			case `pic`:
-			case `picture`:
-			case `image`:
-			case `bgpic`:
-				await setBackgroundURL(message, args.slice(1).join(` `)) // args.slice(1).join(" ") = bg URL
-				break
-			case `bgcolour`:
-			case `bgcolor`:
-				switch (args[1]) {
-					case `colour`:
-					case `color`:
-						await setBackgroundColour(message, args[2]) // args[2] = hex color
-						break
-					case `opacity`:
-						await setBackgroundColourOpacity(message, args[2]) // args[2] = bg opacity
-						break
-					case `status`:
-						await backgroundColourStatus(message) // shows settings for bgcolour
-				}
-				break
-			case `fmboard`:
-			case `fm`:
-			case `lastfmboard`:
-			case `lfmboard`:
-				switch (args[1]) {
-					case `toggle`:
-						await toggleLastFMBoard(message, args[2]) // enables/disables lastfmboard. args[2] is optional, you can just toggle
-						break
-					case `status`:
-						await lfmBoardStatus(message) // shows settings for lastfmboard
-						break
-					case `bg`:
-					case `background`:
-					case `box`:
-						switch (args[2]) {
-							case `opacity`:
-								await setLfmBoardOpacity(message, args[3]) // args[3] = box bg opacity
-								break
-							case `color`:
-							case `colour`:
-								await setLfmBoardColour(message, args[3]) // args[3] = box bg clour
-						}
-						break
-					case `fmsong`:
-					case `songtext`:
-					case `song`:
-						switch (args[2]) {
-							case `opacity`:
-								await setSongTextOpacity(message, args[3]) // args[3] = song text opacity
-								break
-							case `color`:
-							case `colour`:
-								await setSongTextColour(message, args[3]) // args[3] = song text colour
-						}
-						break
-					case `fmartist`:
-					case `artisttext`:
-					case `artist`:
-						switch (args[2]) {
-							case `opacity`:
-								await setArtistTextOpacity(message, args[3]) // args[3] = artist text opacity
-								break
-							case `color`:
-							case `colour`:
-								await setArtistTextColour(message, args[3]) // args[3] = artist text colour
-						}
-				}
-				break
-			case `xpboard`:
-			case `levelboard`:
-				switch (args[1]) {
-					case `toggle`:
-						await toggleXPBoard(message, args[2]) // enables/disables xpboard. args[2] is optional, you can just toggle
-						break
-					case `status`:
-						await xpBoardStatus(message) // shows settings for xpboard
-						break
-					case `bg`:
-					case `background`:
-					case `box`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPBoardOpacity(message, args[3]) // args[3] = xp box opacity
-								break
-							case `color`:
-							case `colour`:
-								await setXPBoardColour(message, args[3]) // args[3] = xp box colour
-						}
-						break
-					case `text`:
-					case `xptext`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPTextBothOpacity(message, args[3]) // args[3] = xp text opacity for both levels
-								break
-							case `color`:
-							case `colour`:
-								await setXPTextBothColour(message, args[3]) // args[3] = xp text colour for both levels
-						}
-						break
-					case `text1`:
-					case `xptext1`:
-					case `xptextleft`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPTextOpacity(message, args[3]) // args[3] = xp text opacity for left level
-								break
-							case `color`:
-							case `colour`:
-								await setXPTextColour(message, args[3]) // args[3] = xp text colour for left level
-						}
-						break
-					case `text2`:
-					case `xptext2`:
-					case `xptextright`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPText2Opacity(message, args[3]) // args[3] = xp text opacity for right level
-								break
-							case `color`:
-							case `colour`:
-								await setXPText2Colour(message, args[3]) // args[3] = xp text colour for right level
-						}
-						break
-					case `bar`:
-					case `xpbar`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPBarBothOpacity(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar opacity for both levels
-								break
-							case `color`:
-							case `colour`:
-								await setXPBarBothColour(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar colour for both levels
-						}
-						break
-					case `bar1`:
-					case `xpbar1`:
-					case `xpbarserver`:
-					case `xpbarleft`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPBarOpacity(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar opacity for left level
-								break
-							case `color`:
-							case `colour`:
-								await setXPBarColour(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar colour for left level
-						}
-						break
-					case `bar2`:
-					case `xpbar2`:
-					case `xpbarglobal`:
-					case `xpbarright`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPBar2Opacity(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar opacity for right level
-								break
-							case `color`:
-							case `colour`:
-								await setXPBar2Colour(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar colour for right level
-						}
-						break
-					case `barbg`:
-					case `xpbarbg`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPBarBgBothOpacity(message, args[3]) // args[3] = xp bar bg opacity for both levels
-								break
-							case `color`:
-							case `colour`:
-								await setXPBarBgBothColour(message, args[3]) // args[3] = xp bar bg colour for both levels
-						}
-						break
-					case `bar1bg`:
-					case `xpbar1bg`:
-					case `xpbarserverbg`:
-					case `xpbarleftbg`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPBarBgOpacity(message, args[3]) // args[3] = xp bar bg opacity for left level
-								break
-							case `color`:
-							case `colour`:
-								await setXPBarBgColour(message, args[3]) // args[3] = xp bar bg colour for left level
-						}
-						break
-					case `bar2bg`:
-					case `xpbar2bg`:
-					case `xpbarglobalbg`:
-					case `xpbarrightbg`:
-						switch (args[2]) {
-							case `opacity`:
-								await setXPBarBg2Opacity(message, args[3]) // args[3] = xp bar bg opacity for right level
-								break
-							case `color`:
-							case `colour`:
-								await setXPBarBg2Colour(message, args[3]) // args[3] = xp bar bg colour for right level
-						}
-				}
-				break
-			case `desc`:
-			case `description`:
-				switch (args[1]) {
-					case `colour`:
-					case `color`:
-						await setDescriptionColour(message, args[2]) // args[2] = description text colour (hex colour)
-						break
-					case `opacity`:
-						await setDescriptionOpacity(message, args[2]) // args[2] = description text opacity (0-100)
-						break
-					case `status`:
-						await descriptionStatus(message) // shows settings set for description
-						break
-					case `add`:
-						await setDescription(message, args.slice(2).join(` `)) // add/change your description
-				}
-				break
-			case `bgoverlay`:
-			case `overlay`:
-				switch (args[1]) {
-					case `colour`:
-					case `color`:
-						await setOverlayColour(message, args[2]) // args[2] = overlay colour (hex colour) (when you have a pic bg)
-						break
-					case `opacity`:
-						await setOverlayOpacity(message, args[2]) // args[2] = overlay opacity (0-100) (when you have a pic bg)
-						break
-					case `status`:
-						await overlayStatus(message) // shows settings set for overlay
-				}
-				break
-			case `user`:
-			case `username`:
-				await setUsernameColour(message, args[1]) // args[1] = username colour (hex colour)
-				break
-			case `discriminator`:
-			case `userbottom`:
-				await setDiscriminatorColour(message, args[1]) // args[1] = discriminator colour (hex colour)
-				break
-			case `sidebar`:
-			case `profile`:
-				switch (args[1]) {
-					case `opacity`:
-						await setSidebarOpacity(message, args[2]) // args[2] = sidebar opacity (0-100)
-						break
-					case `colour`:
-					case `color`:
-						await setSidebarColour(message, args[2]) // args[2] = sidebar colour (hex colour)
-						break
-					case `blur`:
-						await setSidebarBlur(message, args[2]) // args[2] = sidebar blur (0-100?)
-						break
-					case `value`:
-					case `rank`:
-						await setSidebarValueColour(message, args[2], args[3]) // args[2] = row (server, global or bento), args[3] = hex colour
-						break
-					case `item`:
-					case `users`:
-						await setSidebarItemColour(message, args[2], args[3]) // args[2] = row (server, global, bento or timezone), args[3] = hex colour
-						break
-					case `status`:
-						await sidebarStatus(message) // shows settings for sidebar
-				}
-				break
-			case `timezone`:
-			case `time`:
-			case `clock`:
-				await setTimezone(message, args[1]) // set your timezone (e.g. "Europe/Copenhagen")
-				break
-			case `birthday`:
-			case `bday`:
-			case `birthdate`:
-			case `birth`:
-				await setBirthday(message, args.slice(1).join(` `)) // set your timezone (e.g. "25 November")
-				break
-			case `reset`:
-			case `delete`:
-				await deleteUserProfile(message) // deletes your saved profile
+		try {
+			switch (args[0]) {
+				case `pic`:
+				case `picture`:
+				case `image`:
+				case `bgpic`:
+					await setBackgroundURL(message, args.slice(1).join(` `)) // args.slice(1).join(" ") = bg URL
+					break
+				case `bgcolour`:
+				case `bgcolor`:
+					switch (args[1]) {
+						case `colour`:
+						case `color`:
+							await setBackgroundColour(message, args[2]) // args[2] = hex color
+							break
+						case `opacity`:
+							await setBackgroundColourOpacity(message, args[2]) // args[2] = bg opacity
+							break
+						case `status`:
+							await backgroundColourStatus(message) // shows settings for bgcolour
+					}
+					break
+				case `fmboard`:
+				case `fm`:
+				case `lastfmboard`:
+				case `lfmboard`:
+					switch (args[1]) {
+						case `toggle`:
+							await toggleLastFMBoard(message, args[2]) // enables/disables lastfmboard. args[2] is optional, you can just toggle
+							break
+						case `status`:
+							await lfmBoardStatus(message) // shows settings for lastfmboard
+							break
+						case `bg`:
+						case `background`:
+						case `box`:
+							switch (args[2]) {
+								case `opacity`:
+									await setLfmBoardOpacity(message, args[3]) // args[3] = box bg opacity
+									break
+								case `color`:
+								case `colour`:
+									await setLfmBoardColour(message, args[3]) // args[3] = box bg clour
+							}
+							break
+						case `fmsong`:
+						case `songtext`:
+						case `song`:
+							switch (args[2]) {
+								case `opacity`:
+									await setSongTextOpacity(message, args[3]) // args[3] = song text opacity
+									break
+								case `color`:
+								case `colour`:
+									await setSongTextColour(message, args[3]) // args[3] = song text colour
+							}
+							break
+						case `fmartist`:
+						case `artisttext`:
+						case `artist`:
+							switch (args[2]) {
+								case `opacity`:
+									await setArtistTextOpacity(message, args[3]) // args[3] = artist text opacity
+									break
+								case `color`:
+								case `colour`:
+									await setArtistTextColour(message, args[3]) // args[3] = artist text colour
+							}
+					}
+					break
+				case `xpboard`:
+				case `levelboard`:
+					switch (args[1]) {
+						case `toggle`:
+							await toggleXPBoard(message, args[2]) // enables/disables xpboard. args[2] is optional, you can just toggle
+							break
+						case `status`:
+							await xpBoardStatus(message) // shows settings for xpboard
+							break
+						case `bg`:
+						case `background`:
+						case `box`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPBoardOpacity(message, args[3]) // args[3] = xp box opacity
+									break
+								case `color`:
+								case `colour`:
+									await setXPBoardColour(message, args[3]) // args[3] = xp box colour
+							}
+							break
+						case `text`:
+						case `xptext`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPTextBothOpacity(message, args[3]) // args[3] = xp text opacity for both levels
+									break
+								case `color`:
+								case `colour`:
+									await setXPTextBothColour(message, args[3]) // args[3] = xp text colour for both levels
+							}
+							break
+						case `text1`:
+						case `xptext1`:
+						case `xptextleft`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPTextOpacity(message, args[3]) // args[3] = xp text opacity for left level
+									break
+								case `color`:
+								case `colour`:
+									await setXPTextColour(message, args[3]) // args[3] = xp text colour for left level
+							}
+							break
+						case `text2`:
+						case `xptext2`:
+						case `xptextright`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPText2Opacity(message, args[3]) // args[3] = xp text opacity for right level
+									break
+								case `color`:
+								case `colour`:
+									await setXPText2Colour(message, args[3]) // args[3] = xp text colour for right level
+							}
+							break
+						case `bar`:
+						case `xpbar`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPBarBothOpacity(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar opacity for both levels
+									break
+								case `color`:
+								case `colour`:
+									await setXPBarBothColour(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar colour for both levels
+							}
+							break
+						case `bar1`:
+						case `xpbar1`:
+						case `xpbarserver`:
+						case `xpbarleft`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPBarOpacity(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar opacity for left level
+									break
+								case `color`:
+								case `colour`:
+									await setXPBarColour(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar colour for left level
+							}
+							break
+						case `bar2`:
+						case `xpbar2`:
+						case `xpbarglobal`:
+						case `xpbarright`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPBar2Opacity(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar opacity for right level
+									break
+								case `color`:
+								case `colour`:
+									await setXPBar2Colour(message, args[3], args[4], args[5]) // args[3], args[4], args[5] = xp bar colour for right level
+							}
+							break
+						case `barbg`:
+						case `xpbarbg`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPBarBgBothOpacity(message, args[3]) // args[3] = xp bar bg opacity for both levels
+									break
+								case `color`:
+								case `colour`:
+									await setXPBarBgBothColour(message, args[3]) // args[3] = xp bar bg colour for both levels
+							}
+							break
+						case `bar1bg`:
+						case `xpbar1bg`:
+						case `xpbarserverbg`:
+						case `xpbarleftbg`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPBarBgOpacity(message, args[3]) // args[3] = xp bar bg opacity for left level
+									break
+								case `color`:
+								case `colour`:
+									await setXPBarBgColour(message, args[3]) // args[3] = xp bar bg colour for left level
+							}
+							break
+						case `bar2bg`:
+						case `xpbar2bg`:
+						case `xpbarglobalbg`:
+						case `xpbarrightbg`:
+							switch (args[2]) {
+								case `opacity`:
+									await setXPBarBg2Opacity(message, args[3]) // args[3] = xp bar bg opacity for right level
+									break
+								case `color`:
+								case `colour`:
+									await setXPBarBg2Colour(message, args[3]) // args[3] = xp bar bg colour for right level
+							}
+					}
+					break
+				case `desc`:
+				case `description`:
+					switch (args[1]) {
+						case `colour`:
+						case `color`:
+							await setDescriptionColour(message, args[2]) // args[2] = description text colour (hex colour)
+							break
+						case `opacity`:
+							await setDescriptionOpacity(message, args[2]) // args[2] = description text opacity (0-100)
+							break
+						case `status`:
+							await descriptionStatus(message) // shows settings set for description
+							break
+						case `add`:
+							await setDescription(message, args.slice(2).join(` `)) // add/change your description
+					}
+					break
+				case `bgoverlay`:
+				case `overlay`:
+					switch (args[1]) {
+						case `colour`:
+						case `color`:
+							await setOverlayColour(message, args[2]) // args[2] = overlay colour (hex colour) (when you have a pic bg)
+							break
+						case `opacity`:
+							await setOverlayOpacity(message, args[2]) // args[2] = overlay opacity (0-100) (when you have a pic bg)
+							break
+						case `status`:
+							await overlayStatus(message) // shows settings set for overlay
+					}
+					break
+				case `user`:
+				case `username`:
+					await setUsernameColour(message, args[1]) // args[1] = username colour (hex colour)
+					break
+				case `discriminator`:
+				case `userbottom`:
+					await setDiscriminatorColour(message, args[1]) // args[1] = discriminator colour (hex colour)
+					break
+				case `sidebar`:
+				case `profile`:
+					switch (args[1]) {
+						case `opacity`:
+							await setSidebarOpacity(message, args[2]) // args[2] = sidebar opacity (0-100)
+							break
+						case `colour`:
+						case `color`:
+							await setSidebarColour(message, args[2]) // args[2] = sidebar colour (hex colour)
+							break
+						case `blur`:
+							await setSidebarBlur(message, args[2]) // args[2] = sidebar blur (0-100?)
+							break
+						case `value`:
+						case `rank`:
+							await setSidebarValueColour(message, args[2], args[3]) // args[2] = row (server, global or bento), args[3] = hex colour
+							break
+						case `item`:
+						case `users`:
+							await setSidebarItemColour(message, args[2], args[3]) // args[2] = row (server, global, bento or timezone), args[3] = hex colour
+							break
+						case `status`:
+							await sidebarStatus(message) // shows settings for sidebar
+					}
+					break
+				case `timezone`:
+				case `time`:
+				case `clock`:
+					await setTimezone(message, args[1]) // set your timezone (e.g. "Europe/Copenhagen")
+					break
+				case `birthday`:
+				case `bday`:
+				case `birthdate`:
+				case `birth`:
+					await setBirthday(message, args.slice(1).join(` `)) // set your timezone (e.g. "25 November")
+					break
+				case `reset`:
+				case `delete`:
+					await deleteUserProfile(message) // deletes your saved profile
+			}
+		} catch (err) {
+			console.log(`Error at sketch.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		// background

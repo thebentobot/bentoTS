@@ -24,30 +24,34 @@ export const command: Command = {
 	run: async (client, message, args): Promise<Message | undefined> => {
 		if (message.channel.type !== `text`) return
 
-		switch (args[0]) {
-			case `upload`:
-			case `create`:
-				await createGfycat(message)
-				break
-			case `user`:
-				switch (args[1]) {
-					case `profile`:
-						await userProfile(message, args[2])
-						break
-					case `feed`:
-					case `gfycats`:
-					case `gfys`:
-						await userFeed(message, args[2], args[3])
-						break
-				}
-				break
-			case `get`:
-			case `info`:
-				await getGfycat(message, args[1])
-				break
-			case `search`:
-				await searchGfycat(message, args)
-				break
+		try {
+			switch (args[0]) {
+				case `upload`:
+				case `create`:
+					await createGfycat(message)
+					break
+				case `user`:
+					switch (args[1]) {
+						case `profile`:
+							await userProfile(message, args[2])
+							break
+						case `feed`:
+						case `gfycats`:
+						case `gfys`:
+							await userFeed(message, args[2], args[3])
+							break
+					}
+					break
+				case `get`:
+				case `info`:
+					await getGfycat(message, args[1])
+					break
+				case `search`:
+					await searchGfycat(message, args)
+					break
+			}
+		} catch (err) {
+			console.log(`Error at gfycat.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		initModels(database)

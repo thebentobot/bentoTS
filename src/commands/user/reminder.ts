@@ -47,28 +47,32 @@ export const command: Command = {
 			where: { guildID: message.guild?.id },
 		})
 
-		if (!args.length) {
-			return message.channel.send(
-				`If you need help with reminders, please use \`${guildData?.prefix}help reminder\` to see instructions`,
-			)
-		}
+		try {
+			if (!args.length) {
+				return message.channel.send(
+					`If you need help with reminders, please use \`${guildData?.prefix}help reminder\` to see instructions`,
+				)
+			}
 
-		if (args[0] === `time`) {
-			return remindTime(message, args[1], args[2], args.slice(3).join(` `))
-		}
+			if (args[0] === `time`) {
+				return remindTime(message, args[1], args[2], args.slice(3).join(` `))
+			}
 
-		if (args[0] === `schedule`) {
-			return remindSchedule(message, args[1], args[2], args[3], args.slice(4).join(` `))
-		}
+			if (args[0] === `schedule`) {
+				return remindSchedule(message, args[1], args[2], args[3], args.slice(4).join(` `))
+			}
 
-		if (args[0] === `list`) {
-			return remindList(message)
-		}
+			if (args[0] === `list`) {
+				return remindList(message)
+			}
 
-		if (args[0]) {
-			return message.channel.send(
-				`Invalid reminder.\nIf you need help with reminders, please use \`${guildData?.prefix}help reminder\` to see instructions`,
-			)
+			if (args[0]) {
+				return message.channel.send(
+					`Invalid reminder.\nIf you need help with reminders, please use \`${guildData?.prefix}help reminder\` to see instructions`,
+				)
+			}
+		} catch (err) {
+			console.log(`Error at reminder.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
 		async function remindTime(message: Message, amountOfTime: string, timeframe: string, reminder: string) {
