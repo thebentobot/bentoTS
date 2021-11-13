@@ -118,32 +118,31 @@ export const event: Event = {
 			await channel.send(embed)
 		}
 
-		try {
-			const welcomeData = await welcome.findOne({
-				where: { guildID: member.guild.id },
-			})
+		const welcomeData = await welcome.findOne({
+			where: { guildID: member.guild.id },
+		})
 
-			const channel = member.guild.channels.cache.get(`${welcomeData?.channel}`) as TextChannel
-			const msg = welcomeData?.message
-			const msgClean = msg as string
-			msgClean
-				.replace(`{user}`, `${member.user}`)
-				.replace(`{username}`, member.user.username)
-				.replace(`{discriminator}`, member.user.discriminator)
-				.replace(`{usertag}`, member.user.username + `#` + member.user.discriminator)
-				.replace(`{server}`, member.guild.name)
-				.replace(`{memberCount}`, `${member.guild.memberCount}`)
-				.replace(`{space}`, `\n`)
-				.replace(`\\`, ``)
-				.replace(`\\`, ``)
-				.replace(`\\`, ``)
-				.replace(`\\`, ``)
-				.replace(`\\`, ``)
-				.replace(`\\`, ``)
+		if (welcomeData) {
+			if (welcomeData?.message && welcomeData?.channel) {
+				const channel = member.guild.channels.cache.get(`${welcomeData?.channel}`) as TextChannel
+				const msg = welcomeData?.message
+				const msgClean = msg
+					.replace(`{user}`, `${member.user}`)
+					.replace(`{username}`, member.user.username)
+					.replace(`{discriminator}`, member.user.discriminator)
+					.replace(`{usertag}`, member.user.username + `#` + member.user.discriminator)
+					.replace(`{server}`, member.guild.name)
+					.replace(`{memberCount}`, `${member.guild.memberCount}`)
+					.replace(`{space}`, `\n`)
+					.replace(`\\`, ``)
+					.replace(`\\`, ``)
+					.replace(`\\`, ``)
+					.replace(`\\`, ``)
+					.replace(`\\`, ``)
+					.replace(`\\`, ``)
 
-			await channel.send(msgClean)
-		} catch {
-			return
+				await channel.send(msgClean)
+			}
 		}
 	},
 }

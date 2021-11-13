@@ -117,8 +117,7 @@ export const event: Event = {
 
 				const channel = member.guild.channels.cache.get(`${byeData?.channel}`) as TextChannel
 				const msg = byeData?.message
-				const msgClean = msg as string
-				msgClean
+				const msgClean = msg
 					.replace(`{user}`, `${member.user}`)
 					.replace(`{username}`, member.user.username)
 					.replace(`{discriminator}`, member.user.discriminator)
