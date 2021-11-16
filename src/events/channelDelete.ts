@@ -9,6 +9,9 @@ import {
 	guild,
 	memberLog,
 	roleChannel,
+	announcementTime,
+	channelDisable,
+	announcementSchedule,
 } from '../database/models/init-models'
 import { TextChannel, GuildChannel, Message } from 'discord.js'
 
@@ -34,6 +37,34 @@ export const event: Event = {
 		const roleData = await roleChannel.findOne({
 			where: { channelID: channel.id },
 		})
+
+		const announcementTimedData = await announcementTime.findAll({
+			where: { channelID: channel.id },
+		})
+
+		const announcementScheduledData = await announcementSchedule.findAll({
+			where: { channelID: channel.id },
+		})
+
+		await channelDisable.destroy({ where: { channelID: channel.id } })
+
+		if (announcementTimedData && modLogData) {
+			await announcementTime.destroy({ where: { channelID: channel.id } })
+			const log = await modLog.findOne({ where: { guildID: channel.guild.id } })
+			const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+			await modLogChannel.send(
+				`The deleted channel called **${channel.name}** had reoccurring **announcements** and they have been deleted from Bento's database.\nIf you want announcements somewhere else, please use ${guildData?.prefix}announcement again.`,
+			)
+		}
+
+		if (announcementScheduledData && modLogData) {
+			await announcementTime.destroy({ where: { channelID: channel.id } })
+			const log = await modLog.findOne({ where: { guildID: channel.guild.id } })
+			const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+			await modLogChannel.send(
+				`The deleted channel called **${channel.name}** had scheduled **announcements** and they have been deleted from Bento's database.\nIf you want announcements somewhere else, please use ${guildData?.prefix}announcement again.`,
+			)
+		}
 
 		if (messageLogData && modLogData) {
 			await messageLog.destroy({ where: { channel: channel.id } })

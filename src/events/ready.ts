@@ -1,8 +1,8 @@
-import { GuildMember, Message, MessageEmbed, Role, TextChannel, User } from 'discord.js'
+import { Channel, Guild, GuildMember, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js'
 import moment from 'moment'
 import { QueryTypes } from 'sequelize'
 import database from '../database/database'
-import { initModels, modLog, reminder } from '../database/models/init-models'
+import { announcementSchedule, announcementTime, initModels, modLog, reminder } from '../database/models/init-models'
 import { mute } from '../database/models/mute'
 import { muteRole } from '../database/models/muteRole'
 import { Event } from '../interfaces'
@@ -10,7 +10,7 @@ import { Webhook } from '@top-gg/sdk'
 import express from 'express'
 import * as dotenv from 'dotenv'
 import { bento, bentoCreationAttributes } from '../database/models/bento'
-import axios from 'axios'
+//import axios from 'axios'
 dotenv.config()
 
 export const event: Event = {
@@ -22,12 +22,13 @@ export const event: Event = {
 			await client?.user?.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {
 				type: `PLAYING`,
 			})
-
+			/*
 			await axios.post(
 				`https://top.gg/api/bots/${client?.user?.id}/stats`,
 				{ server_count: client.guilds.cache.size },
 				{ headers: { Authorization: `${process.env.topggToken}` } },
 			)
+			*/
 		}
 
 		clientStatus()
@@ -325,5 +326,124 @@ export const event: Event = {
 		checkReminders()
 
 		setInterval(checkReminders, 5000) // 5 seconds
+
+		async function checkScheduledAnnouncements() {
+			interface announcementDataTypes {
+				id: number
+				guildID: bigint
+				channelID: bigint
+				message: string
+				date: Date
+			}
+
+			const announcements: Array<announcementDataTypes> = await database.query(
+				`
+            SELECT *
+			FROM "announcementSchedule"
+			WHERE "announcementSchedule".date < now()::timestamp at time zone 'utc';`,
+				{
+					type: QueryTypes.SELECT,
+				},
+			)
+
+			if (announcements) {
+				for (const announcement of announcements) {
+					initModels(database)
+					// TextChannel | NewsChannel
+					let channelParse: Channel | undefined
+					let channel: TextChannel | NewsChannel
+					//const guild = client.guilds.cache.get(`${announcement.guildID}`)
+					try {
+						channelParse = client.channels.cache.get(`${announcement.channelID}`)
+						if (channelParse?.type === `news`) {
+							channel = channelParse as NewsChannel
+						} else {
+							channel = channelParse as TextChannel
+						}
+						await channel.send(announcement.message)
+						await announcementSchedule.destroy({
+							where: {
+								id: announcement.id,
+							},
+						})
+					} catch (err) {
+						console.log(
+							`checkScheduledAnnouncements() failed in ready.ts\nDetails about announcement:\n${JSON.stringify(
+								announcement,
+							)}\n\n${err}`,
+						)
+						return
+					}
+				}
+			}
+		}
+
+		checkScheduledAnnouncements()
+
+		setInterval(checkScheduledAnnouncements, 5000) // 5 seconds
+
+		async function checkTimedAnnouncements() {
+			interface announcementDataTypes {
+				id: number
+				guildID: bigint
+				channelID: bigint
+				message: string
+				date: Date
+				amountOfTime: number
+				timeframe: string
+			}
+
+			const announcements: Array<announcementDataTypes> = await database.query(
+				`
+            SELECT *
+			FROM "announcementTime"
+			WHERE "announcementTime".date < now()::timestamp at time zone 'utc';`,
+				{
+					type: QueryTypes.SELECT,
+				},
+			)
+
+			if (announcements) {
+				for (const announcement of announcements) {
+					initModels(database)
+					// TextChannel | NewsChannel
+					let channelParse: Channel | undefined
+					let channel: TextChannel | NewsChannel
+					//const guild = client.guilds.cache.get(`${announcement.guildID}`)
+					try {
+						channelParse = client.channels.cache.get(`${announcement.channelID}`)
+						if (channelParse?.type === `news`) {
+							channel = channelParse as NewsChannel
+						} else {
+							channel = channelParse as TextChannel
+						}
+						await channel.send(announcement.message)
+						await announcementTime.update(
+							{
+								date: moment(announcement.date)
+									.add(announcement.amountOfTime, announcement.timeframe as moment.unitOfTime.DurationConstructor)
+									.toDate(),
+							},
+							{
+								where: {
+									id: announcement.id,
+								},
+							},
+						)
+					} catch (err) {
+						console.log(
+							`checkTimedAnnouncements() failed in ready.ts\nDetails about announcement:\n${JSON.stringify(
+								announcement,
+							)}\n\n${err}`,
+						)
+						return
+					}
+				}
+			}
+		}
+
+		checkTimedAnnouncements()
+
+		setInterval(checkTimedAnnouncements, 5000) // 5 seconds
 	},
 }
