@@ -31,7 +31,9 @@ export const event: Event = {
 			})
 			const role = member.guild.roles.cache.get(`${muteRoleData?.roleID}`)
 			try {
-				await member.roles.add(role as Role)
+				if (member.guild.me?.hasPermission(`MANAGE_ROLES`)) {
+					await member.roles.add(role as Role)
+				}
 			} catch {
 				console.log(`${member.guild.id} has deleted a mute role and can't mute the user`)
 			}
@@ -66,7 +68,10 @@ export const event: Event = {
 				const iterator = autoRoleData.values()
 
 				for (const value of iterator) {
-					member.roles.add(`${value.roleID}`) // there was an array around the string before, was that a mistake? Most likely
+					// there was an array around the string before, was that a mistake? Most likely
+					if (member.guild.me?.hasPermission(`MANAGE_ROLES`)) {
+						member.roles.add(`${value.roleID}`)
+					}
 				}
 			}
 
@@ -146,7 +151,7 @@ export const event: Event = {
 				}
 			}
 		} catch (err) {
-			console.log(`Error at channeldelete.ts, server ${member.guild.id}\n\n${err}`)
+			console.log(`Error at guildmemberadd.ts, server ${member.guild.id}\n\n${err}`)
 		}
 	},
 }

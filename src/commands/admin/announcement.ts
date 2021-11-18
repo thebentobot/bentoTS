@@ -10,7 +10,7 @@ import {
 	announcementTime,
 } from '../../database/models/init-models'
 import { Command } from '../../interfaces'
-import { urlToColours } from '../../utils'
+import { trim, urlToColours } from '../../utils'
 
 const momentTimeUnitBases = [
 	`year`,
@@ -44,9 +44,14 @@ export const command: Command = {
 	aliases: [`announce`],
 	category: `admin`,
 	description: `Create announcements in specific channels at specific times and Bento will deliver them for you.\nYou can either use "every" e.g. every 2 day and Bento will send out the announcement every 2nd day, or use schedule to specify a specific time and date to make an announcement. \nUse list to see a list of your reminders.`,
-	usage: ` is the prefix\n**announcement every <amount of time> <timeframe> <channel> <announcement>** E.g. announcement 1 week 714920591429337109 IT IS FRIDAY\n**announcement schedule <DD-MM-YYYY> <HH:mm> <timezone offset> <channel> <announcement>** E.g. announcement schedule 25-11-2021 08:00 +02:00 714827566992850964 it is Banner's birthday 🥺\n**announcement list** to see a list of your announcements`,
+	usage: ` is the prefix\n**announcement every <amount of time> <timeframe> <channel> <announcement>** E.g. announcement 1 week 714920591429337109 IT IS FRIDAY\n**announcement schedule <DD-MM-YYYY> <HH:mm> <timezone offset> <channel> <announcement>** E.g. announcement schedule 25-11-2021 08:00 +02:00 714827566992850964 it is Banner's birthday 🥺\n**announcement list** to see a list of your announcements\n**announcement delete <every/schedule> <announcement id>** to delete an announcement\n**announcement edit <every/schedule> <announcement id> <column> <content>** to edit a specific part of an announcement. The bot will inform you about possible columns.`,
 	website: `https://www.bentobot.xyz/commands#announcement`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		if (!message.member?.hasPermission(`MANAGE_MESSAGES`)) {
+			return message.channel
+				.send(`You do not have permission to use this command!`)
+				.then((m) => m.delete({ timeout: 10000 }))
+		}
 		initModels(database)
 
 		const guildData = await guild.findOne({
@@ -59,12 +64,6 @@ export const command: Command = {
 				return message.channel.send(
 					`If you need help with announcement, please use \`${guildData?.prefix}help announcement\` to see instructions`,
 				)
-			}
-
-			if (!message.member?.hasPermission(`MANAGE_MESSAGES`)) {
-				return message.channel
-					.send(`You do not have permission to use this command!`)
-					.then((m) => m.delete({ timeout: 10000 }))
 			}
 
 			if (args[0] === `every`) {
@@ -285,17 +284,320 @@ export const command: Command = {
 		}
 
 		async function announceDelete(message: Message, type: string, id: string) {
-			// remember to validate that the announcement they're trying to delete is actually from the same guild
-			return message.channel.send(`litty yuh`)
+			if (!type) {
+				return message.channel.send(`You need to specify a type of announcement to delete\nEither every or schedule`)
+			}
+
+			const announcementType = [`every`, `schedule`]
+
+			if (!announcementType.includes(type)) {
+				return message.channel.send(
+					`You need to specify a valid type of announcement to delete\nEither every or schedule`,
+				)
+			}
+
+			if (!id) {
+				return message.channel.send(`You need to specify an announcement id to delete.`)
+			}
+
+			const announcementID: number = parseInt(id)
+
+			if (isNaN(announcementID) === false) {
+				return message.channel.send(`You need to specify a number for the announcement id to delete.`)
+			}
+
+			let announcementData
+
+			if (type === `every`) {
+				announcementData = (await announcementTime.findOne({
+					raw: true,
+					where: { id: announcementID, guildID: message.guild?.id },
+				})) as announcementTime | null
+				if (announcementData === null) {
+					return message.channel.send(
+						`Could not find a matching announcement to delete for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+					)
+				} else {
+					await announcementTime.destroy({ where: { id: announcementID, guildID: message.guild?.id } })
+					return message.channel.send(
+						`Successfully deleted an "every" announcement with the id ${announcementID}\nThe announcement was every ${
+							announcementData.amountOfTime
+						} ${announcementData.timeframe}\nThe announcement message was:\n${trim(announcementData.message, 1000)}`,
+					)
+				}
+			} else {
+				announcementData = (await announcementSchedule.findOne({
+					raw: true,
+					where: { id: announcementID, guildID: message.guild?.id },
+				})) as announcementSchedule | null
+				if (announcementData === null) {
+					return message.channel.send(
+						`Could not find a matching announcement to delete for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+					)
+				} else {
+					await announcementSchedule.destroy({ where: { id: announcementID, guildID: message.guild?.id } })
+					return message.channel.send(
+						`Successfully deleted a scheduled announcement with the id ${announcementID}\nThe announcement was scheduled for <t:${
+							announcementData.date
+						}:F>\nThe announcement message was:\n${trim(announcementData.message, 1000)}`,
+					)
+				}
+			}
 		}
 
 		async function announceEdit(message: Message, type: string, id: string, column: string, content: string) {
-			// for timeframe, remember to validate the format
-			// for the new time saved, remember to validate that it isn't under 15 minutes or over 5 years
 			// validate that the time hasn't passed
-			// validate that the message isn't empty
-			// remember to validate that the announcement they're trying to edit is actually from the same guild
-			return message.channel.send(`litty yuh`)
+			if (!type) {
+				return message.channel.send(`You need to specify a type of announcement to edit\nEither every or schedule`)
+			}
+
+			const announcementType = [`every`, `schedule`]
+
+			if (!announcementType.includes(type)) {
+				return message.channel.send(
+					`You need to specify a valid type of announcement to edit\nEither every or schedule`,
+				)
+			}
+
+			if (!id) {
+				return message.channel.send(`You need to specify an announcement id to edit.`)
+			}
+
+			const announcementID: number = parseInt(id)
+
+			if (isNaN(announcementID) === false) {
+				return message.channel.send(`You need to specify a number for the announcement id to edit.`)
+			}
+
+			if (!column) {
+				return message.channel.send(
+					`You need to specify a column of announcement to edit\nIf your type is **every** then the possible columns to edit are: channel, message, time, and timeframe.\nIf your type is **schedule** then the possible columns to edit are: channel, message and date`,
+				)
+			}
+
+			if (!content) {
+				return message.channel.send(`You need to specify content to update the column with.`)
+			}
+
+			const announcementColumnEvery = [`channel`, `message`, `time`, `timeframe`]
+			const announcementColumnSchedule = [`channel`, `message`, `date`]
+
+			if (type === `every`) {
+				if (!announcementColumnEvery.includes(column)) {
+					return message.channel.send(
+						`You need to specify a valid "every" column to edit an "every" announcement\nEither channel, message, amount of time, or timeframe`,
+					)
+				}
+
+				if (column === `channel`) {
+					let channelID: string | undefined
+					try {
+						const channelObject = message.mentions.channels.first() || message.guild?.channels.cache.get(content)
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						channelID = channelObject!.id
+					} catch {
+						return message.channel.send(`Your channel \`${content}\` was invalid.\nPlease use a valid channel.`)
+					}
+
+					const announcementUpdate = await announcementTime.update(
+						{ channelID: BigInt(channelID) },
+						{ where: { guildID: message.guild?.id, id: id } },
+					)
+					if (announcementUpdate[0] === 0) {
+						return message.channel.send(
+							`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+						)
+					} else {
+						return message.channel.send(`Successfully updated the announcement channel to <#${channelID}>`)
+					}
+				}
+
+				if (column === `message`) {
+					const announcementUpdate = await announcementTime.update(
+						{ message: content },
+						{ where: { guildID: message.guild?.id, id: id } },
+					)
+					if (announcementUpdate[0] === 0) {
+						return message.channel.send(
+							`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+						)
+					} else {
+						return message.channel.send(`Successfully updated the announcement for announcement id \`${id}\``)
+					}
+				}
+
+				if (column === `time`) {
+					const amountOfTime = parseInt(content)
+					if (isNaN(amountOfTime) === false) return message.channel.send(`Your inserted amount of time isn't a number`)
+					const announcementData = await announcementTime.findOne({
+						raw: true,
+						where: { id: id, guildID: message.guild?.id },
+					})
+					if (announcementData === null) {
+						return message.channel.send(
+							`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+						)
+					} else {
+						const announcementDate = moment(new Date())
+							.add(content, announcementData.timeframe as moment.unitOfTime.DurationConstructor)
+							.toDate()
+						const nextDate = moment(announcementDate)
+							.add(content, announcementData.timeframe as moment.unitOfTime.DurationConstructor)
+							.toDate()
+						const diff: number = announcementDate.getTime() - nextDate.getTime()
+						if (diff < 900000) {
+							return message.channel.send(
+								`Your announcement can't be sent in a duration under every 15th minute\nThe current timeframe is \`${announcementData.timeframe}\` which may have caused this error by combining the time \`${content}\``,
+							)
+						} else if (diff > 157784760000) {
+							return message.channel.send(
+								`Your announcement can't be sent 5 years into the future\nThe current timeframe is \`${announcementData.timeframe}\` which may have caused this error by combining the time \`${content}\``,
+							)
+						} else {
+							const announcementUpdate = await announcementTime.update(
+								{ amountOfTime: amountOfTime },
+								{ where: { guildID: message.guild?.id, id: id } },
+							)
+							if (announcementUpdate[0] === 0) {
+								return message.channel.send(
+									`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+								)
+							} else {
+								return message.channel.send(
+									`Successfully updated the announcement time. The announcement will now be made every **${content}** ${announcementData.timeframe}`,
+								)
+							}
+						}
+					}
+				}
+
+				if (column === `timeframe`) {
+					if (!momentTimeUnitBases.includes(content)) {
+						return message.channel.send(
+							`Your specified timeframe \`${content}\` is invalid.\nIf you need help with announcements, please use \`${guildData?.prefix}help announcement\` to see instructions`,
+						)
+					} else {
+						const announcementData = await announcementTime.findOne({
+							raw: true,
+							where: { id: id, guildID: message.guild?.id },
+						})
+						if (announcementData === null) {
+							return message.channel.send(
+								`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+							)
+						} else {
+							const announcementDate = moment(new Date())
+								.add(announcementData.amountOfTime, content as moment.unitOfTime.DurationConstructor)
+								.toDate()
+							const nextDate = moment(announcementDate)
+								.add(announcementData.amountOfTime, content as moment.unitOfTime.DurationConstructor)
+								.toDate()
+							const diff: number = announcementDate.getTime() - nextDate.getTime()
+							if (diff < 900000) {
+								return message.channel.send(
+									`Your announcement can't be sent in a duration under every 15th minute\nThe current time is \`${announcementData.amountOfTime}\` which may have caused this error by combining the timeframe \`${content}\``,
+								)
+							} else if (diff > 157784760000) {
+								return message.channel.send(
+									`Your announcement can't be sent 5 years into the future\nThe current time is \`${announcementData.amountOfTime}\` which may have caused this error by combining the timeframe \`${content}\``,
+								)
+							} else {
+								const announcementUpdate = await announcementTime.update(
+									{ timeframe: content },
+									{ where: { guildID: message.guild?.id, id: id } },
+								)
+								if (announcementUpdate[0] === 0) {
+									return message.channel.send(
+										`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+									)
+								} else {
+									return message.channel.send(
+										`Successfully updated the announcement timeframe. The announcement will now be made every **${announcementData.amountOfTime}** ${content}`,
+									)
+								}
+							}
+						}
+					}
+				}
+			} else {
+				if (!announcementColumnSchedule.includes(column)) {
+					return message.channel.send(
+						`You need to specify a valid schedule column to edit a scheduled announcement\nEither channel, message or date`,
+					)
+				}
+
+				if (column === `channel`) {
+					let channelID: string | undefined
+					try {
+						const channelObject = message.mentions.channels.first() || message.guild?.channels.cache.get(content)
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						channelID = channelObject!.id
+					} catch {
+						return message.channel.send(`Your channel \`${content}\` was invalid.\nPlease use a valid channel.`)
+					}
+
+					const announcementUpdate = await announcementSchedule.update(
+						{ channelID: BigInt(channelID) },
+						{ where: { guildID: message.guild?.id, id: id } },
+					)
+					if (announcementUpdate[0] === 0) {
+						return message.channel.send(
+							`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+						)
+					} else {
+						return message.channel.send(`Successfully updated the announcement channel to <#${channelID}>`)
+					}
+				}
+
+				if (column === `message`) {
+					const announcementUpdate = await announcementSchedule.update(
+						{ message: content },
+						{ where: { guildID: message.guild?.id, id: id } },
+					)
+					if (announcementUpdate[0] === 0) {
+						return message.channel.send(
+							`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+						)
+					} else {
+						return message.channel.send(`Successfully updated the announcement for announcement id \`${id}\``)
+					}
+				}
+
+				if (column === `date`) {
+					if (moment(content, `DD-MM-YYYY HH:mm Z`, true).isValid() === false) {
+						return message.channel.send(
+							`You need to specify a valid date to edit a scheduled announcement. The format is DD-MM-YYYY HH:mm Z.\nE.g. \`25-11-2021 08:00 +02:00\``,
+						)
+					}
+
+					const announcementDate = moment.utc(content, `DD-MM-YYYY HH:mm Z`).toDate()
+					const now: Date = new Date(moment().format())
+					if (announcementDate.getTime() < now.getTime())
+						return message.channel.send(`Your reminder date has already been passed.`)
+					const diff: number = announcementDate.getTime() - now.getTime()
+					if (diff < 10000) {
+						return message.channel.send(`Your announcement must be scheduled to more than 10 seconds into the future`)
+					}
+
+					if (diff > 157784760000) {
+						return message.channel.send(`Your announcement must be scheduled to less than 5 years into the future`)
+					}
+
+					const announcementUpdate = await announcementSchedule.update(
+						{ date: announcementDate },
+						{ where: { guildID: message.guild?.id, id: id } },
+					)
+					if (announcementUpdate[0] === 0) {
+						return message.channel.send(
+							`Could not find a matching announcement to edit for this server.\nUse \`${guildData?.prefix}announcement list\` to see a list of announcements for this server and their ID's`,
+						)
+					} else {
+						return message.channel.send(
+							`Successfully updated the scheduled announcement date for announcement id \`${id}\`.\nThe announcement will be made on <t:${announcementDate.getTime()}:F>`,
+						)
+					}
+				}
+			}
 		}
 
 		async function announceList(message: Message) {

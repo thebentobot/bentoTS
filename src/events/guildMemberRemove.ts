@@ -18,6 +18,7 @@ import {
 	notificationMessage,
 	profile,
 	rpsGame,
+	tag,
 } from '../database/models/init-models'
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js'
 import moment from 'moment'
@@ -90,9 +91,9 @@ export const event: Event = {
 				where: { guildID: member.guild.id, userID: member.user.id },
 			})
 
-			const userData = await user.findOne({ where: { userID: member.user.id } })
+			const userData = await guildMember.findAll({ where: { userID: member.user.id } })
 
-			if (userData === null) {
+			if (!userData.length) {
 				await bento.destroy({ where: { userID: member.user.id } })
 				await rpsGame.destroy({ where: { userID: member.user.id } })
 				await horoscope.destroy({ where: { userID: member.user.id } })
@@ -101,6 +102,7 @@ export const event: Event = {
 				await reminder.destroy({ where: { userID: member.user.id } })
 				await notificationMessage.destroy({ where: { userID: member.user.id } })
 				await profile.destroy({ where: { userID: member.user.id } })
+				await tag.destroy({ where: { userID: member.user.id } })
 				await user.destroy({ where: { userID: member.user.id } })
 			}
 

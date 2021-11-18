@@ -21,6 +21,12 @@ export const command: Command = {
 					.then((m) => m.delete({ timeout: 5000 }))
 			}
 
+			if (!message.guild?.me?.hasPermission(`BAN_MEMBERS`)) {
+				return await message.channel.send(
+					`**ERROR!** ${client.user} does not have permission to ban (and then unban) users on this server.`,
+				)
+			}
+
 			if (!args[0]) {
 				return message.channel.send(
 					`You need to specify a user to unban.\nUse the help command with unban to check options when using the unban command.`,

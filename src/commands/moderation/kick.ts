@@ -26,6 +26,12 @@ export const command: Command = {
 					.then((m) => m.delete({ timeout: 5000 }))
 			}
 
+			if (!message.guild?.me?.hasPermission(`KICK_MEMBERS`)) {
+				return await message.channel.send(
+					`**ERROR!** ${client.user} does not have permission to kick users on this server.`,
+				)
+			}
+
 			if (!args[0]) {
 				return message.channel.send(
 					`You need to specify a user to kick.\nUse the help command with kick to check options when using the kick command.`,

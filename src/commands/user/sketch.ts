@@ -2041,7 +2041,7 @@ export const command: Command = {
 					await confirmEmbed.edit(newEmbed)
 				} else if (reaction.emoji.name === `❌`) {
 					collector.stop()
-					return await confirmEmbed.delete()
+					return await confirmEmbed.delete().catch(() => console.error(`delete on line 2044 in sketch.ts error`))
 				}
 			})
 		}

@@ -19,6 +19,12 @@ export const command: Command = {
 					.then((m) => m.delete({ timeout: 5000 }))
 			}
 
+			if (!message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+				return await message.channel.send(
+					`**ERROR!** ${client.user} does not have permission to manage roles (and then unmute users) on this server.`,
+				)
+			}
+
 			if (!args[0]) {
 				return message.channel.send(
 					`You need to specify a user to unmute.\nUse the help command with unmute to check options when using the unban command.`,

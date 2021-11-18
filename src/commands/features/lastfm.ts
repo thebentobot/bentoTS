@@ -633,7 +633,7 @@ export const command: Command = {
 									size: 1024,
 								})
 							} else {
-								if (typeof data.body.artists?.items[0].images[0]?.url === `undefined`) {
+								if (data.body.artists?.items[0].images[0]?.url === undefined) {
 									cover = message.guild?.members.cache.get(userID)?.user.avatarURL({
 										format: `png`,
 										dynamic: true,
@@ -1190,7 +1190,7 @@ export const command: Command = {
 									.get(userID)
 									?.user.avatarURL({ format: `png`, dynamic: true, size: 1024 })
 							} else {
-								if (typeof data.body.artists?.items[0].images[0]?.url === `undefined`) {
+								if (data.body.artists?.items[0].images[0]?.url === undefined) {
 									cover = message.guild?.members.cache.get(userID)?.user.avatarURL({
 										format: `png`,
 										dynamic: true,
@@ -1618,7 +1618,7 @@ export const command: Command = {
 				period = [`overall`, `ALL`]
 			}
 
-			if (typeof fourthArg === `undefined`) {
+			if (fourthArg === undefined) {
 				grid = `3x3`
 			}
 
