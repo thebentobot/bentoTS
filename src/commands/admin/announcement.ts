@@ -147,7 +147,8 @@ export const command: Command = {
 			const nextDate = moment(announcementDate)
 				.add(amountOfTime, timeframe as moment.unitOfTime.DurationConstructor)
 				.toDate()
-			const diff: number = announcementDate.getTime() - nextDate.getTime()
+
+			const diff: number = nextDate.getTime() - announcementDate.getTime()
 			// 15 minutes
 			if (diff < 900000) {
 				return message.channel.send(`Your announcement can't be sent in a duration under every 15th minute`)
@@ -161,7 +162,7 @@ export const command: Command = {
 				guildID: BigInt(message.guild?.id as string),
 				channelID: BigInt(channelID as string),
 				message: announcement,
-				date: nextDate,
+				date: announcementDate,
 				amountOfTime: parseInt(amountOfTime),
 				timeframe: timeframe,
 			}
@@ -184,7 +185,9 @@ export const command: Command = {
 				return message.channel.send(`Your already have an announcement set with the following: \`${message}\``)
 			} else {
 				return message.channel.send(
-					`Your announcement has been set!\nThe announcement will be sent every \`${amountOfTime} ${timeframe}\`\nThe first announcement will be on <t:${nextDate.getTime()}:F>`,
+					`Your announcement has been set!\nThe announcement will be sent every \`${amountOfTime} ${timeframe}\`\nThe first announcement will be on <t:${Math.floor(
+						announcementDate.getTime() / 1000,
+					)}:F>`,
 				)
 			}
 		}
@@ -246,6 +249,7 @@ export const command: Command = {
 
 			const announcementDate = moment.utc(announcementDateGathered, `DD-MM-YYYY HH:mm Z`).toDate()
 			const now: Date = new Date(moment().format())
+
 			if (announcementDate.getTime() < now.getTime())
 				return message.channel.send(`Your reminder date has already been passed.`)
 			const diff: number = announcementDate.getTime() - now.getTime()
@@ -274,11 +278,15 @@ export const command: Command = {
 
 			if (announcementData[1] === false) {
 				return message.channel.send(
-					`You already have an announcement set on <t:${announcementDate.getTime()}:F> with the following:\n\`${announcement}\``,
+					`You already have an announcement set on <t:${Math.floor(
+						announcementDate.getTime() / 1000,
+					)}:F> with the following:\n\`${announcement}\``,
 				)
 			} else {
 				return message.channel.send(
-					`You have successfully set an announcement on <t:${announcementDate.getTime()}:F> with the following:\n\`${announcement}\``,
+					`You have successfully set an announcement on <t:${Math.floor(
+						announcementDate.getTime() / 1000,
+					)}:F> with the following:\n\`${announcement}\``,
 				)
 			}
 		}
@@ -302,8 +310,8 @@ export const command: Command = {
 
 			const announcementID: number = parseInt(id)
 
-			if (isNaN(announcementID) === false) {
-				return message.channel.send(`You need to specify a number for the announcement id to delete.`)
+			if (isNaN(announcementID) === true) {
+				return message.channel.send(`You need to specify a valid number for the announcement id to delete.`)
 			}
 
 			let announcementData
@@ -365,7 +373,7 @@ export const command: Command = {
 
 			const announcementID: number = parseInt(id)
 
-			if (isNaN(announcementID) === false) {
+			if (isNaN(announcementID) === true) {
 				return message.channel.send(`You need to specify a number for the announcement id to edit.`)
 			}
 
@@ -428,7 +436,7 @@ export const command: Command = {
 
 				if (column === `time`) {
 					const amountOfTime = parseInt(content)
-					if (isNaN(amountOfTime) === false) return message.channel.send(`Your inserted amount of time isn't a number`)
+					if (isNaN(amountOfTime) === true) return message.channel.send(`Your inserted amount of time isn't a number`)
 					const announcementData = await announcementTime.findOne({
 						raw: true,
 						where: { id: id, guildID: message.guild?.id },
