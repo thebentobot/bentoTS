@@ -145,7 +145,7 @@ export const event: Event = {
 				}
 			}
 		} catch (err) {
-			console.log(`Error at channeldelete.ts, server ${oldMember.guild.id}\n\n${err}`)
+			console.log(`Error at guildmemberupdate.ts, server ${oldMember.guild.id}\n\n${err}`)
 		}
 	},
 }

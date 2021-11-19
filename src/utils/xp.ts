@@ -18,8 +18,12 @@ export async function addXpServer(guildID: string, userID: string, xpToAdd: numb
 		})
 		// https://sequelize.org/master/manual/model-instances.html
 		// bottom about incrementing
-		const xp = result.xp
-		const level = result.level
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const xp = result[0][0][0].xp
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const level = result[0][0][0].level
 		const getNeededXP = (level: number) => level * level * 100
 		const needed = getNeededXP(level)
 		if (xp >= needed) {
@@ -53,8 +57,12 @@ export async function addXpGlobal(userID: string, xpToAdd: number): Promise<void
 		})
 		// https://sequelize.org/master/manual/model-instances.html
 		// bottom about incrementing
-		const xp = result.xp
-		const level = result.level
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const xp = result[0][0][0].xp
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		const level = result[0][0][0].level
 		const getNeededXP = (level: number) => level * level * 100
 		const needed = getNeededXP(level)
 		if (xp >= needed) {

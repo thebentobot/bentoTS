@@ -12,6 +12,7 @@ import {
 	notificationMessage,
 	rpsGame,
 	profile,
+	tag,
 } from '../database/models/init-models'
 import { Guild, User } from 'discord.js'
 
@@ -27,7 +28,7 @@ export const event: Event = {
 			const guildMemberData = await guildMember.findAll({
 				where: { userID: user.id },
 			})
-			if (1 > guildMemberData.length) {
+			if (!guildMemberData.length) {
 				await bento.destroy({ where: { userID: user.id } })
 				await rpsGame.destroy({ where: { userID: user.id } })
 				await profile.destroy({ where: { userID: user.id } })
@@ -36,10 +37,11 @@ export const event: Event = {
 				await weather.destroy({ where: { userID: user.id } })
 				await reminder.destroy({ where: { userID: user.id } })
 				await notificationMessage.destroy({ where: { userID: user.id } })
+				await tag.destroy({ where: { userID: user.id } })
 				await DbUser.destroy({ where: { userID: user.id } })
 			}
 		} catch (err) {
-			console.log(`Error at channeldelete.ts, server ${guild.id}\n\n${err}`)
+			console.log(`Error at guildbanadd.ts, server ${guild.id}\n\n${err}`)
 		}
 	},
 }

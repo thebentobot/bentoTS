@@ -10,6 +10,12 @@ export const command: Command = {
 	website: `https://www.bentobot.xyz/commands#prune`,
 	run: async (client, message, args): Promise<Message | undefined> => {
 		try {
+			if (!message.guild?.me?.hasPermission(`MANAGE_MESSAGES`)) {
+				return await message.channel.send(
+					`**ERROR!** ${client.user} does not have permission to delete messages on this server.`,
+				)
+			}
+
 			if (!message.member?.hasPermission(`MANAGE_MESSAGES`)) {
 				message.delete()
 				return message.channel
