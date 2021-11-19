@@ -57,6 +57,12 @@ export const command: Command = {
 					.then((m) => m.delete({ timeout: 5000 }))
 			}
 
+			if (!message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+				return await message.channel.send(
+					`**ERROR!** ${client.user} does not have permission to manage roles (add mute role) on this server.`,
+				)
+			}
+
 			if (!amountOfTime) {
 				return message.channel.send(
 					`You need to specify an amount of time, timeframe and a user to mute.\nUse the help command with mute to check options when using the mute command.`,
@@ -204,7 +210,7 @@ export const command: Command = {
 					raw: true,
 					where: { guildID: message.guild?.id },
 				})
-				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
+				const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel as bigint}`) as TextChannel
 				const embed = new MessageEmbed()
 					.setColor(`#000000`)
 					.setAuthor(
@@ -250,107 +256,137 @@ export const command: Command = {
 					)
 					.setFooter(`Mute Case Number: ${muted[0].muteCase}`)
 					.setTimestamp()
-				await logChannel.send(embed)
+				const logChannelMessage = await logChannel.send(embed)
 				try {
-					;(await client.users.fetch(mutedUserID as string))
-						.send(
-							`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${
-								message.guild?.name
-							}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${
-								muteCount.count
-							} that you have received from this server.\nYou will be unmuted at approx. <t:${moment(
-								muted[0].muteEnd,
-							).format(`X`)}:F>.`,
+					if (message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+						;(await client.users.fetch(mutedUserID as string))
+							.send(
+								`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${
+									message.guild?.name
+								}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${
+									muteCount.count
+								} that you have received from this server.\nYou will be unmuted at approx. <t:${moment(
+									muted[0].muteEnd,
+								).format(`X`)}:F>.`,
+							)
+							.catch(() => console.error(`Could not send mute DM`))
+						await mutedUser?.roles.add(role as Role)
+						return await message.channel.send(
+							`**${
+								message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
+									? `${message.guild.members.cache.get(`${mutedUserID}`)?.nickname} (${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  })`
+									: `${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  }`
+							}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
+								reason ? reason : `No reason specified`
+							}.\nYou can add notes for this mute by using the case command together with the case number.`,
 						)
-						.catch(() => console.error(`Could not send mute DM`))
-					await mutedUser?.roles.add(role as Role)
-					return await message.channel.send(
-						`**${
-							message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
-								? `${message.guild.members.cache.get(`${mutedUserID}`)?.nickname} (${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  })`
-								: `${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  }`
-						}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
-							reason ? reason : `No reason specified`
-						}.\nYou can add notes for this mute by using the case command together with the case number.`,
-					)
+					} else {
+						logChannelMessage.delete()
+						await mute.destroy({ where: { muteCase: muted[0].muteCase } })
+						return await message.channel.send(
+							`ERROR! **Bento** does not have permission to mute users by giving them a role (THE MANAGE ROLES PERMISSION IS NOT ENABLED).`,
+						)
+					}
 				} catch {
-					await mutedUser?.roles.add(role as Role)
-					return await message.channel.send(
-						`**${
-							message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
-								? `${message.guild.members.cache.get(`${mutedUserID}`)?.nickname} (${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  })`
-								: `${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  }`
-						}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
-							reason ? reason : `No reason specified`
-						}.\nYou can add notes for this mute by using the case command together with the case number.`,
-					)
+					if (message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+						await mutedUser?.roles.add(role as Role)
+						return await message.channel.send(
+							`**${
+								message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
+									? `${message.guild.members.cache.get(`${mutedUserID}`)?.nickname} (${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  })`
+									: `${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  }`
+							}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
+								reason ? reason : `No reason specified`
+							}.\nYou can add notes for this mute by using the case command together with the case number.`,
+						)
+					} else {
+						logChannelMessage.delete()
+						await mute.destroy({ where: { muteCase: muted[0].muteCase } })
+						return await message.channel.send(
+							`ERROR! **Bento** does not have permission to mute users by giving them a role (THE MANAGE ROLES PERMISSION IS NOT ENABLED).`,
+						)
+					}
 				}
 			} catch {
 				try {
-					;(await client.users.fetch(mutedUserID as string))
-						.send(
-							`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${
-								message.guild?.name
-							}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${
-								muteCount.count
-							} that you have received from this server.\nYou will be unmuted at approx. <t:${moment(
-								muted[0].muteEnd,
-							).format(`X`)}:F>.`,
+					if (message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+						;(await client.users.fetch(mutedUserID as string))
+							.send(
+								`😶 You have been \`muted\` for ${amountOfTime} ${timeframe} from **${
+									message.guild?.name
+								}** 😶 \n**Reason**: ${reason}.\nThis is mute number ${
+									muteCount.count
+								} that you have received from this server.\nYou will be unmuted at approx. <t:${moment(
+									muted[0].muteEnd,
+								).format(`X`)}:F>.`,
+							)
+							.catch(() => console.error(`Could not send mute DM`))
+						await mutedUser?.roles.add(role as Role)
+						return await message.channel.send(
+							`**${
+								message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
+									? `${message.guild?.members.cache.get(`${mutedUserID}`)?.nickname} (${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  })`
+									: `${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  }`
+							}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
+								reason ? reason : `No reason specified`
+							}.\nYou can add notes for this mute by using the case command together with the case number.`,
 						)
-						.catch(() => console.error(`Could not send mute DM`))
-					await mutedUser?.roles.add(role as Role)
-					return await message.channel.send(
-						`**${
-							message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
-								? `${message.guild?.members.cache.get(`${mutedUserID}`)?.nickname} (${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  })`
-								: `${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  }`
-						}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
-							reason ? reason : `No reason specified`
-						}.\nYou can add notes for this mute by using the case command together with the case number.`,
-					)
+					} else {
+						await mute.destroy({ where: { muteCase: muted[0].muteCase } })
+						return await message.channel.send(
+							`ERROR! **Bento** does not have permission to mute users by giving them a role (THE MANAGE ROLES PERMISSION IS NOT ENABLED).`,
+						)
+					}
 				} catch {
-					await mutedUser?.roles.add(role as Role)
-					return await message.channel.send(
-						`**${
-							message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
-								? `${message.guild.members.cache.get(`${mutedUserID}`)?.nickname} (${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  })`
-								: `${
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
-										`#` +
-										message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
-								  }`
-						}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
-							reason ? reason : `No reason specified`
-						}.\nYou can add notes for this mute by using the case command together with the case number.`,
-					)
+					if (message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+						await mutedUser?.roles.add(role as Role)
+						return await message.channel.send(
+							`**${
+								message.guild?.members.cache.get(`${mutedUserID}`)?.nickname
+									? `${message.guild.members.cache.get(`${mutedUserID}`)?.nickname} (${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  })`
+									: `${
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.username +
+											`#` +
+											message.guild?.members.cache.get(`${mutedUserID}`)?.user.discriminator
+									  }`
+							}** was successfully **muted** on this server.\n**Case number: ${muted[0].muteCase}**.\n**Reason:** ${
+								reason ? reason : `No reason specified`
+							}.\nYou can add notes for this mute by using the case command together with the case number.`,
+						)
+					} else {
+						await mute.destroy({ where: { muteCase: muted[0].muteCase } })
+						return await message.channel.send(
+							`ERROR! **Bento** does not have permission to mute users by giving them a role (THE MANAGE ROLES PERMISSION IS NOT ENABLED).`,
+						)
+					}
 				}
 			}
 		}
@@ -364,6 +400,12 @@ export const command: Command = {
 				return message.channel
 					.send(`You do not have permission to use this command.\nYou are not a mod.`)
 					.then((m) => m.delete({ timeout: 5000 }))
+			}
+
+			if (!message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+				return await message.channel.send(
+					`**ERROR!** ${client.user} does not have permission to manage roles (add mute role) on this server.`,
+				)
 			}
 
 			if (!user) {

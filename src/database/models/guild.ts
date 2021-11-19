@@ -1,5 +1,7 @@
 import * as Sequelize from 'sequelize'
 import { DataTypes, Model, Optional } from 'sequelize'
+import type { announcementSchedule, announcementScheduleId } from './announcementSchedule'
+import type { announcementTime, announcementTimeId } from './announcementTime'
 import type { autoRole, autoRoleId } from './autoRole'
 import type { availableRolesGuild, availableRolesGuildId } from './availableRolesGuild'
 import type { ban, banId } from './ban'
@@ -46,6 +48,30 @@ export class guild extends Model<guildAttributes, guildCreationAttributes> imple
 	icon?: string
 	memberCount?: number
 
+	// guild hasMany announcementSchedule via guildID
+	announcementSchedules!: announcementSchedule[]
+	getAnnouncementSchedules!: Sequelize.HasManyGetAssociationsMixin<announcementSchedule>
+	setAnnouncementSchedules!: Sequelize.HasManySetAssociationsMixin<announcementSchedule, announcementScheduleId>
+	addAnnouncementSchedule!: Sequelize.HasManyAddAssociationMixin<announcementSchedule, announcementScheduleId>
+	addAnnouncementSchedules!: Sequelize.HasManyAddAssociationsMixin<announcementSchedule, announcementScheduleId>
+	createAnnouncementSchedule!: Sequelize.HasManyCreateAssociationMixin<announcementSchedule>
+	removeAnnouncementSchedule!: Sequelize.HasManyRemoveAssociationMixin<announcementSchedule, announcementScheduleId>
+	removeAnnouncementSchedules!: Sequelize.HasManyRemoveAssociationsMixin<announcementSchedule, announcementScheduleId>
+	hasAnnouncementSchedule!: Sequelize.HasManyHasAssociationMixin<announcementSchedule, announcementScheduleId>
+	hasAnnouncementSchedules!: Sequelize.HasManyHasAssociationsMixin<announcementSchedule, announcementScheduleId>
+	countAnnouncementSchedules!: Sequelize.HasManyCountAssociationsMixin
+	// guild hasMany announcementTime via guildID
+	announcementTimes!: announcementTime[]
+	getAnnouncementTimes!: Sequelize.HasManyGetAssociationsMixin<announcementTime>
+	setAnnouncementTimes!: Sequelize.HasManySetAssociationsMixin<announcementTime, announcementTimeId>
+	addAnnouncementTime!: Sequelize.HasManyAddAssociationMixin<announcementTime, announcementTimeId>
+	addAnnouncementTimes!: Sequelize.HasManyAddAssociationsMixin<announcementTime, announcementTimeId>
+	createAnnouncementTime!: Sequelize.HasManyCreateAssociationMixin<announcementTime>
+	removeAnnouncementTime!: Sequelize.HasManyRemoveAssociationMixin<announcementTime, announcementTimeId>
+	removeAnnouncementTimes!: Sequelize.HasManyRemoveAssociationsMixin<announcementTime, announcementTimeId>
+	hasAnnouncementTime!: Sequelize.HasManyHasAssociationMixin<announcementTime, announcementTimeId>
+	hasAnnouncementTimes!: Sequelize.HasManyHasAssociationsMixin<announcementTime, announcementTimeId>
+	countAnnouncementTimes!: Sequelize.HasManyCountAssociationsMixin
 	// guild hasMany autoRole via guildID
 	autoRoles!: autoRole[]
 	getAutoRoles!: Sequelize.HasManyGetAssociationsMixin<autoRole>

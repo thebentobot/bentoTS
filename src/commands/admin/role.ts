@@ -117,7 +117,11 @@ export async function roleManagement(message: Message) {
 		switch (modifier) {
 			case `+`:
 				{
-					member.roles.add(rolesToProcess)
+					if (message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+						member.roles.add(rolesToProcess)
+					} else {
+						return await message.channel.send(`ERROR! **Bento** does not have permission to add roles.`)
+					}
 					const addRoleResponses = {
 						'Assigned Roles': rolesSuccessful,
 						'Current Roles': rolesUnsuccessful,
@@ -134,7 +138,11 @@ export async function roleManagement(message: Message) {
 				break
 			case `-`:
 				{
-					member.roles.remove(rolesToProcess)
+					if (message.guild?.me?.hasPermission(`MANAGE_ROLES`)) {
+						member.roles.remove(rolesToProcess)
+					} else {
+						return await message.channel.send(`ERROR! **Bento** does not have permission to add roles.`)
+					}
 					const removeRoleResponses = {
 						'Removed Roles': rolesSuccessful,
 						'Roles not assigned': rolesUnsuccessful,

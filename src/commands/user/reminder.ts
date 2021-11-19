@@ -191,6 +191,8 @@ export const command: Command = {
 
 			const remindDate = moment.utc(remindDateGathered, `DD-MM-YYYY HH:mm Z`).toDate()
 			const now: Date = new Date(moment().format())
+			if (remindDate.getTime() < now.getTime())
+				return message.channel.send(`Your reminder date has already been passed.`)
 			const diff: number = remindDate.getTime() - now.getTime()
 			if (diff < 10000) {
 				return message.channel.send(`Your reminder must be scheduled to more than 10 seconds into the future`)

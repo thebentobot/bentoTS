@@ -21,6 +21,9 @@ import {
 	roleChannel,
 	availableRolesGuild,
 	roleMessages,
+	channelDisable,
+	announcementSchedule,
+	announcementTime,
 } from '../database/models/init-models'
 import { Guild } from 'discord.js'
 
@@ -39,6 +42,9 @@ export const event: Event = {
 		await muteRole.destroy({ where: { guildID: guild.id } })
 		await autoRole.destroy({ where: { guildID: guild.id } })
 		await caseGlobal.destroy({ where: { guildID: guild.id } })
+		await channelDisable.destroy({ where: { guildID: guild.id } })
+		await announcementSchedule.destroy({ where: { guildID: guild.id } })
+		await announcementTime.destroy({ where: { guildID: guild.id } })
 		await ban.destroy({ where: { guildID: guild.id } })
 		await kick.destroy({ where: { guildID: guild.id } })
 		await mute.destroy({ where: { guildID: guild.id } })
