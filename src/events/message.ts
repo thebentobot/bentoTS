@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Event, Command } from '../interfaces'
-import { Message, MessageEmbed, User } from 'discord.js'
+import { Message, MessageEmbed, TextChannel, User } from 'discord.js'
 import database from '../database/database'
 
 import { checkURL } from '../utils/checkURL'
@@ -208,6 +208,8 @@ export const event: Event = {
 				let user: User
 				try {
 					user = client.users.cache.get(`${noti.userID}`) as User
+					const channelData = (await client.channels.fetch(message.guild.id)) as TextChannel
+					if (!channelData.permissionsFor(user)?.has(`VIEW_CHANNEL`)) return
 					const lastMessages = (await message.channel.messages.fetch({ limit: 3 })).array().reverse()
 					const embed = new MessageEmbed()
 						.setAuthor(
