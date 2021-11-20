@@ -131,6 +131,8 @@ export const event: Event = {
 			if (welcomeData) {
 				if (welcomeData?.message && welcomeData?.channel) {
 					const channel = member.guild.channels.cache.get(`${welcomeData?.channel}`) as TextChannel
+					if (!channel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+					if (!channel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 					const msg = welcomeData?.message
 					const msgClean = msg
 						.replace(`{user}`, `${member.user}`)

@@ -119,6 +119,8 @@ export const event: Event = {
 					if (banData !== null || kickData !== null) return
 
 					const channel = member.guild.channels.cache.get(`${byeData?.channel}`) as TextChannel
+					if (!channel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+					if (!channel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 					const msg = byeData?.message
 					const msgClean = msg
 						.replace(`{user}`, `${member.user}`)

@@ -29,6 +29,8 @@ export const event: Event = {
 					where: { guildID: oldRole.guild.id },
 				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				return await modLogChannel.send(
 					`The mute role **${oldRole.name}** has been updated${
 						oldRole.name === newRole.name ? ` ` : ` to ${newRole.name}`
@@ -57,6 +59,8 @@ export const event: Event = {
 					where: { guildID: oldRole.guild.id },
 				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				return await modLogChannel.send(
 					`You have updated the role name for the role **${oldRole.name}** to **${newRole.name}**, which is a role users can assign in the role management channel, and it has been updated accordingly in the database.\nRemember to update the role channel message by using \`${guildData?.prefix}role update\` and perhaps change the role commands to obtain the role, if the name differs a lot.`,
 				)
@@ -71,6 +75,8 @@ export const event: Event = {
 					where: { guildID: oldRole.guild.id },
 				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`A role called **${oldRole.name}** was updated to **${newRole.name}**.\nGet more info in the audit log.`,
 				)
@@ -85,6 +91,8 @@ export const event: Event = {
 					where: { guildID: oldRole.guild.id },
 				})
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`A role called **${
 						oldRole.name === newRole.name ? newRole.name : `${newRole.name}(previously known as ${oldRole.name})`

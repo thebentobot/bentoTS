@@ -14,7 +14,8 @@ export const event: Event = {
 				where: { guildID: message?.guild?.id },
 			})
 			const messageLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
-
+			if (!messageLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+			if (!messageLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 			const embed = new MessageEmbed()
 				.setAuthor(`${message.author.username} (userID: ${message.author.id})`, message.author.displayAvatarURL())
 				.setColor(`#FF2D00`)

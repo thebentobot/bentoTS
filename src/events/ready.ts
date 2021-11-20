@@ -1,4 +1,4 @@
-import { Channel, Guild, GuildMember, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js'
+import { Channel, GuildMember, Message, MessageEmbed, NewsChannel, Role, TextChannel, User } from 'discord.js'
 import moment from 'moment'
 import { QueryTypes } from 'sequelize'
 import database from '../database/database'
@@ -22,7 +22,6 @@ export const event: Event = {
 			await client?.user?.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {
 				type: `PLAYING`,
 			})
-
 			await axios.post(
 				`https://top.gg/api/bots/${client?.user?.id}/stats`,
 				{ server_count: client.guilds.cache.size },
@@ -168,6 +167,8 @@ export const event: Event = {
 							where: { guildID: guild?.id },
 						})
 						const logChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
+						if (!logChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+						if (!logChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 						const embed = new MessageEmbed()
 							.setColor(`#00ff4a`)
 							.setAuthor(
@@ -359,6 +360,8 @@ export const event: Event = {
 						} else {
 							channel = channelParse as TextChannel
 						}
+						if (!channel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+						if (!channel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 						await channel.send(announcement.message)
 						await announcementSchedule.destroy({
 							where: {
@@ -416,6 +419,8 @@ export const event: Event = {
 						} else {
 							channel = channelParse as TextChannel
 						}
+						if (!channel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+						if (!channel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 						await channel.send(announcement.message)
 						await announcementTime.update(
 							{

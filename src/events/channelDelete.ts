@@ -52,6 +52,8 @@ export const event: Event = {
 			if (announcementTimedData && modLogData) {
 				await announcementTime.destroy({ where: { channelID: channel.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`The deleted channel called **${channel.name}** had reoccurring **announcements** and they have been deleted from Bento's database.\nIf you want announcements somewhere else, please use ${guildData?.prefix}announcement again.`,
 				)
@@ -60,6 +62,8 @@ export const event: Event = {
 			if (announcementScheduledData && modLogData) {
 				await announcementTime.destroy({ where: { channelID: channel.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`The deleted channel called **${channel.name}** had scheduled **announcements** and they have been deleted from Bento's database.\nIf you want announcements somewhere else, please use ${guildData?.prefix}announcement again.`,
 				)
@@ -68,6 +72,8 @@ export const event: Event = {
 			if (messageLogData && modLogData) {
 				await messageLog.destroy({ where: { channel: channel.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`The deleted channel called **${channel.name}** was a **message log channel** and has been deleted from Bento's database.\nIf you want a new message log channel, please use ${guildData?.prefix}messageLog again.`,
 				)
@@ -76,6 +82,8 @@ export const event: Event = {
 			if (welcomeData && modLogData) {
 				await welcome.destroy({ where: { channel: channel.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`The deleted channel called **${channel.name}** was a **welcome channel** and has been deleted from Bento's database.\nIf you want a new welcome channel and welcome message, please use ${guildData?.prefix}welcome again.`,
 				)
@@ -84,6 +92,8 @@ export const event: Event = {
 			if (byeData && modLogData) {
 				await bye.destroy({ where: { channel: channel.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`The deleted channel called **${channel.name}** was a **bye channel** and has been deleted from Bento's database.\nIf you want a new bye channel and bye message, please use ${guildData?.prefix}bye again.`,
 				)
@@ -92,6 +102,8 @@ export const event: Event = {
 			if (memberLogData && modLogData) {
 				await memberLog.destroy({ where: { channel: channel.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`The deleted channel called **${channel.name}** was a **member log channel** and has been deleted from Bento's database.\nIf you want a new member log channel, please use ${guildData?.prefix}memberlog again.`,
 				)
@@ -100,6 +112,8 @@ export const event: Event = {
 			if (roleData && modLogData) {
 				await roleChannel.destroy({ where: { channelID: channel.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				await modLogChannel.send(
 					`The deleted channel called **${channel.name}** was a **role channel** and has been deleted from Bento's database.\nIf you want a new role channel and role functionality, please use ${guildData?.prefix}role again.`,
 				)
@@ -107,6 +121,8 @@ export const event: Event = {
 
 			if (modLogData) {
 				const modLogChannel: TextChannel = client.channels.cache.get(`${modLogData?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				return await modLogChannel.send(
 					`A channel called **${channel.name}** under the category **${channel.parent}** was deleted.\nGet more info in the audit log.`,
 				)
