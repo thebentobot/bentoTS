@@ -32,6 +32,8 @@ export const event: Event = {
 			try {
 				const log = await modLog.findOne({ where: { guildID: role.guild.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				return await modLogChannel.send(
 					`A deleted role called **${role.name}** was an **auto role** and has been deleted from Bento's database.\nIf you want a new auto role, please use ${guildData?.prefix}autoRole again.`,
 				)
@@ -45,6 +47,8 @@ export const event: Event = {
 			try {
 				const log = await modLog.findOne({ where: { guildID: role.guild.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				return await modLogChannel.send(
 					`A deleted role called **${role.name}** was a **mute role** and has been deleted from Bento's database.\nIf you want a new mute role, please use ${guildData?.prefix}muteRole again.`,
 				)
@@ -67,6 +71,8 @@ export const event: Event = {
 			try {
 				const log = await modLog.findOne({ where: { guildID: role.guild.id } })
 				const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+				if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 				return await modLogChannel.send(
 					`A deleted role called **${role.name}** was a role users could assign in the role management channel, and it has been deleted from Bento's database.\nRemember to update the role channel message by using \`${guildData?.prefix}role update\`.`,
 				)
@@ -78,6 +84,8 @@ export const event: Event = {
 		try {
 			const log = await modLog.findOne({ where: { guildID: role.guild.id } })
 			const modLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+			if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+			if (!modLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 			return await modLogChannel.send(`A role called **${role.name}** was deleted.\nGet more info in the audit log.`)
 		} catch {
 			return

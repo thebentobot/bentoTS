@@ -20,6 +20,8 @@ export const event: Event = {
 				where: { guildID: guild.id },
 			})
 			const logChannel: TextChannel = client.channels.cache.get(`${channel?.channel}`) as TextChannel
+			if (!logChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+			if (!logChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 			const embed = new MessageEmbed()
 				.setColor(`#f5ec42`)
 				.setThumbnail(guild.members.cache.get(user.id)?.user.displayAvatarURL() as string)

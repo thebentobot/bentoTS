@@ -15,6 +15,8 @@ export const event: Event = {
 						where: { guildID: oldMember.guild.id },
 					})
 					const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 					const embed = new MessageEmbed()
 						.setAuthor(
 							`${oldMember.user.username + `#` + oldMember.user.discriminator} (userID: ${oldMember.id})`,
@@ -41,6 +43,8 @@ export const event: Event = {
 						where: { guildID: oldMember.guild.id },
 					})
 					const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 					const embed = new MessageEmbed()
 						.setAuthor(
 							`${oldMember.user.username + `#` + oldMember.user.discriminator} (userID: ${oldMember.id})`,
@@ -103,6 +107,8 @@ export const event: Event = {
 						where: { guildID: oldMember.guild.id },
 					})
 					const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 					const embed = new MessageEmbed()
 						.setAuthor(
 							`${oldMember.user.username + `#` + oldMember.user.discriminator} (userID: ${oldMember.id})`,
@@ -127,6 +133,8 @@ export const event: Event = {
 						where: { guildID: oldMember.guild.id },
 					})
 					const memberLogChannel: TextChannel = client.channels.cache.get(`${log?.channel}`) as TextChannel
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`VIEW_CHANNEL`)) return
+					if (!memberLogChannel.permissionsFor(client.user?.id as string)?.has(`SEND_MESSAGES`)) return
 					const embed = new MessageEmbed()
 						.setAuthor(
 							`${oldMember.user.username + `#` + oldMember.user.discriminator} (userID: ${oldMember.id})`,
