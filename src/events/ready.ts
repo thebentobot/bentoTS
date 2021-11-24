@@ -10,7 +10,7 @@ import { Webhook } from '@top-gg/sdk'
 import express from 'express'
 import * as dotenv from 'dotenv'
 import { bento, bentoCreationAttributes } from '../database/models/bento'
-import axios from 'axios'
+//import axios from 'axios'
 dotenv.config()
 
 export const event: Event = {
@@ -22,7 +22,7 @@ export const event: Event = {
 			await client?.user?.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {
 				type: `PLAYING`,
 			})
-
+			/*
 			await axios
 				.post(
 					`https://top.gg/api/bots/${client?.user?.id}/stats`,
@@ -31,6 +31,7 @@ export const event: Event = {
 				)
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				.catch(() => {})
+				*/
 		}
 
 		clientStatus()

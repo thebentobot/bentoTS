@@ -1,3 +1,3 @@
 import Client from './client/index'
 
-new Client().init()
+new Client({ partials: [`MESSAGE`, `CHANNEL`, `REACTION`, `USER`, `GUILD_MEMBER`] }).init()

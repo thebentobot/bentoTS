@@ -17,7 +17,7 @@ const tenorAPI = axios.create({
 })
 
 export let gfycatToken: string
-
+/*
 async function newToken() {
 	const gfycatAuthData = await axios.post(`https://api.gfycat.com/v1/oauth/token`, {
 		client_id: `${process.env.gfycatclientID}`,
@@ -31,7 +31,7 @@ async function newToken() {
 newToken()
 
 setInterval(newToken, 3600000)
-
+*/
 export const command: Command = {
 	name: `gif`,
 	aliases: [],
