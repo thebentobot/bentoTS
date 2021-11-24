@@ -34,12 +34,6 @@ export const event: Event = {
 		if (message.author.bot) return
 		if (!message.guild) return
 
-		if (!message.guild?.me?.hasPermission('MANAGE_MESSAGES')) {
-			return await message.channel.send(
-				`**ERROR!** ${client.user} does not have permission to manage messages (delete and edit messages) on this server.\nPlease give ${client.user} permission to manage messages to use the bot.`,
-			)
-		}
-
 		initModels(database) //imports models into sequelize instance
 
 		const userAttr: userCreationAttributes = {
