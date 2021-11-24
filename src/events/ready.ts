@@ -22,11 +22,15 @@ export const event: Event = {
 			await client?.user?.setActivity(`🍱 - Serving on ${client.guilds.cache.size} servers`, {
 				type: `PLAYING`,
 			})
-			await axios.post(
-				`https://top.gg/api/bots/${client?.user?.id}/stats`,
-				{ server_count: client.guilds.cache.size },
-				{ headers: { Authorization: `${process.env.topggToken}` } },
-			)
+
+			await axios
+				.post(
+					`https://top.gg/api/bots/${client?.user?.id}/stats`,
+					{ server_count: client.guilds.cache.size },
+					{ headers: { Authorization: `${process.env.topggToken}` } },
+				)
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
+				.catch(() => {})
 		}
 
 		clientStatus()

@@ -47,8 +47,9 @@ export const command: Command = {
 		}
 
 		async function serverLeaderboard(message: Message) {
-			const serverRank: Array<Rankings> = await database.query(
-				`
+			try {
+				const serverRank: Array<Rankings> = await database.query(
+					`
             SELECT row_number() over () as rank, t.level, t.xp, u.username, u.discriminator
             FROM "guildMember" AS t
             INNER JOIN "user" u on u."userID" = t."userID"
@@ -56,172 +57,184 @@ export const command: Command = {
             GROUP BY t.level, t.xp, u.username, u.discriminator
             ORDER BY t.level DESC, t.xp DESC
             LIMIT 50;`,
-				{
-					replacements: { guild: message?.guild?.id },
-					type: QueryTypes.SELECT,
-				},
-			)
-			if (!serverRank.length) return message.channel.send(`error`)
-			let currentPage = 0
-			const embeds = generateServerLBembed(serverRank, message)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
-				(
-					await embeds
-				)[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
+					{
+						replacements: { guild: message?.guild?.id },
+						type: QueryTypes.SELECT,
+					},
+				)
+				if (!serverRank.length) return message.channel.send(`error`)
+				let currentPage = 0
+				const embeds = generateServerLBembed(serverRank, message)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${(await embeds).length}`,
+					(
+						await embeds
+					)[currentPage],
+				)
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < (await embeds).length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < (await embeds).length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
+			} catch (err) {
+				console.log(`Error at leaderboard.ts' serverlb function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function globalLeaderboard(message: Message) {
-			interface Rankings {
-				rank: string
-				level?: number
-				xp?: number
-				bento?: number
-				userID: string
-			}
-			const globalRank: Array<Rankings> = await database.query(
-				`
+			try {
+				interface Rankings {
+					rank: string
+					level?: number
+					xp?: number
+					bento?: number
+					userID: string
+				}
+				const globalRank: Array<Rankings> = await database.query(
+					`
             SELECT row_number() over (ORDER BY t.level DESC, t.xp DESC) AS rank, t.level, t.xp, t.username, t.discriminator
             FROM "user" AS t
             GROUP BY t.level, t.xp, t.username, t.discriminator
             ORDER BY t.level DESC, t.xp DESC
             LIMIT 50;`,
-				{ type: QueryTypes.SELECT },
-			)
-			let currentPage = 0
-			const embeds = generateGlobalLBembed(globalRank)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
-				(
-					await embeds
-				)[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
+					{ type: QueryTypes.SELECT },
+				)
+				let currentPage = 0
+				const embeds = generateGlobalLBembed(globalRank)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${(await embeds).length}`,
+					(
+						await embeds
+					)[currentPage],
+				)
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < (await embeds).length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < (await embeds).length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
+			} catch (err) {
+				console.log(`Error at leaderboard.ts' globallb function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function bentoGlobalLeaderboard(message: Message) {
-			interface Rankings {
-				rank: string
-				level?: number
-				xp?: number
-				bento?: number
-				userID: string
-			}
-			const bentoRank: Array<Rankings> = await database.query(
-				`
+			try {
+				interface Rankings {
+					rank: string
+					level?: number
+					xp?: number
+					bento?: number
+					userID: string
+				}
+				const bentoRank: Array<Rankings> = await database.query(
+					`
             SELECT row_number() over (ORDER BY t.bento DESC) AS rank, t.bento, u.username, u.discriminator
             FROM bento AS t
             INNER JOIN "user" u on u."userID" = t."userID"
             GROUP BY t.bento, u.username, u.discriminator
             ORDER BY t.bento DESC
             LIMIT 50;`,
-				{ type: QueryTypes.SELECT },
-			)
-			if (!bentoRank.length) return message.channel.send(`error`)
-			let currentPage = 0
-			const embeds = generateGlobalBentoEmbed(bentoRank)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
-				(
-					await embeds
-				)[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
+					{ type: QueryTypes.SELECT },
+				)
+				if (!bentoRank.length) return message.channel.send(`error`)
+				let currentPage = 0
+				const embeds = generateGlobalBentoEmbed(bentoRank)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${(await embeds).length}`,
+					(
+						await embeds
+					)[currentPage],
+				)
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < (await embeds).length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < (await embeds).length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
+			} catch (err) {
+				console.log(`Error at leaderboard.ts' globalbento function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function bentoServerLeaderboard(message: Message) {
-			interface Rankings {
-				rank: string
-				level?: number
-				xp?: number
-				bento?: number
-				userID: string
-			}
-			const serverRank: Array<Rankings> = await database.query(
-				`
+			try {
+				interface Rankings {
+					rank: string
+					level?: number
+					xp?: number
+					bento?: number
+					userID: string
+				}
+				const serverRank: Array<Rankings> = await database.query(
+					`
             SELECT row_number() over (ORDER BY t.bento DESC) AS rank, t.bento, u.username, u.discriminator
             FROM bento AS t
             INNER JOIN "user" u on u."userID" = t."userID"
@@ -230,48 +243,51 @@ export const command: Command = {
             GROUP BY t.bento, u.username, u.discriminator
             ORDER BY t.bento DESC
             LIMIT 50;`,
-				{
-					replacements: { guild: message?.guild?.id },
-					type: QueryTypes.SELECT,
-				},
-			)
-			if (!serverRank.length) return message.channel.send(`error`)
-			let currentPage = 0
-			const embeds = generateServerBentoEmbed(serverRank, message)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${(await embeds).length}`,
-				(
-					await embeds
-				)[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
+					{
+						replacements: { guild: message?.guild?.id },
+						type: QueryTypes.SELECT,
+					},
+				)
+				if (!serverRank.length) return message.channel.send(`error`)
+				let currentPage = 0
+				const embeds = generateServerBentoEmbed(serverRank, message)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${(await embeds).length}`,
+					(
+						await embeds
+					)[currentPage],
+				)
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < (await embeds).length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < (await embeds).length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${(await embeds).length}`, (await embeds)[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
+			} catch (err) {
+				console.log(`Error at leaderboard.ts' serverbento function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function generateGlobalLBembed(input: Rankings[]) {

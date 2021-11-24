@@ -215,370 +215,394 @@ export const command: Command = {
 		}
 
 		async function roleMessageFunction(message: Message, content: string) {
-			if (!content) {
-				return message.channel.send(
-					`You haven't written a message for your role management channel.\nWrite a message by using\`${guildData?.prefix}role message <content>\``,
-				)
-			}
-
-			const roleMessageData = await roleMessages.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
-
-			if (roleMessageData === null) {
-				const roleMessageAttr: roleMessagesCreationAttributes = {
-					guildID: BigInt(message.guild?.id as string),
-					message: content,
+			try {
+				if (!content) {
+					return message.channel.send(
+						`You haven't written a message for your role management channel.\nWrite a message by using\`${guildData?.prefix}role message <content>\``,
+					)
 				}
 
-				await roleMessages.create(roleMessageAttr)
-				return message.channel.send(`The message for your role management channel has been set.`)
-			} else {
-				try {
-					await roleMessages.update({ message: content }, { where: { guildID: message.guild?.id } })
-					return message.channel.send(`The message for your role management channel has been updated.`)
-				} catch {
-					return
+				const roleMessageData = await roleMessages.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
+
+				if (roleMessageData === null) {
+					const roleMessageAttr: roleMessagesCreationAttributes = {
+						guildID: BigInt(message.guild?.id as string),
+						message: content,
+					}
+
+					await roleMessages.create(roleMessageAttr)
+					return message.channel.send(`The message for your role management channel has been set.`)
+				} else {
+					try {
+						await roleMessages.update({ message: content }, { where: { guildID: message.guild?.id } })
+						return message.channel.send(`The message for your role management channel has been updated.`)
+					} catch {
+						return
+					}
 				}
+			} catch (err) {
+				console.log(`Error at role.ts' rolemessage function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function roleSetFunction(message: Message, type: string, roleText: string) {
-			if (!type) {
-				return message.channel.send(
-					`You haven't specified a role type.\nGet help with this command by using\`${guildData?.prefix}help role\``,
-				)
-			}
-
-			if (![`main`, `sub`, `other`].includes(type)) {
-				return message.channel.send(
-					`You haven't specified a valid role type.\nIt needs to be either \`main\`, \`sub\` or \`other\`.\nGet help with this command by using\`${guildData?.prefix}help role\``,
-				)
-			}
-
-			if (!roleText) {
-				return message.channel.send(
-					`You haven't specified a role text.\nGet help with this command by using\`${guildData?.prefix}help role\``,
-				)
-			}
-
-			const pairs = roleText.split(`,`)
-			const errors: Array<string> = []
-			const rolesAdded: Array<string> = []
-			const rolesExist: Array<string> = []
-			const availableRoleAdded: Array<string> = []
-			const availableRoleExists: Array<string> = []
-
-			for (let i = 0; i < pairs.length; i++) {
-				const pair = pairs[i].trim()
-				if (!pair.includes(`:`)) {
-					errors.push(pair)
-					continue
+			try {
+				if (!type) {
+					return message.channel.send(
+						`You haven't specified a role type.\nGet help with this command by using\`${guildData?.prefix}help role\``,
+					)
 				}
-				const roles = pair.split(`:`, 2)
-				const roleCommand = roles[0].trim()
-				const roleName = roles[1].trim()
-				const roleDiscord = message.guild?.roles.cache.find((role) => role.name === roleName)
-				if (roleCommand.length < 1 || roleName.length < 1) {
-					errors.push(roleCommand)
-				} else if (!roleDiscord || !message.guild?.roles.cache.has(roleDiscord.id)) {
-					errors.push(roleCommand)
-				} else {
-					const roleID = roleDiscord.id
-					let roleAttr: roleCreationAttributes | undefined
-					if (type === `main`) {
-						roleAttr = {
-							roleID: BigInt(roleID),
-							roleCommand: roleCommand,
-							roleName: roleName,
-							guildID: BigInt(message.guild?.id),
-							type: `main`,
-						}
+
+				if (![`main`, `sub`, `other`].includes(type)) {
+					return message.channel.send(
+						`You haven't specified a valid role type.\nIt needs to be either \`main\`, \`sub\` or \`other\`.\nGet help with this command by using\`${guildData?.prefix}help role\``,
+					)
+				}
+
+				if (!roleText) {
+					return message.channel.send(
+						`You haven't specified a role text.\nGet help with this command by using\`${guildData?.prefix}help role\``,
+					)
+				}
+
+				const pairs = roleText.split(`,`)
+				const errors: Array<string> = []
+				const rolesAdded: Array<string> = []
+				const rolesExist: Array<string> = []
+				const availableRoleAdded: Array<string> = []
+				const availableRoleExists: Array<string> = []
+
+				for (let i = 0; i < pairs.length; i++) {
+					const pair = pairs[i].trim()
+					if (!pair.includes(`:`)) {
+						errors.push(pair)
+						continue
 					}
-					if (type === `sub`) {
-						roleAttr = {
-							roleID: BigInt(roleID),
-							roleCommand: roleCommand,
-							roleName: roleName,
-							guildID: BigInt(message.guild.id),
-							type: `sub`,
-						}
-					}
-					if (type === `other`) {
-						roleAttr = {
-							roleID: BigInt(roleID),
-							roleCommand: roleCommand,
-							roleName: roleName,
-							guildID: BigInt(message.guild.id),
-							type: `other`,
-						}
-					}
-					const added = await role.findOrCreate({
-						raw: true,
-						where: {
-							roleName: roleName,
-							roleCommand: roleCommand,
-							type: type,
-							guildID: message.guild.id,
-						},
-						defaults: roleAttr,
-					})
-					if (added[1] === true) {
-						rolesAdded.push(roleName)
+					const roles = pair.split(`:`, 2)
+					const roleCommand = roles[0].trim()
+					const roleName = roles[1].trim()
+					const roleDiscord = message.guild?.roles.cache.find((role) => role.name === roleName)
+					if (roleCommand.length < 1 || roleName.length < 1) {
+						errors.push(roleCommand)
+					} else if (!roleDiscord || !message.guild?.roles.cache.has(roleDiscord.id)) {
+						errors.push(roleCommand)
 					} else {
-						rolesExist.push(roleName)
-					}
-					const availableRole = await availableRolesGuild.findOrCreate({
-						raw: true,
-						where: { role: roleName, type: type, guildID: message.guild.id },
-					})
-					if (availableRole[1] === true) {
-						availableRoleAdded.push(roleName)
-					} else {
-						availableRoleExists.push(roleName)
+						const roleID = roleDiscord.id
+						let roleAttr: roleCreationAttributes | undefined
+						if (type === `main`) {
+							roleAttr = {
+								roleID: BigInt(roleID),
+								roleCommand: roleCommand,
+								roleName: roleName,
+								guildID: BigInt(message.guild?.id),
+								type: `main`,
+							}
+						}
+						if (type === `sub`) {
+							roleAttr = {
+								roleID: BigInt(roleID),
+								roleCommand: roleCommand,
+								roleName: roleName,
+								guildID: BigInt(message.guild.id),
+								type: `sub`,
+							}
+						}
+						if (type === `other`) {
+							roleAttr = {
+								roleID: BigInt(roleID),
+								roleCommand: roleCommand,
+								roleName: roleName,
+								guildID: BigInt(message.guild.id),
+								type: `other`,
+							}
+						}
+						const added = await role.findOrCreate({
+							raw: true,
+							where: {
+								roleName: roleName,
+								roleCommand: roleCommand,
+								type: type,
+								guildID: message.guild.id,
+							},
+							defaults: roleAttr,
+						})
+						if (added[1] === true) {
+							rolesAdded.push(roleName)
+						} else {
+							rolesExist.push(roleName)
+						}
+						const availableRole = await availableRolesGuild.findOrCreate({
+							raw: true,
+							where: { role: roleName, type: type, guildID: message.guild.id },
+						})
+						if (availableRole[1] === true) {
+							availableRoleAdded.push(roleName)
+						} else {
+							availableRoleExists.push(roleName)
+						}
 					}
 				}
-			}
 
-			return await message.channel.send(
-				rolesResponse({
-					'Role commands added': rolesAdded,
-					'Role commands already paired': rolesExist,
-					Errors: errors,
-					'Available role added': availableRoleAdded,
-					'Available role exists': availableRoleExists,
-				}),
-			)
+				return await message.channel.send(
+					rolesResponse({
+						'Role commands added': rolesAdded,
+						'Role commands already paired': rolesExist,
+						Errors: errors,
+						'Available role added': availableRoleAdded,
+						'Available role exists': availableRoleExists,
+					}),
+				)
+			} catch (err) {
+				console.log(`Error at role.ts' roleset function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function roleDeleteFunction(message: Message, type: string, roleText: string) {
-			if (!type) {
-				return message.channel.send(
-					`You haven't specified a role type.\nGet help with this command by using\`${guildData?.prefix}help role\``,
-				)
-			}
+			try {
+				if (!type) {
+					return message.channel.send(
+						`You haven't specified a role type.\nGet help with this command by using\`${guildData?.prefix}help role\``,
+					)
+				}
 
-			if (![`main`, `sub`, `other`].includes(type)) {
-				return message.channel.send(
-					`You haven't specified a valid role type.\nIt needs to be either \`main\`, \`sub\` or \`other\`.\nGet help with this command by using\`${guildData?.prefix}help role\``,
-				)
-			}
+				if (![`main`, `sub`, `other`].includes(type)) {
+					return message.channel.send(
+						`You haven't specified a valid role type.\nIt needs to be either \`main\`, \`sub\` or \`other\`.\nGet help with this command by using\`${guildData?.prefix}help role\``,
+					)
+				}
 
-			if (!roleText) {
-				return message.channel.send(
-					`You haven't specified a role text.\nGet help with this command by using\`${guildData?.prefix}help role\``,
-				)
-			}
+				if (!roleText) {
+					return message.channel.send(
+						`You haven't specified a role text.\nGet help with this command by using\`${guildData?.prefix}help role\``,
+					)
+				}
 
-			const roleCommands = roleText.split(`, `)
-			const errors: Array<string> = []
-			const rolesRemoved: Array<string> = []
-			const rolesNotExisting: Array<string> = []
-			const availableRolesRemoved: Array<string> = []
-			const availableRolesNotExisting: Array<string> = []
+				const roleCommands = roleText.split(`, `)
+				const errors: Array<string> = []
+				const rolesRemoved: Array<string> = []
+				const rolesNotExisting: Array<string> = []
+				const availableRolesRemoved: Array<string> = []
+				const availableRolesNotExisting: Array<string> = []
 
-			for (let i = 0; i < roleCommands.length; i++) {
-				const roleCommand = roleCommands[i].trim()
-				if (roleCommand.length < 1) {
-					errors.push(roleCommand)
-				} else {
-					const roleData = await role.findOne({
-						where: {
-							roleCommand: roleCommand,
-							guildID: message.guild?.id,
-							type: type,
-						},
-					})
-					if (roleData === null) {
-						rolesNotExisting.push(roleCommand)
-						break
-					}
-					const removed = await role.destroy({
-						where: {
-							roleCommand: roleCommand,
-							guildID: message.guild?.id,
-							type: type,
-						},
-					})
-					if (removed > 0) {
-						rolesRemoved.push(roleCommand)
-						break
-					}
-					const roleCheck = await role.findAndCountAll({
-						raw: true,
-						where: {
-							guildID: message.guild?.id,
-							roleName: roleData?.roleName,
-							type: roleData?.type,
-						},
-					})
-					if (roleCheck?.count === 0) {
-						const availableRoleData = await availableRolesGuild.findOne({
+				for (let i = 0; i < roleCommands.length; i++) {
+					const roleCommand = roleCommands[i].trim()
+					if (roleCommand.length < 1) {
+						errors.push(roleCommand)
+					} else {
+						const roleData = await role.findOne({
+							where: {
+								roleCommand: roleCommand,
+								guildID: message.guild?.id,
+								type: type,
+							},
+						})
+						if (roleData === null) {
+							rolesNotExisting.push(roleCommand)
+							break
+						}
+						const removed = await role.destroy({
+							where: {
+								roleCommand: roleCommand,
+								guildID: message.guild?.id,
+								type: type,
+							},
+						})
+						if (removed > 0) {
+							rolesRemoved.push(roleCommand)
+							break
+						}
+						const roleCheck = await role.findAndCountAll({
 							raw: true,
 							where: {
 								guildID: message.guild?.id,
-								role: roleData?.roleName,
+								roleName: roleData?.roleName,
 								type: roleData?.type,
 							},
 						})
-						if (!availableRoleData) {
-							availableRolesNotExisting.push(roleData?.roleName as string)
-						} else {
-							await availableRolesGuild.destroy({
+						if (roleCheck?.count === 0) {
+							const availableRoleData = await availableRolesGuild.findOne({
+								raw: true,
 								where: {
 									guildID: message.guild?.id,
 									role: roleData?.roleName,
 									type: roleData?.type,
 								},
 							})
-							availableRolesRemoved.push(roleData?.roleName as string)
+							if (!availableRoleData) {
+								availableRolesNotExisting.push(roleData?.roleName as string)
+							} else {
+								await availableRolesGuild.destroy({
+									where: {
+										guildID: message.guild?.id,
+										role: roleData?.roleName,
+										type: roleData?.type,
+									},
+								})
+								availableRolesRemoved.push(roleData?.roleName as string)
+							}
 						}
 					}
 				}
-			}
 
-			return await message.channel.send(
-				rolesResponse({
-					'Role commands removed': rolesRemoved,
-					'Role commands that did not exist': rolesNotExisting,
-					Errors: errors,
-					'Available Roles removed': availableRolesRemoved,
-					'Available Roles not existing': availableRolesNotExisting,
-				}),
-			)
+				return await message.channel.send(
+					rolesResponse({
+						'Role commands removed': rolesRemoved,
+						'Role commands that did not exist': rolesNotExisting,
+						Errors: errors,
+						'Available Roles removed': availableRolesRemoved,
+						'Available Roles not existing': availableRolesNotExisting,
+					}),
+				)
+			} catch (err) {
+				console.log(`Error at role.ts' roledelete function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function rolesChannel(message: Message, channelMention?: string) {
-			if (!channelMention) {
-				return message.channel.send(
-					`You haven't specified a channel for your role management.\nGet help with this command by using\`${guildData?.prefix}help role\``,
-				)
-			}
-
-			let channelID: string
-
 			try {
-				const channel =
-					message.mentions.channels.first() || (message.guild?.channels.cache.get(channelMention) as TextChannel)
-				channelID = channel.id
-			} catch {
-				return message.channel.send(`Your channel id ${channelMention} was invalid.\nPlease use a valid channel id.`)
-			}
-
-			const messageData = await roleMessages.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
-			if (messageData === null) {
-				return message.channel.send(
-					`You haven't written a message for your role management channel.\nWrite a message by using\`${guildData?.prefix}role message <content>\``,
-				)
-			}
-
-			const channelData = await roleChannel.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
-
-			if (channelData === null) {
-				const getChannel = client.channels.cache.get(channelID) as TextChannel
-				const embed = (await roleListEmbed(message)) as MessageEmbed
-				const msg = await getChannel.send(messageData.message, embed)
-
-				const roleChannelAttr: roleChannelCreationAttributes = {
-					guildID: BigInt(message.guild?.id as string),
-					channelID: BigInt(channelID),
+				if (!channelMention) {
+					return message.channel.send(
+						`You haven't specified a channel for your role management.\nGet help with this command by using\`${guildData?.prefix}help role\``,
+					)
 				}
 
-				await roleMessages.update({ messageID: BigInt(msg.id) }, { where: { guildID: message.guild?.id } })
-				await roleChannel.create(roleChannelAttr)
-				return message.channel.send(`Roles channel set to <#${channelID}>`)
-			} else {
-				const getChannel = client.channels.cache.get(channelID) as TextChannel
-				const embed = (await roleListEmbed(message)) as MessageEmbed
-				const msg = await getChannel.send(messageData.message, embed)
+				let channelID: string
 
-				await roleMessages.update({ messageID: BigInt(msg.id) }, { where: { guildID: message.guild?.id } })
-				await roleChannel.update({ channelID: BigInt(channelID) }, { where: { guildID: message.guild?.id } })
-				return message.channel.send(`Roles channel updated to <#${channelID}>`)
+				try {
+					const channel =
+						message.mentions.channels.first() || (message.guild?.channels.cache.get(channelMention) as TextChannel)
+					channelID = channel.id
+				} catch {
+					return message.channel.send(`Your channel id ${channelMention} was invalid.\nPlease use a valid channel id.`)
+				}
+
+				const messageData = await roleMessages.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
+				if (messageData === null) {
+					return message.channel.send(
+						`You haven't written a message for your role management channel.\nWrite a message by using\`${guildData?.prefix}role message <content>\``,
+					)
+				}
+
+				const channelData = await roleChannel.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
+
+				if (channelData === null) {
+					const getChannel = client.channels.cache.get(channelID) as TextChannel
+					const embed = (await roleListEmbed(message)) as MessageEmbed
+					const msg = await getChannel.send(messageData.message, embed)
+
+					const roleChannelAttr: roleChannelCreationAttributes = {
+						guildID: BigInt(message.guild?.id as string),
+						channelID: BigInt(channelID),
+					}
+
+					await roleMessages.update({ messageID: BigInt(msg.id) }, { where: { guildID: message.guild?.id } })
+					await roleChannel.create(roleChannelAttr)
+					return message.channel.send(`Roles channel set to <#${channelID}>`)
+				} else {
+					const getChannel = client.channels.cache.get(channelID) as TextChannel
+					const embed = (await roleListEmbed(message)) as MessageEmbed
+					const msg = await getChannel.send(messageData.message, embed)
+
+					await roleMessages.update({ messageID: BigInt(msg.id) }, { where: { guildID: message.guild?.id } })
+					await roleChannel.update({ channelID: BigInt(channelID) }, { where: { guildID: message.guild?.id } })
+					return message.channel.send(`Roles channel updated to <#${channelID}>`)
+				}
+			} catch (err) {
+				console.log(`Error at role.ts' rolechannel function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function rolesChannelUpdate(message: Message) {
-			const messageData = await roleMessages.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
+			try {
+				const messageData = await roleMessages.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
 
-			if (messageData === null) {
-				return await message.channel.send(`No roles channel message assigned.`)
-			}
+				if (messageData === null) {
+					return await message.channel.send(`No roles channel message assigned.`)
+				}
 
-			const messageID = messageData.messageID
-			const MessageContent = messageData.message
-			const channelData = await roleChannel.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
-			if (channelData === null) {
-				return await message.channel.send(`No roles channel assigned.`)
-			}
-			const channelID = channelData.channelID
-			const roleChannelDiscord = client.channels.cache.get(`${channelID}`) as TextChannel
-			const embed = await roleListEmbed(message)
+				const messageID = messageData.messageID
+				const MessageContent = messageData.message
+				const channelData = await roleChannel.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
+				if (channelData === null) {
+					return await message.channel.send(`No roles channel assigned.`)
+				}
+				const channelID = channelData.channelID
+				const roleChannelDiscord = client.channels.cache.get(`${channelID}`) as TextChannel
+				const embed = await roleListEmbed(message)
 
-			const oldRoleChannelMessage = await roleChannelDiscord.messages.fetch(`${messageID}`)
-			oldRoleChannelMessage.delete()
-			const newMessage = await roleChannelDiscord.send(MessageContent, embed as MessageEmbed)
-			await roleMessages.update(
-				{ messageID: BigInt(newMessage.id) },
-				{
-					where: {
-						guildID: message.guild?.id,
-						messageID: messageData.messageID,
+				const oldRoleChannelMessage = await roleChannelDiscord.messages.fetch(`${messageID}`)
+				oldRoleChannelMessage.delete()
+				const newMessage = await roleChannelDiscord.send(MessageContent, embed as MessageEmbed)
+				await roleMessages.update(
+					{ messageID: BigInt(newMessage.id) },
+					{
+						where: {
+							guildID: message.guild?.id,
+							messageID: messageData.messageID,
+						},
 					},
-				},
-			)
-			return await message.channel.send(`Roles channel message updated.`)
+				)
+				return await message.channel.send(`Roles channel message updated.`)
+			} catch (err) {
+				console.log(`Error at role.ts' rolemessage function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function rolesList(message: Message) {
-			const roleData = await role.findAndCountAll({
-				raw: true,
-				where: { guildID: message.guild?.id },
-			})
-			if (roleData.count === 0) {
-				return await message.channel.send(`This server hasn't added any roles.`)
-			}
-			const guild = message.guild
-			const mainRoles: Array<string> = []
-			const subRoles: Array<string> = []
-			const otherRoles: Array<string> = []
-			for (let i = 0; i < roleData.rows.length; i++) {
-				const row = roleData.rows[i]
-				const command = row.roleCommand
-				const name = guild?.roles.cache.get(`${row.roleID}`)?.name
-				switch (row.type) {
-					case `main`:
-						mainRoles.push(`${command}: ${name}`)
-						break
-					case `sub`:
-						subRoles.push(`${command}: ${name}`)
-						break
-					case `other`:
-						otherRoles.push(`${command}: ${name}`)
-						break
-					default:
-						console.error(`Unexpected value for column: type`)
-						break
+			try {
+				const roleData = await role.findAndCountAll({
+					raw: true,
+					where: { guildID: message.guild?.id },
+				})
+				if (roleData.count === 0) {
+					return await message.channel.send(`This server hasn't added any roles.`)
 				}
+				const guild = message.guild
+				const mainRoles: Array<string> = []
+				const subRoles: Array<string> = []
+				const otherRoles: Array<string> = []
+				for (let i = 0; i < roleData.rows.length; i++) {
+					const row = roleData.rows[i]
+					const command = row.roleCommand
+					const name = guild?.roles.cache.get(`${row.roleID}`)?.name
+					switch (row.type) {
+						case `main`:
+							mainRoles.push(`${command}: ${name}`)
+							break
+						case `sub`:
+							subRoles.push(`${command}: ${name}`)
+							break
+						case `other`:
+							otherRoles.push(`${command}: ${name}`)
+							break
+						default:
+							console.error(`Unexpected value for column: type`)
+							break
+					}
+				}
+				const mainRolesFinal = `__**Main Roles**__\n` + mainRoles.join(` **|** `) + `\n`
+				const subRolesFinal = `__**Sub Roles**__\n` + subRoles.join(` **|** `) + `\n`
+				const otherRolesFinal = `__**Other Roles**__\n` + otherRoles.join(` **|** `) + `\n`
+				const roleList = [mainRolesFinal, subRolesFinal, otherRolesFinal].join(`\n`)
+				return await message.channel.send(roleList)
+			} catch (err) {
+				console.log(`Error at role.ts' rolelist function, server ${message.guild?.id}\n\n${err}`)
 			}
-			const mainRolesFinal = `__**Main Roles**__\n` + mainRoles.join(` **|** `) + `\n`
-			const subRolesFinal = `__**Sub Roles**__\n` + subRoles.join(` **|** `) + `\n`
-			const otherRolesFinal = `__**Other Roles**__\n` + otherRoles.join(` **|** `) + `\n`
-			const roleList = [mainRolesFinal, subRolesFinal, otherRolesFinal].join(`\n`)
-			return await message.channel.send(roleList)
 		}
 
 		async function roleListEmbed(message: Message) {
