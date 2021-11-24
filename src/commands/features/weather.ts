@@ -44,155 +44,163 @@ export const command: Command = {
 		}
 
 		async function weatherFunction(message: Message, input?: string) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			let userID: string | undefined
-			let city: string | undefined
+				let userID: string | undefined
+				let city: string | undefined
 
-			if (input) {
-				try {
-					const mentionedUser = message.mentions.members?.has(client.user?.id as string)
-						? message.mentions.members.size > 1
-							? message.mentions.members.last()
-							: message.member
-						: message.mentions.members?.first() || (await message.guild?.members.fetch(input))
-					if (mentionedUser?.user.bot === true) return message.channel.send(`Bots doesn't care about the weather.`)
-					userID = mentionedUser?.id
+				if (input) {
 					try {
+						const mentionedUser = message.mentions.members?.has(client.user?.id as string)
+							? message.mentions.members.size > 1
+								? message.mentions.members.last()
+								: message.member
+							: message.mentions.members?.first() || (await message.guild?.members.fetch(input))
+						if (mentionedUser?.user.bot === true) return message.channel.send(`Bots doesn't care about the weather.`)
+						userID = mentionedUser?.id
+						try {
+							const weatherData = await weather.findOne({
+								raw: true,
+								where: { userID: userID },
+							})
+							city = weatherData?.city
+						} catch {
+							return message.channel.send(
+								`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved a weather location.`,
+							)
+						}
+					} catch {
+						city = input
+					}
+				} else {
+					try {
+						userID = message.author.id
 						const weatherData = await weather.findOne({
 							raw: true,
 							where: { userID: userID },
 						})
 						city = weatherData?.city
 					} catch {
+						const guildData = await guild.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
 						return message.channel.send(
-							`${mentionedUser?.user.username}#${mentionedUser?.user.discriminator} hasn't saved a weather location.`,
+							`Your request was invalid. You haven't saved a city for the weather command.\nUse \`${guildData?.prefix}help weather\` for help with your request.`,
 						)
 					}
-				} catch {
-					city = input
 				}
-			} else {
+
+				let response: weatherAPIObjectInterface
 				try {
-					userID = message.author.id
-					const weatherData = await weather.findOne({
-						raw: true,
-						where: { userID: userID },
+					const fetch = await openWeatherAPI.get(`/weather?`, {
+						params: {
+							q: city,
+							units: `metric`,
+							appid: process.env.WEATHERKEY,
+							lang: `en`,
+						},
 					})
-					city = weatherData?.city
+					response = fetch.data
 				} catch {
 					const guildData = await guild.findOne({
 						raw: true,
 						where: { guildID: message.guild?.id },
 					})
 					return message.channel.send(
-						`Your request was invalid. You haven't saved a city for the weather command.\nUse \`${guildData?.prefix}help weather\` for help with your request.`,
+						`No results found for the location \`${city}\`.\nIf you've saved the location you can change the location to something else by using \`${guildData?.prefix}weather save <city>\`.\nIf you tried to check the weather by ID and it failed, it's either because the user hasn't saved a city or the user isn't on this server.\nIf you searched for the location, perhaps add the country code for the location or you've misspelled.\nUse \`${guildData?.prefix}help weather\` to get help.`,
 					)
 				}
-			}
 
-			let response: weatherAPIObjectInterface
-			try {
-				const fetch = await openWeatherAPI.get(`/weather?`, {
-					params: {
-						q: city,
-						units: `metric`,
-						appid: process.env.WEATHERKEY,
-						lang: `en`,
-					},
-				})
-				response = fetch.data
-			} catch {
-				const guildData = await guild.findOne({
-					raw: true,
-					where: { guildID: message.guild?.id },
-				})
-				return message.channel.send(
-					`No results found for the location \`${city}\`.\nIf you've saved the location you can change the location to something else by using \`${guildData?.prefix}weather save <city>\`.\nIf you tried to check the weather by ID and it failed, it's either because the user hasn't saved a city or the user isn't on this server.\nIf you searched for the location, perhaps add the country code for the location or you've misspelled.\nUse \`${guildData?.prefix}help weather\` to get help.`,
-				)
+				const Embed = new MessageEmbed()
+					.setColor(`#EB6E4B`)
+					.setAuthor(
+						userID
+							? message.guild?.members.cache.get(userID)?.nickname
+								? `${message.guild.members.cache.get(userID)?.nickname} (${
+										message.guild?.members.cache.get(userID)?.user.username +
+										`#` +
+										message.guild?.members.cache.get(userID)?.user.discriminator
+								  })`
+								: message.guild?.members.cache.get(userID)?.user.username +
+								  `#` +
+								  message.guild?.members.cache.get(userID)?.user.discriminator
+							: `OpenWeather`,
+						userID
+							? message.guild?.members.cache.get(userID)?.user.displayAvatarURL({ format: `png`, dynamic: true })
+							: `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg`,
+						userID ? `` : `https://openweathermap.org/`,
+					)
+					.setTitle(
+						`${capitalize(response.weather[0].description)} ${await weatherEmote(response.weather[0].id)} in ${
+							response.name
+						}, ${codeToName(response.sys.country)} ${flag(response.sys.country)}`,
+					)
+					.setURL(`https://openweathermap.org/city/${response.id}`)
+					.setThumbnail(`http://openweathermap.org/img/w/${response.weather[0].icon}.png`)
+					.setFooter(
+						`Last updated at ${await toTimeZone(
+							moment.unix(response.dt),
+							await location(response.coord.lat, response.coord.lon),
+						)}`,
+						userID ? `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg` : ``,
+					)
+					.setDescription(
+						`🌡 ${Math.round(response.main.temp)}°C (${Math.round(
+							(response.main.temp * 9) / 5 + 32,
+						)}°F), feels like ${Math.round(response.main.feels_like)}°C (${Math.round(
+							(response.main.feels_like * 9) / 5 + 32,
+						)}°F)\n⚖️ Min. ${Math.round(response.main.temp_min)}°C (${Math.round(
+							(response.main.temp_min * 9) / 5 + 32,
+						)}°F), Max. ${Math.round(response.main.temp_max)}°C (${Math.round(
+							(response.main.temp_max * 9) / 5 + 32,
+						)}°F)\n☁️ ${response.clouds.all}% Cloudiness 🥵 ${response.main.humidity}% Humidity\n💨 ${
+							response.wind.speed
+						} m/s ${await windDirection(response.wind.deg)}\n\n🕒 ${await localTime(response.timezone)} ${flag(
+							response.sys.country,
+						)}\n🌅 ${await toTimeZone(
+							moment.unix(response.sys.sunrise),
+							await location(response.coord.lat, response.coord.lon),
+						)}\n🌇 ${await toTimeZone(
+							moment.unix(response.sys.sunset),
+							await location(response.coord.lat, response.coord.lon),
+						)}`,
+					)
+					.setTimestamp()
+				return await message.channel.send(Embed)
+			} catch (err) {
+				console.log(`Error at weather.ts' weather function, server ${message.guild?.id}\n\n${err}`)
 			}
-
-			const Embed = new MessageEmbed()
-				.setColor(`#EB6E4B`)
-				.setAuthor(
-					userID
-						? message.guild?.members.cache.get(userID)?.nickname
-							? `${message.guild.members.cache.get(userID)?.nickname} (${
-									message.guild?.members.cache.get(userID)?.user.username +
-									`#` +
-									message.guild?.members.cache.get(userID)?.user.discriminator
-							  })`
-							: message.guild?.members.cache.get(userID)?.user.username +
-							  `#` +
-							  message.guild?.members.cache.get(userID)?.user.discriminator
-						: `OpenWeather`,
-					userID
-						? message.guild?.members.cache.get(userID)?.user.displayAvatarURL({ format: `png`, dynamic: true })
-						: `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg`,
-					userID ? `` : `https://openweathermap.org/`,
-				)
-				.setTitle(
-					`${capitalize(response.weather[0].description)} ${await weatherEmote(response.weather[0].id)} in ${
-						response.name
-					}, ${codeToName(response.sys.country)} ${flag(response.sys.country)}`,
-				)
-				.setURL(`https://openweathermap.org/city/${response.id}`)
-				.setThumbnail(`http://openweathermap.org/img/w/${response.weather[0].icon}.png`)
-				.setFooter(
-					`Last updated at ${await toTimeZone(
-						moment.unix(response.dt),
-						await location(response.coord.lat, response.coord.lon),
-					)}`,
-					userID ? `https://pbs.twimg.com/profile_images/1173919481082580992/f95OeyEW_400x400.jpg` : ``,
-				)
-				.setDescription(
-					`🌡 ${Math.round(response.main.temp)}°C (${Math.round(
-						(response.main.temp * 9) / 5 + 32,
-					)}°F), feels like ${Math.round(response.main.feels_like)}°C (${Math.round(
-						(response.main.feels_like * 9) / 5 + 32,
-					)}°F)\n⚖️ Min. ${Math.round(response.main.temp_min)}°C (${Math.round(
-						(response.main.temp_min * 9) / 5 + 32,
-					)}°F), Max. ${Math.round(response.main.temp_max)}°C (${Math.round(
-						(response.main.temp_max * 9) / 5 + 32,
-					)}°F)\n☁️ ${response.clouds.all}% Cloudiness 🥵 ${response.main.humidity}% Humidity\n💨 ${
-						response.wind.speed
-					} m/s ${await windDirection(response.wind.deg)}\n\n🕒 ${await localTime(response.timezone)} ${flag(
-						response.sys.country,
-					)}\n🌅 ${await toTimeZone(
-						moment.unix(response.sys.sunrise),
-						await location(response.coord.lat, response.coord.lon),
-					)}\n🌇 ${await toTimeZone(
-						moment.unix(response.sys.sunset),
-						await location(response.coord.lat, response.coord.lon),
-					)}`,
-				)
-				.setTimestamp()
-			return await message.channel.send(Embed)
 		}
 
 		async function saveWeather(message: Message, city: string) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userID = message.author.id
+				const userID = message.author.id
 
-			const weatherAttr: weatherCreationAttributes = {
-				userID: BigInt(userID),
-				city: city,
-			}
+				const weatherAttr: weatherCreationAttributes = {
+					userID: BigInt(userID),
+					city: city,
+				}
 
-			const createWeather = await weather.findOrCreate({
-				raw: true,
-				where: { userID: userID },
-				defaults: weatherAttr,
-			})
+				const createWeather = await weather.findOrCreate({
+					raw: true,
+					where: { userID: userID },
+					defaults: weatherAttr,
+				})
 
-			if (createWeather[1] === false) {
-				await weather.update({ city: city }, { where: { userID: userID } })
-				return message.channel.send(`${message.author} your weather city was updated to \`${city}\`!\n`)
-			} else {
-				return message.channel.send(
-					`${message.author} your weather city \`${city}\` was saved!\nYou can now use weather commands without mentioning cities, to check the weather in your saved city.`,
-				)
+				if (createWeather[1] === false) {
+					await weather.update({ city: city }, { where: { userID: userID } })
+					return message.channel.send(`${message.author} your weather city was updated to \`${city}\`!\n`)
+				} else {
+					return message.channel.send(
+						`${message.author} your weather city \`${city}\` was saved!\nYou can now use weather commands without mentioning cities, to check the weather in your saved city.`,
+					)
+				}
+			} catch (err) {
+				console.log(`Error at weather.ts' save function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 

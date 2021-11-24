@@ -128,344 +128,517 @@ export const command: Command = {
 		}
 
 		async function addTag(message: Message, nameOfTag?: string) {
-			const tagName = nameOfTag?.toLowerCase()
-			if (regex.test(tagName as string) === true) {
-				return message.channel.send(`You can't add special characters to your tag name \`${tagName}\``)
-			}
+			try {
+				const tagName = nameOfTag?.toLowerCase()
+				if (regex.test(tagName as string) === true) {
+					return message.channel.send(`You can't add special characters to your tag name \`${tagName}\``)
+				}
 
-			initModels(database)
-			const cmdNameArray: string[] = client.commands.mapValues((values) => values.name).array() // returns cmd names of the bot
-			const aliasesNameArray: string[] = client.aliases
-				.each((values) => values.aliases)
-				.mapValues((value) => value.aliases)
-				.keyArray() // returns cmd aliases of the bot
-			const tagArgs: string[] = [`add`, `delete`, `edit`, `info`, `list`, `random`, `rename`, `search`, `author`, `top`]
+				initModels(database)
+				const cmdNameArray: string[] = client.commands.mapValues((values) => values.name).array() // returns cmd names of the bot
+				const aliasesNameArray: string[] = client.aliases
+					.each((values) => values.aliases)
+					.mapValues((value) => value.aliases)
+					.keyArray() // returns cmd aliases of the bot
+				const tagArgs: string[] = [
+					`add`,
+					`delete`,
+					`edit`,
+					`info`,
+					`list`,
+					`random`,
+					`rename`,
+					`search`,
+					`author`,
+					`top`,
+				]
 
-			if (cmdNameArray.includes(tagName as string)) {
-				return message.channel.send(
-					`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`,
-				)
-			}
+				if (cmdNameArray.includes(tagName as string)) {
+					return message.channel.send(
+						`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`,
+					)
+				}
 
-			if (aliasesNameArray.includes(tagName as string)) {
-				return message.channel.send(
-					`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`,
-				)
-			}
+				if (aliasesNameArray.includes(tagName as string)) {
+					return message.channel.send(
+						`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`,
+					)
+				}
 
-			if (tagArgs.includes(tagName as string)) {
-				return message.channel.send(
-					`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`,
-				)
-			}
+				if (tagArgs.includes(tagName as string)) {
+					return message.channel.send(
+						`The tag name \`${tagName}\` is either a command or an alias for a Bento 🍱 command.\nName your tag something else please.`,
+					)
+				}
 
-			let files: string | undefined
-			let text: string | undefined
-			let tagContent: string | undefined
+				let files: string | undefined
+				let text: string | undefined
+				let tagContent: string | undefined
 
-			if (message.attachments.array() !== undefined) {
-				const getUrl = message.attachments.array()
-				files = getUrl[0] ? getUrl[0].url : ``
-			}
+				if (message.attachments.array() !== undefined) {
+					const getUrl = message.attachments.array()
+					files = getUrl[0] ? getUrl[0].url : ``
+				}
 
-			if (args.slice(2).join(` `) !== undefined) {
-				text = args.slice(2).join(` `)
-			}
+				if (args.slice(2).join(` `) !== undefined) {
+					text = args.slice(2).join(` `)
+				}
 
-			if (files && text) {
-				tagContent = `${Util.escapeMarkdown(text)}\n${files}`
-			} else if (text && !files) {
-				tagContent = Util.escapeMarkdown(text)
-			} else if (!text && files) {
-				tagContent = files
-			} else if (!text && !files) {
-				return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
-			}
+				if (files && text) {
+					tagContent = `${Util.escapeMarkdown(text)}\n${files}`
+				} else if (text && !files) {
+					tagContent = Util.escapeMarkdown(text)
+				} else if (!text && files) {
+					tagContent = files
+				} else if (!text && !files) {
+					return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
+				}
 
-			const tagAttr: tagCreationAttributes = {
-				userID: BigInt(message.author.id),
-				guildID: BigInt(message.guild?.id as string),
-				command: tagName as string,
-				content: tagContent as string,
-				count: 0,
-			}
+				const tagAttr: tagCreationAttributes = {
+					userID: BigInt(message.author.id),
+					guildID: BigInt(message.guild?.id as string),
+					command: tagName as string,
+					content: tagContent as string,
+					count: 0,
+				}
 
-			const tagExists = await tag.findOrCreate({
-				raw: true,
-				where: { guildID: message.guild?.id, command: tagName },
-				defaults: tagAttr,
-			})
+				const tagExists = await tag.findOrCreate({
+					raw: true,
+					where: { guildID: message.guild?.id, command: tagName },
+					defaults: tagAttr,
+				})
 
-			if (tagExists[1] === false) {
-				return message.channel.send(
-					`The tag name \`${tagName}\` already exists on this server.\nName your tag something else please.`,
-				)
-			} else {
-				return message.channel.send(
-					`The tag \`${tagExists[0].command}\` was successfully saved!\nContent:\n${tagExists[0].content}`,
-				)
+				if (tagExists[1] === false) {
+					return message.channel.send(
+						`The tag name \`${tagName}\` already exists on this server.\nName your tag something else please.`,
+					)
+				} else {
+					return message.channel.send(
+						`The tag \`${tagExists[0].command}\` was successfully saved!\nContent:\n${tagExists[0].content}`,
+					)
+				}
+			} catch (err) {
+				console.log(`Error at tag.ts' add function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function removeTag(message: Message, nameOfTag?: string) {
-			const tagName = nameOfTag?.toLowerCase()
-			initModels(database)
+			try {
+				const tagName = nameOfTag?.toLowerCase()
+				initModels(database)
 
-			const tagData = await tag.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id, command: tagName },
-			})
-
-			if (tagData === null) {
-				const guildData = await guild.findOne({
+				const tagData = await tag.findOne({
 					raw: true,
-					where: { guildID: message.guild?.id },
+					where: { guildID: message.guild?.id, command: tagName },
 				})
-				return message.channel.send(
-					`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
-				)
-			}
 
-			if (message.author.id === `${tagData.userID}` || message.member?.permissions.has(`BAN_MEMBERS`)) {
-				await tag.destroy({
-					where: {
-						guildID: tagData.guildID,
-						userID: tagData.userID,
-						command: tagData.command,
-						content: tagData.content,
-					},
-				})
-				return message.channel.send(`Successfully deleted the tag \`${tagName}\``)
-			} else {
-				const guildData = await guild.findOne({
-					raw: true,
-					where: { guildID: message.guild?.id },
-				})
-				return message.channel.send(
-					// eslint-disable-next-line no-useless-escape
-					`You are not authorised to delete this tag.\nCheck who owns this tag by using the command \´${guildData?.prefix}tag info ${tagName}\´`,
-				)
+				if (tagData === null) {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
+					)
+				}
+
+				if (message.author.id === `${tagData.userID}` || message.member?.permissions.has(`BAN_MEMBERS`)) {
+					await tag.destroy({
+						where: {
+							guildID: tagData.guildID,
+							userID: tagData.userID,
+							command: tagData.command,
+							content: tagData.content,
+						},
+					})
+					return message.channel.send(`Successfully deleted the tag \`${tagName}\``)
+				} else {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						// eslint-disable-next-line no-useless-escape
+						`You are not authorised to delete this tag.\nCheck who owns this tag by using the command \´${guildData?.prefix}tag info ${tagName}\´`,
+					)
+				}
+			} catch (err) {
+				console.log(`Error at tag.ts' remove function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function editTag(message: Message, nameOfTag?: string) {
-			const tagName = nameOfTag?.toLowerCase()
-			initModels(database)
+			try {
+				const tagName = nameOfTag?.toLowerCase()
+				initModels(database)
 
-			const tagData = await tag.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id, command: tagName },
-			})
-
-			if (tagData === null) {
-				const guildData = await guild.findOne({
+				const tagData = await tag.findOne({
 					raw: true,
-					where: { guildID: message.guild?.id },
+					where: { guildID: message.guild?.id, command: tagName },
 				})
-				return message.channel.send(
-					`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
-				)
-			}
 
-			if (message.author.id !== `${tagData.userID}` || !message.member?.permissions.has(`BAN_MEMBERS`)) {
-				const guildData = await guild.findOne({
-					raw: true,
-					where: { guildID: message.guild?.id },
-				})
-				return message.channel.send(
-					`You are not authorised to edit this tag.\nCheck who owns this tag by using the command ${guildData?.prefix}tag info ${tagName}`,
-				)
-			}
+				if (tagData === null) {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
+					)
+				}
 
-			let files: string | undefined
-			let text: string | undefined
-			let tagContent: string | undefined
+				if (message.author.id !== `${tagData.userID}` || !message.member?.permissions.has(`BAN_MEMBERS`)) {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						`You are not authorised to edit this tag.\nCheck who owns this tag by using the command ${guildData?.prefix}tag info ${tagName}`,
+					)
+				}
 
-			if (message.attachments.array() !== undefined) {
-				const getUrl = message.attachments.array()
-				files = getUrl[0] ? getUrl[0].url : ``
-			}
+				let files: string | undefined
+				let text: string | undefined
+				let tagContent: string | undefined
 
-			if (args.slice(2).join(` `) !== undefined) {
-				text = args.slice(2).join(` `)
-			}
+				if (message.attachments.array() !== undefined) {
+					const getUrl = message.attachments.array()
+					files = getUrl[0] ? getUrl[0].url : ``
+				}
 
-			if (files && text) {
-				tagContent = `${Util.escapeMarkdown(text)}\n${files}`
-			} else if (text && !files) {
-				tagContent = Util.escapeMarkdown(text)
-			} else if (!text && files) {
-				tagContent = files
-			} else if (!text && !files) {
-				return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
-			}
+				if (args.slice(2).join(` `) !== undefined) {
+					text = args.slice(2).join(` `)
+				}
 
-			await tag.update(
-				{ content: tagContent },
-				{
-					where: {
-						guildID: tagData.guildID,
-						userID: tagData.userID,
-						command: tagData.command,
+				if (files && text) {
+					tagContent = `${Util.escapeMarkdown(text)}\n${files}`
+				} else if (text && !files) {
+					tagContent = Util.escapeMarkdown(text)
+				} else if (!text && files) {
+					tagContent = files
+				} else if (!text && !files) {
+					return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
+				}
+
+				await tag.update(
+					{ content: tagContent },
+					{
+						where: {
+							guildID: tagData.guildID,
+							userID: tagData.userID,
+							command: tagData.command,
+						},
 					},
-				},
-			)
-			return message.channel.send(`The tag \`${tagData.command}\` got updated!\nThe content is now: \`${tagContent}\``)
+				)
+				return message.channel.send(
+					`The tag \`${tagData.command}\` got updated!\nThe content is now: \`${tagContent}\``,
+				)
+			} catch (err) {
+				console.log(`Error at tag.ts' edit function, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function infoTag(message: Message, nameOfTag?: string) {
-			const tagName = nameOfTag?.toLowerCase()
-			initModels(database)
+			try {
+				const tagName = nameOfTag?.toLowerCase()
+				initModels(database)
 
-			const tagData = await tag.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id, command: tagName },
-			})
-
-			if (tagData === null) {
-				const guildData = await guild.findOne({
+				const tagData = await tag.findOne({
 					raw: true,
-					where: { guildID: message.guild?.id },
+					where: { guildID: message.guild?.id, command: tagName },
 				})
-				return message.channel.send(
-					`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
-				)
+
+				if (tagData === null) {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						`The tag name \`${tagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
+					)
+				}
+
+				const embed = new MessageEmbed()
+					.setTitle(tagData.command)
+					.setAuthor(message.guild?.name, message.guild?.iconURL() as string)
+					.setThumbnail(
+						message.guild?.members.cache
+							.get(`${tagData.userID}`)
+							?.user.displayAvatarURL({ format: `png`, dynamic: true }) as string,
+					)
+					.setColor(
+						`${await urlToColours(
+							message.guild?.members.cache.get(`${tagData.userID}`)?.user.displayAvatarURL({ format: `png` }) as string,
+						)}`,
+					)
+					.addField(
+						`Author of the tag`,
+						message.guild?.members.cache.get(`${tagData.userID}`)?.nickname
+							? `${message.guild?.members.cache.get(`${tagData.userID}`)?.nickname} (${
+									message.guild?.members.cache.get(`${tagData.userID}`)?.user.username +
+									`#` +
+									message.guild?.members.cache.get(`${tagData.userID}`)?.user.discriminator
+							  })`
+							: `${
+									message.guild?.members.cache.get(`${tagData.userID}`)?.user.username +
+									`#` +
+									message.guild?.members.cache.get(`${tagData.userID}`)?.user.discriminator
+							  }`,
+					)
+					.addField(`Content`, trim(tagData.content, 1024))
+					.addField(`Date made`, `<t:${moment(tagData.date).format(`X`)}:F>`)
+					.addField(`Usage count`, tagData.count > 1 ? `${tagData.count} times` : `${tagData.count} time`)
+
+				return message.channel.send(embed)
+			} catch (err) {
+				console.log(`Error at tag.ts' info function, server ${message.guild?.id}\n\n${err}`)
 			}
-
-			const embed = new MessageEmbed()
-				.setTitle(tagData.command)
-				.setAuthor(message.guild?.name, message.guild?.iconURL() as string)
-				.setThumbnail(
-					message.guild?.members.cache
-						.get(`${tagData.userID}`)
-						?.user.displayAvatarURL({ format: `png`, dynamic: true }) as string,
-				)
-				.setColor(
-					`${await urlToColours(
-						message.guild?.members.cache.get(`${tagData.userID}`)?.user.displayAvatarURL({ format: `png` }) as string,
-					)}`,
-				)
-				.addField(
-					`Author of the tag`,
-					message.guild?.members.cache.get(`${tagData.userID}`)?.nickname
-						? `${message.guild?.members.cache.get(`${tagData.userID}`)?.nickname} (${
-								message.guild?.members.cache.get(`${tagData.userID}`)?.user.username +
-								`#` +
-								message.guild?.members.cache.get(`${tagData.userID}`)?.user.discriminator
-						  })`
-						: `${
-								message.guild?.members.cache.get(`${tagData.userID}`)?.user.username +
-								`#` +
-								message.guild?.members.cache.get(`${tagData.userID}`)?.user.discriminator
-						  }`,
-				)
-				.addField(`Content`, trim(tagData.content, 1024))
-				.addField(`Date made`, `<t:${moment(tagData.date).format(`X`)}:F>`)
-				.addField(`Usage count`, tagData.count > 1 ? `${tagData.count} times` : `${tagData.count} time`)
-
-			return message.channel.send(embed)
 		}
 
 		async function listTags(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const tagData = await tag.findAndCountAll({
-				raw: true,
-				where: { guildID: message.guild?.id },
-				order: [
-					[`command`, `DESC`],
-					[`count`, `DESC`],
-				],
-			})
-			if (tagData.count === 0) return message.channel.send(`This server does not have any tags.`)
-			let currentPage = 0
-			const embeds = await generateTagListEmbed(tagData)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${embeds.length}`,
-				embeds[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
+				const tagData = await tag.findAndCountAll({
+					raw: true,
+					where: { guildID: message.guild?.id },
+					order: [
+						[`command`, `DESC`],
+						[`count`, `DESC`],
+					],
+				})
+				if (tagData.count === 0) return message.channel.send(`This server does not have any tags.`)
+				let currentPage = 0
+				const embeds = await generateTagListEmbed(tagData)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${embeds.length}`,
+					embeds[currentPage],
+				)
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < embeds.length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < embeds.length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
 
-			async function generateTagListEmbed(data: { rows: tag[]; count: number }) {
-				const actualData = data.rows
-				const tagCount = data.count
-				const embeds = []
-				let k = 10
-				for (let i = 0; i < actualData.length; i += 10) {
-					const current = actualData.slice(i, k)
-					let j = i
-					k += 10
-					// det foroven skærer, så det kun bliver 10 pr. page.
-					const info = current.map((command) => `${++j}. ${command.command}`).join(`\n`)
-					const embed = new MessageEmbed()
-						.setDescription(`${info}`)
-						.setColor(
-							message.guild?.iconURL()
-								? `${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`
-								: `${await urlToColours(client.user?.displayAvatarURL({ format: `png` }) as string)}`,
-						)
-						.setTitle(`All tags for ${message.guild?.name}`)
-						.setAuthor(
-							message.guild?.iconURL() ? message.guild?.name : client.user?.username,
-							message.guild?.iconURL()
-								? (message.guild?.iconURL() as string)
-								: (client.user?.displayAvatarURL() as string),
-						)
-						.setFooter(`Total tags: ${tagCount}`)
-						.setTimestamp()
-					// denne funktion skal skubbe siderne
-					embeds.push(embed)
+				// eslint-disable-next-line no-inner-declarations
+				async function generateTagListEmbed(data: { rows: tag[]; count: number }) {
+					const actualData = data.rows
+					const tagCount = data.count
+					const embeds = []
+					let k = 10
+					for (let i = 0; i < actualData.length; i += 10) {
+						const current = actualData.slice(i, k)
+						let j = i
+						k += 10
+						// det foroven skærer, så det kun bliver 10 pr. page.
+						const info = current.map((command) => `${++j}. ${command.command}`).join(`\n`)
+						const embed = new MessageEmbed()
+							.setDescription(`${info}`)
+							.setColor(
+								message.guild?.iconURL()
+									? `${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`
+									: `${await urlToColours(client.user?.displayAvatarURL({ format: `png` }) as string)}`,
+							)
+							.setTitle(`All tags for ${message.guild?.name}`)
+							.setAuthor(
+								message.guild?.iconURL() ? message.guild?.name : client.user?.username,
+								message.guild?.iconURL()
+									? (message.guild?.iconURL() as string)
+									: (client.user?.displayAvatarURL() as string),
+							)
+							.setFooter(`Total tags: ${tagCount}`)
+							.setTimestamp()
+						// denne funktion skal skubbe siderne
+						embeds.push(embed)
+					}
+					return embeds
 				}
-				return embeds
+			} catch (err) {
+				console.log(`Error at tag.ts' list function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function randomTag(message: Message, query?: string) {
-			if (query) {
-				query.toLowerCase()
+			try {
+				if (query) {
+					query.toLowerCase()
 
-				interface randomTagInterface {
-					command: string
-					content: string
-				}
+					interface randomTagInterface {
+						command: string
+						content: string
+					}
 
-				const queryData: Array<randomTagInterface> = await database.query(
-					`
+					const queryData: Array<randomTagInterface> = await database.query(
+						`
                 SELECT *
                 FROM tag
                 WHERE "guildID" = :guild AND command LIKE :query`,
-					{
-						replacements: {
-							guild: message.guild?.id,
-							query: `%` + query + `%`,
+						{
+							replacements: {
+								guild: message.guild?.id,
+								query: `%` + query + `%`,
+							},
+							type: QueryTypes.SELECT,
 						},
+					)
+
+					if (!queryData.length) {
+						return message.channel.send(`No tags found containing \`${query}\`.\nSearch for something else please.`)
+					}
+
+					const randomNumber: number = Math.floor(Math.random() * queryData.length)
+
+					return message.channel.send(`\`${queryData[randomNumber].command}\`\n${queryData[randomNumber].content}`)
+				} else {
+					initModels(database)
+
+					const randomTag = await tag.findAll({
+						raw: true,
+						where: { guildID: message.guild?.id },
+						order: Sequelize.literal(`random()`),
+						limit: 1,
+					})
+					if (!randomTag.length) return message.channel.send(`No tags found for this server.`)
+
+					return message.channel.send(`\`${randomTag[0].command}\`\n${randomTag[0].content}`)
+				}
+			} catch (err) {
+				console.log(`Error at tag.ts' random function, server ${message.guild?.id}\n\n${err}`)
+			}
+		}
+
+		async function renameTag(message: Message, oldTagNameInsert?: string, newTagNameInsert?: string) {
+			try {
+				const oldTagName = oldTagNameInsert?.toLowerCase()
+				const newTagName = newTagNameInsert?.toLowerCase()
+
+				if (regex.test(newTagName as string) === true) {
+					return message.channel.send(`You can't add special characters to your new tag name \`${newTagName}\``)
+				}
+
+				initModels(database)
+
+				const oldTagData = await tag.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id, command: oldTagName },
+				})
+
+				if (oldTagData === null) {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						`The tag name \`${oldTagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
+					)
+				}
+
+				if (!message.member?.permissions.has(`MANAGE_GUILD`) || message.author.id !== `${oldTagData.userID}`) {
+					const guildData = await guild.findOne({
+						raw: true,
+						where: { guildID: message.guild?.id },
+					})
+					return message.channel.send(
+						`You are not authorised to rename this tag.\nCheck who owns this tag by using the command ${guildData?.prefix}tag info ${oldTagName}`,
+					)
+				}
+
+				const cmdNameArray: string[] = client.commands.mapValues((values) => values.name).array() // returns cmd names of the bot
+				const aliasesNameArray: string[] = client.aliases
+					.each((values) => values.aliases)
+					.mapValues((value) => value.aliases)
+					.keyArray() // returns cmd aliases of the bot
+				const tagArgs: string[] = [
+					`add`,
+					`delete`,
+					`edit`,
+					`info`,
+					`list`,
+					`random`,
+					`rename`,
+					`search`,
+					`author`,
+					`top`,
+				]
+
+				if (cmdNameArray.includes(newTagName as string)) {
+					return message.channel.send(
+						`The new tag name \`${newTagName}\` is a command name for a Bento 🍱 command.\nRename your tag something else please.`,
+					)
+				}
+
+				if (aliasesNameArray.includes(newTagName as string)) {
+					return message.channel.send(
+						`The new tag name \`${newTagName}\` is an alias for a Bento 🍱 command.\nRename your tag something else please.`,
+					)
+				}
+
+				if (tagArgs.includes(newTagName as string)) {
+					return message.channel.send(
+						`The new tag name \`${newTagName}\` is a tag argument.\nRename your tag something else please.`,
+					)
+				}
+
+				const NewTagData = await tag.findOne({
+					raw: true,
+					where: { guildID: message.guild?.id, command: newTagName },
+				})
+
+				if (NewTagData === null) {
+					await tag.update(
+						{ command: newTagName },
+						{
+							where: {
+								guildID: oldTagData.guildID,
+								userID: oldTagData.userID,
+								command: oldTagData.command,
+							},
+						},
+					)
+					return message.channel.send(`The tag \`${oldTagName}\` got rename!\nThe tag is now called: \`${newTagName}\``)
+				}
+			} catch (err) {
+				console.log(`Error at tag.ts' rename function, server ${message.guild?.id}\n\n${err}`)
+			}
+		}
+
+		async function searchTag(message: Message, queryInsert?: string) {
+			try {
+				if (!queryInsert) {
+					return message.channel.send(`You need a search query`)
+				}
+				const query = queryInsert?.toLowerCase()
+
+				const queryData: tag[] = await database.query(
+					`
+            SELECT *
+            FROM tag
+            WHERE "guildID" = :guild AND command LIKE :query`,
+					{
+						replacements: { guild: message.guild?.id, query: `%` + query + `%` },
 						type: QueryTypes.SELECT,
 					},
 				)
@@ -474,221 +647,85 @@ export const command: Command = {
 					return message.channel.send(`No tags found containing \`${query}\`.\nSearch for something else please.`)
 				}
 
-				const randomNumber: number = Math.floor(Math.random() * queryData.length)
-
-				return message.channel.send(`\`${queryData[randomNumber].command}\`\n${queryData[randomNumber].content}`)
-			} else {
-				initModels(database)
-
-				const randomTag = await tag.findAll({
-					raw: true,
-					where: { guildID: message.guild?.id },
-					order: Sequelize.literal(`random()`),
-					limit: 1,
+				let currentPage = 0
+				const embeds = await generateTagSearchEmbed(queryData)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${embeds.length}`,
+					embeds[currentPage],
+				)
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
 				})
-				if (!randomTag.length) return message.channel.send(`No tags found for this server.`)
 
-				return message.channel.send(`\`${randomTag[0].command}\`\n${randomTag[0].content}`)
-			}
-		}
-
-		async function renameTag(message: Message, oldTagNameInsert?: string, newTagNameInsert?: string) {
-			const oldTagName = oldTagNameInsert?.toLowerCase()
-			const newTagName = newTagNameInsert?.toLowerCase()
-
-			if (regex.test(newTagName as string) === true) {
-				return message.channel.send(`You can't add special characters to your new tag name \`${newTagName}\``)
-			}
-
-			initModels(database)
-
-			const oldTagData = await tag.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id, command: oldTagName },
-			})
-
-			if (oldTagData === null) {
-				const guildData = await guild.findOne({
-					raw: true,
-					where: { guildID: message.guild?.id },
-				})
-				return message.channel.send(
-					`The tag name \`${oldTagName}\` doesn't exist on this server.\nTry to search for the tag by using \`${guildData?.prefix}tag [query]\` or get help with tags by using \`${guildData?.prefix}help tag\``,
-				)
-			}
-
-			if (!message.member?.permissions.has(`MANAGE_GUILD`) || message.author.id !== `${oldTagData.userID}`) {
-				const guildData = await guild.findOne({
-					raw: true,
-					where: { guildID: message.guild?.id },
-				})
-				return message.channel.send(
-					`You are not authorised to rename this tag.\nCheck who owns this tag by using the command ${guildData?.prefix}tag info ${oldTagName}`,
-				)
-			}
-
-			const cmdNameArray: string[] = client.commands.mapValues((values) => values.name).array() // returns cmd names of the bot
-			const aliasesNameArray: string[] = client.aliases
-				.each((values) => values.aliases)
-				.mapValues((value) => value.aliases)
-				.keyArray() // returns cmd aliases of the bot
-			const tagArgs: string[] = [`add`, `delete`, `edit`, `info`, `list`, `random`, `rename`, `search`, `author`, `top`]
-
-			if (cmdNameArray.includes(newTagName as string)) {
-				return message.channel.send(
-					`The new tag name \`${newTagName}\` is a command name for a Bento 🍱 command.\nRename your tag something else please.`,
-				)
-			}
-
-			if (aliasesNameArray.includes(newTagName as string)) {
-				return message.channel.send(
-					`The new tag name \`${newTagName}\` is an alias for a Bento 🍱 command.\nRename your tag something else please.`,
-				)
-			}
-
-			if (tagArgs.includes(newTagName as string)) {
-				return message.channel.send(
-					`The new tag name \`${newTagName}\` is a tag argument.\nRename your tag something else please.`,
-				)
-			}
-
-			const NewTagData = await tag.findOne({
-				raw: true,
-				where: { guildID: message.guild?.id, command: newTagName },
-			})
-
-			if (NewTagData === null) {
-				await tag.update(
-					{ command: newTagName },
-					{
-						where: {
-							guildID: oldTagData.guildID,
-							userID: oldTagData.userID,
-							command: oldTagData.command,
-						},
-					},
-				)
-				return message.channel.send(`The tag \`${oldTagName}\` got rename!\nThe tag is now called: \`${newTagName}\``)
-			}
-		}
-
-		async function searchTag(message: Message, queryInsert?: string) {
-			const query = queryInsert?.toLowerCase()
-
-			const queryData: tag[] = await database.query(
-				`
-            SELECT *
-            FROM tag
-            WHERE "guildID" = :guild AND command LIKE :query`,
-				{
-					replacements: { guild: message.guild?.id, query: `%` + query + `%` },
-					type: QueryTypes.SELECT,
-				},
-			)
-
-			if (!queryData.length) {
-				return message.channel.send(`No tags found containing \`${query}\`.\nSearch for something else please.`)
-			}
-
-			let currentPage = 0
-			const embeds = await generateTagSearchEmbed(queryData)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${embeds.length}`,
-				embeds[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
-
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < embeds.length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < embeds.length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
 
-			async function generateTagSearchEmbed(data: tag[]) {
-				const embeds = []
-				let k = 10
-				for (let i = 0; i < data.length; i += 10) {
-					const current = data.slice(i, k)
-					let j = i
-					k += 10
-					// det foroven skærer, så det kun bliver 10 pr. page.
-					const info = current.map((command) => `${++j}. ${command.command}`).join(`\n`)
-					const embed = new MessageEmbed()
-						.setDescription(`${info}`)
-						.setColor(
-							message.guild?.iconURL()
-								? `${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`
-								: `${await urlToColours(client.user?.displayAvatarURL({ format: `png` }) as string)}`,
-						)
-						.setTitle(`All tags that includes \`${query}\``)
-						.setAuthor(
-							message.guild?.iconURL() ? message.guild?.name : client.user?.username,
-							message.guild?.iconURL() ? (message.guild?.iconURL() as string) : client.user?.displayAvatarURL(),
-						)
-						.setTimestamp()
-					// denne funktion skal skubbe siderne
-					embeds.push(embed)
+				// eslint-disable-next-line no-inner-declarations
+				async function generateTagSearchEmbed(data: tag[]) {
+					const embeds = []
+					let k = 10
+					for (let i = 0; i < data.length; i += 10) {
+						const current = data.slice(i, k)
+						let j = i
+						k += 10
+						const info = current.map((command) => `${++j}. ${command.command}`).join(`\n`)
+						const embed = new MessageEmbed()
+							.setDescription(`${info}`)
+							.setColor(
+								message.guild?.iconURL()
+									? `${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`
+									: `${await urlToColours(client.user?.displayAvatarURL({ format: `png` }) as string)}`,
+							)
+							.setTitle(`All tags that includes \`${query}\``)
+							.setAuthor(
+								message.guild?.iconURL() ? message.guild?.name : client.user?.username,
+								message.guild?.iconURL() ? (message.guild?.iconURL() as string) : client.user?.displayAvatarURL(),
+							)
+							.setTimestamp()
+						embeds.push(embed)
+					}
+					return embeds
 				}
-				return embeds
+			} catch (err) {
+				console.log(`Error at tag.ts' search function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function authorTag(message: Message, user?: string) {
-			initModels(database)
-
-			let userID: string | undefined
-			let commands: tag[]
-			let commandCount: number
-
 			try {
-				const mentionedUser = message.mentions.members?.first() || (await message.guild?.members.fetch(user as string))
-				if (mentionedUser?.user.bot === true) return message.channel.send(`This command doesn't work with bots.`)
-				userID = mentionedUser?.id
-				const tagData = await tag.findAndCountAll({
-					raw: true,
-					where: { userID: userID, guildID: message.guild?.id },
-					order: [
-						[`command`, `DESC`],
-						[`count`, `DESC`],
-					],
-				})
-				commands = tagData.rows
-				commandCount = tagData.count
-				if (tagData?.count === 0) {
-					return message.channel.send(
-						`Your mentioned user ${
-							mentionedUser?.nickname
-								? `${Util.removeMentions(mentionedUser?.nickname as string)} (${
-										mentionedUser?.user.username + `#` + mentionedUser?.user.discriminator
-								  })`
-								: mentionedUser?.user.username + `#` + mentionedUser?.user.discriminator
-						} hasn't created any tags.`,
-					)
-				}
-			} catch {
+				initModels(database)
+
+				let userID: string | undefined
+				let commands: tag[]
+				let commandCount: number
+
 				try {
-					userID = message.author.id
+					const mentionedUser =
+						message.mentions.members?.first() || (await message.guild?.members.fetch(user as string))
+					if (mentionedUser?.user.bot === true) return message.channel.send(`This command doesn't work with bots.`)
+					userID = mentionedUser?.id
 					const tagData = await tag.findAndCountAll({
 						raw: true,
 						where: { userID: userID, guildID: message.guild?.id },
@@ -700,6 +737,39 @@ export const command: Command = {
 					commands = tagData.rows
 					commandCount = tagData.count
 					if (tagData?.count === 0) {
+						return message.channel.send(
+							`Your mentioned user ${
+								mentionedUser?.nickname
+									? `${Util.removeMentions(mentionedUser?.nickname as string)} (${
+											mentionedUser?.user.username + `#` + mentionedUser?.user.discriminator
+									  })`
+									: mentionedUser?.user.username + `#` + mentionedUser?.user.discriminator
+							} hasn't created any tags.`,
+						)
+					}
+				} catch {
+					try {
+						userID = message.author.id
+						const tagData = await tag.findAndCountAll({
+							raw: true,
+							where: { userID: userID, guildID: message.guild?.id },
+							order: [
+								[`command`, `DESC`],
+								[`count`, `DESC`],
+							],
+						})
+						commands = tagData.rows
+						commandCount = tagData.count
+						if (tagData?.count === 0) {
+							const guildData = await guild.findOne({
+								raw: true,
+								where: { guildID: message.guild?.id },
+							})
+							return message.channel.send(
+								`You haven't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
+							)
+						}
+					} catch {
 						const guildData = await guild.findOne({
 							raw: true,
 							where: { guildID: message.guild?.id },
@@ -708,133 +778,138 @@ export const command: Command = {
 							`You haven't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
 						)
 					}
-				} catch {
-					const guildData = await guild.findOne({
-						raw: true,
-						where: { guildID: message.guild?.id },
-					})
-					return message.channel.send(
-						`You haven't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
-					)
 				}
-			}
 
-			let currentPage = 0
-			const embeds = await generateTagAuthorEmbed(commands, commandCount)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${embeds.length}`,
-				embeds[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
+				let currentPage = 0
+				const embeds = await generateTagAuthorEmbed(commands, commandCount)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${embeds.length}`,
+					embeds[currentPage],
+				)
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < embeds.length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < embeds.length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
 
-			async function generateTagAuthorEmbed(data: tag[], count: number) {
-				const embeds = []
-				let k = 10
-				for (let i = 0; i < data.length; i += 10) {
-					const current = data.slice(i, k)
-					let j = i
-					k += 10
-					// det foroven skærer, så det kun bliver 10 pr. page.
-					const info = current.map((command) => `${++j}. ${command.command}`).join(`\n`)
-					const embed = new MessageEmbed()
-						.setDescription(`${info}`)
-						.setColor(
-							`${
+				// eslint-disable-next-line no-inner-declarations
+				async function generateTagAuthorEmbed(data: tag[], count: number) {
+					const embeds = []
+					let k = 10
+					for (let i = 0; i < data.length; i += 10) {
+						const current = data.slice(i, k)
+						let j = i
+						k += 10
+						// det foroven skærer, så det kun bliver 10 pr. page.
+						const info = current.map((command) => `${++j}. ${command.command}`).join(`\n`)
+						const embed = new MessageEmbed()
+							.setDescription(`${info}`)
+							.setColor(
+								`${
+									userID
+										? await urlToColours(
+												message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png` }) as string,
+										  )
+										: await urlToColours(message.author?.avatarURL({ format: `png` }) as string)
+								}`,
+							)
+							.setTitle(
+								`All tags on ${message.guild?.name} created by ${
+									message.guild?.members.cache.get(userID as string)?.nickname
+										? `${message.guild?.members.cache.get(userID as string)?.nickname} (${
+												message.guild?.members.cache.get(userID as string)?.user.username +
+												`#` +
+												message.guild?.members.cache.get(userID as string)?.user.discriminator
+										  })`
+										: message.guild?.members.cache.get(userID as string)?.user.username +
+										  `#` +
+										  message.guild?.members.cache.get(userID as string)?.user.discriminator
+								}`,
+							)
+							.setAuthor(
+								`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
 								userID
-									? await urlToColours(
-											message.guild?.members.cache.get(userID)?.user.avatarURL({ format: `png` }) as string,
-									  )
-									: await urlToColours(message.author?.avatarURL({ format: `png` }) as string)
-							}`,
-						)
-						.setTitle(
-							`All tags on ${message.guild?.name} created by ${
-								message.guild?.members.cache.get(userID as string)?.nickname
-									? `${message.guild?.members.cache.get(userID as string)?.nickname} (${
-											message.guild?.members.cache.get(userID as string)?.user.username +
-											`#` +
-											message.guild?.members.cache.get(userID as string)?.user.discriminator
-									  })`
-									: message.guild?.members.cache.get(userID as string)?.user.username +
-									  `#` +
-									  message.guild?.members.cache.get(userID as string)?.user.discriminator
-							}`,
-						)
-						.setAuthor(
-							`${userID ? message.guild?.members.cache.get(userID)?.user.username : message.author.username}`,
-							userID
-								? (message.guild?.members.cache.get(userID as string)?.user.avatarURL({
-										format: `png`,
-										dynamic: true,
-								  }) as string)
-								: (message.author.avatarURL({
-										format: `png`,
-										dynamic: true,
-								  }) as string),
-						)
-						.setFooter(`Total tags: ${count}`)
-						.setThumbnail(
-							userID
-								? (message.guild?.members.cache.get(userID)?.user.avatarURL({
-										format: `png`,
-										dynamic: true,
-								  }) as string)
-								: message.author.displayAvatarURL({
-										format: `png`,
-										dynamic: true,
-								  }),
-						)
-						.setTimestamp()
-					// denne funktion skal skubbe siderne
-					embeds.push(embed)
+									? (message.guild?.members.cache.get(userID as string)?.user.avatarURL({
+											format: `png`,
+											dynamic: true,
+									  }) as string)
+									: (message.author.avatarURL({
+											format: `png`,
+											dynamic: true,
+									  }) as string),
+							)
+							.setFooter(`Total tags: ${count}`)
+							.setThumbnail(
+								userID
+									? (message.guild?.members.cache.get(userID)?.user.avatarURL({
+											format: `png`,
+											dynamic: true,
+									  }) as string)
+									: message.author.displayAvatarURL({
+											format: `png`,
+											dynamic: true,
+									  }),
+							)
+							.setTimestamp()
+						// denne funktion skal skubbe siderne
+						embeds.push(embed)
+					}
+					return embeds
 				}
-				return embeds
+			} catch (err) {
+				console.log(`Error at tag.ts' author function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function usageCountList(message: Message) {
-			initModels(database)
-
-			//let userID: string;
-			let commands: tag[]
-			let commandCount: number
-
 			try {
-				const tagData = await tag.findAndCountAll({
-					raw: true,
-					where: { guildID: message.guild?.id },
-					order: [[`count`, `DESC`]],
-				})
-				commands = tagData.rows
-				commandCount = tagData.count
-				if (tagData?.count === 0) {
+				initModels(database)
+
+				//let userID: string;
+				let commands: tag[]
+				let commandCount: number
+
+				try {
+					const tagData = await tag.findAndCountAll({
+						raw: true,
+						where: { guildID: message.guild?.id },
+						order: [[`count`, `DESC`]],
+					})
+					commands = tagData.rows
+					commandCount = tagData.count
+					if (tagData?.count === 0) {
+						const guildData = await guild.findOne({
+							raw: true,
+							where: { guildID: message.guild?.id },
+						})
+						return message.channel.send(
+							`This server hasn't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
+						)
+					}
+				} catch {
 					const guildData = await guild.findOne({
 						raw: true,
 						where: { guildID: message.guild?.id },
@@ -843,81 +918,76 @@ export const command: Command = {
 						`This server hasn't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
 					)
 				}
-			} catch {
-				const guildData = await guild.findOne({
-					raw: true,
-					where: { guildID: message.guild?.id },
-				})
-				return message.channel.send(
-					`This server hasn't made any tags\nUse \`${guildData?.prefix}tag add <tag name> <tag content>\` to create a tag.\nUse \`${guildData?.prefix}help tag\` for help with your request.`,
+
+				let currentPage = 0
+				const embeds = await generateTagAuthorEmbed(commands, commandCount)
+				const queueEmbed = await message.channel.send(
+					`Current Page: ${currentPage + 1}/${embeds.length}`,
+					embeds[currentPage],
 				)
-			}
+				await queueEmbed.react(`⬅️`)
+				await queueEmbed.react(`➡️`)
+				await queueEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = queueEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			let currentPage = 0
-			const embeds = await generateTagAuthorEmbed(commands, commandCount)
-			const queueEmbed = await message.channel.send(
-				`Current Page: ${currentPage + 1}/${embeds.length}`,
-				embeds[currentPage],
-			)
-			await queueEmbed.react(`⬅️`)
-			await queueEmbed.react(`➡️`)
-			await queueEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`⬅️`, `➡️`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = queueEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
-
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `➡️`) {
-					if (currentPage < embeds.length - 1) {
-						currentPage++
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `➡️`) {
+						if (currentPage < embeds.length - 1) {
+							currentPage++
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page: ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else if (reaction.emoji.name === `⬅️`) {
+						if (currentPage !== 0) {
+							--currentPage
+							reaction.users.remove(user)
+							queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
+						}
+					} else {
+						collector.stop()
+						await queueEmbed.delete()
 					}
-				} else if (reaction.emoji.name === `⬅️`) {
-					if (currentPage !== 0) {
-						--currentPage
-						reaction.users.remove(user)
-						queueEmbed.edit(`Current Page ${currentPage + 1}/${embeds.length}`, embeds[currentPage])
-					}
-				} else {
-					collector.stop()
-					await queueEmbed.delete()
-				}
-			})
+				})
 
-			async function generateTagAuthorEmbed(data: tag[], count: number) {
-				const embeds = []
-				let k = 10
-				for (let i = 0; i < data.length; i += 10) {
-					const current = data.slice(i, k)
-					let j = i
-					k += 10
-					const info = current
-						.map(
-							(command) =>
-								`**${++j}. ${command.command} - ${
-									command.count > 1 ? `${command.count} uses` : `${command.count} use`
-								}**`,
-						)
-						.join(`\n`)
-					const embed = new MessageEmbed()
-						.setDescription(`${info}`)
-						.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
-						.setTitle(`Top tags used on ${message.guild?.name}`)
-						.setFooter(`Total tags: ${count}`)
-						.setThumbnail(
-							message.guild?.iconURL({
-								format: `png`,
-								dynamic: true,
-							}) as string,
-						)
-						.setTimestamp()
-					embeds.push(embed)
+				// eslint-disable-next-line no-inner-declarations
+				async function generateTagAuthorEmbed(data: tag[], count: number) {
+					const embeds = []
+					let k = 10
+					for (let i = 0; i < data.length; i += 10) {
+						const current = data.slice(i, k)
+						let j = i
+						k += 10
+						const info = current
+							.map(
+								(command) =>
+									`**${++j}. ${command.command} - ${
+										command.count > 1 ? `${command.count} uses` : `${command.count} use`
+									}**`,
+							)
+							.join(`\n`)
+						const embed = new MessageEmbed()
+							.setDescription(`${info}`)
+							.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
+							.setTitle(`Top tags used on ${message.guild?.name}`)
+							.setFooter(`Total tags: ${count}`)
+							.setThumbnail(
+								message.guild?.iconURL({
+									format: `png`,
+									dynamic: true,
+								}) as string,
+							)
+							.setTimestamp()
+						embeds.push(embed)
+					}
+					return embeds
 				}
-				return embeds
+			} catch (err) {
+				console.log(`Error at tag.ts' usage function, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 	},

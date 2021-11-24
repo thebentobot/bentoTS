@@ -300,158 +300,181 @@ export const command: Command = {
 		// background
 
 		async function setBackgroundURL(message: Message, backgroundURL?: string) {
-			if (!backgroundURL) {
-				if (message.attachments.array() !== undefined) {
-					const getUrl = message.attachments.array()
-					backgroundURL = getUrl[0] ? getUrl[0].url : undefined
-				} else {
-					return message.channel.send(`You need to either write reset or set a background with an URL.`)
+			try {
+				if (!backgroundURL) {
+					if (message.attachments.array() !== undefined) {
+						const getUrl = message.attachments.array()
+						backgroundURL = getUrl[0] ? getUrl[0].url : undefined
+					} else {
+						return message.channel.send(`You need to either write reset or set a background with an URL.`)
+					}
 				}
-			}
 
-			if (backgroundURL === undefined)
-				return message.channel.send(`You need to either write reset or set a background with an URL.`)
+				if (backgroundURL === undefined)
+					return message.channel.send(`You need to either write reset or set a background with an URL.`)
 
-			initModels(database)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (backgroundURL === `reset`) {
-				await profile.update({ backgroundUrl: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your background URL has been successfully reset.`)
-			} else {
-				await profile.update({ backgroundUrl: backgroundURL }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your background URL has been set.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (backgroundURL === `reset`) {
+					await profile.update({ backgroundUrl: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your background URL has been successfully reset.`)
+				} else {
+					await profile.update({ backgroundUrl: backgroundURL }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your background URL has been set.`)
+				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setBackgroundURL.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setBackgroundColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ backgroundColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your background colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ backgroundColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your background colour has been successfully reset.`)
 				} else {
-					await profile.update({ backgroundColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your background colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ backgroundColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your background colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setBackgroundColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setBackgroundColourOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ BackgroundColourOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your background colour opacity has been successfully reset.`)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ BackgroundColourOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your background colour opacity has been successfully reset.`)
 				} else {
-					await profile.update({ BackgroundColourOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your background colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ BackgroundColourOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your background colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setBackgroundColourOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function backgroundColourStatus(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			const statusEmbed = new MessageEmbed()
-				.setAuthor(
-					message.member?.nickname
-						? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`,
-					message.author.avatarURL({ dynamic: true }) as string,
-				)
-				.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-				.setTimestamp().setDescription(`
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				const statusEmbed = new MessageEmbed()
+					.setAuthor(
+						message.member?.nickname
+							? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`,
+						message.author.avatarURL({ dynamic: true }) as string,
+					)
+					.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+					.setTimestamp().setDescription(`
             Background URL - ${userData[0].backgroundUrl === null ? `Not set.` : userData[0].backgroundUrl}
             Background Colour - ${userData[0].backgroundColour === null ? `Not set.` : userData[0].backgroundColour}
             Background Opacity - ${
 							userData[0].BackgroundColourOpacity === null ? `Not set.` : userData[0].BackgroundColourOpacity
 						}`)
-			return message.channel.send(statusEmbed)
+				return message.channel.send(statusEmbed)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${backgroundColourStatus.name}, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		// lastfm board
 
 		async function toggleLastFMBoard(message: Message, toggle: string) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (!toggle) {
-				if (userData[0].lastfmBoard !== null) {
-					if (userData[0].lastfmBoard === true) {
-						await profile.update({ lastfmBoard: false }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your lastfm board has been successfully disabled.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (!toggle) {
+					if (userData[0].lastfmBoard !== null) {
+						if (userData[0].lastfmBoard === true) {
+							await profile.update({ lastfmBoard: false }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your lastfm board has been successfully disabled.`)
+						} else {
+							await profile.update({ lastfmBoard: true }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your lastfm board has been successfully enabled.`)
+						}
 					} else {
 						await profile.update({ lastfmBoard: true }, { where: { userID: userData[0].userID } })
 						return message.channel.send(`${message.author} your lastfm board has been successfully enabled.`)
 					}
-				} else {
+				}
+
+				if (toggle === `enable`) {
 					await profile.update({ lastfmBoard: true }, { where: { userID: userData[0].userID } })
 					return message.channel.send(`${message.author} your lastfm board has been successfully enabled.`)
+				} else if (toggle === `disable`) {
+					await profile.update({ lastfmBoard: false }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your lastfm board has been successfully disabled.`)
 				}
-			}
-
-			if (toggle === `enable`) {
-				await profile.update({ lastfmBoard: true }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your lastfm board has been successfully enabled.`)
-			} else if (toggle === `disable`) {
-				await profile.update({ lastfmBoard: false }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your lastfm board has been successfully disabled.`)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${toggleLastFMBoard.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function lfmBoardStatus(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			const statusEmbed = new MessageEmbed()
-				.setAuthor(
-					message.member?.nickname
-						? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`,
-					message.author.avatarURL({ dynamic: true }) as string,
-				)
-				.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-				.setTimestamp().setDescription(`
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				const statusEmbed = new MessageEmbed()
+					.setAuthor(
+						message.member?.nickname
+							? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`,
+						message.author.avatarURL({ dynamic: true }) as string,
+					)
+					.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+					.setTimestamp().setDescription(`
             LastFM Board - ${userData[0].lastfmBoard === true ? `Enabled.` : `Disabled.`}
             LastFM Background Colour - ${userData[0].fmDivBGColour === null ? `Not set.` : userData[0].fmDivBGColour}
             LastFM Background Opacity - ${userData[0].fmDivBGOpacity === null ? `Not set.` : userData[0].fmDivBGOpacity}
@@ -467,212 +490,250 @@ export const command: Command = {
             LastFM Artist Text Opacity - ${
 							userData[0].fmArtistTextColour === null ? `Not set.` : userData[0].fmArtistTextColour
 						}`)
-			return message.channel.send(statusEmbed)
+				return message.channel.send(statusEmbed)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${lfmBoardStatus.name}, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function setLfmBoardOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ fmDivBGOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your lastfm board background colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ fmDivBGOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(
+						`${message.author} your lastfm board background colour opacity has been successfully reset.`,
+					)
 				} else {
-					await profile.update({ fmDivBGOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your lastfm board background colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ fmDivBGOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your lastfm board background colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setLfmBoardOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setLfmBoardColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ fmDivBGColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your lastfm board background colour has been successfully reset.`,
-				)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ fmDivBGColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(
+						`${message.author} your lastfm board background colour has been successfully reset.`,
+					)
 				} else {
-					await profile.update({ fmDivBGColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your lastfm board background colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ fmDivBGColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your lastfm board background colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setLfmBoardColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setSongTextOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ fmSongTextOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your lastfm song text colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ fmSongTextOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(
+						`${message.author} your lastfm song text colour opacity has been successfully reset.`,
+					)
 				} else {
-					await profile.update({ fmSongTextOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your lastfm song text colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ fmSongTextOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your lastfm song text colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setSongTextOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setSongTextColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ fmSongTextColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your lastfm song text colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ fmSongTextColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your lastfm song text colour has been successfully reset.`)
 				} else {
-					await profile.update({ fmSongTextColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your lastfm song text colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ fmSongTextColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your lastfm song text colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setSongTextColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setArtistTextOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ fmArtistTextOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your lastfm artist text colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ fmArtistTextOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(
+						`${message.author} your lastfm artist text colour opacity has been successfully reset.`,
+					)
 				} else {
-					await profile.update({ fmArtistTextOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your lastfm artist text colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ fmArtistTextOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your lastfm artist text colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setArtistTextOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setArtistTextColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ fmArtistTextColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your lastfm artist text colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ fmArtistTextColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your lastfm artist text colour has been successfully reset.`)
 				} else {
-					await profile.update({ fmArtistTextColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your lastfm artist text colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ fmArtistTextColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your lastfm artist text colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setArtistTextColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		// xp board
 
 		async function toggleXPBoard(message: Message, toggle: string) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (!toggle) {
-				if (userData[0].xpBoard !== null) {
-					if (userData[0].xpBoard === true) {
-						await profile.update({ xpBoard: false }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your xp board has been successfully disabled.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (!toggle) {
+					if (userData[0].xpBoard !== null) {
+						if (userData[0].xpBoard === true) {
+							await profile.update({ xpBoard: false }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your xp board has been successfully disabled.`)
+						} else {
+							await profile.update({ xpBoard: true }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your xp board has been successfully enabled.`)
+						}
 					} else {
 						await profile.update({ xpBoard: true }, { where: { userID: userData[0].userID } })
 						return message.channel.send(`${message.author} your xp board has been successfully enabled.`)
 					}
-				} else {
+				}
+
+				if (toggle === `enable`) {
 					await profile.update({ xpBoard: true }, { where: { userID: userData[0].userID } })
 					return message.channel.send(`${message.author} your xp board has been successfully enabled.`)
+				} else if (toggle === `disable`) {
+					await profile.update({ xpBoard: false }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your xp board has been successfully disabled.`)
 				}
-			}
-
-			if (toggle === `enable`) {
-				await profile.update({ xpBoard: true }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your xp board has been successfully enabled.`)
-			} else if (toggle === `disable`) {
-				await profile.update({ xpBoard: false }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your xp board has been successfully disabled.`)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${toggleXPBoard.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function xpBoardStatus(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			const statusEmbed = new MessageEmbed()
-				.setAuthor(
-					message.member?.nickname
-						? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`,
-					message.author.avatarURL({ dynamic: true }) as string,
-				)
-				.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-				.setTimestamp().setDescription(`
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				const statusEmbed = new MessageEmbed()
+					.setAuthor(
+						message.member?.nickname
+							? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`,
+						message.author.avatarURL({ dynamic: true }) as string,
+					)
+					.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+					.setTimestamp().setDescription(`
             XP Board - ${userData[0].xpBoard === true ? `Enabled.` : `Disabled.`}
             XP Background Colour - ${userData[0].xpDivBGColour === null ? `Not set.` : userData[0].xpDivBGColour}
             XP Background Opacity - ${userData[0].xpDivBGOpacity === null ? `Not set.` : userData[0].xpDivBGOpacity}
@@ -718,1184 +779,1377 @@ export const command: Command = {
             XP Bar (2/right) Opacity 3 - ${
 							userData[0].xpDoneGlobalColour3Opacity === null ? `Not set.` : userData[0].xpDoneGlobalColour3Opacity
 						}`)
-			return message.channel.send(statusEmbed)
+				return message.channel.send(statusEmbed)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${xpBoardStatus.name}, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function setXPBoardOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ xpDivBGOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your xp board background colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ xpDivBGOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(
+						`${message.author} your xp board background colour opacity has been successfully reset.`,
+					)
 				} else {
-					await profile.update({ xpDivBGOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your xp board background colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ xpDivBGOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your xp board background colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBoardOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBoardColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ xpDivBGColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your xp board background colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ xpDivBGColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your xp board background colour has been successfully reset.`)
 				} else {
-					await profile.update({ xpDivBGColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your xp board background colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ xpDivBGColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your xp board background colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBoardColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPTextBothOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update(
-					{ xpTextOpacity: undefined, xpText2Opacity: undefined },
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} both your xp board text colour opacity values has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				} else {
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
 					await profile.update(
-						{ xpTextOpacity: parseOpacity, xpText2Opacity: parseOpacity },
+						{ xpTextOpacity: undefined, xpText2Opacity: undefined },
 						{ where: { userID: userData[0].userID } },
 					)
 					return message.channel.send(
-						`${message.author} both your xp board text colour opacity values has been successfully set.`,
+						`${message.author} both your xp board text colour opacity values has been successfully reset.`,
 					)
+				} else {
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update(
+							{ xpTextOpacity: parseOpacity, xpText2Opacity: parseOpacity },
+							{ where: { userID: userData[0].userID } },
+						)
+						return message.channel.send(
+							`${message.author} both your xp board text colour opacity values has been successfully set.`,
+						)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPTextBothOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPTextBothColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update(
-					{ xpTextColour: undefined, xpText2Colour: undefined },
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} both your xp board text colours has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
-				} else {
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
 					await profile.update(
-						{ xpTextColour: colour, xpText2Colour: colour },
+						{ xpTextColour: undefined, xpText2Colour: undefined },
 						{ where: { userID: userData[0].userID } },
 					)
-					return message.channel.send(`${message.author} both your xp board text colours has been set.`)
+					return message.channel.send(`${message.author} both your xp board text colours has been successfully reset.`)
+				} else {
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update(
+							{ xpTextColour: colour, xpText2Colour: colour },
+							{ where: { userID: userData[0].userID } },
+						)
+						return message.channel.send(`${message.author} both your xp board text colours has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPTextBothColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPTextOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ xpTextOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your xp board text (1/left) colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				} else {
-					await profile.update({ xpTextOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ xpTextOpacity: undefined }, { where: { userID: userData[0].userID } })
 					return message.channel.send(
-						`${message.author} your xp board text (1/left) colour opacity has been successfully set.`,
+						`${message.author} your xp board text (1/left) colour opacity has been successfully reset.`,
 					)
+				} else {
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ xpTextOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your xp board text (1/left) colour opacity has been successfully set.`,
+						)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPTextOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPTextColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ xpTextColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your xp board text (1/left) colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ xpTextColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(
+						`${message.author} your xp board text (1/left) colour has been successfully reset.`,
+					)
 				} else {
-					await profile.update({ xpTextColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your xp board text (1/left) colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ xpTextColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your xp board text (1/left) colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPTextColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPText2Opacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ xpText2Opacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your xp board text (2/right) colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				} else {
-					await profile.update({ xpText2Opacity: parseOpacity }, { where: { userID: userData[0].userID } })
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ xpText2Opacity: undefined }, { where: { userID: userData[0].userID } })
 					return message.channel.send(
-						`${message.author} your xp board text (2/right) colour opacity has been successfully set.`,
+						`${message.author} your xp board text (2/right) colour opacity has been successfully reset.`,
 					)
+				} else {
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ xpText2Opacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your xp board text (2/right) colour opacity has been successfully set.`,
+						)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPText2Opacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPText2Colour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ xpText2Colour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your xp board text (2/right) colour has been successfully reset.`,
-				)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ xpText2Colour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(
+						`${message.author} your xp board text (2/right) colour has been successfully reset.`,
+					)
 				} else {
-					await profile.update({ xpText2Colour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your xp board text (2/right) colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ xpText2Colour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your xp board text (2/right) colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPText2Colour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBothOpacity(message: Message, opacity1: string, opacity2: string, opacity3: string) {
-			if (!opacity1) return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			if (!opacity2 && opacity1 !== `reset`)
-				return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			if (!opacity3 && opacity1 !== `reset`)
-				return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			initModels(database)
+			try {
+				if (!opacity1) return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				if (!opacity2 && opacity1 !== `reset`)
+					return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				if (!opacity3 && opacity1 !== `reset`)
+					return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity1 === `reset`) {
-				await profile.update(
-					{
-						xpDoneServerColour1Opacity: undefined,
-						xpDoneServerColour2Opacity: undefined,
-						xpDoneServerColour3Opacity: undefined,
-						xpDoneGlobalColour1Opacity: undefined,
-						xpDoneGlobalColour2Opacity: undefined,
-						xpDoneGlobalColour3Opacity: undefined,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} both your xp bar colour opacity values has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue1: boolean
-				let validOpacityValue2: boolean
-				let validOpacityValue3: boolean
-				const parseOpacity1 = Math.round(parseFloat(opacity1))
-				const parseOpacity2 = Math.round(parseFloat(opacity2))
-				const parseOpacity3 = Math.round(parseFloat(opacity3))
-				parseOpacity1 >= 0 && parseOpacity1 <= 100 ? (validOpacityValue1 = true) : (validOpacityValue1 = false)
-				parseOpacity2 >= 0 && parseOpacity2 <= 100 ? (validOpacityValue2 = true) : (validOpacityValue2 = false)
-				parseOpacity3 >= 0 && parseOpacity3 <= 100 ? (validOpacityValue3 = true) : (validOpacityValue3 = false)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity1 === `reset`) {
+					await profile.update(
+						{
+							xpDoneServerColour1Opacity: undefined,
+							xpDoneServerColour2Opacity: undefined,
+							xpDoneServerColour3Opacity: undefined,
+							xpDoneGlobalColour1Opacity: undefined,
+							xpDoneGlobalColour2Opacity: undefined,
+							xpDoneGlobalColour3Opacity: undefined,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(
+						`${message.author} both your xp bar colour opacity values has been successfully reset.`,
+					)
+				} else {
+					let validOpacityValue1: boolean
+					let validOpacityValue2: boolean
+					let validOpacityValue3: boolean
+					const parseOpacity1 = Math.round(parseFloat(opacity1))
+					const parseOpacity2 = Math.round(parseFloat(opacity2))
+					const parseOpacity3 = Math.round(parseFloat(opacity3))
+					parseOpacity1 >= 0 && parseOpacity1 <= 100 ? (validOpacityValue1 = true) : (validOpacityValue1 = false)
+					parseOpacity2 >= 0 && parseOpacity2 <= 100 ? (validOpacityValue2 = true) : (validOpacityValue2 = false)
+					parseOpacity3 >= 0 && parseOpacity3 <= 100 ? (validOpacityValue3 = true) : (validOpacityValue3 = false)
 
-				if (validOpacityValue1 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
-				if (validOpacityValue2 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
-				if (validOpacityValue3 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
+					if (validOpacityValue1 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
+					if (validOpacityValue2 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
+					if (validOpacityValue3 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
 
-				await profile.update(
-					{
-						xpDoneServerColour1Opacity: parseOpacity1,
-						xpDoneServerColour2Opacity: parseOpacity2,
-						xpDoneServerColour3Opacity: parseOpacity3,
-						xpDoneGlobalColour1Opacity: parseOpacity1,
-						xpDoneGlobalColour2Opacity: parseOpacity2,
-						xpDoneGlobalColour3Opacity: parseOpacity3,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} both your xp bar colour opacity values has been successfully set.`,
-				)
+					await profile.update(
+						{
+							xpDoneServerColour1Opacity: parseOpacity1,
+							xpDoneServerColour2Opacity: parseOpacity2,
+							xpDoneServerColour3Opacity: parseOpacity3,
+							xpDoneGlobalColour1Opacity: parseOpacity1,
+							xpDoneGlobalColour2Opacity: parseOpacity2,
+							xpDoneGlobalColour3Opacity: parseOpacity3,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(
+						`${message.author} both your xp bar colour opacity values has been successfully set.`,
+					)
+				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBothOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBothColour(message: Message, colour1: string, colour2: string, colour3: string) {
-			if (!colour1)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
-			if (!colour2 && colour1 !== `reset`)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
-			if (!colour3 && colour1 !== `reset`)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
+			try {
+				if (!colour1)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
+				if (!colour2 && colour1 !== `reset`)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
+				if (!colour3 && colour1 !== `reset`)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
 
-			initModels(database)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour1 === `reset`) {
-				await profile.update(
-					{
-						xpDoneServerColour1: undefined,
-						xpDoneServerColour2: undefined,
-						xpDoneServerColour3: undefined,
-						xpDoneGlobalColour1: undefined,
-						xpDoneGlobalColour2: undefined,
-						xpDoneGlobalColour3: undefined,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} both your xp bar colours has been successfully reset.`)
-			} else {
-				const hexTest1 = /^#[0-9A-F]{6}$/i.test(colour1)
-				const hexTest2 = /^#[0-9A-F]{6}$/i.test(colour2)
-				const hexTest3 = /^#[0-9A-F]{6}$/i.test(colour3)
-				if (hexTest1 !== true) {
-					return message.channel.send(`Your first hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour1 === `reset`) {
+					await profile.update(
+						{
+							xpDoneServerColour1: undefined,
+							xpDoneServerColour2: undefined,
+							xpDoneServerColour3: undefined,
+							xpDoneGlobalColour1: undefined,
+							xpDoneGlobalColour2: undefined,
+							xpDoneGlobalColour3: undefined,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(`${message.author} both your xp bar colours has been successfully reset.`)
+				} else {
+					const hexTest1 = /^#[0-9A-F]{6}$/i.test(colour1)
+					const hexTest2 = /^#[0-9A-F]{6}$/i.test(colour2)
+					const hexTest3 = /^#[0-9A-F]{6}$/i.test(colour3)
+					if (hexTest1 !== true) {
+						return message.channel.send(`Your first hex color is invalid. Try another one.`)
+					}
+					if (hexTest2 !== true) {
+						return message.channel.send(`Your second hex color is invalid. Try another one.`)
+					}
+					if (hexTest3 !== true) {
+						return message.channel.send(`Your third hex color is invalid. Try another one.`)
+					}
+					await profile.update(
+						{
+							xpDoneServerColour1: colour1,
+							xpDoneServerColour2: colour2,
+							xpDoneServerColour3: colour3,
+							xpDoneGlobalColour1: colour1,
+							xpDoneGlobalColour2: colour2,
+							xpDoneGlobalColour3: colour3,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(`${message.author} both your xp bar colours has been set.`)
 				}
-				if (hexTest2 !== true) {
-					return message.channel.send(`Your second hex color is invalid. Try another one.`)
-				}
-				if (hexTest3 !== true) {
-					return message.channel.send(`Your third hex color is invalid. Try another one.`)
-				}
-				await profile.update(
-					{
-						xpDoneServerColour1: colour1,
-						xpDoneServerColour2: colour2,
-						xpDoneServerColour3: colour3,
-						xpDoneGlobalColour1: colour1,
-						xpDoneGlobalColour2: colour2,
-						xpDoneGlobalColour3: colour3,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} both your xp bar colours has been set.`)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBothColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarOpacity(message: Message, opacity1: string, opacity2: string, opacity3: string) {
-			if (!opacity1) return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			if (!opacity2 && opacity1 !== `reset`)
-				return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			if (!opacity3 && opacity1 !== `reset`)
-				return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			initModels(database)
+			try {
+				if (!opacity1) return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				if (!opacity2 && opacity1 !== `reset`)
+					return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				if (!opacity3 && opacity1 !== `reset`)
+					return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity1 === `reset`) {
-				await profile.update(
-					{
-						xpDoneServerColour1Opacity: undefined,
-						xpDoneServerColour2Opacity: undefined,
-						xpDoneServerColour3Opacity: undefined,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} your xp bar (1/left) colour opacity values has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue1: boolean
-				let validOpacityValue2: boolean
-				let validOpacityValue3: boolean
-				const parseOpacity1 = Math.round(parseFloat(opacity1))
-				const parseOpacity2 = Math.round(parseFloat(opacity2))
-				const parseOpacity3 = Math.round(parseFloat(opacity3))
-				parseOpacity1 >= 0 && parseOpacity1 <= 100 ? (validOpacityValue1 = true) : (validOpacityValue1 = false)
-				parseOpacity2 >= 0 && parseOpacity2 <= 100 ? (validOpacityValue2 = true) : (validOpacityValue2 = false)
-				parseOpacity3 >= 0 && parseOpacity3 <= 100 ? (validOpacityValue3 = true) : (validOpacityValue3 = false)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity1 === `reset`) {
+					await profile.update(
+						{
+							xpDoneServerColour1Opacity: undefined,
+							xpDoneServerColour2Opacity: undefined,
+							xpDoneServerColour3Opacity: undefined,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(
+						`${message.author} your xp bar (1/left) colour opacity values has been successfully reset.`,
+					)
+				} else {
+					let validOpacityValue1: boolean
+					let validOpacityValue2: boolean
+					let validOpacityValue3: boolean
+					const parseOpacity1 = Math.round(parseFloat(opacity1))
+					const parseOpacity2 = Math.round(parseFloat(opacity2))
+					const parseOpacity3 = Math.round(parseFloat(opacity3))
+					parseOpacity1 >= 0 && parseOpacity1 <= 100 ? (validOpacityValue1 = true) : (validOpacityValue1 = false)
+					parseOpacity2 >= 0 && parseOpacity2 <= 100 ? (validOpacityValue2 = true) : (validOpacityValue2 = false)
+					parseOpacity3 >= 0 && parseOpacity3 <= 100 ? (validOpacityValue3 = true) : (validOpacityValue3 = false)
 
-				if (validOpacityValue1 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
-				if (validOpacityValue2 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
-				if (validOpacityValue3 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
+					if (validOpacityValue1 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
+					if (validOpacityValue2 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
+					if (validOpacityValue3 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
 
-				await profile.update(
-					{
-						xpDoneServerColour1Opacity: parseOpacity1,
-						xpDoneServerColour2Opacity: parseOpacity2,
-						xpDoneServerColour3Opacity: parseOpacity3,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} your xp bar (1/left) colour opacity values has been successfully set.`,
-				)
+					await profile.update(
+						{
+							xpDoneServerColour1Opacity: parseOpacity1,
+							xpDoneServerColour2Opacity: parseOpacity2,
+							xpDoneServerColour3Opacity: parseOpacity3,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(
+						`${message.author} your xp bar (1/left) colour opacity values has been successfully set.`,
+					)
+				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarColour(message: Message, colour1: string, colour2: string, colour3: string) {
-			if (!colour1)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
-			if (!colour2 && colour1 !== `reset`)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
-			if (!colour3 && colour1 !== `reset`)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
+			try {
+				if (!colour1)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
+				if (!colour2 && colour1 !== `reset`)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
+				if (!colour3 && colour1 !== `reset`)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
 
-			initModels(database)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour1 === `reset`) {
-				await profile.update(
-					{
-						xpDoneServerColour1: undefined,
-						xpDoneServerColour2: undefined,
-						xpDoneServerColour3: undefined,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} your xp bar (1/left) colour has been successfully reset.`)
-			} else {
-				const hexTest1 = /^#[0-9A-F]{6}$/i.test(colour1)
-				const hexTest2 = /^#[0-9A-F]{6}$/i.test(colour2)
-				const hexTest3 = /^#[0-9A-F]{6}$/i.test(colour3)
-				if (hexTest1 !== true) {
-					return message.channel.send(`Your first hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour1 === `reset`) {
+					await profile.update(
+						{
+							xpDoneServerColour1: undefined,
+							xpDoneServerColour2: undefined,
+							xpDoneServerColour3: undefined,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(`${message.author} your xp bar (1/left) colour has been successfully reset.`)
+				} else {
+					const hexTest1 = /^#[0-9A-F]{6}$/i.test(colour1)
+					const hexTest2 = /^#[0-9A-F]{6}$/i.test(colour2)
+					const hexTest3 = /^#[0-9A-F]{6}$/i.test(colour3)
+					if (hexTest1 !== true) {
+						return message.channel.send(`Your first hex color is invalid. Try another one.`)
+					}
+					if (hexTest2 !== true) {
+						return message.channel.send(`Your second hex color is invalid. Try another one.`)
+					}
+					if (hexTest3 !== true) {
+						return message.channel.send(`Your third hex color is invalid. Try another one.`)
+					}
+					await profile.update(
+						{
+							xpDoneServerColour1: colour1,
+							xpDoneServerColour2: colour2,
+							xpDoneServerColour3: colour3,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(`${message.author} your xp bar (1/left) colour has been set.`)
 				}
-				if (hexTest2 !== true) {
-					return message.channel.send(`Your second hex color is invalid. Try another one.`)
-				}
-				if (hexTest3 !== true) {
-					return message.channel.send(`Your third hex color is invalid. Try another one.`)
-				}
-				await profile.update(
-					{
-						xpDoneServerColour1: colour1,
-						xpDoneServerColour2: colour2,
-						xpDoneServerColour3: colour3,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} your xp bar (1/left) colour has been set.`)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBar2Opacity(message: Message, opacity1: string, opacity2: string, opacity3: string) {
-			if (!opacity1) return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			if (!opacity2 && opacity1 !== `reset`)
-				return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			if (!opacity3 && opacity1 !== `reset`)
-				return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
-			initModels(database)
+			try {
+				if (!opacity1) return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				if (!opacity2 && opacity1 !== `reset`)
+					return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				if (!opacity3 && opacity1 !== `reset`)
+					return message.channel.send(`You need to either write reset or set 3 valid opacity values.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity1 === `reset`) {
-				await profile.update(
-					{
-						xpDoneGlobalColour1Opacity: undefined,
-						xpDoneGlobalColour2Opacity: undefined,
-						xpDoneGlobalColour3Opacity: undefined,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} your xp bar (2/right) colour opacity values has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue1: boolean
-				let validOpacityValue2: boolean
-				let validOpacityValue3: boolean
-				const parseOpacity1 = Math.round(parseFloat(opacity1))
-				const parseOpacity2 = Math.round(parseFloat(opacity2))
-				const parseOpacity3 = Math.round(parseFloat(opacity3))
-				parseOpacity1 >= 0 && parseOpacity1 <= 100 ? (validOpacityValue1 = true) : (validOpacityValue1 = false)
-				parseOpacity2 >= 0 && parseOpacity2 <= 100 ? (validOpacityValue2 = true) : (validOpacityValue2 = false)
-				parseOpacity3 >= 0 && parseOpacity3 <= 100 ? (validOpacityValue3 = true) : (validOpacityValue3 = false)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity1 === `reset`) {
+					await profile.update(
+						{
+							xpDoneGlobalColour1Opacity: undefined,
+							xpDoneGlobalColour2Opacity: undefined,
+							xpDoneGlobalColour3Opacity: undefined,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(
+						`${message.author} your xp bar (2/right) colour opacity values has been successfully reset.`,
+					)
+				} else {
+					let validOpacityValue1: boolean
+					let validOpacityValue2: boolean
+					let validOpacityValue3: boolean
+					const parseOpacity1 = Math.round(parseFloat(opacity1))
+					const parseOpacity2 = Math.round(parseFloat(opacity2))
+					const parseOpacity3 = Math.round(parseFloat(opacity3))
+					parseOpacity1 >= 0 && parseOpacity1 <= 100 ? (validOpacityValue1 = true) : (validOpacityValue1 = false)
+					parseOpacity2 >= 0 && parseOpacity2 <= 100 ? (validOpacityValue2 = true) : (validOpacityValue2 = false)
+					parseOpacity3 >= 0 && parseOpacity3 <= 100 ? (validOpacityValue3 = true) : (validOpacityValue3 = false)
 
-				if (validOpacityValue1 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
-				if (validOpacityValue2 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
-				if (validOpacityValue3 === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				}
+					if (validOpacityValue1 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
+					if (validOpacityValue2 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
+					if (validOpacityValue3 === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					}
 
-				await profile.update(
-					{
-						xpDoneGlobalColour1Opacity: parseOpacity1,
-						xpDoneGlobalColour2Opacity: parseOpacity2,
-						xpDoneGlobalColour3Opacity: parseOpacity3,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} your xp bar (2/right) colour opacity values has been successfully set.`,
-				)
+					await profile.update(
+						{
+							xpDoneGlobalColour1Opacity: parseOpacity1,
+							xpDoneGlobalColour2Opacity: parseOpacity2,
+							xpDoneGlobalColour3Opacity: parseOpacity3,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(
+						`${message.author} your xp bar (2/right) colour opacity values has been successfully set.`,
+					)
+				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBar2Opacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBar2Colour(message: Message, colour1: string, colour2: string, colour3: string) {
-			if (!colour1)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
-			if (!colour2 && colour1 !== `reset`)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
-			if (!colour3 && colour1 !== `reset`)
-				return message.channel.send(
-					`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
-				)
+			try {
+				if (!colour1)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
+				if (!colour2 && colour1 !== `reset`)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
+				if (!colour3 && colour1 !== `reset`)
+					return message.channel.send(
+						`You need to either write reset or set a valid hex colour.\nRemember space between each hex colour.`,
+					)
 
-			initModels(database)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour1 === `reset`) {
-				await profile.update(
-					{
-						xpDoneGlobalColour1: undefined,
-						xpDoneGlobalColour2: undefined,
-						xpDoneGlobalColour3: undefined,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} your xp bar (2/right) colours has been successfully reset.`)
-			} else {
-				const hexTest1 = /^#[0-9A-F]{6}$/i.test(colour1)
-				const hexTest2 = /^#[0-9A-F]{6}$/i.test(colour2)
-				const hexTest3 = /^#[0-9A-F]{6}$/i.test(colour3)
-				if (hexTest1 !== true) {
-					return message.channel.send(`Your first hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour1 === `reset`) {
+					await profile.update(
+						{
+							xpDoneGlobalColour1: undefined,
+							xpDoneGlobalColour2: undefined,
+							xpDoneGlobalColour3: undefined,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(`${message.author} your xp bar (2/right) colours has been successfully reset.`)
+				} else {
+					const hexTest1 = /^#[0-9A-F]{6}$/i.test(colour1)
+					const hexTest2 = /^#[0-9A-F]{6}$/i.test(colour2)
+					const hexTest3 = /^#[0-9A-F]{6}$/i.test(colour3)
+					if (hexTest1 !== true) {
+						return message.channel.send(`Your first hex color is invalid. Try another one.`)
+					}
+					if (hexTest2 !== true) {
+						return message.channel.send(`Your second hex color is invalid. Try another one.`)
+					}
+					if (hexTest3 !== true) {
+						return message.channel.send(`Your third hex color is invalid. Try another one.`)
+					}
+					await profile.update(
+						{
+							xpDoneGlobalColour1: colour1,
+							xpDoneGlobalColour2: colour2,
+							xpDoneGlobalColour3: colour3,
+						},
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(`${message.author} your xp bar (2/right) colours has been set.`)
 				}
-				if (hexTest2 !== true) {
-					return message.channel.send(`Your second hex color is invalid. Try another one.`)
-				}
-				if (hexTest3 !== true) {
-					return message.channel.send(`Your third hex color is invalid. Try another one.`)
-				}
-				await profile.update(
-					{
-						xpDoneGlobalColour1: colour1,
-						xpDoneGlobalColour2: colour2,
-						xpDoneGlobalColour3: colour3,
-					},
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} your xp bar (2/right) colours has been set.`)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBar2Colour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBgBothOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update(
-					{ xpBarOpacity: undefined, xpBar2Opacity: undefined },
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(
-					`${message.author} both your xp bar bg colour opacity values has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				} else {
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
 					await profile.update(
-						{ xpBarOpacity: parseOpacity, xpBar2Opacity: parseOpacity },
+						{ xpBarOpacity: undefined, xpBar2Opacity: undefined },
 						{ where: { userID: userData[0].userID } },
 					)
 					return message.channel.send(
-						`${message.author} both your xp bar bg colour opacity values has been successfully set.`,
+						`${message.author} both your xp bar bg colour opacity values has been successfully reset.`,
 					)
+				} else {
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update(
+							{ xpBarOpacity: parseOpacity, xpBar2Opacity: parseOpacity },
+							{ where: { userID: userData[0].userID } },
+						)
+						return message.channel.send(
+							`${message.author} both your xp bar bg colour opacity values has been successfully set.`,
+						)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBgBothOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBgBothColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update(
-					{ xpBarColour: undefined, xpBar2Colour: undefined },
-					{ where: { userID: userData[0].userID } },
-				)
-				return message.channel.send(`${message.author} both your xp bar bg colours has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update(
+						{ xpBarColour: undefined, xpBar2Colour: undefined },
+						{ where: { userID: userData[0].userID } },
+					)
+					return message.channel.send(`${message.author} both your xp bar bg colours has been successfully reset.`)
 				} else {
-					await profile.update({ xpBarColour: colour, xpBar2Colour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} both your xp bar bg colours has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update(
+							{ xpBarColour: colour, xpBar2Colour: colour },
+							{ where: { userID: userData[0].userID } },
+						)
+						return message.channel.send(`${message.author} both your xp bar bg colours has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBgBothColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBgOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ xpBarOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your xp bar bg(1/left) colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				} else {
-					await profile.update({ xpBarOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ xpBarOpacity: undefined }, { where: { userID: userData[0].userID } })
 					return message.channel.send(
-						`${message.author} your xp bar bg (1/left) colour opacity has been successfully set.`,
+						`${message.author} your xp bar bg(1/left) colour opacity has been successfully reset.`,
 					)
+				} else {
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ xpBarOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your xp bar bg (1/left) colour opacity has been successfully set.`,
+						)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBgOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBgColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ xpBarColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your xp bar bg (1/left) colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ xpBarColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your xp bar bg (1/left) colour has been successfully reset.`)
 				} else {
-					await profile.update({ xpBarColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your xp bar bg (1/left) colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ xpBarColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your xp bar bg (1/left) colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBgColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBg2Opacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ xpBar2Opacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(
-					`${message.author} your xp bar bg (2/right) colour opacity has been successfully reset.`,
-				)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
-				} else {
-					await profile.update({ xpBar2Opacity: parseOpacity }, { where: { userID: userData[0].userID } })
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ xpBar2Opacity: undefined }, { where: { userID: userData[0].userID } })
 					return message.channel.send(
-						`${message.author} your xp bar bg (2/right) colour opacity has been successfully set.`,
+						`${message.author} your xp bar bg (2/right) colour opacity has been successfully reset.`,
 					)
+				} else {
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ xpBar2Opacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your xp bar bg (2/right) colour opacity has been successfully set.`,
+						)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBg2Opacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setXPBarBg2Colour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ xpBar2Colour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your xp bar bg (2/right) colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ xpBar2Colour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your xp bar bg (2/right) colour has been successfully reset.`)
 				} else {
-					await profile.update({ xpBar2Colour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your xp bar bg (2/right) colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ xpBar2Colour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your xp bar bg (2/right) colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setXPBarBg2Colour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		// description
 
 		async function setDescriptionOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ descriptionColourOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your description colour opacity has been successfully reset.`)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ descriptionColourOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your description colour opacity has been successfully reset.`)
 				} else {
-					await profile.update({ descriptionColourOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your description colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ descriptionColourOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your description colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setDescriptionOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setDescriptionColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ descriptionColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your description colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ descriptionColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your description colour has been successfully reset.`)
 				} else {
-					await profile.update({ descriptionColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your description colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ descriptionColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your description colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setDescriptionColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function descriptionStatus(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			const statusEmbed = new MessageEmbed()
-				.setAuthor(
-					message.member?.nickname
-						? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`,
-					message.author.avatarURL({ dynamic: true }) as string,
-				)
-				.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-				.setTimestamp().setDescription(`
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				const statusEmbed = new MessageEmbed()
+					.setAuthor(
+						message.member?.nickname
+							? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`,
+						message.author.avatarURL({ dynamic: true }) as string,
+					)
+					.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+					.setTimestamp().setDescription(`
             Description - ${userData[0].description === null ? `Not set.` : userData[0].description}
             Description Colour - ${userData[0].descriptionColour === null ? `Not set.` : userData[0].descriptionColour}
             Description Opacity - ${
 							userData[0].descriptionColourOpacity === null ? `Not set.` : userData[0].descriptionColourOpacity
 						}`)
-			return message.channel.send(statusEmbed)
+				return message.channel.send(statusEmbed)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${descriptionStatus.name}, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function setDescription(message: Message, text: string) {
-			if (!text) return message.channel.send(`You need to either write --reset, --empty or write a description`)
-			initModels(database)
+			try {
+				if (!text) return message.channel.send(`You need to either write --reset, --empty or write a description`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (text === `--reset`) {
-				await profile.update({ backgroundColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your description has been successfully reset.`)
-			} else if (text === `--empty`) {
-				await profile.update({ backgroundColour: `` }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your description has been successfully emptied.`)
-			} else {
-				await profile.update({ description: text }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your description has been set.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (text === `--reset`) {
+					await profile.update({ backgroundColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your description has been successfully reset.`)
+				} else if (text === `--empty`) {
+					await profile.update({ backgroundColour: `` }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your description has been successfully emptied.`)
+				} else {
+					await profile.update({ description: text }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your description has been set.`)
+				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setDescription.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		// bg overlay
 
 		async function setOverlayOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ overlayOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your overlay colour opacity has been successfully reset.`)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ overlayOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your overlay colour opacity has been successfully reset.`)
 				} else {
-					await profile.update({ overlayOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your overlay colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ overlayOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your overlay colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setOverlayOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setOverlayColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ overlayColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your overlay colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ overlayColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your overlay colour has been successfully reset.`)
 				} else {
-					await profile.update({ overlayColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your overlay colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ overlayColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your overlay colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setOverlayColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function overlayStatus(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			const statusEmbed = new MessageEmbed()
-				.setAuthor(
-					message.member?.nickname
-						? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`,
-					message.author.avatarURL({ dynamic: true }) as string,
-				)
-				.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-				.setTimestamp().setDescription(`
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				const statusEmbed = new MessageEmbed()
+					.setAuthor(
+						message.member?.nickname
+							? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`,
+						message.author.avatarURL({ dynamic: true }) as string,
+					)
+					.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+					.setTimestamp().setDescription(`
             Overlay Colour - ${userData[0].overlayColour === null ? `Not set.` : userData[0].overlayColour}
             Overlay Opacity - ${userData[0].overlayOpacity === null ? `Not set.` : userData[0].overlayOpacity}`)
-			return message.channel.send(statusEmbed)
+				return message.channel.send(statusEmbed)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${overlayStatus.name}, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		// sidebar
 
 		async function setUsernameColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ usernameColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your username colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ usernameColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your username colour has been successfully reset.`)
 				} else {
-					await profile.update({ usernameColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your username colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ usernameColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your username colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setUsernameColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setDiscriminatorColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ discriminatorColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your discriminator colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ discriminatorColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your discriminator colour has been successfully reset.`)
 				} else {
-					await profile.update({ discriminatorColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your discriminator colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ discriminatorColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your discriminator colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setDiscriminatorColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setSidebarOpacity(message: Message, opacity: string) {
-			if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
-			initModels(database)
+			try {
+				if (!opacity) return message.channel.send(`You need to either write reset or set a valid opacity value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (opacity === `reset`) {
-				await profile.update({ sidebarOpacity: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your sidebar colour opacity has been successfully reset.`)
-			} else {
-				let validOpacityValue: boolean
-				const parseOpacity = Math.round(parseFloat(opacity))
-				parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
-				if (validOpacityValue === false) {
-					return message.channel.send(`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (opacity === `reset`) {
+					await profile.update({ sidebarOpacity: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your sidebar colour opacity has been successfully reset.`)
 				} else {
-					await profile.update({ sidebarOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar colour opacity has been set.`)
+					let validOpacityValue: boolean
+					const parseOpacity = Math.round(parseFloat(opacity))
+					parseOpacity >= 0 && parseOpacity <= 100 ? (validOpacityValue = true) : (validOpacityValue = false)
+					if (validOpacityValue === false) {
+						return message.channel.send(
+							`Your opacity value is invalid.\nRemember for 50% opacity you need to write "50"`,
+						)
+					} else {
+						await profile.update({ sidebarOpacity: parseOpacity }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your sidebar colour opacity has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setSidebarOpacity.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setSidebarColour(message: Message, colour: string) {
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (colour === `reset`) {
-				await profile.update({ sidebarColour: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your sidebar colour has been successfully reset.`)
-			} else {
-				const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-				if (hexTest !== true) {
-					return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (colour === `reset`) {
+					await profile.update({ sidebarColour: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your sidebar colour has been successfully reset.`)
 				} else {
-					await profile.update({ sidebarColour: colour }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar colour has been set.`)
+					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+					if (hexTest !== true) {
+						return message.channel.send(`Your hex color is invalid. Try another one.`)
+					} else {
+						await profile.update({ sidebarColour: colour }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your sidebar colour has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setSidebarColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setSidebarBlur(message: Message, blur: string) {
-			if (!blur) return message.channel.send(`You need to either write reset or set a valid blur number value.`)
-			initModels(database)
+			try {
+				if (!blur) return message.channel.send(`You need to either write reset or set a valid blur number value.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (blur === `reset`) {
-				await profile.update({ sidebarBlur: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your sidebar blur has been successfully reset.`)
-			} else {
-				const reg = new RegExp(`^[0-9]+$`)
-				if (reg.test(blur) === false) {
-					return message.channel.send(`Your blur number value is invalid. You need to include a number.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (blur === `reset`) {
+					await profile.update({ sidebarBlur: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your sidebar blur has been successfully reset.`)
 				} else {
-					await profile.update({ sidebarBlur: Math.round(parseInt(blur)) }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar blur has been set.`)
+					const reg = new RegExp(`^[0-9]+$`)
+					if (reg.test(blur) === false) {
+						return message.channel.send(`Your blur number value is invalid. You need to include a number.`)
+					} else {
+						await profile.update({ sidebarBlur: Math.round(parseInt(blur)) }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your sidebar blur has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setSidebarBlur.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setSidebarValueColour(message: Message, row: string, colour: string) {
-			if (!row) return message.channel.send(`You need to specify a valid row.\nEither "server", "global" or "bento".`)
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!row) return message.channel.send(`You need to specify a valid row.\nEither "server", "global" or "bento".`)
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (row === `server`) {
-				if (colour === `reset`) {
-					await profile.update({ sidebarValueServerColour: undefined }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar server rank colour has been successfully reset.`)
-				} else {
-					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-					if (hexTest !== true) {
-						return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (row === `server`) {
+					if (colour === `reset`) {
+						await profile.update({ sidebarValueServerColour: undefined }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your sidebar server rank colour has been successfully reset.`,
+						)
 					} else {
-						await profile.update({ sidebarValueServerColour: colour }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your sidebar server rank colour has been set.`)
+						const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+						if (hexTest !== true) {
+							return message.channel.send(`Your hex color is invalid. Try another one.`)
+						} else {
+							await profile.update({ sidebarValueServerColour: colour }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your sidebar server rank colour has been set.`)
+						}
 					}
-				}
-			} else if (row === `global`) {
-				if (colour === `reset`) {
-					await profile.update({ sidebarValueGlobalColour: undefined }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar global rank colour has been successfully reset.`)
-				} else {
-					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-					if (hexTest !== true) {
-						return message.channel.send(`Your hex color is invalid. Try another one.`)
+				} else if (row === `global`) {
+					if (colour === `reset`) {
+						await profile.update({ sidebarValueGlobalColour: undefined }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your sidebar global rank colour has been successfully reset.`,
+						)
 					} else {
-						await profile.update({ sidebarValueGlobalColour: colour }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your sidebar global rank colour has been set.`)
+						const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+						if (hexTest !== true) {
+							return message.channel.send(`Your hex color is invalid. Try another one.`)
+						} else {
+							await profile.update({ sidebarValueGlobalColour: colour }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your sidebar global rank colour has been set.`)
+						}
 					}
-				}
-			} else if (row === `bento`) {
-				if (colour === `reset`) {
-					await profile.update({ sidebarValueBentoColour: undefined }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar bento rank colour has been successfully reset.`)
-				} else {
-					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-					if (hexTest !== true) {
-						return message.channel.send(`Your hex color is invalid. Try another one.`)
+				} else if (row === `bento`) {
+					if (colour === `reset`) {
+						await profile.update({ sidebarValueBentoColour: undefined }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your sidebar bento rank colour has been successfully reset.`)
 					} else {
-						await profile.update({ sidebarValueBentoColour: colour }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your sidebar bento rank colour has been set.`)
+						const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+						if (hexTest !== true) {
+							return message.channel.send(`Your hex color is invalid. Try another one.`)
+						} else {
+							await profile.update({ sidebarValueBentoColour: colour }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your sidebar bento rank colour has been set.`)
+						}
 					}
+				} else {
+					return message.channel.send(`Invalid row.\n\nYour row needs to be either "server", "global" or "bento".`)
 				}
-			} else {
-				return message.channel.send(`Invalid row.\n\nYour row needs to be either "server", "global" or "bento".`)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setSidebarValueColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setSidebarItemColour(message: Message, row: string, colour: string) {
-			if (!row)
-				return message.channel.send(
-					`You need to specify a valid row.\nEither "server", "global", "bento" or "timezone".`,
-				)
-			if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
-			initModels(database)
+			try {
+				if (!row)
+					return message.channel.send(
+						`You need to specify a valid row.\nEither "server", "global", "bento" or "timezone".`,
+					)
+				if (!colour) return message.channel.send(`You need to either write reset or set a valid hex colour.`)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (row === `server`) {
-				if (colour === `reset`) {
-					await profile.update({ sidebarItemServerColour: undefined }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar server users colour has been successfully reset.`)
-				} else {
-					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-					if (hexTest !== true) {
-						return message.channel.send(`Your hex color is invalid. Try another one.`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (row === `server`) {
+					if (colour === `reset`) {
+						await profile.update({ sidebarItemServerColour: undefined }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your sidebar server users colour has been successfully reset.`,
+						)
 					} else {
-						await profile.update({ sidebarItemServerColour: colour }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your sidebar server users colour has been set.`)
+						const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+						if (hexTest !== true) {
+							return message.channel.send(`Your hex color is invalid. Try another one.`)
+						} else {
+							await profile.update({ sidebarItemServerColour: colour }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your sidebar server users colour has been set.`)
+						}
 					}
-				}
-			} else if (row === `global`) {
-				if (colour === `reset`) {
-					await profile.update({ sidebarItemGlobalColour: undefined }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar global users colour has been successfully reset.`)
-				} else {
-					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-					if (hexTest !== true) {
-						return message.channel.send(`Your hex color is invalid. Try another one.`)
+				} else if (row === `global`) {
+					if (colour === `reset`) {
+						await profile.update({ sidebarItemGlobalColour: undefined }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your sidebar global users colour has been successfully reset.`,
+						)
 					} else {
-						await profile.update({ sidebarItemGlobalColour: colour }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your sidebar global users colour has been set.`)
+						const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+						if (hexTest !== true) {
+							return message.channel.send(`Your hex color is invalid. Try another one.`)
+						} else {
+							await profile.update({ sidebarItemGlobalColour: colour }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your sidebar global users colour has been set.`)
+						}
 					}
-				}
-			} else if (row === `bento`) {
-				if (colour === `reset`) {
-					await profile.update({ sidebarItemBentoColour: undefined }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar bento users colour has been successfully reset.`)
-				} else {
-					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-					if (hexTest !== true) {
-						return message.channel.send(`Your hex color is invalid. Try another one.`)
+				} else if (row === `bento`) {
+					if (colour === `reset`) {
+						await profile.update({ sidebarItemBentoColour: undefined }, { where: { userID: userData[0].userID } })
+						return message.channel.send(
+							`${message.author} your sidebar bento users colour has been successfully reset.`,
+						)
 					} else {
-						await profile.update({ sidebarItemBentoColour: colour }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your sidebar bento users colour has been set.`)
+						const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+						if (hexTest !== true) {
+							return message.channel.send(`Your hex color is invalid. Try another one.`)
+						} else {
+							await profile.update({ sidebarItemBentoColour: colour }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your sidebar bento users colour has been set.`)
+						}
 					}
-				}
-			} else if (row === `timezone`) {
-				if (colour === `reset`) {
-					await profile.update({ sidebarItemTimezoneColour: undefined }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your sidebar timezone colour has been successfully reset.`)
-				} else {
-					const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
-					if (hexTest !== true) {
-						return message.channel.send(`Your hex color is invalid. Try another one.`)
+				} else if (row === `timezone`) {
+					if (colour === `reset`) {
+						await profile.update({ sidebarItemTimezoneColour: undefined }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your sidebar timezone colour has been successfully reset.`)
 					} else {
-						await profile.update({ sidebarItemTimezoneColour: colour }, { where: { userID: userData[0].userID } })
-						return message.channel.send(`${message.author} your sidebar timezone colour has been set.`)
+						const hexTest = /^#[0-9A-F]{6}$/i.test(colour)
+						if (hexTest !== true) {
+							return message.channel.send(`Your hex color is invalid. Try another one.`)
+						} else {
+							await profile.update({ sidebarItemTimezoneColour: colour }, { where: { userID: userData[0].userID } })
+							return message.channel.send(`${message.author} your sidebar timezone colour has been set.`)
+						}
 					}
+				} else {
+					return message.channel.send(
+						`Invalid row.\n\nYour row needs to be either "server", "global", "bento" or "timezone".`,
+					)
 				}
-			} else {
-				return message.channel.send(
-					`Invalid row.\n\nYour row needs to be either "server", "global", "bento" or "timezone".`,
-				)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setSidebarItemColour.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function sidebarStatus(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			const statusEmbed = new MessageEmbed()
-				.setAuthor(
-					message.member?.nickname
-						? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`,
-					message.author.avatarURL({ dynamic: true }) as string,
-				)
-				.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-				.setTimestamp().setDescription(`
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				const statusEmbed = new MessageEmbed()
+					.setAuthor(
+						message.member?.nickname
+							? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`,
+						message.author.avatarURL({ dynamic: true }) as string,
+					)
+					.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+					.setTimestamp().setDescription(`
             Username Colour - ${userData[0].usernameColour === null ? `Not set.` : userData[0].usernameColour}
             Discriminator Colour - ${
 							userData[0].discriminatorColour === null ? `Not set.` : userData[0].discriminatorColour
@@ -1924,126 +2178,143 @@ export const command: Command = {
             Sidebar Timezone Colour - ${
 							userData[0].sidebarItemTimezoneColour === null ? `Not set.` : userData[0].sidebarItemTimezoneColour
 						}`)
-			return message.channel.send(statusEmbed)
+				return message.channel.send(statusEmbed)
+			} catch (err) {
+				console.log(`Error at sketch.ts ${sidebarStatus.name}, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 
 		async function setTimezone(message: Message, timezone: string) {
-			if (!timezone)
-				return message.channel.send(
-					`You need to either write reset or set a valid timezone.\nThe structure is e.g. "Europe/Copenhagen"\nCheck the list here if you don't know how to write your timezone <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List> `,
-				)
-			initModels(database)
-
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (timezone === `reset`) {
-				await profile.update({ timezone: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your timezone has been successfully reset.`)
-			} else {
-				const timezoneTest = !!moment.tz.zone(timezone)
-				if (timezoneTest !== true) {
+			try {
+				if (!timezone)
 					return message.channel.send(
-						`Your timezone is invalid.\nThe structure is e.g. "Europe/Copenhagen"\nCheck the list here if you don't know how to write your timezone <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List> `,
+						`You need to either write reset or set a valid timezone.\nThe structure is e.g. "Europe/Copenhagen"\nCheck the list here if you don't know how to write your timezone <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List> `,
 					)
+				initModels(database)
+
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (timezone === `reset`) {
+					await profile.update({ timezone: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your timezone has been successfully reset.`)
 				} else {
-					await profile.update({ timezone: timezone }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your timezone has been set.`)
+					const timezoneTest = !!moment.tz.zone(timezone)
+					if (timezoneTest !== true) {
+						return message.channel.send(
+							`Your timezone is invalid.\nThe structure is e.g. "Europe/Copenhagen"\nCheck the list here if you don't know how to write your timezone <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List> `,
+						)
+					} else {
+						await profile.update({ timezone: timezone }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your timezone has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setTimezone.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		async function setBirthday(message: Message, birthday: string) {
-			if (!birthday)
-				return message.channel.send(
-					`You need to either write reset or set a valid birthday.\nThe structure is e.g. "25 November".`,
-				)
-			initModels(database)
+			try {
+				if (!birthday)
+					return message.channel.send(
+						`You need to either write reset or set a valid birthday.\nThe structure is e.g. "25 November".`,
+					)
+				initModels(database)
 
-			const userData = await profile.findOrCreate({
-				raw: true,
-				where: { userID: message.author.id },
-				defaults: { userID: BigInt(message.author.id) },
-			})
-			if (birthday === `reset`) {
-				await profile.update({ birthday: undefined }, { where: { userID: userData[0].userID } })
-				return message.channel.send(`${message.author} your birthday has been successfully reset.`)
-			} else {
-				const birthdayTest = !!Date.parse(birthday)
-				if (birthdayTest !== true) {
-					return message.channel.send(`Your date is invalid.\nThe structure is e.g. "25 November".`)
+				const userData = await profile.findOrCreate({
+					raw: true,
+					where: { userID: message.author.id },
+					defaults: { userID: BigInt(message.author.id) },
+				})
+				if (birthday === `reset`) {
+					await profile.update({ birthday: undefined }, { where: { userID: userData[0].userID } })
+					return message.channel.send(`${message.author} your birthday has been successfully reset.`)
 				} else {
-					await profile.update({ birthday: birthday }, { where: { userID: userData[0].userID } })
-					return message.channel.send(`${message.author} your birthday has been set.`)
+					const birthdayTest = !!Date.parse(birthday)
+					if (birthdayTest !== true) {
+						return message.channel.send(`Your date is invalid.\nThe structure is e.g. "25 November".`)
+					} else {
+						await profile.update({ birthday: birthday }, { where: { userID: userData[0].userID } })
+						return message.channel.send(`${message.author} your birthday has been set.`)
+					}
 				}
+			} catch (err) {
+				console.log(`Error at sketch.ts ${setBirthday.name}, server ${message.guild?.id}\n\n${err}`)
 			}
 		}
 
 		// general setting
 
 		async function deleteUserProfile(message: Message) {
-			initModels(database)
+			try {
+				initModels(database)
 
-			const statusEmbed = new MessageEmbed()
-				.setAuthor(
-					message.member?.nickname
-						? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-						: `${message.author.username}#${message.author.discriminator}`,
-					message.author.avatarURL({ dynamic: true }) as string,
-				)
-				.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-				.setTimestamp()
-				.setTitle(`Are you sure you want to delete your saved profile?`)
+				const statusEmbed = new MessageEmbed()
+					.setAuthor(
+						message.member?.nickname
+							? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+							: `${message.author.username}#${message.author.discriminator}`,
+						message.author.avatarURL({ dynamic: true }) as string,
+					)
+					.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+					.setTimestamp()
+					.setTitle(`Are you sure you want to delete your saved profile?`)
 
-			const confirmEmbed = await message.channel.send(statusEmbed)
-			await confirmEmbed.react(`✅`)
-			await confirmEmbed.react(`❌`)
-			const filter = (reaction: MessageReaction, user: User) =>
-				[`✅`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
-			const collector = confirmEmbed.createReactionCollector(filter, {
-				idle: 300000,
-				dispose: true,
-			})
+				const confirmEmbed = await message.channel.send(statusEmbed)
+				await confirmEmbed.react(`✅`)
+				await confirmEmbed.react(`❌`)
+				const filter = (reaction: MessageReaction, user: User) =>
+					[`✅`, `❌`].includes(reaction.emoji.name) && message.author.id === user.id
+				const collector = confirmEmbed.createReactionCollector(filter, {
+					idle: 300000,
+					dispose: true,
+				})
 
-			collector.on(`collect`, async (reaction, user) => {
-				if (reaction.emoji.name === `✅`) {
-					reaction.users.remove(user)
-					let newEmbed: MessageEmbed
-					const profileDelete = await profile.destroy({
-						where: { userID: message.author.id },
-					})
-					if (profileDelete === 0) {
-						newEmbed = new MessageEmbed()
-							.setAuthor(
-								message.member?.nickname
-									? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-									: `${message.author.username}#${message.author.discriminator}`,
-								message.author.avatarURL({ dynamic: true }) as string,
-							)
-							.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-							.setTimestamp()
-							.setTitle(`Error deleting your profile.\nEither a Database problem or your profile not existing`)
-					} else {
-						newEmbed = new MessageEmbed()
-							.setAuthor(
-								message.member?.nickname
-									? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
-									: `${message.author.username}#${message.author.discriminator}`,
-								message.author.avatarURL({ dynamic: true }) as string,
-							)
-							.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
-							.setTimestamp()
-							.setTitle(`Your profile was successfully deleted.`)
+				collector.on(`collect`, async (reaction, user) => {
+					if (reaction.emoji.name === `✅`) {
+						reaction.users.remove(user)
+						let newEmbed: MessageEmbed
+						const profileDelete = await profile.destroy({
+							where: { userID: message.author.id },
+						})
+						if (profileDelete === 0) {
+							newEmbed = new MessageEmbed()
+								.setAuthor(
+									message.member?.nickname
+										? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+										: `${message.author.username}#${message.author.discriminator}`,
+									message.author.avatarURL({ dynamic: true }) as string,
+								)
+								.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+								.setTimestamp()
+								.setTitle(`Error deleting your profile.\nEither a Database problem or your profile not existing`)
+						} else {
+							newEmbed = new MessageEmbed()
+								.setAuthor(
+									message.member?.nickname
+										? `${message.member?.nickname} (${message.author.username}#${message.author.discriminator})`
+										: `${message.author.username}#${message.author.discriminator}`,
+									message.author.avatarURL({ dynamic: true }) as string,
+								)
+								.setColor(`${await urlToColours(client?.user?.avatarURL({ format: `png` }) as string)}`)
+								.setTimestamp()
+								.setTitle(`Your profile was successfully deleted.`)
+						}
+						await confirmEmbed.reactions
+							.removeAll()
+							.catch((error) => console.error(`Failed to clear reactions: `, error))
+						await confirmEmbed.edit(newEmbed)
+					} else if (reaction.emoji.name === `❌`) {
+						collector.stop()
+						return await confirmEmbed.delete().catch(() => console.error(`delete on line 2044 in sketch.ts error`))
 					}
-					await confirmEmbed.reactions.removeAll().catch((error) => console.error(`Failed to clear reactions: `, error))
-					await confirmEmbed.edit(newEmbed)
-				} else if (reaction.emoji.name === `❌`) {
-					collector.stop()
-					return await confirmEmbed.delete().catch(() => console.error(`delete on line 2044 in sketch.ts error`))
-				}
-			})
+				})
+			} catch (err) {
+				console.log(`Error at sketch.ts ${deleteUserProfile.name}, server ${message.guild?.id}\n\n${err}`)
+			}
 		}
 	},
 }

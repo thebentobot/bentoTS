@@ -22,23 +22,25 @@ export const event: Event = {
 		initModels(database)
 
 		try {
-			// the ban command inserts the record into the ban table
-			await guildMember.destroy({ where: { guildID: guild.id, userID: user.id } })
+			const bannedMemberCheck = await guildMember.findOne({ raw: true, where: { guildID: guild.id, userID: user.id } })
+			if (bannedMemberCheck !== null) {
+				await guildMember.destroy({ where: { guildID: guild.id, userID: user.id } })
 
-			const guildMemberData = await guildMember.findAll({
-				where: { userID: user.id },
-			})
-			if (!guildMemberData.length) {
-				await bento.destroy({ where: { userID: user.id } })
-				await rpsGame.destroy({ where: { userID: user.id } })
-				await profile.destroy({ where: { userID: user.id } })
-				await horoscope.destroy({ where: { userID: user.id } })
-				await lastfm.destroy({ where: { userID: user.id } })
-				await weather.destroy({ where: { userID: user.id } })
-				await reminder.destroy({ where: { userID: user.id } })
-				await notificationMessage.destroy({ where: { userID: user.id } })
-				await tag.destroy({ where: { userID: user.id } })
-				await DbUser.destroy({ where: { userID: user.id } })
+				const guildMemberData = await guildMember.findAll({
+					where: { userID: user.id },
+				})
+				if (!guildMemberData.length) {
+					await bento.destroy({ where: { userID: user.id } })
+					await rpsGame.destroy({ where: { userID: user.id } })
+					await profile.destroy({ where: { userID: user.id } })
+					await horoscope.destroy({ where: { userID: user.id } })
+					await lastfm.destroy({ where: { userID: user.id } })
+					await weather.destroy({ where: { userID: user.id } })
+					await reminder.destroy({ where: { userID: user.id } })
+					await notificationMessage.destroy({ where: { userID: user.id } })
+					await tag.destroy({ where: { userID: user.id } })
+					await DbUser.destroy({ where: { userID: user.id } })
+				}
 			}
 		} catch (err) {
 			console.log(`Error at guildbanadd.ts, server ${guild.id}\n\n${err}`)
