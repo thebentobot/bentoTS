@@ -15,6 +15,8 @@ export const command: Command = {
 	usage: `commands\ncommands web`,
 	website: `https://www.bentobot.xyz/commands#commands`,
 	run: async (client, message, args): Promise<Message> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (args[0] === `web`) {
 				return message.channel.send(`https://www.bentobot.xyz/commands`)

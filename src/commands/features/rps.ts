@@ -11,6 +11,8 @@ export const command: Command = {
 	usage: `rps <rock, paper, scissors>`,
 	website: `https://www.bentobot.xyz/commands#rps`,
 	run: async (client, message, args): Promise<Message> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		const acceptedReplies = [`rock`, `paper`, `scissors`]
 		const bentoReplies = [`Rock 🪨`, `Paper 🧻`, `Scissors ✂️`]
 		const random = Math.floor(Math.random() * acceptedReplies.length)

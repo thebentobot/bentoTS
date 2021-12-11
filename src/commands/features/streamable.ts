@@ -16,6 +16,8 @@ export const command: Command = {
 	usage: `streamable <valid video URL or attachment> [title for the video]`,
 	website: `https://www.bentobot.xyz/commands#streamable`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			let url: string
 			let title: string

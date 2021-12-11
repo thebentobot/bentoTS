@@ -10,6 +10,8 @@ export const command: Command = {
 	usage: `roles`,
 	website: `https://www.bentobot.xyz/commands#roles`,
 	run: async (client, message): Promise<Message> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		const embed = new MessageEmbed()
 			.setAuthor(message.guild?.name, message.guild?.iconURL({ format: `png` }) as string)
 			.setTitle(`All roles in ${message.guild?.name}`)

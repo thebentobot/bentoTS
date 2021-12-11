@@ -40,6 +40,8 @@ export const command: Command = {
 	usage: ` is the prefix\n**reminder time <amount of time> <timeframe> <reminder>** E.g. reminder time 1 day eat cake\n**reminder schedule <DD-MM-YYYY> <HH:mm> <timezone offset> <reminder>** E.g. reminder schedule 25-11-2021 08:00 +02:00 eat cake\n**remind list** to see a list of your reminders`,
 	website: `https://www.bentobot.xyz/commands#reminder`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		initModels(database)
 
 		const guildData = await guild.findOne({

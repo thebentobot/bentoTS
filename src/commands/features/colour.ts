@@ -10,6 +10,8 @@ export const command: Command = {
 	usage: `colour <hexcode colour / RGB colour>`,
 	website: `https://www.bentobot.xyz/commands#colour`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			const colour: string | string[] = args.join(` `).trim()
 			let hexColour: string | undefined

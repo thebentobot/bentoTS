@@ -9,6 +9,8 @@ export const command: Command = {
 	usage: `roll <number between 1-100>`,
 	website: `https://www.bentobot.xyz/commands#roll`,
 	run: async (client, message, args): Promise<Message> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		if (!args.length) return message.channel.send(`${message.author} Give me a number between 1-100!`)
 		const userNumber: number = parseInt(args[0])
 		if (isNaN(userNumber)) return message.channel.send(`${message.author} That is not a number 🤣`)

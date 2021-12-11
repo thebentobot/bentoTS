@@ -10,6 +10,8 @@ export const command: Command = {
 	usage: `support`,
 	website: `https://www.bentobot.xyz/commands#support`,
 	run: async (client, message): Promise<Message> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		const embed = new MessageEmbed()
 			.setTitle(`Support Bento 🍱`)
 			.setThumbnail(

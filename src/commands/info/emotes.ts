@@ -10,6 +10,8 @@ export const command: Command = {
 	usage: `emotes\nemotes animated\nemotes static`,
 	website: `https://www.bentobot.xyz/commands#emotes`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!args.length) {
 				try {

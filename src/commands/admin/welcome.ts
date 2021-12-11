@@ -11,6 +11,8 @@ export const command: Command = {
 	usage: `welcome status\nwelcome channel <channelID>\nwelcome msg/message <content>\nwelcome delete`,
 	website: `https://www.bentobot.xyz/commands#welcome`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!message.member?.hasPermission(`MANAGE_MESSAGES`)) {
 				return message.channel
@@ -129,7 +131,7 @@ export const command: Command = {
 			}
 
 			if (args[0] === `delete`) {
-				await welcome.destroy({ where: { channel: message.guild?.id } })
+				await welcome.destroy({ where: { guildID: message.guild?.id } })
 				return message.channel.send(
 					`Your welcome configuration is now deleted in Bento's database and Bento will from now on not say welcome to users who join.\nPlease use ${guildData?.prefix}welcome to enable welcome again.`,
 				)

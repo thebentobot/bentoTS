@@ -10,6 +10,8 @@ export const command: Command = {
 	usage: `say [embed] <input>`,
 	website: `https://www.bentobot.xyz/commands#say`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			await message.delete().catch(() => console.error(`bot could not delete message`))
 

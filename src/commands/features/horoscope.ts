@@ -24,6 +24,8 @@ export const command: Command = {
 	usage: `**horoscope <save> <sign>** to save your horoscope\n**horoscope <today/tomorrow/yesterday> [sign or a user mention/id]** to show horoscope for a given day and for a given user\nIf you don't specify a user or sign, then it will check for yourself. If you don't mention anything and have a sign saved, it shows for today.\n**horoscope list** shows a list of all users on the server who has saved their horoscope.\n**horoscope search <query>** makes you able to search for users who has a specific horoscope.`,
 	website: `https://www.bentobot.xyz/commands#horoscope`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!args.length) {
 				return horoToday(message)

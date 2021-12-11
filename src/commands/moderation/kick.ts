@@ -19,6 +19,8 @@ export const command: Command = {
 	usage: `kick <user id or mention user> [reason]`,
 	website: `https://www.bentobot.xyz/commands#kick`,
 	run: async (client, message, args): Promise<Message | GuildMember | void> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!message.member?.hasPermission(`KICK_MEMBERS`)) {
 				return message.channel
