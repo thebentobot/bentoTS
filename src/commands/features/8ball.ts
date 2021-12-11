@@ -10,6 +10,8 @@ export const command: Command = {
 	usage: `8ball <question>`,
 	website: `https://www.bentobot.xyz/commands#8ball`,
 	run: async (client, message, args): Promise<Message> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		if (!args.length) return message.channel.send(`${message.author} Ask me something!`)
 		return message.channel.send(answers[Math.floor(Math.random() * answers.length)])
 	},

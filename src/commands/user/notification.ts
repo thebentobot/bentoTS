@@ -17,6 +17,8 @@ export const command: Command = {
 	usage: ` is the prefix.\n**notification add <content>** to add content to be notified by. Add ''--global'' if you want to get notified when someone mentions the word on all Bento servers.\n**notification delete <content>** to delete the saved notification.\n**notification list** to get a DM with a list of all your saved notifications.\n**notification global <content>** to enable/disable global notifications for a saved notification.`,
 	website: `https://www.bentobot.xyz/commands#notification`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (args[0] === `add`) {
 				return addNoti(message, args.slice(1).join(` `))

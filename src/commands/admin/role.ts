@@ -8,6 +8,7 @@ import { Command } from '../../interfaces'
 import { urlToColours } from '../../utils'
 
 export async function roleManagement(message: Message) {
+	console.log(`Reached ${roleManagement.name}.ts, guildID: ${message.guild?.id}`)
 	try {
 		// eslint-disable-next-line no-inner-declarations
 		async function roleEmbed(responses: object) {
@@ -171,6 +172,8 @@ export const command: Command = {
 	usage: ` is the prefix\n**role message <content>** Sets or updates the message for the role channel. It is here where you can write instructions on how to assign or remove roles, and what each role means e.g. normal Discord formatting and spaces/new lines are available.\n**role add <main/sub/other> <roleCommand: roleName>[, roleCommand: roleName, ]** adds roles to the role management system. You can add multiple at the same time as long as they got the same type of role. It needs to be name of the role, no mention or id.\nPractical example of how to set a role: ?role add main test1: new role, test2: new role, ez: new role2\n**role remove <main/sub/other> <roleCommand>[, roleCommand, roleCommand]** deletes the saved role commands, and if the role name does not have a role command anymore then it also deletes the role name in the system.\nPractical example: ?role delete test1, test2, ez\n**role channel <mention role channel or its channelID>** sets or updates the message in the role channel. Shows your saved instructions and an embed with a list of all possible roles (by role name, not role command). Also sets as the only channel where you can assign roles.\n**role update** updates the message in the role channel. Useful for when you have deleted roles or got new instructions.\n**role list** shows a list of all saved role commands and role names.`,
 	website: `https://www.bentobot.xyz/commands#role`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		if (!message.member?.hasPermission(`MANAGE_ROLES`)) {
 			return message.channel
 				.send(`You do not have permission to use this command.\nYou are not a mod.`)

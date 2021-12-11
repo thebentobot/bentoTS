@@ -9,6 +9,8 @@ export const command: Command = {
 	usage: `choose <option 1> <option 2> <option ∞>`,
 	website: `https://www.bentobot.xyz/commands#choose`,
 	run: async (client, message, args): Promise<Message> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		if (!args.length) return message.channel.send(`${message.author} Give me some options!`)
 		if (args.length < 2)
 			return message.channel.send(

@@ -11,6 +11,8 @@ export const command: Command = {
 	usage: `messagelog status\nmessagelog channel <channelID>\nmessagelog delete`,
 	website: `https://www.bentobot.xyz/commands#messagelog`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!message.member?.hasPermission(`MANAGE_CHANNELS`)) {
 				return message.channel

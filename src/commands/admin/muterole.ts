@@ -11,6 +11,8 @@ export const command: Command = {
 	usage: `muterole status\nmuterole set <roleID or role mention>\nmuterole delete`,
 	website: `https://www.bentobot.xyz/commands#muterole`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!message.member?.hasPermission(`MANAGE_ROLES`)) {
 				return message.channel

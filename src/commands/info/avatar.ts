@@ -10,6 +10,8 @@ export const command: Command = {
 	usage: `avatar [userID or mention a user]\navatar server\navatar banner`,
 	website: `https://www.bentobot.xyz/commands#avatar`,
 	run: async (client, message, args): Promise<Message | void> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!args.length) {
 				const embed = new MessageEmbed()

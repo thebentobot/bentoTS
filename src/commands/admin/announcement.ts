@@ -47,6 +47,7 @@ export const command: Command = {
 	usage: ` is the prefix\n**announcement every <amount of time> <timeframe> <channel> <announcement>** E.g. announcement 1 week 714920591429337109 IT IS FRIDAY\n**announcement schedule <DD-MM-YYYY> <HH:mm> <timezone offset> <channel> <announcement>** E.g. announcement schedule 25-11-2021 08:00 +02:00 714827566992850964 it is Banner's birthday 🥺\n**announcement list** to see a list of your announcements\n**announcement delete <every/schedule> <announcement id>** to delete an announcement\n**announcement edit <every/schedule> <announcement id> <column> <content>** to edit a specific part of an announcement. The bot will inform you about possible columns.`,
 	website: `https://www.bentobot.xyz/commands#announcement`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
 		if (!message.member?.hasPermission(`MANAGE_MESSAGES`)) {
 			return message.channel
 				.send(`You do not have permission to use this command!`)

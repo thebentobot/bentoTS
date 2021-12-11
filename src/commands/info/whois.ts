@@ -11,6 +11,8 @@ export const command: Command = {
 	usage: `whois <@user/userID> to find a user. If no user is specified it shows info for you`,
 	website: `https://www.bentobot.xyz/commands#whois`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!args.length) {
 				const embed = new MessageEmbed()

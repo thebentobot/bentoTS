@@ -11,6 +11,8 @@ export const command: Command = {
 	usage: ` is the prefix\nbye <status>\nbye <channel> <channelID>\nbye <message> <content>\nbye <delete>`,
 	website: `https://www.bentobot.xyz/commands#bye`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!message.member?.hasPermission(`MANAGE_MESSAGES`)) {
 				return message.channel
@@ -133,7 +135,7 @@ export const command: Command = {
 			}
 
 			if (args[0] === `delete`) {
-				await bye.destroy({ where: { channel: message.guild?.id } })
+				await bye.destroy({ where: { guildID: message.guild?.id } })
 				return message.channel.send(
 					`Your bye configuration is now deleted in Bento's database and Bento will from now on not say bye to users who leave.\nPlease use ${guildData?.prefix}bye to enable bye again.`,
 				)

@@ -9,6 +9,8 @@ export const command: Command = {
 	usage: `prune <1-100> [mention a user or a user id] [all, or mention a channel or a channel id]`,
 	website: `https://www.bentobot.xyz/commands#prune`,
 	run: async (client, message, args): Promise<Message | undefined> => {
+		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
+
 		try {
 			if (!message.guild?.me?.hasPermission(`MANAGE_MESSAGES`)) {
 				return await message.channel.send(
