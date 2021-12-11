@@ -4,7 +4,7 @@ import database from '../database/database'
 import { initModels } from '../database/models/init-models'
 
 export const event: Event = {
-	name: `messageReactionAdd`,
+	name: `messageReactionRemove`,
 	run: async (client, messageReaction: MessageReaction, user: User): Promise<void> => {
 		let reactionMessage: MessageReaction | undefined
 		if (messageReaction.partial) {
@@ -25,7 +25,7 @@ export const event: Event = {
 
 		if (reactionMessage?.message.id === messageExampleID) {
 			const channelParse = reactionMessage.message.channel as TextChannel
-			channelParse.updateOverwrite(user, { SEND_MESSAGES: true })
+			channelParse.updateOverwrite(user, { SEND_MESSAGES: false })
 			//channelParse.overwritePermissions([{ id: user.id, allow: [`SEND_MESSAGES`] }])
 		}
 		initModels(database)
