@@ -788,13 +788,14 @@ export const command: Command = {
 					emoteArray.push(`👨‍💻`)
 				}
 
-				const patreonsData = await patreon.findAll()
+				const patreonsData = await patreon.findAll({ raw: true })
 
-				if (patreonsData.some((user) => user.userID === BigInt(userID))) {
+				if (patreonsData.some((user) => `${user.userID}` === userID)) {
+					console.log(`reached 794`)
 					emoteArray.push(
 						emoteFunction(`https://www.audiosocket.com/wp-content/uploads/2020/11/patreon-creators-patreon.png`),
 					)
-					const patreonUser = patreonsData.filter((user) => user.userID === BigInt(userID))
+					const patreonUser = patreonsData.filter((user) => `${user.userID}` === userID)
 					if (patreonUser[0].emoteSlot1 !== null) {
 						emoteArray.push(emoteFunction(patreonUser[0].emoteSlot1 as string))
 					}
