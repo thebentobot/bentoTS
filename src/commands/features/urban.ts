@@ -15,8 +15,6 @@ export const command: Command = {
 	usage: `urban <search input>`,
 	website: `https://www.bentobot.xyz/commands#urban`,
 	run: async (client, message, args): Promise<Message | void> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!args.length) {
 				return message.channel.send(`You need to search for a definition!`)

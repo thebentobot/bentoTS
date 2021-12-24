@@ -10,8 +10,6 @@ export const command: Command = {
 	usage: `dog`,
 	website: `https://www.bentobot.xyz/commands#dog`,
 	run: async (client, message): Promise<Message> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		const dogData = await axios.get(`https://dog.ceo/api/breeds/image/random`)
 		return message.channel.send(dogData.data.message)
 	},

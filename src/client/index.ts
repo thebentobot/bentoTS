@@ -4,19 +4,8 @@ import path from 'path'
 import { readdirSync } from 'fs'
 import { Command, Event } from '../interfaces'
 import * as dotenv from 'dotenv'
-/*
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-*/
 
 dotenv.config()
-
-//const __dirname = path.resolve();
-
-//hmm
-
-//const ascii = require('ascii-table');
-//import * as ascii from 'ascii-table'
 
 class ExtendedClient extends Client {
 	public commands: Collection<string, Command> = new Collection()

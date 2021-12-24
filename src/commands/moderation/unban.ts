@@ -14,8 +14,6 @@ export const command: Command = {
 	usage: `unban <user id or mention user> [reason]`,
 	website: `https://www.bentobot.xyz/commands#unban`,
 	run: async (client, message, args): Promise<Message | void> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!message.member?.hasPermission(`BAN_MEMBERS`)) {
 				return message.channel

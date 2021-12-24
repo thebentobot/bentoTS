@@ -23,8 +23,6 @@ export const command: Command = {
 	usage: `settings`,
 	website: `https://www.bentobot.xyz/commands#settings`,
 	run: async (client, message): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!message.member?.hasPermission(`MANAGE_CHANNELS`)) {
 				return message.channel

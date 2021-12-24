@@ -11,8 +11,6 @@ export const command: Command = {
 	usage: `prefix <new prefix>`,
 	website: `https://www.bentobot.xyz/commands#prefix`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			message.delete()
 

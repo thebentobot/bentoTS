@@ -12,8 +12,6 @@ export const command: Command = {
 	usage: `channeldisable <status>\nchanneldisable set <channelID or channel mention>\nchanneldisable delete <channelID or channel mention>\nchanneldisable list`,
 	website: `https://www.bentobot.xyz/commands#channeldisable`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!message.member?.hasPermission(`MANAGE_CHANNELS`)) {
 				return message.channel

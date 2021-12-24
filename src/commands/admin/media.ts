@@ -11,8 +11,6 @@ export const command: Command = {
 	usage: `media <enable/disable/status>`,
 	website: `https://www.bentobot.xyz/commands#media`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!message.member?.hasPermission(`MANAGE_GUILD`)) {
 				return message.channel

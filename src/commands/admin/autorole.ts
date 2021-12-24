@@ -12,7 +12,6 @@ export const command: Command = {
 	usage: `autorole <status>\nautorole set <roleID or role mention>\nautorole delete <roleID>\nautorole list`,
 	website: `https://www.bentobot.xyz/commands#autorole`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
 		try {
 			if (!message.member?.hasPermission(`MANAGE_ROLES`)) {
 				return message.channel

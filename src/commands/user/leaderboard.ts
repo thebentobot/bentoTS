@@ -22,8 +22,6 @@ export const command: Command = {
 	usage: `leaderboard [<global/bento>] [global]`,
 	website: `https://www.bentobot.xyz/commands#leaderboard`,
 	run: async (client, message, args): Promise<Message | void> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!args.length) {
 				return serverLeaderboard(message)

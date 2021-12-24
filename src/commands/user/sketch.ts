@@ -13,8 +13,6 @@ export const command: Command = {
 	usage: `**sketch bgpic** <image URL> | **sketch desc** <add/colour/opacity/status> <description text / hex colour / 0-100> | **sketch timezone** <tz database value, e.g. "Europe/Copenhagen"> | **sketch birthday** <birthday e.g. "25 November"> | **sketch username** <hex color> | **sketch discriminator** <hex color> | **sketch overlay** <colour/opacity/status> <hex colour/ 0-100 / status> | **sketch bgcolour** <colour/opacity/status> <hex colour / 0-100 / no argument for status> | **sketch fm** <toggle/bg/status/song/artist> <colour/opacity> <hex colour / 0-100> | **sketch xpboard** <toggle/bg/status/text/bar/barbg/text1/text2/bar1/bar2/barbg1/barbg2> <colour/opacity> <hex colour / 0-100> | **sketch sidebar** <opacity/colour/blur/rank/users/status> <hex colour/ 0-100 / number for blur amount / if it is rank or users you need to specify if it is either the server, global, bento or timezone row, before writing colour> <hex colour for rank and users> | **sketch delete**`,
 	website: `https://www.bentobot.xyz/commands#sketch`,
 	run: async (client, message, args): Promise<Message | void> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			switch (args[0]) {
 				case `pic`:

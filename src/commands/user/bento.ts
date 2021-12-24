@@ -23,8 +23,6 @@ export const command: Command = {
 	usage: `bento [<user>]. If you just write the command, it shows when you can give a Bento Box 🍱 again.`,
 	website: `https://www.bentobot.xyz/commands#bento`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!args.length) {
 				return giveBento(message)
@@ -201,7 +199,7 @@ export const command: Command = {
 											(await message?.guild?.members.fetch(message.author.id))?.nickname
 												? (await message?.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** just gave 2 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Follower 🌟 **${
+										}** just gave **2 Bento** 🍱 to 🌟 Official Patreon Bento 🍱 Follower 🌟 **${
 											(await message?.guild?.members.fetch(mentionedUser?.id as string))?.nickname
 												? `${(await message?.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
 														(await message?.guild?.members.fetch(mentionedUser?.id as string))?.user.username
@@ -221,7 +219,7 @@ export const command: Command = {
 											(await message?.guild?.members.fetch(message.author.id))?.nickname
 												? (await message?.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** can give a Bento 🍱 again in 12 hours.`,
+										}** can give a **Bento** 🍱 again in **12 hours**.`,
 									),
 								)
 							} else if (patreonUser.enthusiast === true) {
@@ -238,7 +236,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** just gave 3 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Enthusiast 🌟 **${
+										}** just gave **3 Bento** 🍱 to 🌟 Official Patreon Bento 🍱 Enthusiast 🌟 **${
 											(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
 												? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
 														(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
@@ -258,7 +256,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** can give a Bento 🍱 again in 12 hours.`,
+										}** can give a **Bento** 🍱 again in **12 hours**.`,
 									),
 								)
 							} else if (patreonUser.disciple === true) {
@@ -275,7 +273,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** just gave 4 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Disciple 🌟 **${
+										}** just gave **4 Bento** 🍱 to 🌟 Official Patreon Bento 🍱 Disciple 🌟 **${
 											(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
 												? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
 														(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
@@ -295,7 +293,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** can give a Bento 🍱 again in 12 hours.`,
+										}** can give a **Bento** 🍱 again in **12 hours**.`,
 									),
 								)
 							} else if (patreonUser.sponsor === true) {
@@ -312,7 +310,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** just gave 5 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Sponsor 🌟 **${
+										}** just gave **5 Bento** 🍱 to 🌟 Official Patreon Bento 🍱 Sponsor 🌟 **${
 											(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
 												? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
 														(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
@@ -332,7 +330,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** can give a Bento 🍱 again in 12 hours.`,
+										}** can give a **Bento** 🍱 again in **12 hours**.`,
 									),
 								)
 							} else {
@@ -349,7 +347,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** just gave 1 Bento 🍱 to 🌟 Official Patreon Bento 🍱 Supporter 🌟 **${
+										}** just gave a **Bento** 🍱 to 🌟 Official Patreon Bento 🍱 Supporter 🌟 **${
 											(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
 												? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
 														(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
@@ -369,7 +367,7 @@ export const command: Command = {
 											(await message.guild?.members.fetch(message.author.id))?.nickname
 												? (await message.guild?.members.fetch(message.author.id))?.nickname
 												: message.author.username
-										}** can give a Bento 🍱 again in 12 hours.`,
+										}** can give a **Bento** 🍱 again in **12 hours**.`,
 									),
 								)
 							}
@@ -387,7 +385,7 @@ export const command: Command = {
 										(await message.guild?.members.fetch(message.author.id))?.nickname
 											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
-									}** just gave a Bento 🍱 to **${
+									}** just gave a **Bento** 🍱 to **${
 										(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname
 											? `${(await message.guild?.members.fetch(mentionedUser?.id as string))?.nickname} (${
 													(await message.guild?.members.fetch(mentionedUser?.id as string))?.user.username
@@ -407,7 +405,7 @@ export const command: Command = {
 										(await message.guild?.members.fetch(message.author.id))?.nickname
 											? (await message.guild?.members.fetch(message.author.id))?.nickname
 											: message.author.username
-									}** can give a Bento 🍱 again in 12 hours.`,
+									}** can give a **Bento** 🍱 again in **12 hours**.`,
 								),
 							)
 						}
