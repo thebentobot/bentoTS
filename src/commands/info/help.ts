@@ -14,8 +14,6 @@ export const command: Command = {
 	usage: `help [command name]`,
 	website: `https://www.bentobot.xyz/commands#help`,
 	run: async (client, message, args): Promise<Message | void> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (args[0]) {
 				return getCMD(client, message, args[0])

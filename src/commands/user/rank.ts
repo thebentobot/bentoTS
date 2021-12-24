@@ -35,8 +35,6 @@ export const command: Command = {
 	usage: `rank [userID/mention a user]`,
 	website: `https://www.bentobot.xyz/commands#rank`,
 	run: async (client, message, args): Promise<Message | void> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			return userFunction(message, args[0])
 		} catch (err) {
@@ -791,7 +789,6 @@ export const command: Command = {
 				const patreonsData = await patreon.findAll({ raw: true })
 
 				if (patreonsData.some((user) => `${user.userID}` === userID)) {
-					console.log(`reached 794`)
 					emoteArray.push(
 						emoteFunction(`https://www.audiosocket.com/wp-content/uploads/2020/11/patreon-creators-patreon.png`),
 					)

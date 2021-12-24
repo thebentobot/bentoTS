@@ -17,8 +17,6 @@ export const command: Command = {
 	usage: `tag <add> <tag name> <tag content>\ntag <delete> <tag name>\ntag <edit> <tag name> <tag content being edit>\ntag <info> <tag name>\ntag <list>\ntag <random> [search query]\ntag <rename> <tag name> <new tag name>\ntag <search> <query>\ntag <author> [mention a user or userID]\ntag <top>`,
 	website: `https://www.bentobot.xyz/commands#tag`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!args.length) {
 				initModels(database)

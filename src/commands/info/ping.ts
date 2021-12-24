@@ -11,8 +11,6 @@ export const command: Command = {
 	usage: `ping`,
 	website: `https://www.bentobot.xyz/commands#ping`,
 	run: async (client, message): Promise<Message> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		const msgTimeStart = new Date().getTime()
 		await message.channel.send(`🏓 Pinging...`)
 		const msgTimeEnd = new Date().getTime()

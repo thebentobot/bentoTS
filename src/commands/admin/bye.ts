@@ -11,8 +11,6 @@ export const command: Command = {
 	usage: ` is the prefix\nbye <status>\nbye <channel> <channelID>\nbye <message> <content>\nbye <delete>`,
 	website: `https://www.bentobot.xyz/commands#bye`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!message.member?.hasPermission(`MANAGE_MESSAGES`)) {
 				return message.channel

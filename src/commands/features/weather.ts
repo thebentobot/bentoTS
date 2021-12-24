@@ -27,8 +27,6 @@ export const command: Command = {
 	usage: `weather [save] <city>, [country code]`,
 	website: `https://www.bentobot.xyz/commands#weather`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (args[0] === `save`) {
 				return await saveWeather(message, args.slice(1).join(` `))

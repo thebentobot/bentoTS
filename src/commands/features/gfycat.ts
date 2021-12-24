@@ -22,8 +22,6 @@ export const command: Command = {
 	usage: `gfycat create <video url, or attachment> [--full if you want the whole video as a gif. If this is added, no need to specify start seconds and duration] <seconds to start at> <duration of the gif> [title of your gfycat post]\ngfycat user profile <gfycat username>\ngfycat user feed <gfycat username> [count number between 1-30]\ngfycat info <gfycat post name e.g. naiveamusingfritillarybutterfly>\ngfycat search <search input> [--multi [--count <number between 1-30>]]`,
 	website: `https://www.bentobot.xyz/commands#gfycat`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		if (message.channel.type !== `text`) return
 
 		try {

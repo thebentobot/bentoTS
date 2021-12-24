@@ -11,8 +11,6 @@ export const command: Command = {
 	usage: `serverinfo`,
 	website: `https://www.bentobot.xyz/commands#serverinfo`,
 	run: async (client, message): Promise<Message | void> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			const embed = new MessageEmbed()
 				.setTitle(message.guild?.name)

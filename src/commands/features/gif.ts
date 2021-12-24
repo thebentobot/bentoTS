@@ -40,8 +40,6 @@ export const command: Command = {
 	usage: `gif <search input> [--tenor] [--multi [--count <number between 1-30>]]`,
 	website: `https://www.bentobot.xyz/commands#gif`,
 	run: async (client, message, args): Promise<Message | undefined> => {
-		console.log(`Reached ${command.name}.ts, guildID: ${message.guild?.id}`)
-
 		try {
 			if (!args.length) {
 				return message.channel.send(`You need to provide a search input!`).then((m) => m.delete({ timeout: 5000 }))
