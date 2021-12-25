@@ -177,7 +177,7 @@ export const command: Command = {
 
 				if (message.attachments.array() !== undefined) {
 					const getUrl = message.attachments.array()
-					files = getUrl[0] ? getUrl[0].url : ``
+					files = getUrl[0] ? getUrl.join(`, `) : ``
 				}
 
 				if (args.slice(2).join(` `) !== undefined) {
@@ -192,6 +192,10 @@ export const command: Command = {
 					tagContent = files
 				} else if (!text && !files) {
 					return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
+				}
+
+				if ((tagContent?.length as number) > 2000) {
+					return message.channel.send(`Your tag content is too long for me to be able to send it, sorry 😔`)
 				}
 
 				const tagAttr: tagCreationAttributes = {
@@ -303,7 +307,7 @@ export const command: Command = {
 
 				if (message.attachments.array() !== undefined) {
 					const getUrl = message.attachments.array()
-					files = getUrl[0] ? getUrl[0].url : ``
+					files = getUrl[0] ? getUrl.join(`, `) : ``
 				}
 
 				if (args.slice(2).join(` `) !== undefined) {
@@ -318,6 +322,10 @@ export const command: Command = {
 					tagContent = files
 				} else if (!text && !files) {
 					return message.channel.send(`You didn't attach any content for the tag \`${tagName}\``)
+				}
+
+				if ((tagContent?.length as number) > 2000) {
+					return message.channel.send(`Your tag content is too long for me to be able to send it, sorry 😔`)
 				}
 
 				await tag.update(
@@ -600,6 +608,10 @@ export const command: Command = {
 					return message.channel.send(
 						`The new tag name \`${newTagName}\` is a tag argument.\nRename your tag something else please.`,
 					)
+				}
+
+				if ((newTagName?.length as number) > 20) {
+					return message.channel.send(`Your new tag name is unfortunately too long. 20 characters is the maximum.`)
 				}
 
 				const NewTagData = await tag.findOne({

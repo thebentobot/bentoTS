@@ -4,6 +4,7 @@ import { ban, banCreationAttributes } from '../../database/models/ban'
 import { initModels, user, userCreationAttributes } from '../../database/models/init-models'
 import { modLog } from '../../database/models/modLog'
 import { Command } from '../../interfaces'
+import { trim } from '../../utils'
 
 export const command: Command = {
 	name: `ban`,
@@ -143,7 +144,7 @@ export const command: Command = {
 									: `${bannedUser.user.username}#${bannedUser.user.discriminator}`
 							} was banned!`,
 						)
-						.setDescription(`**Reason**\n${reason ? reason : `Reason not listed`}`)
+						.setDescription(`**Reason**\n${reason ? trim(reason, 4096) : `Reason not listed`}`)
 						.addField(`Username`, bannedUser.user.username + `#` + bannedUser.user.discriminator)
 						.addField(`User ID`, bannedUser.id)
 						.addField(

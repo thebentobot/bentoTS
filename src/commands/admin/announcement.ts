@@ -133,6 +133,10 @@ export const command: Command = {
 					)
 				}
 
+				if (announcement.length > 2000) {
+					return message.channel.send(`Your announcement is too long for me to be able to send it, sorry 😔`)
+				}
+
 				let channelID: string | undefined
 				try {
 					const channelObject = message.mentions.channels.first() || message.guild?.channels.cache.get(channel)
@@ -233,6 +237,10 @@ export const command: Command = {
 					return message.channel.send(
 						`You haven't specified what I should announce.\nIf you need help with announcements, please use \`${guildData?.prefix}help announcement\` to see instructions`,
 					)
+				}
+
+				if (announcement.length > 2000) {
+					return message.channel.send(`Your announcement is too long for me to be able to send it, sorry 😔`)
 				}
 
 				let channelID: string | undefined
@@ -433,6 +441,9 @@ export const command: Command = {
 					}
 
 					if (column === `message`) {
+						if (content.length > 2000) {
+							return message.channel.send(`Your announcement is too long for me to be able to send it, sorry 😔`)
+						}
 						const announcementUpdate = await announcementTime.update(
 							{ message: content },
 							{ where: { guildID: message.guild?.id, id: id } },
@@ -570,6 +581,9 @@ export const command: Command = {
 					}
 
 					if (column === `message`) {
+						if (content.length > 2000) {
+							return message.channel.send(`Your announcement is too long for me to be able to send it, sorry 😔`)
+						}
 						const announcementUpdate = await announcementSchedule.update(
 							{ message: content },
 							{ where: { guildID: message.guild?.id, id: id } },

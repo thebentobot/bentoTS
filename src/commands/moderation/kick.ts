@@ -10,6 +10,7 @@ import {
 } from '../../database/models/init-models'
 import { modLog } from '../../database/models/modLog'
 import { Command } from '../../interfaces'
+import { trim } from '../../utils'
 
 export const command: Command = {
 	name: `kick`,
@@ -135,7 +136,7 @@ export const command: Command = {
 					.setDescription(
 						`This user has been kicked **${
 							kickedCount.count > 1 ? `${kickedCount.count} times` : `once`
-						}** from this server\n**Reason**\n${reason ? reason : `No reason specified`}`,
+						}** from this server\n**Reason**\n${reason ? trim(reason, 4000) : `No reason specified`}`,
 					)
 					.addField(`Username`, kickedUser.user.username + `#` + kickedUser.user.discriminator)
 					.addField(`User ID`, kickedUser.id)
