@@ -43,7 +43,7 @@ export const command: Command = {
 	name: `announcement`,
 	aliases: [`announce`],
 	category: `admin`,
-	description: `Create announcements in specific channels at specific times and Bento will deliver them for you.\nYou can either use "every" e.g. every 2 day and Bento will send out the announcement every 2nd day, or use schedule to specify a specific time and date to make an announcement. \nUse list to see a list of your reminders.`,
+	description: `Create announcements in specific channels at specific times and Bento will deliver them for you.\nYou can either use "every" e.g. every 2 day and Bento will send out the announcement every 2nd day, or use schedule to specify a specific time and date to make an announcement. \nUse list to see a list of your reminders.\nAs long as it doesn't surpass the limit of 2000 characters, images are possible.`,
 	usage: ` is the prefix\n**announcement every <amount of time> <timeframe> <channel> <announcement>** E.g. announcement 1 week 714920591429337109 IT IS FRIDAY\n**announcement schedule <DD-MM-YYYY> <HH:mm> <timezone offset> <channel> <announcement>** E.g. announcement schedule 25-11-2021 08:00 +02:00 714827566992850964 it is Banner's birthday 🥺\n**announcement list** to see a list of your announcements\n**announcement delete <every/schedule> <announcement id>** to delete an announcement\n**announcement edit <every/schedule> <announcement id> <column> <content>** to edit a specific part of an announcement. The bot will inform you about possible columns.`,
 	website: `https://www.bentobot.xyz/commands#announcement`,
 	run: async (client, message, args): Promise<Message | undefined> => {
