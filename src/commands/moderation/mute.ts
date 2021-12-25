@@ -4,6 +4,7 @@ import { Command } from '../../interfaces'
 import database from '../../database/database'
 import { initModels, modLog, muteRole, userCreationAttributes, user as userDB } from '../../database/models/init-models'
 import moment from 'moment'
+import { trim } from '../../utils'
 
 const momentTimeUnitBases = [
 	`year`,
@@ -242,7 +243,7 @@ export const command: Command = {
 						.setDescription(
 							`This user has been muted **${
 								muteCount.count > 1 ? `${muteCount.count} times` : `once`
-							}** on this server\n**Reason**\n${reason ? reason : `Reason not listed`}`,
+							}** on this server\n**Reason**\n${reason ? trim(reason, 4000) : `Reason not listed`}`,
 						)
 						.addField(`Username`, mutedUser?.user.username + `#` + mutedUser?.user.discriminator)
 						.addField(`User ID`, mutedUser?.id)

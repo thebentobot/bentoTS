@@ -5,6 +5,7 @@ import { ban } from '../../database/models/ban'
 import { initModels } from '../../database/models/init-models'
 import { modLog } from '../../database/models/modLog'
 import { Command } from '../../interfaces'
+import { trim } from '../../utils'
 
 export const command: Command = {
 	name: `unban`,
@@ -87,7 +88,9 @@ export const command: Command = {
 						)
 						.setThumbnail(unbannedUser.avatarURL() as string)
 						.setTitle(`${unbannedUser.username}#${unbannedUser.discriminator}) was unbanned!`)
-						.setDescription(`**Reason for unban**\n${reason ? reason : `No reason for the unban specified`}`)
+						.setDescription(
+							`**Reason for unban**\n${reason ? trim(reason, 4096) : `No reason for the unban specified`}`,
+						)
 						.addField(`Username`, unbannedUser.username + `#` + unbannedUser.discriminator)
 						.addField(`User ID`, unbannedUser.id)
 						.addField(

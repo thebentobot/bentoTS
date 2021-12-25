@@ -14,7 +14,7 @@ import {
 	warning,
 } from '../../database/models/init-models'
 import { Command } from '../../interfaces'
-import { capitalize, urlToColours } from '../../utils'
+import { capitalize, trim, urlToColours } from '../../utils'
 
 export const command: Command = {
 	name: `case`,
@@ -931,6 +931,9 @@ export const command: Command = {
 
 				if (caseType === `ban`) {
 					if (column === `note`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const banUpdate = await ban.update(
 							{ note: editedContent },
 							{
@@ -947,7 +950,9 @@ export const command: Command = {
 							embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
 							embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
+							embed.setDescription(
+								`**Original note**\n${trim(testCaseQuery[0].note, 2000)}\n**New note**\n${trim(editedContent, 2000)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -957,7 +962,7 @@ export const command: Command = {
 							embed.addField(`UserID`, testCaseQuery[0].userID)
 							embed.addField(
 								`Reason`,
-								testCaseQuery[0].reason ? testCaseQuery[0].reason : `No reason listed for this case.`,
+								testCaseQuery[0].reason ? trim(testCaseQuery[0].reason, 1024) : `No reason listed for this case.`,
 							)
 							embed.addField(
 								`Date of occurence`,
@@ -993,6 +998,9 @@ export const command: Command = {
 					}
 
 					if (column === `reason`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const banUpdate = await ban.update(
 							{ reason: editedContent },
 							{
@@ -1009,7 +1017,12 @@ export const command: Command = {
 							embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
 							embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
+							embed.setDescription(
+								`**Original reason**\n${trim(testCaseQuery[0].reason, 2000)}\n**New reason**\n${trim(
+									editedContent,
+									2000,
+								)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -1017,7 +1030,10 @@ export const command: Command = {
 									: `${caseUsername}#${caseUserDiscri}`,
 							)
 							embed.addField(`UserID`, testCaseQuery[0].userID)
-							embed.addField(`Note`, testCaseQuery[0].note ? testCaseQuery[0].note : `No notes made for this case.`)
+							embed.addField(
+								`Note`,
+								testCaseQuery[0].note ? trim(testCaseQuery[0].note, 1024) : `No notes made for this case.`,
+							)
 							embed.addField(
 								`Date of occurence`,
 								moment(testCaseQuery[0].date).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),
@@ -1054,6 +1070,9 @@ export const command: Command = {
 
 				if (caseType === `kick`) {
 					if (column === `note`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const kickUpdate = await kick.update(
 							{ note: editedContent },
 							{
@@ -1076,7 +1095,9 @@ export const command: Command = {
 							)
 							embed.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
+							embed.setDescription(
+								`**Original note**\n${trim(testCaseQuery[0].note, 2000)}\n**New note**\n${trim(editedContent, 2000)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -1086,7 +1107,7 @@ export const command: Command = {
 							embed.addField(`UserID`, testCaseQuery[0].userID)
 							embed.addField(
 								`Reason`,
-								testCaseQuery[0].reason ? testCaseQuery[0].reason : `No reason listed for this case.`,
+								testCaseQuery[0].reason ? trim(testCaseQuery[0].reason, 1024) : `No reason listed for this case.`,
 							)
 							embed.addField(
 								`Date of occurence`,
@@ -1122,6 +1143,9 @@ export const command: Command = {
 					}
 
 					if (column === `reason`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const kickUpdate = await kick.update(
 							{ reason: editedContent },
 							{
@@ -1138,7 +1162,12 @@ export const command: Command = {
 							embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
 							embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
+							embed.setDescription(
+								`**Original reason**\n${trim(testCaseQuery[0].reason, 2000)}\n**New reason**\n${trim(
+									editedContent,
+									2000,
+								)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -1146,7 +1175,10 @@ export const command: Command = {
 									: `${caseUsername}#${caseUserDiscri}`,
 							)
 							embed.addField(`UserID`, testCaseQuery[0].userID)
-							embed.addField(`Note`, testCaseQuery[0].note ? testCaseQuery[0].note : `No notes made for this case.`)
+							embed.addField(
+								`Note`,
+								testCaseQuery[0].note ? trim(testCaseQuery[0].note, 1024) : `No notes made for this case.`,
+							)
 							embed.addField(
 								`Date of occurence`,
 								moment(testCaseQuery[0].date).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),
@@ -1183,6 +1215,9 @@ export const command: Command = {
 
 				if (caseType === `mute`) {
 					if (column === `note`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const muteUpdate = await mute.update(
 							{ note: editedContent },
 							{
@@ -1205,7 +1240,9 @@ export const command: Command = {
 							)
 							embed.setColor(`${await urlToColours(message.guild?.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
+							embed.setDescription(
+								`**Original note**\n${trim(testCaseQuery[0].note, 2000)}\n**New note**\n${trim(editedContent, 2000)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -1215,7 +1252,7 @@ export const command: Command = {
 							embed.addField(`UserID`, testCaseQuery[0].userID)
 							embed.addField(
 								`Reason`,
-								testCaseQuery[0].reason ? testCaseQuery[0].reason : `No reason listed for this case.`,
+								testCaseQuery[0].reason ? trim(testCaseQuery[0].reason, 1024) : `No reason listed for this case.`,
 							)
 							embed.addField(
 								`Date of occurence`,
@@ -1259,6 +1296,9 @@ export const command: Command = {
 					}
 
 					if (column === `reason`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const muteUpdate = await mute.update(
 							{ note: editedContent },
 							{
@@ -1275,7 +1315,12 @@ export const command: Command = {
 							embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
 							embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
+							embed.setDescription(
+								`**Original reason**\n${trim(testCaseQuery[0].reason, 2000)}\n**New reason**\n${trim(
+									editedContent,
+									2000,
+								)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -1283,7 +1328,10 @@ export const command: Command = {
 									: `${caseUsername}#${caseUserDiscri}`,
 							)
 							embed.addField(`UserID`, testCaseQuery[0].userID)
-							embed.addField(`Note`, testCaseQuery[0].note ? testCaseQuery[0].note : `No notes made for this case.`)
+							embed.addField(
+								`Note`,
+								testCaseQuery[0].note ? trim(testCaseQuery[0].note, 1024) : `No notes made for this case.`,
+							)
 							embed.addField(
 								`Date of occurence`,
 								moment(testCaseQuery[0].date).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),
@@ -1358,10 +1406,13 @@ export const command: Command = {
 									: `${caseUsername}#${caseUserDiscri}`,
 							)
 							embed.addField(`UserID`, testCaseQuery[0].userID)
-							embed.addField(`Note`, testCaseQuery[0].note ? testCaseQuery[0].note : `No notes made for this case.`)
+							embed.addField(
+								`Note`,
+								testCaseQuery[0].note ? trim(testCaseQuery[0].note, 1024) : `No notes made for this case.`,
+							)
 							embed.addField(
 								`Reason`,
-								testCaseQuery[0].reason ? testCaseQuery[0].reason : `No reason listed for this case.`,
+								testCaseQuery[0].reason ? trim(testCaseQuery[0].reason, 1024) : `No reason listed for this case.`,
 							)
 							embed.addField(
 								`Date of occurence`,
@@ -1403,6 +1454,9 @@ export const command: Command = {
 
 				if (caseType === `warning`) {
 					if (column === `note`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const warningUpdate = await warning.update(
 							{ note: editedContent },
 							{
@@ -1419,7 +1473,9 @@ export const command: Command = {
 							embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
 							embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original note**\n${testCaseQuery[0].note}\n**New note**\n${editedContent}`)
+							embed.setDescription(
+								`**Original note**\n${trim(testCaseQuery[0].note, 2000)}\n**New note**\n${trim(editedContent, 2000)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -1429,7 +1485,7 @@ export const command: Command = {
 							embed.addField(`UserID`, testCaseQuery[0].userID)
 							embed.addField(
 								`Reason`,
-								testCaseQuery[0].reason ? testCaseQuery[0].reason : `No reason listed for this case.`,
+								testCaseQuery[0].reason ? trim(testCaseQuery[0].reason, 1024) : `No reason listed for this case.`,
 							)
 							embed.addField(
 								`Date of occurence`,
@@ -1465,6 +1521,9 @@ export const command: Command = {
 					}
 
 					if (column === `reason`) {
+						if (editedContent.length > 4000) {
+							return message.channel.send(`Your edited content is too long. Maximum is 4000 characters.`)
+						}
 						const warningUpdate = await warning.update(
 							{ note: editedContent },
 							{
@@ -1481,7 +1540,12 @@ export const command: Command = {
 							embed.setAuthor(message.guild.name, message.guild.iconURL({ format: `png`, dynamic: true }) as string)
 							embed.setColor(`${await urlToColours(message.guild.iconURL({ format: `png` }) as string)}`)
 							embed.setTimestamp()
-							embed.setDescription(`**Original reason**\n${testCaseQuery[0].reason}\n**New reason**\n${editedContent}`)
+							embed.setDescription(
+								`**Original reason**\n${trim(testCaseQuery[0].reason, 2000)}\n**New reason**\n${trim(
+									editedContent,
+									2000,
+								)}`,
+							)
 							embed.addField(
 								`Case User`,
 								caseUserNickname
@@ -1489,7 +1553,10 @@ export const command: Command = {
 									: `${caseUsername}#${caseUserDiscri}`,
 							)
 							embed.addField(`UserID`, testCaseQuery[0].userID)
-							embed.addField(`Note`, testCaseQuery[0].note ? testCaseQuery[0].note : `No notes made for this case.`)
+							embed.addField(
+								`Note`,
+								testCaseQuery[0].note ? trim(testCaseQuery[0].note, 1024) : `No notes made for this case.`,
+							)
 							embed.addField(
 								`Date of occurence`,
 								moment(testCaseQuery[0].date).format(`dddd, MMMM Do YYYY, HH:mm:ss A Z`),

@@ -3,6 +3,7 @@ import moment from 'moment'
 import database from '../../database/database'
 import { initModels, modLog, mute, muteRole } from '../../database/models/init-models'
 import { Command } from '../../interfaces'
+import { trim } from '../../utils'
 
 export const command: Command = {
 	name: `unmute`,
@@ -125,7 +126,9 @@ export const command: Command = {
 									: `${unmutedUserObject.username}#${unmutedUserObject.discriminator}`
 							} was unmuted!`,
 						)
-						.setDescription(`**Reason for unmute**\n${reason ? reason : `No reason for the unmute specified`}`)
+						.setDescription(
+							`**Reason for unmute**\n${reason ? trim(reason, 4096) : `No reason for the unmute specified`}`,
+						)
 						.addField(`Username`, unmutedUserObject.username + `#` + unmutedUserObject.discriminator)
 						.addField(`User ID`, unmutedUser?.id)
 						.addField(

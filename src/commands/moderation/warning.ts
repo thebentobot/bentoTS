@@ -3,6 +3,7 @@ import { warning, warningCreationAttributes } from '../../database/models/warnin
 import { Command } from '../../interfaces'
 import { initModels, modLog, user, userCreationAttributes } from '../../database/models/init-models'
 import database from '../../database/database'
+import { trim } from '../../utils'
 
 export const command: Command = {
 	name: `warning`,
@@ -114,7 +115,9 @@ export const command: Command = {
 						} was warned!`,
 					)
 					.setDescription(
-						`**Warning number ${warningCount.count}**\n**Reason**\n${reason ? reason : `Reason not listed`}`,
+						`**Warning number ${warningCount.count}**\n**Reason**\n${
+							reason ? trim(reason, 4096) : `Reason not listed`
+						}`,
 					)
 					.addField(`Username`, warningUser.user.username + `#` + warningUser.user.discriminator)
 					.addField(`User ID`, warningUser.id)

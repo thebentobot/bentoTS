@@ -15,6 +15,7 @@ Want to give feedback or got any questions? Join the support server [here](https
 
 - Gfycat API features such as create, check user feeds etc.
 - LastFM API features
+- Make scheduled and repeating announcements in a specific channel
 - Advanced moderation tools that include a comprehensive case-based logging system.
 - Custom user profiles
 - Create Streamables

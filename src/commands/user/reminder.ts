@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js'
+import { Message, MessageEmbed, Util } from 'discord.js'
 import moment from 'moment'
 import database from '../../database/database'
 import { guild, initModels, reminderCreationAttributes, reminder as remindDB } from '../../database/models/init-models'
@@ -75,7 +75,7 @@ export const command: Command = {
 			console.log(`Error at reminder.ts, server ${message.guild?.id}\n\n${err}`)
 		}
 
-		async function remindTime(message: Message, amountOfTime: string, timeframe: string, reminder: string) {
+		async function remindTime(message: Message, amountOfTime: string, timeframe: string, reminder?: string) {
 			try {
 				if (!amountOfTime) {
 					return message.channel.send(
@@ -95,10 +95,37 @@ export const command: Command = {
 					)
 				}
 
-				if (!reminder) {
-					return message.channel.send(
-						`You haven't specified what I should remind you of.\nIf you need help with reminders, please use \`${guildData?.prefix}help reminder\` to see instructions`,
-					)
+				if (reminder) {
+					if (reminder.length > 2000) {
+						return message.channel.send(`Your reminder is too long. Maximum is 2000 characters.`)
+					}
+				}
+
+				let files: string | undefined
+				let text: string | undefined
+				let reminderContent: string | undefined
+
+				if (message.attachments.array() !== undefined) {
+					const getUrl = message.attachments.array()
+					files = getUrl[0] ? getUrl.join(`, `) : ``
+				}
+
+				if (reminder) {
+					text = reminder
+				}
+
+				if (files && text) {
+					reminderContent = `${Util.escapeMarkdown(text)}\n${files}`
+				} else if (text && !files) {
+					reminderContent = Util.escapeMarkdown(text)
+				} else if (!text && files) {
+					reminderContent = files
+				} else if (!text && !files) {
+					return message.channel.send(`You didn't attach any content for your reminder`)
+				}
+
+				if ((reminderContent?.length as number) > 2000) {
+					return message.channel.send(`Your tag content is too long for me to be able to send it, sorry 😔`)
 				}
 
 				const remindDate = moment(new Date())
@@ -116,7 +143,7 @@ export const command: Command = {
 
 				const reminderAttr: reminderCreationAttributes = {
 					userID: BigInt(message.author.id),
-					reminder: reminder,
+					reminder: reminderContent as string,
 					date: remindDate,
 				}
 
@@ -180,10 +207,37 @@ export const command: Command = {
 					)
 				}
 
-				if (!reminder) {
-					return message.channel.send(
-						`You haven't specified what I should remind you of.\nIf you need help with reminders, please use \`${guildData?.prefix}help reminder\` to see instructions`,
-					)
+				if (reminder) {
+					if (reminder.length > 2000) {
+						return message.channel.send(`Your reminder is too long. Maximum is 2000 characters.`)
+					}
+				}
+
+				let files: string | undefined
+				let text: string | undefined
+				let reminderContent: string | undefined
+
+				if (message.attachments.array() !== undefined) {
+					const getUrl = message.attachments.array()
+					files = getUrl[0] ? getUrl.join(`, `) : ``
+				}
+
+				if (reminder) {
+					text = reminder
+				}
+
+				if (files && text) {
+					reminderContent = `${Util.escapeMarkdown(text)}\n${files}`
+				} else if (text && !files) {
+					reminderContent = Util.escapeMarkdown(text)
+				} else if (!text && files) {
+					reminderContent = files
+				} else if (!text && !files) {
+					return message.channel.send(`You didn't attach any content for your reminder`)
+				}
+
+				if ((reminderContent?.length as number) > 2000) {
+					return message.channel.send(`Your tag content is too long for me to be able to send it, sorry 😔`)
 				}
 
 				const remindDateGathered = `${date} ${time} ${utc}`
@@ -209,7 +263,7 @@ export const command: Command = {
 
 				const reminderAttr: reminderCreationAttributes = {
 					userID: BigInt(message.author.id),
-					reminder: reminder,
+					reminder: reminderContent as string,
 					date: remindDate,
 				}
 
