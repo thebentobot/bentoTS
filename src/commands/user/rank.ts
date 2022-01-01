@@ -10,6 +10,7 @@ import {
 	user as userDB,
 	userCreationAttributes,
 	guildMemberCreationAttributes,
+	bento,
 } from '../../database/models/init-models'
 import { Message, MessageAttachment } from 'discord.js'
 import { QueryTypes } from 'sequelize'
@@ -50,38 +51,6 @@ export const command: Command = {
 					bento?: number
 					userID: string
 				}
-
-				const serverRank: Array<Rankings> = await database.query(
-					`
-            SELECT row_number() over () as rank, t.level, t.xp, t."userID"
-            FROM "guildMember" AS t
-            WHERE t."guildID" = :guild
-            GROUP BY t.level, t.xp, t."userID"
-            ORDER BY t.level DESC, t.xp DESC`,
-					{
-						replacements: { guild: message?.guild?.id },
-						type: QueryTypes.SELECT,
-					},
-				)
-
-				// does this database fetch cost too much?
-				const globalRank: Array<Rankings> = await database.query(
-					`
-            SELECT row_number() over (ORDER BY t.level DESC, t.xp DESC) AS rank, t.level, t.xp, t."userID"
-            FROM "user" AS t
-            GROUP BY t.level, t.xp, t."userID"
-            ORDER BY t.level DESC, t.xp DESC`,
-					{ type: QueryTypes.SELECT },
-				)
-
-				const bentoRank: Array<Rankings> = await database.query(
-					`
-            SELECT row_number() over (ORDER BY t.bento DESC) AS rank, t.bento, t."userID"
-            FROM bento AS t
-            GROUP BY t."userID"
-            ORDER BY t.bento DESC`,
-					{ type: QueryTypes.SELECT },
-				)
 
 				initModels(database)
 				const userData = await guild.sum(`memberCount`)
@@ -202,27 +171,41 @@ export const command: Command = {
 
 				let loadingStatus = false
 
-				const serverRankUser: Rankings[] = []
-				const globalRankUser: Rankings[] = []
-				const bentoRankUser: Rankings[] = []
+				const bentoUsersAmount = await bento.findAndCountAll()
 
-				for (const serverUser of serverRank) {
-					if (serverUser.userID === userID) {
-						serverRankUser.push(serverUser)
-					}
-				}
+				const serverRank: Array<Rankings> = await database.query(
+					`
+            SELECT t.*
+			FROM (SELECT t.*, row_number() OVER (ORDER BY t.level DESC, t.xp DESC) AS rank
+				FROM "guildMember" AS t
+					WHERE "guildID" = :guild
+				) t
+			WHERE "userID" = :user;`,
+					{
+						replacements: { guild: message?.guild?.id, user: userID },
+						type: QueryTypes.SELECT,
+					},
+				)
 
-				for (const globalUser of globalRank) {
-					if (globalUser.userID === userID) {
-						globalRankUser.push(globalUser)
-					}
-				}
+				const globalRank: Array<Rankings> = await database.query(
+					`
+            SELECT t.*
+			FROM (SELECT t.*, row_number() OVER (ORDER BY t.level DESC, t.xp DESC) AS rank
+				FROM "user" AS t
+				) t
+			WHERE "userID" = :user;`,
+					{ replacements: { user: userID }, type: QueryTypes.SELECT },
+				)
 
-				for (const bentoUser of bentoRank) {
-					if (bentoUser.userID === userID) {
-						bentoRankUser.push(bentoUser)
-					}
-				}
+				const bentoRank: Array<Rankings> = await database.query(
+					`
+            SELECT t.*
+			FROM (SELECT t.*, row_number() OVER (ORDER BY bento DESC) AS rank
+				FROM bento AS t
+				) t
+			WHERE "userID" = :user;`,
+					{ replacements: { user: userID }, type: QueryTypes.SELECT },
+				)
 
 				if (username) {
 					const response = await lastfmAPI.get(`/`, {
@@ -315,7 +298,7 @@ export const command: Command = {
 															message?.guild?.iconURL()
 																? `<img src="${message.guild.iconURL()}" width="20" height="20">`
 																: `🏠`
-														} Level ${serverRankUser[0].level}
+														} Level ${serverRank[0].level}
                             </div>
                             <div class="xpBar">
                                 <div class ="xpDoneServer"
@@ -326,9 +309,7 @@ export const command: Command = {
                     <div class="xpDivBG2">
                         <div class="xpDiv">
                             <div class="xpText2">
-                            <img src="${client?.user?.avatarURL()}" width="20" height="20"> Level ${
-					globalRankUser[0].level
-				}
+                            <img src="${client?.user?.avatarURL()}" width="20" height="20"> Level ${globalRank[0].level}
                             </div>
                             <div class="xpBar2">
                                 <div class ="xpDoneGlobal"
@@ -679,8 +660,8 @@ export const command: Command = {
 					? `${discordUser.user.username}#${discordUser.user.discriminator}`
 					: `#${discordUser?.user.discriminator}`
 				const usernameSize = usernameSizeFunction(usernameSlot as string)
-				const xpServer = serverRankUser[0].xp as number
-				const xpGlobal = globalRankUser[0].xp as number
+				const xpServer = serverRank[0].xp as number
+				const xpGlobal = globalRank[0].xp as number
 
 				const replacements = {
 					BACKGROUND_IMAGE: bg,
@@ -696,8 +677,8 @@ export const command: Command = {
 							? userProfileData.description
 							: `I am a happy user of Bento 🍱😄`
 						: `I am a happy user of Bento 🍱😄`,
-					SERVER_LEVEL: serverRankUser[0] ? serverRankUser[0].rank : 0,
-					GLOBAL_LEVEL: globalRankUser[0] ? globalRankUser[0].rank : 0,
+					SERVER_LEVEL: serverRank[0] ? serverRank[0].rank : 0,
+					GLOBAL_LEVEL: globalRank[0] ? globalRank[0].rank : 0,
 					USERNAME_SIZE: usernameSize,
 				}
 
@@ -1212,8 +1193,7 @@ export const command: Command = {
                 justify-content: center;
                 height: 100%;
                 width: ${
-									(xpServer /
-										((((serverRankUser[0].level as number) * (serverRankUser[0].level as number)) as number) * 100)) *
+									(xpServer / ((((serverRank[0].level as number) * (serverRank[0].level as number)) as number) * 100)) *
 									100
 								}%;
             }
@@ -1228,8 +1208,7 @@ export const command: Command = {
                 justify-content: center;
                 height: 100%;
                 width: ${
-									(xpGlobal /
-										((((globalRankUser[0].level as number) * (globalRankUser[0].level as number)) as number) * 100)) *
+									(xpGlobal / ((((globalRank[0].level as number) * (globalRank[0].level as number)) as number) * 100)) *
 									100
 								}%;
             }
@@ -1272,12 +1251,8 @@ export const command: Command = {
 													replacements.GLOBAL_LEVEL
 												}</span><br>Of ${Math.floor(userData / 100) / 10.0 + `k`} Users</li>
                         ${
-													bentoRankUser[0]
-														? `<li class='sidebar-itemBento'><span class="sidebar-valueBento">${
-																bentoRankUser[0].bento
-														  } 🍱</span><br>Rank ${bentoRankUser[0].rank}/${
-																bentoRank[bentoRank.length - 1].rank
-														  } 🍱 Users</li>`
+													bentoRank[0]
+														? `<li class='sidebar-itemBento'><span class="sidebar-valueBento">${bentoRank[0].bento} 🍱</span><br>Rank ${bentoRank[0].rank}/${bentoUsersAmount.count} 🍱 Users</li>`
 														: ``
 												}
                         <li class='sidebar-itemTimezone'><span class="sidebar-valueEmote">${emoteArray
