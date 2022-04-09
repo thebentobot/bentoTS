@@ -53,7 +53,7 @@
 		"express": "^4.17.1",
 		"g-i-s": "^2.1.6",
 		"get-image-colors": "^4.0.0",
-		"moment": "^2.29.1",
+		"moment": "^2.29.2",
 		"moment-timezone": "^0.5.33",
 		"naughty-words": "^1.2.0",
 		"ngrok": "^4.1.0",
