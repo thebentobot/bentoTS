@@ -32,7 +32,10 @@ export const event: Event = {
 	name: `message`,
 	run: async (client, message: Message): Promise<Message | void> => {
 		if (message.author.bot) return
+		if (message.channel.type === 'dm') return
 		if (!message.guild) return
+		const channelObject = message.guild.channels.cache.get(message.channel.id)
+		if (channelObject?.type === 'voice') return
 
 		initModels(database) //imports models into sequelize instance
 
